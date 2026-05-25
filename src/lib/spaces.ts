@@ -44,7 +44,7 @@ export const FACILITY_OPTIONS: { label: string; icon: LucideIcon }[] = [
   { label: "Dagsljus", icon: Sun },
   { label: "Skrivare", icon: Printer },
   { label: "Toalett", icon: Toilet },
-  { label: "Handikapptoalett", icon: Accessibility },
+  { label: "Tillgänglighetsanpassad toalett", icon: Accessibility },
 ];
 
 export const iconForLabel = (label: string): LucideIcon | null => {
