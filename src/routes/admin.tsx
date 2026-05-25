@@ -187,13 +187,23 @@ function AdminPage() {
                       className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                     />
                   </Field>
-                  <Field label="Kategori">
-                    <input
-                      value={form.category}
-                      onChange={(e) => setForm({ ...form, category: e.target.value })}
-                      className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                    />
-                  </Field>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Field label="Kategori">
+                      <input
+                        value={form.category}
+                        onChange={(e) => setForm({ ...form, category: e.target.value })}
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                      />
+                    </Field>
+                    <Field label="Våningsplan">
+                      <input
+                        value={form.floor ?? ""}
+                        onChange={(e) => setForm({ ...form, floor: e.target.value })}
+                        placeholder="t.ex. Plan 3"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                      />
+                    </Field>
+                  </div>
                   <Field label="Beskrivning">
                     <textarea
                       rows={3}
