@@ -54,6 +54,7 @@ export type Database = {
           description: string
           equipment: string[]
           facilities: string[]
+          floor: string | null
           id: string
           image_url: string | null
           intent: string[]
@@ -68,6 +69,7 @@ export type Database = {
           description?: string
           equipment?: string[]
           facilities?: string[]
+          floor?: string | null
           id?: string
           image_url?: string | null
           intent?: string[]
@@ -82,6 +84,7 @@ export type Database = {
           description?: string
           equipment?: string[]
           facilities?: string[]
+          floor?: string | null
           id?: string
           image_url?: string | null
           intent?: string[]
