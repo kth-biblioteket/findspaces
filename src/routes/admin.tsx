@@ -275,13 +275,23 @@ function AdminPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {spaces.map((s) => (
+                  {spaces.map((s, idx) => (
                     <tr key={s.id} className="border-t border-border">
                       <td className="px-4 py-3 font-medium">{s.name}</td>
                       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{s.category}</td>
                       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{s.noise}</td>
                       <td className="px-4 py-3 text-right">
                         <div className="inline-flex gap-1">
+                          <button
+                            onClick={() => moveSpace(idx, -1)}
+                            disabled={idx === 0 || reorderSpaces.isPending}
+                            className="p-2 rounded-md hover:bg-accent disabled:opacity-30 disabled:hover:bg-transparent" title="Flytta upp"
+                          ><ChevronUp className="h-4 w-4" /></button>
+                          <button
+                            onClick={() => moveSpace(idx, 1)}
+                            disabled={idx === spaces.length - 1 || reorderSpaces.isPending}
+                            className="p-2 rounded-md hover:bg-accent disabled:opacity-30 disabled:hover:bg-transparent" title="Flytta ner"
+                          ><ChevronDown className="h-4 w-4" /></button>
                           <button
                             onClick={() => openEdit(s)}
                             className="p-2 rounded-md hover:bg-accent" title="Redigera"
