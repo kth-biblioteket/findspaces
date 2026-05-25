@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Trash2, ArrowLeft, Library, Upload, X, Settings2 } from "lucide-react";
+import { Plus, Pencil, Trash2, ArrowLeft, Library, Upload, X, Settings2, ChevronUp, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { type Space, type FilterOption, type FilterCategory, LUCIDE_ICON_CHOICES, getLucideIcon } from "@/lib/spaces";
 import { useFilterOptions, groupOptions } from "@/lib/useFilterOptions";
