@@ -11,6 +11,7 @@ export type Space = {
   equipment: string[];
   facilities: string[];
   image_url: string | null;
+  sort_order: number;
 };
 
 export type FilterCategory = "intent" | "noise" | "equipment" | "facility";
