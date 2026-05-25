@@ -55,22 +55,39 @@ function AdminPage() {
   });
 
   const reorderSpaces = useMutation({
-    mutationFn: async ({ aId, aOrder, bId, bOrder }: { aId: string; aOrder: number; bId: string; bOrder: number }) => {
-      const { error: e1 } = await supabase.from("spaces").update({ sort_order: bOrder }).eq("id", aId);
-      if (e1) throw e1;
-      const { error: e2 } = await supabase.from("spaces").update({ sort_order: aOrder }).eq("id", bId);
-      if (e2) throw e2;
+    mutationFn: async (ordered: Space[]) => {
+      // Assign sequential sort_order values (10, 20, 30...) and update in parallel
+      await Promise.all(
+        ordered.map((s, i) =>
+          supabase.from("spaces").update({ sort_order: (i + 1) * 10 }).eq("id", s.id)
+        )
+      );
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["spaces"] }),
-    onError: (e: any) => toast.error(e.message),
+    onMutate: async (ordered: Space[]) => {
+      await qc.cancelQueries({ queryKey: ["spaces"] });
+      const previous = qc.getQueryData<Space[]>(["spaces"]);
+      qc.setQueryData<Space[]>(["spaces"], ordered);
+      return { previous };
+    },
+    onError: (e: any, _v, ctx) => {
+      if (ctx?.previous) qc.setQueryData(["spaces"], ctx.previous);
+      toast.error(e.message);
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: ["spaces"] }),
   });
 
-  const moveSpace = (idx: number, dir: -1 | 1) => {
-    const a = spaces[idx]; const b = spaces[idx + dir];
-    if (!a || !b) return;
-    let aOrder = a.sort_order, bOrder = b.sort_order;
-    if (aOrder === bOrder) { aOrder = idx * 10; bOrder = (idx + dir) * 10; }
-    reorderSpaces.mutate({ aId: a.id, aOrder, bId: b.id, bOrder });
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleSpacesDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const oldIdx = spaces.findIndex((s) => s.id === active.id);
+    const newIdx = spaces.findIndex((s) => s.id === over.id);
+    if (oldIdx < 0 || newIdx < 0) return;
+    reorderSpaces.mutate(arrayMove(spaces, oldIdx, newIdx));
   };
 
   const { data: filterOptions = [] } = useFilterOptions();
