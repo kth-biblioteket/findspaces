@@ -377,22 +377,42 @@ function FilterCategoryCard({
   });
 
   const reorder = useMutation({
-    mutationFn: async ({ aId, aOrder, bId, bOrder }: { aId: string; aOrder: number; bId: string; bOrder: number }) => {
-      const { error: e1 } = await supabase.from("filter_options").update({ sort_order: bOrder }).eq("id", aId);
-      if (e1) throw e1;
-      const { error: e2 } = await supabase.from("filter_options").update({ sort_order: aOrder }).eq("id", bId);
-      if (e2) throw e2;
+    mutationFn: async (ordered: FilterOption[]) => {
+      await Promise.all(
+        ordered.map((o, i) =>
+          supabase.from("filter_options").update({ sort_order: (i + 1) * 10 }).eq("id", o.id)
+        )
+      );
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["filter_options"] }),
-    onError: (e: any) => toast.error(e.message),
+    onMutate: async (ordered: FilterOption[]) => {
+      await qc.cancelQueries({ queryKey: ["filter_options"] });
+      const previous = qc.getQueryData<FilterOption[]>(["filter_options"]);
+      // Optimistic: replace items of this category, keep others
+      if (previous) {
+        const others = previous.filter((o) => o.category !== category);
+        qc.setQueryData<FilterOption[]>(["filter_options"], [...others, ...ordered]);
+      }
+      return { previous };
+    },
+    onError: (e: any, _v, ctx) => {
+      if (ctx?.previous) qc.setQueryData(["filter_options"], ctx.previous);
+      toast.error(e.message);
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: ["filter_options"] }),
   });
 
-  const move = (idx: number, dir: -1 | 1) => {
-    const a = items[idx]; const b = items[idx + dir];
-    if (!a || !b) return;
-    let aOrder = a.sort_order, bOrder = b.sort_order;
-    if (aOrder === bOrder) { aOrder = idx * 10; bOrder = (idx + dir) * 10; }
-    reorder.mutate({ aId: a.id, aOrder, bId: b.id, bOrder });
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const oldIdx = items.findIndex((i) => i.id === active.id);
+    const newIdx = items.findIndex((i) => i.id === over.id);
+    if (oldIdx < 0 || newIdx < 0) return;
+    reorder.mutate(arrayMove(items, oldIdx, newIdx));
   };
 
   return (
@@ -407,41 +427,24 @@ function FilterCategoryCard({
         </button>
       </div>
 
-      <ul className="divide-y divide-border">
-        {items.length === 0 && (
-          <li className="py-3 text-sm text-muted-foreground">Inga alternativ ännu.</li>
-        )}
-        {items.map((o, idx) => (
-          <li key={o.id} className="py-2 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <span className="h-7 w-7 rounded-md bg-secondary flex items-center justify-center shrink-0">
-                <OptionIcon option={o} className="h-4 w-4" />
-              </span>
-              <span className="text-sm truncate">{o.label}</span>
-            </div>
-            <div className="inline-flex gap-1">
-              <button
-                onClick={() => move(idx, -1)}
-                disabled={idx === 0 || reorder.isPending}
-                className="p-1.5 rounded-md hover:bg-accent disabled:opacity-30 disabled:hover:bg-transparent" title="Flytta upp"
-              ><ChevronUp className="h-3.5 w-3.5" /></button>
-              <button
-                onClick={() => move(idx, 1)}
-                disabled={idx === items.length - 1 || reorder.isPending}
-                className="p-1.5 rounded-md hover:bg-accent disabled:opacity-30 disabled:hover:bg-transparent" title="Flytta ner"
-              ><ChevronDown className="h-3.5 w-3.5" /></button>
-              <button
-                onClick={() => setEditing(o)}
-                className="p-1.5 rounded-md hover:bg-accent" title="Redigera"
-              ><Pencil className="h-3.5 w-3.5" /></button>
-              <button
-                onClick={() => { if (confirm(`Ta bort "${o.label}"?`)) del.mutate(o.id); }}
-                className="p-1.5 rounded-md hover:bg-destructive/10 text-destructive" title="Ta bort"
-              ><Trash2 className="h-3.5 w-3.5" /></button>
-            </div>
-          </li>
-        ))}
-      </ul>
+      {items.length === 0 ? (
+        <p className="py-3 text-sm text-muted-foreground">Inga alternativ ännu.</p>
+      ) : (
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
+            <ul className="divide-y divide-border">
+              {items.map((o) => (
+                <SortableFilterOptionRow
+                  key={o.id}
+                  option={o}
+                  onEdit={() => setEditing(o)}
+                  onDelete={() => { if (confirm(`Ta bort "${o.label}"?`)) del.mutate(o.id); }}
+                />
+              ))}
+            </ul>
+          </SortableContext>
+        </DndContext>
+      )}
 
       {(editing || creating) && (
         <FilterOptionDialog
