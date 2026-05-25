@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Trash2, ArrowLeft, Library, Upload, X, Settings2, ChevronUp, ChevronDown } from "lucide-react";
+import { Plus, Pencil, Trash2, ArrowLeft, Library, Upload, X, Settings2, GripVertical } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { type Space, type FilterOption, type FilterCategory, LUCIDE_ICON_CHOICES, getLucideIcon } from "@/lib/spaces";
 import { useFilterOptions, groupOptions } from "@/lib/useFilterOptions";
@@ -11,6 +11,15 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import {
+  DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy,
+  useSortable, arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin — KTH Biblioteket" }] }),
@@ -20,7 +29,7 @@ export const Route = createFileRoute("/admin")({
 type FormState = Omit<Space, "id" | "image_url"> & { id?: string; image_url: string | null };
 
 const emptyForm: FormState = {
-  name: "", category: "", description: "",
+  name: "", category: "", description: "", floor: "",
   intent: [], noise: "Tyst", equipment: [], facilities: [], image_url: null, sort_order: 999,
 };
 
