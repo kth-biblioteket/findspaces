@@ -1,7 +1,7 @@
 import {
   VolumeX, Volume1, Volume2,
   Sliders, Monitor, Tv, Edit, Columns, Armchair,
-  Utensils, Sun, Printer, Accessibility,
+  Utensils, Sun, Printer, Toilet, Accessibility,
   type LucideIcon,
 } from "lucide-react";
 
