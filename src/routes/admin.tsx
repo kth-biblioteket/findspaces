@@ -39,11 +39,32 @@ function AdminPage() {
   const { data: spaces = [], isLoading } = useQuery({
     queryKey: ["spaces"],
     queryFn: async (): Promise<Space[]> => {
-      const { data, error } = await supabase.from("spaces").select("*").order("name");
+      const { data, error } = await supabase.from("spaces").select("*").order("sort_order").order("name");
       if (error) throw error;
       return data as Space[];
     },
   });
+
+  const reorderSpaces = useMutation({
+    mutationFn: async ({ a, b }: { a: Space; b: Space }) => {
+      const { error: e1 } = await supabase.from("spaces").update({ sort_order: b.sort_order }).eq("id", a.id);
+      if (e1) throw e1;
+      const { error: e2 } = await supabase.from("spaces").update({ sort_order: a.sort_order }).eq("id", b.id);
+      if (e2) throw e2;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["spaces"] }),
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const moveSpace = (idx: number, dir: -1 | 1) => {
+    const a = spaces[idx]; const b = spaces[idx + dir];
+    if (!a || !b) return;
+    // If both have same sort_order, assign distinct values first
+    if (a.sort_order === b.sort_order) {
+      a.sort_order = idx * 10; b.sort_order = (idx + dir) * 10;
+    }
+    reorderSpaces.mutate({ a, b });
+  };
 
   const { data: filterOptions = [] } = useFilterOptions();
   const groups = groupOptions(filterOptions);
