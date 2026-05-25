@@ -27,7 +27,7 @@ function SpaceFinder() {
     queryKey: ["spaces"],
     queryFn: async (): Promise<Space[]> => {
       const { data, error } = await supabase
-        .from("spaces").select("*").order("name");
+        .from("spaces").select("*").order("sort_order").order("name");
       if (error) throw error;
       return data as Space[];
     },
