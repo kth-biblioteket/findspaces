@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Trash2, ArrowLeft, Library, Upload, X, Settings2 } from "lucide-react";
+import { Plus, Pencil, Trash2, ArrowLeft, Library, Upload, X, Settings2, ChevronUp, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { type Space, type FilterOption, type FilterCategory, LUCIDE_ICON_CHOICES, getLucideIcon } from "@/lib/spaces";
 import { useFilterOptions, groupOptions } from "@/lib/useFilterOptions";
@@ -21,7 +21,7 @@ type FormState = Omit<Space, "id" | "image_url"> & { id?: string; image_url: str
 
 const emptyForm: FormState = {
   name: "", category: "", description: "",
-  intent: [], noise: "Tyst", equipment: [], facilities: [], image_url: null,
+  intent: [], noise: "Tyst", equipment: [], facilities: [], image_url: null, sort_order: 999,
 };
 
 const CATEGORY_LABELS: Record<FilterCategory, string> = {
@@ -39,11 +39,30 @@ function AdminPage() {
   const { data: spaces = [], isLoading } = useQuery({
     queryKey: ["spaces"],
     queryFn: async (): Promise<Space[]> => {
-      const { data, error } = await supabase.from("spaces").select("*").order("name");
+      const { data, error } = await supabase.from("spaces").select("*").order("sort_order").order("name");
       if (error) throw error;
       return data as Space[];
     },
   });
+
+  const reorderSpaces = useMutation({
+    mutationFn: async ({ aId, aOrder, bId, bOrder }: { aId: string; aOrder: number; bId: string; bOrder: number }) => {
+      const { error: e1 } = await supabase.from("spaces").update({ sort_order: bOrder }).eq("id", aId);
+      if (e1) throw e1;
+      const { error: e2 } = await supabase.from("spaces").update({ sort_order: aOrder }).eq("id", bId);
+      if (e2) throw e2;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["spaces"] }),
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const moveSpace = (idx: number, dir: -1 | 1) => {
+    const a = spaces[idx]; const b = spaces[idx + dir];
+    if (!a || !b) return;
+    let aOrder = a.sort_order, bOrder = b.sort_order;
+    if (aOrder === bOrder) { aOrder = idx * 10; bOrder = (idx + dir) * 10; }
+    reorderSpaces.mutate({ aId: a.id, aOrder, bId: b.id, bOrder });
+  };
 
   const { data: filterOptions = [] } = useFilterOptions();
   const groups = groupOptions(filterOptions);
@@ -254,13 +273,23 @@ function AdminPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {spaces.map((s) => (
+                  {spaces.map((s, idx) => (
                     <tr key={s.id} className="border-t border-border">
                       <td className="px-4 py-3 font-medium">{s.name}</td>
                       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{s.category}</td>
                       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{s.noise}</td>
                       <td className="px-4 py-3 text-right">
                         <div className="inline-flex gap-1">
+                          <button
+                            onClick={() => moveSpace(idx, -1)}
+                            disabled={idx === 0 || reorderSpaces.isPending}
+                            className="p-2 rounded-md hover:bg-accent disabled:opacity-30 disabled:hover:bg-transparent" title="Flytta upp"
+                          ><ChevronUp className="h-4 w-4" /></button>
+                          <button
+                            onClick={() => moveSpace(idx, 1)}
+                            disabled={idx === spaces.length - 1 || reorderSpaces.isPending}
+                            className="p-2 rounded-md hover:bg-accent disabled:opacity-30 disabled:hover:bg-transparent" title="Flytta ner"
+                          ><ChevronDown className="h-4 w-4" /></button>
                           <button
                             onClick={() => openEdit(s)}
                             className="p-2 rounded-md hover:bg-accent" title="Redigera"
@@ -327,6 +356,25 @@ function FilterCategoryCard({
     onError: (e: any) => toast.error(e.message),
   });
 
+  const reorder = useMutation({
+    mutationFn: async ({ aId, aOrder, bId, bOrder }: { aId: string; aOrder: number; bId: string; bOrder: number }) => {
+      const { error: e1 } = await supabase.from("filter_options").update({ sort_order: bOrder }).eq("id", aId);
+      if (e1) throw e1;
+      const { error: e2 } = await supabase.from("filter_options").update({ sort_order: aOrder }).eq("id", bId);
+      if (e2) throw e2;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["filter_options"] }),
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const move = (idx: number, dir: -1 | 1) => {
+    const a = items[idx]; const b = items[idx + dir];
+    if (!a || !b) return;
+    let aOrder = a.sort_order, bOrder = b.sort_order;
+    if (aOrder === bOrder) { aOrder = idx * 10; bOrder = (idx + dir) * 10; }
+    reorder.mutate({ aId: a.id, aOrder, bId: b.id, bOrder });
+  };
+
   return (
     <div className="bg-card rounded-2xl border border-border p-4">
       <div className="flex items-center justify-between mb-3">
@@ -343,7 +391,7 @@ function FilterCategoryCard({
         {items.length === 0 && (
           <li className="py-3 text-sm text-muted-foreground">Inga alternativ ännu.</li>
         )}
-        {items.map((o) => (
+        {items.map((o, idx) => (
           <li key={o.id} className="py-2 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
               <span className="h-7 w-7 rounded-md bg-secondary flex items-center justify-center shrink-0">
@@ -352,6 +400,16 @@ function FilterCategoryCard({
               <span className="text-sm truncate">{o.label}</span>
             </div>
             <div className="inline-flex gap-1">
+              <button
+                onClick={() => move(idx, -1)}
+                disabled={idx === 0 || reorder.isPending}
+                className="p-1.5 rounded-md hover:bg-accent disabled:opacity-30 disabled:hover:bg-transparent" title="Flytta upp"
+              ><ChevronUp className="h-3.5 w-3.5" /></button>
+              <button
+                onClick={() => move(idx, 1)}
+                disabled={idx === items.length - 1 || reorder.isPending}
+                className="p-1.5 rounded-md hover:bg-accent disabled:opacity-30 disabled:hover:bg-transparent" title="Flytta ner"
+              ><ChevronDown className="h-3.5 w-3.5" /></button>
               <button
                 onClick={() => setEditing(o)}
                 className="p-1.5 rounded-md hover:bg-accent" title="Redigera"
