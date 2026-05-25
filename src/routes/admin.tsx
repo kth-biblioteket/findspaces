@@ -97,6 +97,7 @@ function AdminPage() {
     mutationFn: async (f: FormState) => {
       const payload = {
         name: f.name, category: f.category, description: f.description,
+        floor: f.floor?.trim() ? f.floor.trim() : null,
         intent: f.intent, noise: f.noise, equipment: f.equipment,
         facilities: f.facilities, image_url: f.image_url,
       };
