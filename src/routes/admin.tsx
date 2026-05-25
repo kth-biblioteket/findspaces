@@ -356,6 +356,25 @@ function FilterCategoryCard({
     onError: (e: any) => toast.error(e.message),
   });
 
+  const reorder = useMutation({
+    mutationFn: async ({ aId, aOrder, bId, bOrder }: { aId: string; aOrder: number; bId: string; bOrder: number }) => {
+      const { error: e1 } = await supabase.from("filter_options").update({ sort_order: bOrder }).eq("id", aId);
+      if (e1) throw e1;
+      const { error: e2 } = await supabase.from("filter_options").update({ sort_order: aOrder }).eq("id", bId);
+      if (e2) throw e2;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["filter_options"] }),
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const move = (idx: number, dir: -1 | 1) => {
+    const a = items[idx]; const b = items[idx + dir];
+    if (!a || !b) return;
+    let aOrder = a.sort_order, bOrder = b.sort_order;
+    if (aOrder === bOrder) { aOrder = idx * 10; bOrder = (idx + dir) * 10; }
+    reorder.mutate({ aId: a.id, aOrder, bId: b.id, bOrder });
+  };
+
   return (
     <div className="bg-card rounded-2xl border border-border p-4">
       <div className="flex items-center justify-between mb-3">
@@ -372,7 +391,7 @@ function FilterCategoryCard({
         {items.length === 0 && (
           <li className="py-3 text-sm text-muted-foreground">Inga alternativ ännu.</li>
         )}
-        {items.map((o) => (
+        {items.map((o, idx) => (
           <li key={o.id} className="py-2 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
               <span className="h-7 w-7 rounded-md bg-secondary flex items-center justify-center shrink-0">
@@ -381,6 +400,16 @@ function FilterCategoryCard({
               <span className="text-sm truncate">{o.label}</span>
             </div>
             <div className="inline-flex gap-1">
+              <button
+                onClick={() => move(idx, -1)}
+                disabled={idx === 0 || reorder.isPending}
+                className="p-1.5 rounded-md hover:bg-accent disabled:opacity-30 disabled:hover:bg-transparent" title="Flytta upp"
+              ><ChevronUp className="h-3.5 w-3.5" /></button>
+              <button
+                onClick={() => move(idx, 1)}
+                disabled={idx === items.length - 1 || reorder.isPending}
+                className="p-1.5 rounded-md hover:bg-accent disabled:opacity-30 disabled:hover:bg-transparent" title="Flytta ner"
+              ><ChevronDown className="h-3.5 w-3.5" /></button>
               <button
                 onClick={() => setEditing(o)}
                 className="p-1.5 rounded-md hover:bg-accent" title="Redigera"
