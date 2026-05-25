@@ -290,49 +290,32 @@ function AdminPage() {
             {isLoading ? (
               <div className="p-8 text-center text-muted-foreground">Laddar...</div>
             ) : (
-              <table className="w-full text-sm">
-                <thead className="bg-secondary/50">
-                  <tr className="text-left">
-                    <th className="px-4 py-3 font-semibold">Namn</th>
-                    <th className="px-4 py-3 font-semibold hidden md:table-cell">Kategori</th>
-                    <th className="px-4 py-3 font-semibold hidden md:table-cell">Ljudnivå</th>
-                    <th className="px-4 py-3 font-semibold text-right">Åtgärder</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {spaces.map((s, idx) => (
-                    <tr key={s.id} className="border-t border-border">
-                      <td className="px-4 py-3 font-medium">{s.name}</td>
-                      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{s.category}</td>
-                      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{s.noise}</td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="inline-flex gap-1">
-                          <button
-                            onClick={() => moveSpace(idx, -1)}
-                            disabled={idx === 0 || reorderSpaces.isPending}
-                            className="p-2 rounded-md hover:bg-accent disabled:opacity-30 disabled:hover:bg-transparent" title="Flytta upp"
-                          ><ChevronUp className="h-4 w-4" /></button>
-                          <button
-                            onClick={() => moveSpace(idx, 1)}
-                            disabled={idx === spaces.length - 1 || reorderSpaces.isPending}
-                            className="p-2 rounded-md hover:bg-accent disabled:opacity-30 disabled:hover:bg-transparent" title="Flytta ner"
-                          ><ChevronDown className="h-4 w-4" /></button>
-                          <button
-                            onClick={() => openEdit(s)}
-                            className="p-2 rounded-md hover:bg-accent" title="Redigera"
-                          ><Pencil className="h-4 w-4" /></button>
-                          <button
-                            onClick={() => {
-                              if (confirm(`Ta bort "${s.name}"?`)) del.mutate(s.id);
-                            }}
-                            className="p-2 rounded-md hover:bg-destructive/10 text-destructive" title="Ta bort"
-                          ><Trash2 className="h-4 w-4" /></button>
-                        </div>
-                      </td>
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSpacesDragEnd}>
+                <table className="w-full text-sm">
+                  <thead className="bg-secondary/50">
+                    <tr className="text-left">
+                      <th className="px-2 py-3 w-8"></th>
+                      <th className="px-4 py-3 font-semibold">Namn</th>
+                      <th className="px-4 py-3 font-semibold hidden md:table-cell">Våning</th>
+                      <th className="px-4 py-3 font-semibold hidden md:table-cell">Kategori</th>
+                      <th className="px-4 py-3 font-semibold hidden md:table-cell">Ljudnivå</th>
+                      <th className="px-4 py-3 font-semibold text-right">Åtgärder</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <SortableContext items={spaces.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+                    <tbody>
+                      {spaces.map((s) => (
+                        <SortableSpaceRow
+                          key={s.id}
+                          space={s}
+                          onEdit={() => openEdit(s)}
+                          onDelete={() => { if (confirm(`Ta bort "${s.name}"?`)) del.mutate(s.id); }}
+                        />
+                      ))}
+                    </tbody>
+                  </SortableContext>
+                </table>
+              </DndContext>
             )}
           </div>
         </section>
