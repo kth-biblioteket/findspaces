@@ -21,7 +21,7 @@ type FormState = Omit<Space, "id" | "image_url"> & { id?: string; image_url: str
 
 const emptyForm: FormState = {
   name: "", category: "", description: "",
-  intent: [], noise: "Tyst", equipment: [], facilities: [], image_url: null,
+  intent: [], noise: "Tyst", equipment: [], facilities: [], image_url: null, sort_order: 999,
 };
 
 const CATEGORY_LABELS: Record<FilterCategory, string> = {
