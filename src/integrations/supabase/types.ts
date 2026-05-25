@@ -59,6 +59,7 @@ export type Database = {
           intent: string[]
           name: string
           noise: string
+          sort_order: number
           updated_at: string
         }
         Insert: {
@@ -72,6 +73,7 @@ export type Database = {
           intent?: string[]
           name: string
           noise?: string
+          sort_order?: number
           updated_at?: string
         }
         Update: {
@@ -85,6 +87,7 @@ export type Database = {
           intent?: string[]
           name?: string
           noise?: string
+          sort_order?: number
           updated_at?: string
         }
         Relationships: []
