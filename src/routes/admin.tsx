@@ -46,10 +46,10 @@ function AdminPage() {
   });
 
   const reorderSpaces = useMutation({
-    mutationFn: async ({ a, b }: { a: Space; b: Space }) => {
-      const { error: e1 } = await supabase.from("spaces").update({ sort_order: b.sort_order }).eq("id", a.id);
+    mutationFn: async ({ aId, aOrder, bId, bOrder }: { aId: string; aOrder: number; bId: string; bOrder: number }) => {
+      const { error: e1 } = await supabase.from("spaces").update({ sort_order: bOrder }).eq("id", aId);
       if (e1) throw e1;
-      const { error: e2 } = await supabase.from("spaces").update({ sort_order: a.sort_order }).eq("id", b.id);
+      const { error: e2 } = await supabase.from("spaces").update({ sort_order: aOrder }).eq("id", bId);
       if (e2) throw e2;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["spaces"] }),
@@ -59,11 +59,9 @@ function AdminPage() {
   const moveSpace = (idx: number, dir: -1 | 1) => {
     const a = spaces[idx]; const b = spaces[idx + dir];
     if (!a || !b) return;
-    // If both have same sort_order, assign distinct values first
-    if (a.sort_order === b.sort_order) {
-      a.sort_order = idx * 10; b.sort_order = (idx + dir) * 10;
-    }
-    reorderSpaces.mutate({ a, b });
+    let aOrder = a.sort_order, bOrder = b.sort_order;
+    if (aOrder === bOrder) { aOrder = idx * 10; bOrder = (idx + dir) * 10; }
+    reorderSpaces.mutate({ aId: a.id, aOrder, bId: b.id, bOrder });
   };
 
   const { data: filterOptions = [] } = useFilterOptions();
