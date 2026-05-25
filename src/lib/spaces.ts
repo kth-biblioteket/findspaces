@@ -12,6 +12,7 @@ export type Space = {
   facilities: string[];
   image_url: string | null;
   sort_order: number;
+  floor: string | null;
 };
 
 export type FilterCategory = "intent" | "noise" | "equipment" | "facility";

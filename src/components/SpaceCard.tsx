@@ -25,6 +25,11 @@ export function SpaceCard({ space }: { space: Space }) {
         <div className="flex-1 min-w-0 flex flex-col">
           <div className="flex items-start gap-3 flex-wrap">
             <h3 className="text-lg font-semibold leading-tight">{space.name}</h3>
+            {space.floor && (
+              <span className="inline-flex items-center rounded-full bg-[var(--kth-navy)]/10 text-[var(--kth-navy)] text-xs font-semibold px-2.5 py-1">
+                {space.floor}
+              </span>
+            )}
             <span className="inline-flex items-center rounded-full bg-secondary text-foreground text-xs font-medium px-2.5 py-1">
               {space.category}
             </span>

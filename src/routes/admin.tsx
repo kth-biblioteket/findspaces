@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Trash2, ArrowLeft, Library, Upload, X, Settings2, ChevronUp, ChevronDown } from "lucide-react";
+import { Plus, Pencil, Trash2, ArrowLeft, Library, Upload, X, Settings2, GripVertical } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { type Space, type FilterOption, type FilterCategory, LUCIDE_ICON_CHOICES, getLucideIcon } from "@/lib/spaces";
 import { useFilterOptions, groupOptions } from "@/lib/useFilterOptions";
@@ -11,6 +11,15 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import {
+  DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy,
+  useSortable, arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin — KTH Biblioteket" }] }),
@@ -20,7 +29,7 @@ export const Route = createFileRoute("/admin")({
 type FormState = Omit<Space, "id" | "image_url"> & { id?: string; image_url: string | null };
 
 const emptyForm: FormState = {
-  name: "", category: "", description: "",
+  name: "", category: "", description: "", floor: "",
   intent: [], noise: "Tyst", equipment: [], facilities: [], image_url: null, sort_order: 999,
 };
 
@@ -46,22 +55,39 @@ function AdminPage() {
   });
 
   const reorderSpaces = useMutation({
-    mutationFn: async ({ aId, aOrder, bId, bOrder }: { aId: string; aOrder: number; bId: string; bOrder: number }) => {
-      const { error: e1 } = await supabase.from("spaces").update({ sort_order: bOrder }).eq("id", aId);
-      if (e1) throw e1;
-      const { error: e2 } = await supabase.from("spaces").update({ sort_order: aOrder }).eq("id", bId);
-      if (e2) throw e2;
+    mutationFn: async (ordered: Space[]) => {
+      // Assign sequential sort_order values (10, 20, 30...) and update in parallel
+      await Promise.all(
+        ordered.map((s, i) =>
+          supabase.from("spaces").update({ sort_order: (i + 1) * 10 }).eq("id", s.id)
+        )
+      );
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["spaces"] }),
-    onError: (e: any) => toast.error(e.message),
+    onMutate: async (ordered: Space[]) => {
+      await qc.cancelQueries({ queryKey: ["spaces"] });
+      const previous = qc.getQueryData<Space[]>(["spaces"]);
+      qc.setQueryData<Space[]>(["spaces"], ordered);
+      return { previous };
+    },
+    onError: (e: any, _v, ctx) => {
+      if (ctx?.previous) qc.setQueryData(["spaces"], ctx.previous);
+      toast.error(e.message);
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: ["spaces"] }),
   });
 
-  const moveSpace = (idx: number, dir: -1 | 1) => {
-    const a = spaces[idx]; const b = spaces[idx + dir];
-    if (!a || !b) return;
-    let aOrder = a.sort_order, bOrder = b.sort_order;
-    if (aOrder === bOrder) { aOrder = idx * 10; bOrder = (idx + dir) * 10; }
-    reorderSpaces.mutate({ aId: a.id, aOrder, bId: b.id, bOrder });
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleSpacesDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const oldIdx = spaces.findIndex((s) => s.id === active.id);
+    const newIdx = spaces.findIndex((s) => s.id === over.id);
+    if (oldIdx < 0 || newIdx < 0) return;
+    reorderSpaces.mutate(arrayMove(spaces, oldIdx, newIdx));
   };
 
   const { data: filterOptions = [] } = useFilterOptions();
@@ -71,6 +97,7 @@ function AdminPage() {
     mutationFn: async (f: FormState) => {
       const payload = {
         name: f.name, category: f.category, description: f.description,
+        floor: f.floor?.trim() ? f.floor.trim() : null,
         intent: f.intent, noise: f.noise, equipment: f.equipment,
         facilities: f.facilities, image_url: f.image_url,
       };
@@ -160,13 +187,23 @@ function AdminPage() {
                       className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                     />
                   </Field>
-                  <Field label="Kategori">
-                    <input
-                      value={form.category}
-                      onChange={(e) => setForm({ ...form, category: e.target.value })}
-                      className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                    />
-                  </Field>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Field label="Kategori">
+                      <input
+                        value={form.category}
+                        onChange={(e) => setForm({ ...form, category: e.target.value })}
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                      />
+                    </Field>
+                    <Field label="Våningsplan">
+                      <input
+                        value={form.floor ?? ""}
+                        onChange={(e) => setForm({ ...form, floor: e.target.value })}
+                        placeholder="t.ex. Plan 3"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                      />
+                    </Field>
+                  </div>
                   <Field label="Beskrivning">
                     <textarea
                       rows={3}
@@ -263,49 +300,32 @@ function AdminPage() {
             {isLoading ? (
               <div className="p-8 text-center text-muted-foreground">Laddar...</div>
             ) : (
-              <table className="w-full text-sm">
-                <thead className="bg-secondary/50">
-                  <tr className="text-left">
-                    <th className="px-4 py-3 font-semibold">Namn</th>
-                    <th className="px-4 py-3 font-semibold hidden md:table-cell">Kategori</th>
-                    <th className="px-4 py-3 font-semibold hidden md:table-cell">Ljudnivå</th>
-                    <th className="px-4 py-3 font-semibold text-right">Åtgärder</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {spaces.map((s, idx) => (
-                    <tr key={s.id} className="border-t border-border">
-                      <td className="px-4 py-3 font-medium">{s.name}</td>
-                      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{s.category}</td>
-                      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{s.noise}</td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="inline-flex gap-1">
-                          <button
-                            onClick={() => moveSpace(idx, -1)}
-                            disabled={idx === 0 || reorderSpaces.isPending}
-                            className="p-2 rounded-md hover:bg-accent disabled:opacity-30 disabled:hover:bg-transparent" title="Flytta upp"
-                          ><ChevronUp className="h-4 w-4" /></button>
-                          <button
-                            onClick={() => moveSpace(idx, 1)}
-                            disabled={idx === spaces.length - 1 || reorderSpaces.isPending}
-                            className="p-2 rounded-md hover:bg-accent disabled:opacity-30 disabled:hover:bg-transparent" title="Flytta ner"
-                          ><ChevronDown className="h-4 w-4" /></button>
-                          <button
-                            onClick={() => openEdit(s)}
-                            className="p-2 rounded-md hover:bg-accent" title="Redigera"
-                          ><Pencil className="h-4 w-4" /></button>
-                          <button
-                            onClick={() => {
-                              if (confirm(`Ta bort "${s.name}"?`)) del.mutate(s.id);
-                            }}
-                            className="p-2 rounded-md hover:bg-destructive/10 text-destructive" title="Ta bort"
-                          ><Trash2 className="h-4 w-4" /></button>
-                        </div>
-                      </td>
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSpacesDragEnd}>
+                <table className="w-full text-sm">
+                  <thead className="bg-secondary/50">
+                    <tr className="text-left">
+                      <th className="px-2 py-3 w-8"></th>
+                      <th className="px-4 py-3 font-semibold">Namn</th>
+                      <th className="px-4 py-3 font-semibold hidden md:table-cell">Våning</th>
+                      <th className="px-4 py-3 font-semibold hidden md:table-cell">Kategori</th>
+                      <th className="px-4 py-3 font-semibold hidden md:table-cell">Ljudnivå</th>
+                      <th className="px-4 py-3 font-semibold text-right">Åtgärder</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <SortableContext items={spaces.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+                    <tbody>
+                      {spaces.map((s) => (
+                        <SortableSpaceRow
+                          key={s.id}
+                          space={s}
+                          onEdit={() => openEdit(s)}
+                          onDelete={() => { if (confirm(`Ta bort "${s.name}"?`)) del.mutate(s.id); }}
+                        />
+                      ))}
+                    </tbody>
+                  </SortableContext>
+                </table>
+              </DndContext>
             )}
           </div>
         </section>
@@ -357,22 +377,42 @@ function FilterCategoryCard({
   });
 
   const reorder = useMutation({
-    mutationFn: async ({ aId, aOrder, bId, bOrder }: { aId: string; aOrder: number; bId: string; bOrder: number }) => {
-      const { error: e1 } = await supabase.from("filter_options").update({ sort_order: bOrder }).eq("id", aId);
-      if (e1) throw e1;
-      const { error: e2 } = await supabase.from("filter_options").update({ sort_order: aOrder }).eq("id", bId);
-      if (e2) throw e2;
+    mutationFn: async (ordered: FilterOption[]) => {
+      await Promise.all(
+        ordered.map((o, i) =>
+          supabase.from("filter_options").update({ sort_order: (i + 1) * 10 }).eq("id", o.id)
+        )
+      );
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["filter_options"] }),
-    onError: (e: any) => toast.error(e.message),
+    onMutate: async (ordered: FilterOption[]) => {
+      await qc.cancelQueries({ queryKey: ["filter_options"] });
+      const previous = qc.getQueryData<FilterOption[]>(["filter_options"]);
+      // Optimistic: replace items of this category, keep others
+      if (previous) {
+        const others = previous.filter((o) => o.category !== category);
+        qc.setQueryData<FilterOption[]>(["filter_options"], [...others, ...ordered]);
+      }
+      return { previous };
+    },
+    onError: (e: any, _v, ctx) => {
+      if (ctx?.previous) qc.setQueryData(["filter_options"], ctx.previous);
+      toast.error(e.message);
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: ["filter_options"] }),
   });
 
-  const move = (idx: number, dir: -1 | 1) => {
-    const a = items[idx]; const b = items[idx + dir];
-    if (!a || !b) return;
-    let aOrder = a.sort_order, bOrder = b.sort_order;
-    if (aOrder === bOrder) { aOrder = idx * 10; bOrder = (idx + dir) * 10; }
-    reorder.mutate({ aId: a.id, aOrder, bId: b.id, bOrder });
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const oldIdx = items.findIndex((i) => i.id === active.id);
+    const newIdx = items.findIndex((i) => i.id === over.id);
+    if (oldIdx < 0 || newIdx < 0) return;
+    reorder.mutate(arrayMove(items, oldIdx, newIdx));
   };
 
   return (
@@ -387,41 +427,24 @@ function FilterCategoryCard({
         </button>
       </div>
 
-      <ul className="divide-y divide-border">
-        {items.length === 0 && (
-          <li className="py-3 text-sm text-muted-foreground">Inga alternativ ännu.</li>
-        )}
-        {items.map((o, idx) => (
-          <li key={o.id} className="py-2 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <span className="h-7 w-7 rounded-md bg-secondary flex items-center justify-center shrink-0">
-                <OptionIcon option={o} className="h-4 w-4" />
-              </span>
-              <span className="text-sm truncate">{o.label}</span>
-            </div>
-            <div className="inline-flex gap-1">
-              <button
-                onClick={() => move(idx, -1)}
-                disabled={idx === 0 || reorder.isPending}
-                className="p-1.5 rounded-md hover:bg-accent disabled:opacity-30 disabled:hover:bg-transparent" title="Flytta upp"
-              ><ChevronUp className="h-3.5 w-3.5" /></button>
-              <button
-                onClick={() => move(idx, 1)}
-                disabled={idx === items.length - 1 || reorder.isPending}
-                className="p-1.5 rounded-md hover:bg-accent disabled:opacity-30 disabled:hover:bg-transparent" title="Flytta ner"
-              ><ChevronDown className="h-3.5 w-3.5" /></button>
-              <button
-                onClick={() => setEditing(o)}
-                className="p-1.5 rounded-md hover:bg-accent" title="Redigera"
-              ><Pencil className="h-3.5 w-3.5" /></button>
-              <button
-                onClick={() => { if (confirm(`Ta bort "${o.label}"?`)) del.mutate(o.id); }}
-                className="p-1.5 rounded-md hover:bg-destructive/10 text-destructive" title="Ta bort"
-              ><Trash2 className="h-3.5 w-3.5" /></button>
-            </div>
-          </li>
-        ))}
-      </ul>
+      {items.length === 0 ? (
+        <p className="py-3 text-sm text-muted-foreground">Inga alternativ ännu.</p>
+      ) : (
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
+            <ul className="divide-y divide-border">
+              {items.map((o) => (
+                <SortableFilterOptionRow
+                  key={o.id}
+                  option={o}
+                  onEdit={() => setEditing(o)}
+                  onDelete={() => { if (confirm(`Ta bort "${o.label}"?`)) del.mutate(o.id); }}
+                />
+              ))}
+            </ul>
+          </SortableContext>
+        </DndContext>
+      )}
 
       {(editing || creating) && (
         <FilterOptionDialog
@@ -595,5 +618,77 @@ function CheckboxGroup({
         ))}
       </div>
     </Field>
+  );
+}
+
+function SortableSpaceRow({
+  space, onEdit, onDelete,
+}: { space: Space; onEdit: () => void; onDelete: () => void }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: space.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+  return (
+    <tr ref={setNodeRef} style={style} className="border-t border-border bg-card">
+      <td className="px-2 py-3 text-muted-foreground">
+        <button
+          {...attributes} {...listeners}
+          className="p-1 rounded hover:bg-accent cursor-grab active:cursor-grabbing touch-none"
+          title="Dra för att flytta"
+          aria-label="Dra för att flytta"
+        ><GripVertical className="h-4 w-4" /></button>
+      </td>
+      <td className="px-4 py-3 font-medium">{space.name}</td>
+      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.floor ?? "—"}</td>
+      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.category}</td>
+      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.noise}</td>
+      <td className="px-4 py-3 text-right">
+        <div className="inline-flex gap-1">
+          <button onClick={onEdit} className="p-2 rounded-md hover:bg-accent" title="Redigera">
+            <Pencil className="h-4 w-4" />
+          </button>
+          <button onClick={onDelete} className="p-2 rounded-md hover:bg-destructive/10 text-destructive" title="Ta bort">
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
+function SortableFilterOptionRow({
+  option, onEdit, onDelete,
+}: { option: FilterOption; onEdit: () => void; onDelete: () => void }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: option.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+  return (
+    <li ref={setNodeRef} style={style} className="py-2 flex items-center justify-between gap-3 bg-card">
+      <div className="flex items-center gap-2 min-w-0">
+        <button
+          {...attributes} {...listeners}
+          className="p-1 text-muted-foreground rounded hover:bg-accent cursor-grab active:cursor-grabbing touch-none"
+          title="Dra för att flytta"
+          aria-label="Dra för att flytta"
+        ><GripVertical className="h-4 w-4" /></button>
+        <span className="h-7 w-7 rounded-md bg-secondary flex items-center justify-center shrink-0">
+          <OptionIcon option={option} className="h-4 w-4" />
+        </span>
+        <span className="text-sm truncate">{option.label}</span>
+      </div>
+      <div className="inline-flex gap-1">
+        <button onClick={onEdit} className="p-1.5 rounded-md hover:bg-accent" title="Redigera">
+          <Pencil className="h-3.5 w-3.5" />
+        </button>
+        <button onClick={onDelete} className="p-1.5 rounded-md hover:bg-destructive/10 text-destructive" title="Ta bort">
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
+      </div>
+    </li>
   );
 }
