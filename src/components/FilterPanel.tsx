@@ -1,8 +1,8 @@
 import { Search } from "lucide-react";
 import { PillToggle } from "./PillToggle";
-import {
-  INTENT_OPTIONS, NOISE_OPTIONS, EQUIPMENT_OPTIONS, FACILITY_OPTIONS,
-} from "@/lib/spaces";
+import { OptionIcon } from "./OptionIcon";
+import { useFilterOptions, groupOptions } from "@/lib/useFilterOptions";
+import type { FilterOption } from "@/lib/spaces";
 import { cn } from "@/lib/utils";
 
 export type Filters = {
@@ -24,6 +24,9 @@ function toggle(arr: string[], v: string) {
 export function FilterPanel({
   filters, onChange,
 }: { filters: Filters; onChange: (f: Filters) => void }) {
+  const { data: options = [] } = useFilterOptions();
+  const groups = groupOptions(options);
+
   return (
     <div className="space-y-7">
       <div>
@@ -41,21 +44,22 @@ export function FilterPanel({
       <div>
         <h3 className="text-sm font-semibold mb-3">Jag vill arbeta</h3>
         <ul className="space-y-1">
-          {INTENT_OPTIONS.map((opt) => {
-            const selected = filters.intent.includes(opt);
+          {groups.intent.map((opt) => {
+            const selected = filters.intent.includes(opt.label);
             return (
-              <li key={opt}>
+              <li key={opt.id}>
                 <button
                   type="button"
-                  onClick={() => onChange({ ...filters, intent: toggle(filters.intent, opt) })}
+                  onClick={() => onChange({ ...filters, intent: toggle(filters.intent, opt.label) })}
                   className={cn(
-                    "w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                    "w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors inline-flex items-center gap-2",
                     selected
                       ? "bg-primary text-primary-foreground"
                       : "hover:bg-accent text-foreground"
                   )}
                 >
-                  {opt}
+                  <OptionIcon option={opt} className="h-4 w-4" />
+                  <span>{opt.label}</span>
                 </button>
               </li>
             );
@@ -65,19 +69,19 @@ export function FilterPanel({
 
       <FilterGroup
         title="Ljudnivå"
-        options={NOISE_OPTIONS}
+        options={groups.noise}
         selected={filters.noise}
         onToggle={(v) => onChange({ ...filters, noise: toggle(filters.noise, v) })}
       />
       <FilterGroup
         title="Utrustning"
-        options={EQUIPMENT_OPTIONS}
+        options={groups.equipment}
         selected={filters.equipment}
         onToggle={(v) => onChange({ ...filters, equipment: toggle(filters.equipment, v) })}
       />
       <FilterGroup
         title="Faciliteter"
-        options={FACILITY_OPTIONS}
+        options={groups.facility}
         selected={filters.facilities}
         onToggle={(v) => onChange({ ...filters, facilities: toggle(filters.facilities, v) })}
       />
@@ -89,7 +93,7 @@ function FilterGroup({
   title, options, selected, onToggle,
 }: {
   title: string;
-  options: { label: string; icon: any }[];
+  options: FilterOption[];
   selected: string[];
   onToggle: (v: string) => void;
 }) {
@@ -99,9 +103,9 @@ function FilterGroup({
       <div className="flex flex-wrap gap-2">
         {options.map((o) => (
           <PillToggle
-            key={o.label}
+            key={o.id}
             label={o.label}
-            icon={o.icon}
+            icon={<OptionIcon option={o} className="h-4 w-4" />}
             selected={selected.includes(o.label)}
             onClick={() => onToggle(o.label)}
           />
