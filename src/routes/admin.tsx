@@ -620,3 +620,75 @@ function CheckboxGroup({
     </Field>
   );
 }
+
+function SortableSpaceRow({
+  space, onEdit, onDelete,
+}: { space: Space; onEdit: () => void; onDelete: () => void }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: space.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+  return (
+    <tr ref={setNodeRef} style={style} className="border-t border-border bg-card">
+      <td className="px-2 py-3 text-muted-foreground">
+        <button
+          {...attributes} {...listeners}
+          className="p-1 rounded hover:bg-accent cursor-grab active:cursor-grabbing touch-none"
+          title="Dra för att flytta"
+          aria-label="Dra för att flytta"
+        ><GripVertical className="h-4 w-4" /></button>
+      </td>
+      <td className="px-4 py-3 font-medium">{space.name}</td>
+      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.floor ?? "—"}</td>
+      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.category}</td>
+      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.noise}</td>
+      <td className="px-4 py-3 text-right">
+        <div className="inline-flex gap-1">
+          <button onClick={onEdit} className="p-2 rounded-md hover:bg-accent" title="Redigera">
+            <Pencil className="h-4 w-4" />
+          </button>
+          <button onClick={onDelete} className="p-2 rounded-md hover:bg-destructive/10 text-destructive" title="Ta bort">
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
+function SortableFilterOptionRow({
+  option, onEdit, onDelete,
+}: { option: FilterOption; onEdit: () => void; onDelete: () => void }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: option.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+  return (
+    <li ref={setNodeRef} style={style} className="py-2 flex items-center justify-between gap-3 bg-card">
+      <div className="flex items-center gap-2 min-w-0">
+        <button
+          {...attributes} {...listeners}
+          className="p-1 text-muted-foreground rounded hover:bg-accent cursor-grab active:cursor-grabbing touch-none"
+          title="Dra för att flytta"
+          aria-label="Dra för att flytta"
+        ><GripVertical className="h-4 w-4" /></button>
+        <span className="h-7 w-7 rounded-md bg-secondary flex items-center justify-center shrink-0">
+          <OptionIcon option={option} className="h-4 w-4" />
+        </span>
+        <span className="text-sm truncate">{option.label}</span>
+      </div>
+      <div className="inline-flex gap-1">
+        <button onClick={onEdit} className="p-1.5 rounded-md hover:bg-accent" title="Redigera">
+          <Pencil className="h-3.5 w-3.5" />
+        </button>
+        <button onClick={onDelete} className="p-1.5 rounded-md hover:bg-destructive/10 text-destructive" title="Ta bort">
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
+      </div>
+    </li>
+  );
+}
