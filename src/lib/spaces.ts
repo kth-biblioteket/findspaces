@@ -1,9 +1,5 @@
-import {
-  VolumeX, Volume1, Volume2,
-  Sliders, Monitor, Tv, Edit, Columns, Armchair,
-  Utensils, Sun, Printer, Toilet, Accessibility,
-  type LucideIcon,
-} from "lucide-react";
+import * as Icons from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 export type Space = {
   id: string;
@@ -17,37 +13,39 @@ export type Space = {
   image_url: string | null;
 };
 
-export const INTENT_OPTIONS = [
-  "Enskilt, i avskildhet",
-  "Där andra studerar",
-  "Med vänner",
-  "Med ett grupparbete",
+export type FilterCategory = "intent" | "noise" | "equipment" | "facility";
+
+export type FilterOption = {
+  id: string;
+  category: FilterCategory;
+  label: string;
+  icon_url: string | null;
+  default_icon: string | null;
+  sort_order: number;
+};
+
+export const LUCIDE_ICON_CHOICES = [
+  "VolumeX", "Volume1", "Volume2",
+  "Sliders", "Monitor", "Tv", "Edit", "Columns", "Armchair",
+  "Utensils", "Sun", "Printer", "Toilet", "Accessibility",
+  "Users", "User", "Coffee", "Wifi", "Lightbulb", "BookOpen",
+  "Headphones", "Mic", "Camera", "Projector", "Plug", "Wind",
+  "Snowflake", "Heart", "Star", "Leaf",
 ] as const;
 
-export const NOISE_OPTIONS: { label: string; icon: LucideIcon }[] = [
-  { label: "Tyst", icon: VolumeX },
-  { label: "Samtalston", icon: Volume1 },
-  { label: "Ljudligt", icon: Volume2 },
-];
+export function getLucideIcon(name: string | null | undefined): LucideIcon | null {
+  if (!name) return null;
+  const Icon = (Icons as unknown as Record<string, LucideIcon>)[name];
+  return Icon ?? null;
+}
 
-export const EQUIPMENT_OPTIONS: { label: string; icon: LucideIcon }[] = [
-  { label: "Höj- och sänkbara bord", icon: Sliders },
-  { label: "Datorer", icon: Monitor },
-  { label: "Skärm", icon: Tv },
-  { label: "Whiteboard", icon: Edit },
-  { label: "Studiebås", icon: Columns },
-  { label: "Höj- och sänkbara stolar", icon: Armchair },
-];
-
-export const FACILITY_OPTIONS: { label: string; icon: LucideIcon }[] = [
-  { label: "Mat tillåten", icon: Utensils },
-  { label: "Dagsljus", icon: Sun },
-  { label: "Skrivare", icon: Printer },
-  { label: "Toalett", icon: Toilet },
-  { label: "Tillgänglighetsanpassad toalett", icon: Accessibility },
-];
-
-export const iconForLabel = (label: string): LucideIcon | null => {
-  const all = [...NOISE_OPTIONS, ...EQUIPMENT_OPTIONS, ...FACILITY_OPTIONS];
-  return all.find((o) => o.label === label)?.icon ?? null;
-};
+/** Returns either a Lucide component or a URL string for a custom icon. */
+export function resolveIcon(opt: Pick<FilterOption, "icon_url" | "default_icon">):
+  | { type: "lucide"; Icon: LucideIcon }
+  | { type: "url"; url: string }
+  | null {
+  if (opt.icon_url) return { type: "url", url: opt.icon_url };
+  const Icon = getLucideIcon(opt.default_icon);
+  if (Icon) return { type: "lucide", Icon };
+  return null;
+}

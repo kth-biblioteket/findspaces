@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      filter_options: {
+        Row: {
+          category: string
+          created_at: string
+          default_icon: string | null
+          icon_url: string | null
+          id: string
+          label: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          default_icon?: string | null
+          icon_url?: string | null
+          id?: string
+          label: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          default_icon?: string | null
+          icon_url?: string | null
+          id?: string
+          label?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       spaces: {
         Row: {
           category: string

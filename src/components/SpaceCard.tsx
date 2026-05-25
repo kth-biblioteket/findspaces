@@ -1,11 +1,20 @@
 import { useState } from "react";
 import { BookOpen, ChevronDown } from "lucide-react";
-import { type Space, iconForLabel } from "@/lib/spaces";
+import { type Space } from "@/lib/spaces";
+import { useFilterOptions } from "@/lib/useFilterOptions";
+import { OptionIcon } from "./OptionIcon";
 import { cn } from "@/lib/utils";
 
 export function SpaceCard({ space }: { space: Space }) {
   const [open, setOpen] = useState(false);
-  const chips = [space.noise, ...space.equipment, ...space.facilities];
+  const { data: options = [] } = useFilterOptions();
+  const lookup = new Map(options.map((o) => [`${o.category}:${o.label}`, o]));
+
+  const chips: { key: string; label: string; cat: string }[] = [
+    { key: `noise:${space.noise}`, label: space.noise, cat: "noise" },
+    ...space.equipment.map((e) => ({ key: `equipment:${e}`, label: e, cat: "equipment" })),
+    ...space.facilities.map((f) => ({ key: `facility:${f}`, label: f, cat: "facility" })),
+  ];
 
   return (
     <article
@@ -23,16 +32,16 @@ export function SpaceCard({ space }: { space: Space }) {
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
             {chips.map((c) => {
-              const Icon = iconForLabel(c);
-              if (!Icon) return null;
+              const opt = lookup.get(c.key);
+              if (!opt) return null;
               return (
                 <span
-                  key={c}
-                  title={c}
+                  key={c.key}
+                  title={c.label}
                   className="inline-flex items-center gap-1.5 text-xs text-muted-foreground bg-secondary/60 rounded-md px-2 py-1"
                 >
-                  <Icon className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">{c}</span>
+                  <OptionIcon option={opt} className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">{c.label}</span>
                 </span>
               );
             })}

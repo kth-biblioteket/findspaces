@@ -1,9 +1,9 @@
-import { type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
 
 export function PillToggle({
-  label, icon: Icon, selected, onClick,
-}: { label: string; icon?: LucideIcon; selected: boolean; onClick: () => void }) {
+  label, icon, selected, onClick,
+}: { label: string; icon?: ReactNode; selected: boolean; onClick: () => void }) {
   return (
     <button
       type="button"
@@ -15,7 +15,7 @@ export function PillToggle({
           : "bg-secondary text-foreground border-transparent hover:bg-accent"
       )}
     >
-      {Icon && <Icon className="h-4 w-4" />}
+      {icon}
       <span>{label}</span>
     </button>
   );
