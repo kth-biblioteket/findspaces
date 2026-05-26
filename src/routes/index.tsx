@@ -29,7 +29,7 @@ function SpaceFinder() {
       const { data, error } = await supabase
         .from("spaces").select("*").order("sort_order").order("name");
       if (error) throw error;
-      return data as Space[];
+      return data as unknown as Space[];
     },
   });
 
@@ -41,6 +41,7 @@ function SpaceFinder() {
       if (filters.noise.length && !filters.noise.includes(s.noise)) return false;
       if (filters.equipment.length && !filters.equipment.every((e) => s.equipment.includes(e))) return false;
       if (filters.facilities.length && !filters.facilities.every((f) => s.facilities.includes(f))) return false;
+      if (filters.lokaltyp.length && !filters.lokaltyp.some((l) => (s.lokaltyp ?? []).includes(l))) return false;
       return true;
     });
   }, [spaces, filters]);

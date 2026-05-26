@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { BookOpen, ChevronDown } from "lucide-react";
+import { ChevronDown, MapPin, Calendar } from "lucide-react";
 import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { OptionIcon } from "./OptionIcon";
+import { ImageCarousel } from "./ImageCarousel";
 import { cn } from "@/lib/utils";
 
 export function SpaceCard({ space }: { space: Space }) {
@@ -10,10 +11,19 @@ export function SpaceCard({ space }: { space: Space }) {
   const { data: options = [] } = useFilterOptions();
   const lookup = new Map(options.map((o) => [`${o.category}:${o.label}`, o]));
 
-  const chips: { key: string; label: string; cat: string }[] = [
-    { key: `noise:${space.noise}`, label: space.noise, cat: "noise" },
-    ...space.equipment.map((e) => ({ key: `equipment:${e}`, label: e, cat: "equipment" })),
-    ...space.facilities.map((f) => ({ key: `facility:${f}`, label: f, cat: "facility" })),
+  // Prefer the new images array; fall back to legacy image_url
+  const images =
+    space.images && space.images.length > 0
+      ? space.images
+      : space.image_url
+      ? [space.image_url]
+      : [];
+
+  const chips: { key: string; label: string }[] = [
+    { key: `noise:${space.noise}`, label: space.noise },
+    ...(space.lokaltyp ?? []).map((l) => ({ key: `lokaltyp:${l}`, label: l })),
+    ...space.equipment.map((e) => ({ key: `equipment:${e}`, label: e })),
+    ...space.facilities.map((f) => ({ key: `facility:${f}`, label: f })),
   ];
 
   return (
@@ -61,18 +71,7 @@ export function SpaceCard({ space }: { space: Space }) {
         </div>
 
         <div className="w-24 sm:w-40 md:w-48 shrink-0 aspect-[4/3] rounded-xl overflow-hidden">
-          {space.image_url ? (
-            <img
-              src={space.image_url}
-              alt={space.name}
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-[var(--kth-navy)]">
-              <BookOpen className="h-10 w-10 text-white" strokeWidth={1.5} />
-            </div>
-          )}
+          <ImageCarousel images={images} alt={space.name} />
         </div>
       </div>
 
@@ -83,8 +82,36 @@ export function SpaceCard({ space }: { space: Space }) {
         )}
       >
         <div className="overflow-hidden">
-          <div className="px-4 pb-5 pt-1 text-sm text-foreground/80 leading-relaxed border-t border-border/60">
-            {space.description}
+          <div className="px-4 pb-5 pt-1 border-t border-border/60">
+            <p className="text-sm text-foreground/80 leading-relaxed pt-3">
+              {space.description}
+            </p>
+            {(space.map_url || space.booking_url) && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {space.map_url && (
+                  <a
+                    href={space.map_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90"
+                  >
+                    <MapPin className="h-4 w-4" /> Visa på karta
+                  </a>
+                )}
+                {space.booking_url && (
+                  <a
+                    href={space.booking_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center gap-2 rounded-full bg-secondary text-foreground border border-border px-4 py-2 text-sm font-medium hover:bg-accent"
+                  >
+                    <Calendar className="h-4 w-4" /> Se bokningsschema
+                  </a>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -1,14 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Trash2, ArrowLeft, Library, Upload, X, Settings2, GripVertical } from "lucide-react";
+import {
+  Plus, Pencil, Trash2, ArrowLeft, Library, Upload, X, Settings2, GripVertical,
+  ChevronLeft, ChevronRight, Save,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { type Space, type FilterOption, type FilterCategory, LUCIDE_ICON_CHOICES, getLucideIcon } from "@/lib/spaces";
+import {
+  type Space, type FilterOption, type FilterCategory,
+  LUCIDE_ICON_CHOICES, getLucideIcon, DEFAULT_CATEGORY_TITLES, FILTER_CATEGORIES,
+} from "@/lib/spaces";
 import { useFilterOptions, groupOptions } from "@/lib/useFilterOptions";
+import { useCategoryTitles, useSaveCategoryTitles } from "@/lib/useSettings";
 import { OptionIcon } from "@/components/OptionIcon";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -26,19 +34,50 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-type FormState = Omit<Space, "id" | "image_url"> & { id?: string; image_url: string | null };
+const MAX_IMAGES = 3;
+
+type FormState = {
+  id?: string;
+  name: string;
+  category: string;
+  description: string;
+  floor: string;
+  intent: string[];
+  noise: string;
+  equipment: string[];
+  facilities: string[];
+  lokaltyp: string[];
+  images: string[];
+  map_url: string;
+  booking_url: string;
+  sort_order: number;
+};
 
 const emptyForm: FormState = {
   name: "", category: "", description: "", floor: "",
-  intent: [], noise: "Tyst", equipment: [], facilities: [], image_url: null, sort_order: 999,
+  intent: [], noise: "Tyst", equipment: [], facilities: [], lokaltyp: [],
+  images: [], map_url: "", booking_url: "",
+  sort_order: 999,
 };
 
-const CATEGORY_LABELS: Record<FilterCategory, string> = {
-  intent: "Jag vill arbeta",
-  noise: "Ljudnivå",
-  equipment: "Utrustning",
-  facility: "Faciliteter",
-};
+function spaceToForm(s: Space): FormState {
+  const images =
+    s.images && s.images.length > 0
+      ? s.images
+      : s.image_url
+      ? [s.image_url]
+      : [];
+  return {
+    id: s.id,
+    name: s.name, category: s.category, description: s.description,
+    floor: s.floor ?? "",
+    intent: s.intent ?? [], noise: s.noise,
+    equipment: s.equipment ?? [], facilities: s.facilities ?? [],
+    lokaltyp: s.lokaltyp ?? [],
+    images, map_url: s.map_url ?? "", booking_url: s.booking_url ?? "",
+    sort_order: s.sort_order,
+  };
+}
 
 function AdminPage() {
   const qc = useQueryClient();
@@ -50,13 +89,12 @@ function AdminPage() {
     queryFn: async (): Promise<Space[]> => {
       const { data, error } = await supabase.from("spaces").select("*").order("sort_order").order("name");
       if (error) throw error;
-      return data as Space[];
+      return data as unknown as Space[];
     },
   });
 
   const reorderSpaces = useMutation({
     mutationFn: async (ordered: Space[]) => {
-      // Assign sequential sort_order values (10, 20, 30...) and update in parallel
       await Promise.all(
         ordered.map((s, i) =>
           supabase.from("spaces").update({ sort_order: (i + 1) * 10 }).eq("id", s.id)
@@ -92,14 +130,20 @@ function AdminPage() {
 
   const { data: filterOptions = [] } = useFilterOptions();
   const groups = groupOptions(filterOptions);
+  const { data: titles } = useCategoryTitles();
+  const t = titles ?? DEFAULT_CATEGORY_TITLES;
 
   const save = useMutation({
     mutationFn: async (f: FormState) => {
-      const payload = {
+      const payload: any = {
         name: f.name, category: f.category, description: f.description,
         floor: f.floor?.trim() ? f.floor.trim() : null,
         intent: f.intent, noise: f.noise, equipment: f.equipment,
-        facilities: f.facilities, image_url: f.image_url,
+        facilities: f.facilities, lokaltyp: f.lokaltyp,
+        images: f.images,
+        image_url: f.images[0] ?? null,
+        map_url: f.map_url.trim() || null,
+        booking_url: f.booking_url.trim() || null,
       };
       if (f.id) {
         const { error } = await supabase.from("spaces").update(payload).eq("id", f.id);
@@ -128,17 +172,35 @@ function AdminPage() {
     },
   });
 
-  const handleUpload = async (file: File) => {
+  const handleUploadImage = async (file: File) => {
+    if (form.images.length >= MAX_IMAGES) {
+      toast.error(`Max ${MAX_IMAGES} bilder.`);
+      return;
+    }
     const ext = file.name.split(".").pop();
     const path = `${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage.from("space-images").upload(path, file);
     if (error) { toast.error(error.message); return; }
     const { data } = supabase.storage.from("space-images").getPublicUrl(path);
-    setForm((f) => ({ ...f, image_url: data.publicUrl }));
+    setForm((f) => ({ ...f, images: [...f.images, data.publicUrl] }));
     toast.success("Bild uppladdad");
   };
 
-  const openEdit = (s: Space) => { setForm({ ...s }); setOpen(true); };
+  const moveImage = (i: number, delta: number) => {
+    setForm((f) => {
+      const j = i + delta;
+      if (j < 0 || j >= f.images.length) return f;
+      const next = [...f.images];
+      [next[i], next[j]] = [next[j], next[i]];
+      return { ...f, images: next };
+    });
+  };
+
+  const removeImage = (i: number) => {
+    setForm((f) => ({ ...f, images: f.images.filter((_, idx) => idx !== i) }));
+  };
+
+  const openEdit = (s: Space) => { setForm(spaceToForm(s)); setOpen(true); };
   const openNew = () => { setForm(emptyForm); setOpen(true); };
 
   return (
@@ -160,198 +222,321 @@ function AdminPage() {
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-10">
-        {/* Spaces section */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold">Alla lokaler ({spaces.length})</h2>
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild>
-                <button
-                  onClick={openNew}
-                  className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90"
-                >
-                  <Plus className="h-4 w-4" /> Ny lokal
-                </button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>{form.id ? "Redigera lokal" : "Ny lokal"}</DialogTitle>
-                </DialogHeader>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+        <Tabs defaultValue="spaces" className="w-full">
+          <TabsList className="mb-6">
+            <TabsTrigger value="spaces">Lokaler</TabsTrigger>
+            <TabsTrigger value="filters">Filteralternativ</TabsTrigger>
+            <TabsTrigger value="settings">Inställningar</TabsTrigger>
+          </TabsList>
 
-                <div className="space-y-5 py-2">
-                  <Field label="Namn">
-                    <input
-                      value={form.name}
-                      onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                    />
-                  </Field>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Field label="Kategori">
+          <TabsContent value="spaces" className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold">Alla lokaler ({spaces.length})</h2>
+              <Dialog open={open} onOpenChange={setOpen}>
+                <DialogTrigger asChild>
+                  <button
+                    onClick={openNew}
+                    className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90"
+                  >
+                    <Plus className="h-4 w-4" /> Ny lokal
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>{form.id ? "Redigera lokal" : "Ny lokal"}</DialogTitle>
+                  </DialogHeader>
+
+                  <div className="space-y-5 py-2">
+                    <Field label="Namn">
                       <input
-                        value={form.category}
-                        onChange={(e) => setForm({ ...form, category: e.target.value })}
+                        value={form.name}
+                        onChange={(e) => setForm({ ...form, name: e.target.value })}
                         className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                       />
                     </Field>
-                    <Field label="Våningsplan">
-                      <input
-                        value={form.floor ?? ""}
-                        onChange={(e) => setForm({ ...form, floor: e.target.value })}
-                        placeholder="t.ex. Plan 3"
-                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                      />
-                    </Field>
-                  </div>
-                  <Field label="Beskrivning">
-                    <textarea
-                      rows={3}
-                      value={form.description}
-                      onChange={(e) => setForm({ ...form, description: e.target.value })}
-                      className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                    />
-                  </Field>
-
-                  <Field label="Bild">
-                    <div className="flex items-center gap-3 flex-wrap">
-                      {form.image_url && (
-                        <div className="relative">
-                          <img src={form.image_url} alt="" className="h-16 w-20 rounded-md object-cover" />
-                          <button
-                            type="button"
-                            onClick={() => setForm({ ...form, image_url: null })}
-                            className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-0.5"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </div>
-                      )}
-                      <label className="inline-flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2 text-sm cursor-pointer hover:bg-accent">
-                        <Upload className="h-4 w-4" />
-                        <span>Ladda upp bild</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <Field label="Kategori">
                         <input
-                          type="file" accept="image/*" className="hidden"
-                          onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])}
+                          value={form.category}
+                          onChange={(e) => setForm({ ...form, category: e.target.value })}
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                         />
-                      </label>
-                      <p className="text-xs text-muted-foreground max-w-xs">
-                        Rekommenderad storlek: <strong>1200×900 px</strong> (4:3-format). JPG eller PNG, max 2 MB.
-                      </p>
-                    </div>
-                  </Field>
-
-                  <CheckboxGroup
-                    label="Jag vill arbeta"
-                    options={groups.intent.map((o) => o.label)}
-                    values={form.intent}
-                    onChange={(v) => setForm({ ...form, intent: v })}
-                  />
-
-                  <Field label="Ljudnivå">
-                    <div className="flex gap-2 flex-wrap">
-                      {groups.noise.map((o) => (
-                        <button
-                          key={o.id} type="button"
-                          onClick={() => setForm({ ...form, noise: o.label })}
-                          className={cn(
-                            "inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm border",
-                            form.noise === o.label
-                              ? "bg-primary text-primary-foreground border-primary"
-                              : "bg-secondary border-transparent"
-                          )}
-                        >
-                          <OptionIcon option={o} className="h-4 w-4" /> {o.label}
-                        </button>
-                      ))}
-                    </div>
-                  </Field>
-
-                  <CheckboxGroup
-                    label="Utrustning"
-                    options={groups.equipment.map((o) => o.label)}
-                    values={form.equipment}
-                    onChange={(v) => setForm({ ...form, equipment: v })}
-                  />
-                  <CheckboxGroup
-                    label="Faciliteter"
-                    options={groups.facility.map((o) => o.label)}
-                    values={form.facilities}
-                    onChange={(v) => setForm({ ...form, facilities: v })}
-                  />
-                </div>
-
-                <DialogFooter>
-                  <button
-                    onClick={() => setOpen(false)}
-                    className="px-4 py-2 rounded-lg text-sm border border-border"
-                  >Avbryt</button>
-                  <button
-                    disabled={save.isPending || !form.name || !form.category}
-                    onClick={() => save.mutate(form)}
-                    className="px-4 py-2 rounded-lg text-sm bg-primary text-primary-foreground disabled:opacity-50"
-                  >{save.isPending ? "Sparar..." : "Spara"}</button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-
-          <div className="bg-card rounded-2xl border border-border overflow-hidden">
-            {isLoading ? (
-              <div className="p-8 text-center text-muted-foreground">Laddar...</div>
-            ) : (
-              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSpacesDragEnd}>
-                <table className="w-full text-sm">
-                  <thead className="bg-secondary/50">
-                    <tr className="text-left">
-                      <th className="px-2 py-3 w-8"></th>
-                      <th className="px-4 py-3 font-semibold">Namn</th>
-                      <th className="px-4 py-3 font-semibold hidden md:table-cell">Våning</th>
-                      <th className="px-4 py-3 font-semibold hidden md:table-cell">Kategori</th>
-                      <th className="px-4 py-3 font-semibold hidden md:table-cell">Ljudnivå</th>
-                      <th className="px-4 py-3 font-semibold text-right">Åtgärder</th>
-                    </tr>
-                  </thead>
-                  <SortableContext items={spaces.map((s) => s.id)} strategy={verticalListSortingStrategy}>
-                    <tbody>
-                      {spaces.map((s) => (
-                        <SortableSpaceRow
-                          key={s.id}
-                          space={s}
-                          onEdit={() => openEdit(s)}
-                          onDelete={() => { if (confirm(`Ta bort "${s.name}"?`)) del.mutate(s.id); }}
+                      </Field>
+                      <Field label="Våningsplan">
+                        <input
+                          value={form.floor}
+                          onChange={(e) => setForm({ ...form, floor: e.target.value })}
+                          placeholder="t.ex. Plan 3"
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                         />
-                      ))}
-                    </tbody>
-                  </SortableContext>
-                </table>
-              </DndContext>
-            )}
-          </div>
-        </section>
+                      </Field>
+                    </div>
+                    <Field label="Beskrivning">
+                      <textarea
+                        rows={3}
+                        value={form.description}
+                        onChange={(e) => setForm({ ...form, description: e.target.value })}
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                      />
+                    </Field>
 
-        {/* Filter options section */}
-        <section>
-          <div className="flex items-center gap-2 mb-1">
-            <Settings2 className="h-5 w-5" />
-            <h2 className="text-xl font-bold">Filteralternativ & ikoner</h2>
-          </div>
-          <p className="text-sm text-muted-foreground mb-4">
-            Lägg till egna egenskaper för rummen. Du kan välja en befintlig ikon eller ladda upp en egen
-            (SVG eller PNG, gärna kvadratisk 64×64 px, max 200 KB).
-          </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <Field label="Länk till karta (map_url)">
+                        <input
+                          type="url"
+                          value={form.map_url}
+                          onChange={(e) => setForm({ ...form, map_url: e.target.value })}
+                          placeholder="https://..."
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        />
+                      </Field>
+                      <Field label="Länk till bokningsschema (booking_url)">
+                        <input
+                          type="url"
+                          value={form.booking_url}
+                          onChange={(e) => setForm({ ...form, booking_url: e.target.value })}
+                          placeholder="https://..."
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        />
+                      </Field>
+                    </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            {(Object.keys(CATEGORY_LABELS) as FilterCategory[]).map((cat) => (
-              <FilterCategoryCard
-                key={cat}
-                category={cat}
-                title={CATEGORY_LABELS[cat]}
-                items={groups[cat]}
-              />
-            ))}
-          </div>
-        </section>
+                    <Field label={`Bilder (max ${MAX_IMAGES}, första är primär)`}>
+                      <div className="space-y-3">
+                        {form.images.length > 0 && (
+                          <ul className="flex gap-3 flex-wrap">
+                            {form.images.map((url, i) => (
+                              <li key={url + i} className="relative group">
+                                <img src={url} alt="" className="h-20 w-28 rounded-md object-cover border border-border" />
+                                {i === 0 && (
+                                  <span className="absolute top-1 left-1 text-[10px] font-semibold bg-primary text-primary-foreground rounded px-1.5 py-0.5">
+                                    Primär
+                                  </span>
+                                )}
+                                <div className="absolute bottom-1 left-1 right-1 flex items-center justify-between gap-1">
+                                  <div className="flex gap-1">
+                                    <button
+                                      type="button" onClick={() => moveImage(i, -1)}
+                                      disabled={i === 0}
+                                      className="h-5 w-5 rounded bg-black/60 text-white flex items-center justify-center disabled:opacity-30"
+                                      aria-label="Flytta vänster"
+                                    ><ChevronLeft className="h-3 w-3" /></button>
+                                    <button
+                                      type="button" onClick={() => moveImage(i, 1)}
+                                      disabled={i === form.images.length - 1}
+                                      className="h-5 w-5 rounded bg-black/60 text-white flex items-center justify-center disabled:opacity-30"
+                                      aria-label="Flytta höger"
+                                    ><ChevronRight className="h-3 w-3" /></button>
+                                  </div>
+                                  <button
+                                    type="button" onClick={() => removeImage(i)}
+                                    className="h-5 w-5 rounded bg-destructive text-destructive-foreground flex items-center justify-center"
+                                    aria-label="Ta bort"
+                                  ><X className="h-3 w-3" /></button>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <label className={cn(
+                            "inline-flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2 text-sm cursor-pointer hover:bg-accent",
+                            form.images.length >= MAX_IMAGES && "opacity-50 cursor-not-allowed"
+                          )}>
+                            <Upload className="h-4 w-4" />
+                            <span>Ladda upp bild</span>
+                            <input
+                              type="file" accept="image/*" className="hidden"
+                              disabled={form.images.length >= MAX_IMAGES}
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleUploadImage(file);
+                                e.target.value = "";
+                              }}
+                            />
+                          </label>
+                          <p className="text-xs text-muted-foreground max-w-xs">
+                            Rekommenderad storlek: <strong>1200×900 px</strong> (4:3-format). JPG eller PNG, max 2 MB.
+                            Upp till {MAX_IMAGES} bilder per lokal.
+                          </p>
+                        </div>
+                      </div>
+                    </Field>
+
+                    <CheckboxGroup
+                      label={t.intent}
+                      options={groups.intent.map((o) => o.label)}
+                      values={form.intent}
+                      onChange={(v) => setForm({ ...form, intent: v })}
+                    />
+
+                    <CheckboxGroup
+                      label={t.lokaltyp}
+                      options={groups.lokaltyp.map((o) => o.label)}
+                      values={form.lokaltyp}
+                      onChange={(v) => setForm({ ...form, lokaltyp: v })}
+                    />
+
+                    <Field label={t.noise}>
+                      <div className="flex gap-2 flex-wrap">
+                        {groups.noise.map((o) => (
+                          <button
+                            key={o.id} type="button"
+                            onClick={() => setForm({ ...form, noise: o.label })}
+                            className={cn(
+                              "inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm border",
+                              form.noise === o.label
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-secondary border-transparent"
+                            )}
+                          >
+                            <OptionIcon option={o} className="h-4 w-4" /> {o.label}
+                          </button>
+                        ))}
+                      </div>
+                    </Field>
+
+                    <CheckboxGroup
+                      label={t.equipment}
+                      options={groups.equipment.map((o) => o.label)}
+                      values={form.equipment}
+                      onChange={(v) => setForm({ ...form, equipment: v })}
+                    />
+                    <CheckboxGroup
+                      label={t.facility}
+                      options={groups.facility.map((o) => o.label)}
+                      values={form.facilities}
+                      onChange={(v) => setForm({ ...form, facilities: v })}
+                    />
+                  </div>
+
+                  <DialogFooter>
+                    <button
+                      onClick={() => setOpen(false)}
+                      className="px-4 py-2 rounded-lg text-sm border border-border"
+                    >Avbryt</button>
+                    <button
+                      disabled={save.isPending || !form.name || !form.category}
+                      onClick={() => save.mutate(form)}
+                      className="px-4 py-2 rounded-lg text-sm bg-primary text-primary-foreground disabled:opacity-50"
+                    >{save.isPending ? "Sparar..." : "Spara"}</button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <div className="bg-card rounded-2xl border border-border overflow-hidden">
+              {isLoading ? (
+                <div className="p-8 text-center text-muted-foreground">Laddar...</div>
+              ) : (
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSpacesDragEnd}>
+                  <table className="w-full text-sm">
+                    <thead className="bg-secondary/50">
+                      <tr className="text-left">
+                        <th className="px-2 py-3 w-8"></th>
+                        <th className="px-4 py-3 font-semibold">Namn</th>
+                        <th className="px-4 py-3 font-semibold hidden md:table-cell">Våning</th>
+                        <th className="px-4 py-3 font-semibold hidden md:table-cell">Kategori</th>
+                        <th className="px-4 py-3 font-semibold hidden md:table-cell">Ljudnivå</th>
+                        <th className="px-4 py-3 font-semibold text-right">Åtgärder</th>
+                      </tr>
+                    </thead>
+                    <SortableContext items={spaces.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+                      <tbody>
+                        {spaces.map((s) => (
+                          <SortableSpaceRow
+                            key={s.id}
+                            space={s}
+                            onEdit={() => openEdit(s)}
+                            onDelete={() => { if (confirm(`Ta bort "${s.name}"?`)) del.mutate(s.id); }}
+                          />
+                        ))}
+                      </tbody>
+                    </SortableContext>
+                  </table>
+                </DndContext>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="filters">
+            <div className="flex items-center gap-2 mb-1">
+              <Settings2 className="h-5 w-5" />
+              <h2 className="text-xl font-bold">Filteralternativ & ikoner</h2>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              Lägg till egna egenskaper för rummen. Du kan välja en befintlig ikon eller ladda upp en egen
+              (SVG eller PNG, gärna kvadratisk 64×64 px, max 200 KB).
+            </p>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              {FILTER_CATEGORIES.map((cat) => (
+                <FilterCategoryCard
+                  key={cat}
+                  category={cat}
+                  title={t[cat]}
+                  items={groups[cat]}
+                />
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <SettingsTab />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+}
+
+function SettingsTab() {
+  const { data: titles } = useCategoryTitles();
+  const save = useSaveCategoryTitles();
+  const [draft, setDraft] = useState<Record<FilterCategory, string>>(DEFAULT_CATEGORY_TITLES);
+
+  useEffect(() => {
+    if (titles) setDraft(titles);
+  }, [titles]);
+
+  const handleSave = async () => {
+    try {
+      await save.mutateAsync(draft);
+      toast.success("Inställningar sparade");
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
+  return (
+    <div className="max-w-xl">
+      <h2 className="text-xl font-bold mb-1">Inställningar</h2>
+      <p className="text-sm text-muted-foreground mb-6">
+        Redigera rubrikerna för filterkategorierna. Ändringarna syns direkt i studentvyn.
+      </p>
+
+      <div className="bg-card rounded-2xl border border-border p-5 space-y-4">
+        {FILTER_CATEGORIES.map((cat) => (
+          <Field key={cat} label={`Rubrik — ${DEFAULT_CATEGORY_TITLES[cat]}`}>
+            <input
+              value={draft[cat] ?? ""}
+              onChange={(e) => setDraft({ ...draft, [cat]: e.target.value })}
+              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+            />
+          </Field>
+        ))}
+
+        <div className="pt-2 flex justify-end">
+          <button
+            onClick={handleSave}
+            disabled={save.isPending}
+            className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium disabled:opacity-50"
+          >
+            <Save className="h-4 w-4" />
+            {save.isPending ? "Sparar..." : "Spara inställningar"}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -387,7 +572,6 @@ function FilterCategoryCard({
     onMutate: async (ordered: FilterOption[]) => {
       await qc.cancelQueries({ queryKey: ["filter_options"] });
       const previous = qc.getQueryData<FilterOption[]>(["filter_options"]);
-      // Optimistic: replace items of this category, keep others
       if (previous) {
         const others = previous.filter((o) => o.category !== category);
         qc.setQueryData<FilterOption[]>(["filter_options"], [...others, ...ordered]);
@@ -602,6 +786,7 @@ function CheckboxGroup({
 }: { label: string; options: string[]; values: string[]; onChange: (v: string[]) => void }) {
   const toggle = (o: string) =>
     onChange(values.includes(o) ? values.filter((x) => x !== o) : [...values, o]);
+  if (options.length === 0) return null;
   return (
     <Field label={label}>
       <div className="flex flex-wrap gap-2">

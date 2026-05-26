@@ -10,12 +10,28 @@ export type Space = {
   noise: string;
   equipment: string[];
   facilities: string[];
+  lokaltyp: string[];
   image_url: string | null;
+  images: string[];
+  map_url: string | null;
+  booking_url: string | null;
   sort_order: number;
   floor: string | null;
 };
 
-export type FilterCategory = "intent" | "noise" | "equipment" | "facility";
+export type FilterCategory = "intent" | "noise" | "equipment" | "facility" | "lokaltyp";
+
+export const FILTER_CATEGORIES: FilterCategory[] = [
+  "intent", "noise", "equipment", "facility", "lokaltyp",
+];
+
+export const DEFAULT_CATEGORY_TITLES: Record<FilterCategory, string> = {
+  intent: "Jag vill arbeta",
+  noise: "Ljudnivå",
+  equipment: "Utrustning",
+  facility: "Faciliteter",
+  lokaltyp: "Lokaltyp",
+};
 
 export type FilterOption = {
   id: string;
@@ -41,7 +57,6 @@ export function getLucideIcon(name: string | null | undefined): LucideIcon | nul
   return Icon ?? null;
 }
 
-/** Returns either a Lucide component or a URL string for a custom icon. */
 export function resolveIcon(opt: Pick<FilterOption, "icon_url" | "default_icon">):
   | { type: "lucide"; Icon: LucideIcon }
   | { type: "url"; url: string }
