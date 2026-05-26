@@ -44,6 +44,7 @@ type FormState = {
   name: string;
   description: string;
   floor: string;
+  capacity: string;
   intent: string[];
   noise: string;
   equipment: string[];
@@ -58,7 +59,7 @@ type FormState = {
 };
 
 const emptyForm: FormState = {
-  name: "", description: "", floor: "",
+  name: "", description: "", floor: "", capacity: "",
   intent: [], noise: "", equipment: [], facilities: [], lokaltyp: [],
   tags: {},
   images: [], image_alts: [], map_url: "", booking_url: "",
