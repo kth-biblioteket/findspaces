@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus, Pencil, Trash2, ArrowLeft, Library, Upload, X, Settings2, GripVertical,
-  ChevronLeft, ChevronRight, Lock,
+  ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -703,7 +703,6 @@ function FilterCategoryCard({
   };
 
   const handleDeleteCategory = async () => {
-    if (cat.locked) return;
     if (!confirm(`Ta bort kategorin "${cat.title}" och alla dess alternativ?`)) return;
     try {
       // First delete options for this category, then the category
@@ -714,6 +713,7 @@ function FilterCategoryCard({
       toast.error(e.message);
     }
   };
+
 
   return (
     <div className="bg-card rounded-2xl border border-border p-4">
@@ -734,23 +734,16 @@ function FilterCategoryCard({
           className="flex-1 min-w-0 font-semibold text-base bg-transparent border border-transparent rounded-md px-2 py-1 hover:border-border focus:border-primary focus:outline-none"
         />
 
-        {cat.locked && (
-          <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wide font-semibold text-muted-foreground" title="Inbyggd kategori — kan inte tas bort">
-            <Lock className="h-3 w-3" /> Inbyggd
-          </span>
-        )}
-
         <button
           onClick={() => setEditingCat(true)}
           className="p-1.5 rounded-md hover:bg-accent text-muted-foreground" title="Egenskaper"
         ><Pencil className="h-3.5 w-3.5" /></button>
 
-        {!cat.locked && (
-          <button
-            onClick={handleDeleteCategory}
-            className="p-1.5 rounded-md hover:bg-destructive/10 text-destructive" title="Ta bort kategori"
-          ><Trash2 className="h-3.5 w-3.5" /></button>
-        )}
+        <button
+          onClick={handleDeleteCategory}
+          className="p-1.5 rounded-md hover:bg-destructive/10 text-destructive" title="Ta bort kategori"
+        ><Trash2 className="h-3.5 w-3.5" /></button>
+
 
         <button
           onClick={() => setCreating(true)}
@@ -804,7 +797,7 @@ function CategoryDialog({
   const [isSingle, setIsSingle] = useState<boolean>(category?.is_single_select ?? false);
 
   const isNew = !category;
-  const isLocked = !!category?.locked;
+
 
   const handleSave = async () => {
     try {
@@ -854,42 +847,33 @@ function CategoryDialog({
             </div>
           </Field>
 
-          {!isLocked && (
-            <>
-              <Field label="Hur ska val matchas mot lokaler?">
-                <div className="flex gap-2">
-                  {(["any", "all"] as const).map((m) => (
-                    <button
-                      key={m} type="button" onClick={() => setMatchMode(m)}
-                      className={cn(
-                        "flex-1 rounded-lg px-3 py-2 text-sm border text-left",
-                        matchMode === m ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-transparent"
-                      )}
-                    >
-                      <div className="font-medium">{m === "any" ? "Något av" : "Alla av"}</div>
-                      <div className="text-xs opacity-80">
-                        {m === "any" ? "Lokalen matchar om något val finns" : "Lokalen måste ha alla valda"}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </Field>
+          <Field label="Hur ska val matchas mot lokaler?">
+            <div className="flex gap-2">
+              {(["any", "all"] as const).map((m) => (
+                <button
+                  key={m} type="button" onClick={() => setMatchMode(m)}
+                  className={cn(
+                    "flex-1 rounded-lg px-3 py-2 text-sm border text-left",
+                    matchMode === m ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-transparent"
+                  )}
+                >
+                  <div className="font-medium">{m === "any" ? "Något av" : "Alla av"}</div>
+                  <div className="text-xs opacity-80">
+                    {m === "any" ? "Lokalen matchar om något val finns" : "Lokalen måste ha alla valda"}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </Field>
 
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox" checked={isSingle}
-                  onChange={(e) => setIsSingle(e.target.checked)}
-                />
-                Endast ett alternativ kan väljas per lokal (som Ljudnivå)
-              </label>
-            </>
-          )}
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox" checked={isSingle}
+              onChange={(e) => setIsSingle(e.target.checked)}
+            />
+            Endast ett alternativ kan väljas per lokal (som Ljudnivå)
+          </label>
 
-          {isLocked && (
-            <p className="text-xs text-muted-foreground">
-              Detta är en inbyggd kategori. Du kan ändra titel och visningsstil, men inte matchningsläge.
-            </p>
-          )}
         </div>
         <DialogFooter>
           <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm border border-border">Avbryt</button>
