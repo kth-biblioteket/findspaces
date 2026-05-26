@@ -40,6 +40,13 @@ function SpaceFinder() {
     const q = filters.query.trim().toLowerCase();
     return spaces.filter((s) => {
       if (q && !s.name.toLowerCase().includes(q) && !(s.lokaltyp ?? []).some((l) => l.toLowerCase().includes(q))) return false;
+
+      // Work mode / group size → capacity filter
+      if (filters.workMode === "grupparbete") {
+        const minNeeded = filters.groupSize === "5+" ? 5 : 2;
+        if ((s.capacity ?? 0) < minNeeded) return false;
+      }
+
       for (const cat of categories) {
         const selected = filters.byCategory[cat.key] ?? [];
         if (selected.length === 0) continue;
