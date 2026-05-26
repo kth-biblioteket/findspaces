@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       filter_options: {
         Row: {
           category: string
@@ -49,6 +67,7 @@ export type Database = {
       }
       spaces: {
         Row: {
+          booking_url: string | null
           category: string
           created_at: string
           description: string
@@ -57,13 +76,17 @@ export type Database = {
           floor: string | null
           id: string
           image_url: string | null
+          images: string[]
           intent: string[]
+          lokaltyp: string[]
+          map_url: string | null
           name: string
           noise: string
           sort_order: number
           updated_at: string
         }
         Insert: {
+          booking_url?: string | null
           category: string
           created_at?: string
           description?: string
@@ -72,13 +95,17 @@ export type Database = {
           floor?: string | null
           id?: string
           image_url?: string | null
+          images?: string[]
           intent?: string[]
+          lokaltyp?: string[]
+          map_url?: string | null
           name: string
           noise?: string
           sort_order?: number
           updated_at?: string
         }
         Update: {
+          booking_url?: string | null
           category?: string
           created_at?: string
           description?: string
@@ -87,7 +114,10 @@ export type Database = {
           floor?: string | null
           id?: string
           image_url?: string | null
+          images?: string[]
           intent?: string[]
+          lokaltyp?: string[]
+          map_url?: string | null
           name?: string
           noise?: string
           sort_order?: number
