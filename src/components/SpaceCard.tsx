@@ -76,32 +76,34 @@ export function SpaceCard({
             })}
           </div>
         );
-      case "buttons":
-        if (!space.map_url && !space.booking_url) return null;
+      case "button_map":
+        if (!space.map_url) return null;
         return (
-          <div key="buttons" className={cn(spacing, "flex flex-wrap gap-2")}>
-            {space.map_url && (
-              <a
-                href={space.map_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3.5 py-1.5 text-xs font-medium hover:opacity-90"
-              >
-                <MapPin className="h-3.5 w-3.5" /> Visa på karta
-              </a>
-            )}
-            {space.booking_url && (
-              <a
-                href={space.booking_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="inline-flex items-center gap-2 rounded-full bg-secondary text-foreground border border-border px-3.5 py-1.5 text-xs font-medium hover:bg-accent"
-              >
-                <Calendar className="h-3.5 w-3.5" /> Se bokningsschema
-              </a>
-            )}
+          <div key="button_map" className={cn(spacing, "flex flex-wrap gap-2")}>
+            <a
+              href={space.map_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3.5 py-1.5 text-xs font-medium hover:opacity-90"
+            >
+              <MapPin className="h-3.5 w-3.5" /> Visa på karta
+            </a>
+          </div>
+        );
+      case "button_booking":
+        if (!space.booking_url) return null;
+        return (
+          <div key="button_booking" className={cn(spacing, "flex flex-wrap gap-2")}>
+            <a
+              href={space.booking_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center gap-2 rounded-full bg-secondary text-foreground border border-border px-3.5 py-1.5 text-xs font-medium hover:bg-accent"
+            >
+              <Calendar className="h-3.5 w-3.5" /> Se bokningsschema
+            </a>
           </div>
         );
     }
