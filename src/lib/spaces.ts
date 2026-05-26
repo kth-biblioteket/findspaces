@@ -17,30 +17,53 @@ export type Space = {
   booking_url: string | null;
   sort_order: number;
   floor: string | null;
+  tags: Record<string, string[]>;
 };
 
-export type FilterCategory = "intent" | "noise" | "equipment" | "facility" | "lokaltyp";
-
-export const FILTER_CATEGORIES: FilterCategory[] = [
+/** Category keys that map to dedicated columns on the spaces table. */
+export const LOCKED_CATEGORY_KEYS = [
   "intent", "noise", "equipment", "facility", "lokaltyp",
-];
+] as const;
+export type LockedCategoryKey = typeof LOCKED_CATEGORY_KEYS[number];
 
-export const DEFAULT_CATEGORY_TITLES: Record<FilterCategory, string> = {
-  intent: "Jag vill arbeta",
-  noise: "Ljudnivå",
-  equipment: "Utrustning",
-  facility: "Faciliteter",
-  lokaltyp: "Lokaltyp",
+export function isLockedKey(k: string): k is LockedCategoryKey {
+  return (LOCKED_CATEGORY_KEYS as readonly string[]).includes(k);
+}
+
+export type FilterCategoryRow = {
+  id: string;
+  key: string;
+  title: string;
+  style: "list" | "pills";
+  match_mode: "any" | "all";
+  is_single_select: boolean;
+  locked: boolean;
+  sort_order: number;
 };
 
 export type FilterOption = {
   id: string;
-  category: FilterCategory;
+  category: string;
   label: string;
   icon_url: string | null;
   default_icon: string | null;
   sort_order: number;
 };
+
+/** Read the array of selected values on a space for a given category. */
+export function getSpaceValues(space: Space, key: string): string[] {
+  switch (key) {
+    case "intent": return space.intent ?? [];
+    case "noise": return space.noise ? [space.noise] : [];
+    case "equipment": return space.equipment ?? [];
+    case "facility": return space.facilities ?? [];
+    case "lokaltyp": return space.lokaltyp ?? [];
+    default: {
+      const v = space.tags?.[key];
+      return Array.isArray(v) ? v : [];
+    }
+  }
+}
 
 export const LUCIDE_ICON_CHOICES = [
   "VolumeX", "Volume1", "Volume2",

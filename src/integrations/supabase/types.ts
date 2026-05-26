@@ -32,6 +32,45 @@ export type Database = {
         }
         Relationships: []
       }
+      filter_categories: {
+        Row: {
+          created_at: string
+          id: string
+          is_single_select: boolean
+          key: string
+          locked: boolean
+          match_mode: string
+          sort_order: number
+          style: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_single_select?: boolean
+          key: string
+          locked?: boolean
+          match_mode?: string
+          sort_order?: number
+          style?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_single_select?: boolean
+          key?: string
+          locked?: boolean
+          match_mode?: string
+          sort_order?: number
+          style?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       filter_options: {
         Row: {
           category: string
@@ -83,6 +122,7 @@ export type Database = {
           name: string
           noise: string
           sort_order: number
+          tags: Json
           updated_at: string
         }
         Insert: {
@@ -102,6 +142,7 @@ export type Database = {
           name: string
           noise?: string
           sort_order?: number
+          tags?: Json
           updated_at?: string
         }
         Update: {
@@ -121,6 +162,7 @@ export type Database = {
           name?: string
           noise?: string
           sort_order?: number
+          tags?: Json
           updated_at?: string
         }
         Relationships: []

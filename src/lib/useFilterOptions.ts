@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { FilterCategory, FilterOption } from "./spaces";
+import type { FilterOption } from "./spaces";
 
 export function useFilterOptions() {
   return useQuery({
@@ -17,12 +17,11 @@ export function useFilterOptions() {
   });
 }
 
-export function groupOptions(options: FilterOption[]) {
-  const groups: Record<FilterCategory, FilterOption[]> = {
-    intent: [], noise: [], equipment: [], facility: [], lokaltyp: [],
-  };
+/** Group options by category key. */
+export function groupOptionsByKey(options: FilterOption[]): Record<string, FilterOption[]> {
+  const out: Record<string, FilterOption[]> = {};
   for (const o of options) {
-    if (groups[o.category]) groups[o.category].push(o);
+    (out[o.category] ??= []).push(o);
   }
-  return groups;
+  return out;
 }
