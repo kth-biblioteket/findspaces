@@ -2,16 +2,26 @@ import { useState } from "react";
 import { ChevronDown, MapPin, Calendar } from "lucide-react";
 import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
+import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
 import { OptionIcon } from "./OptionIcon";
 import { ImageCarousel } from "./ImageCarousel";
 import { cn } from "@/lib/utils";
 
-export function SpaceCard({ space }: { space: Space }) {
+export function SpaceCard({
+  space,
+  layoutOverride,
+}: {
+  space: Space;
+  /** Optional override for live preview in admin. */
+  layoutOverride?: CardSectionKey[];
+}) {
   const [open, setOpen] = useState(false);
   const { data: options = [] } = useFilterOptions();
+  const { data: layoutFromDb = ["header", "chips", "buttons"] } = useCardLayout();
+  const layout = layoutOverride ?? layoutFromDb;
+
   const lookup = new Map(options.map((o) => [`${o.category}:${o.label}`, o]));
 
-  // Prefer the new images array; fall back to legacy image_url
   const images =
     space.images && space.images.length > 0
       ? space.images
@@ -25,14 +35,12 @@ export function SpaceCard({ space }: { space: Space }) {
     ...space.facilities.map((f) => ({ key: `facility:${f}`, label: f })),
   ];
 
-  return (
-    <article
-      onClick={() => setOpen((o) => !o)}
-      className="bg-card rounded-2xl border border-border overflow-hidden cursor-pointer transition-all hover:shadow-md"
-    >
-      <div className="flex items-stretch gap-4 p-4">
-        <div className="flex-1 min-w-0 flex flex-col">
-          <div className="flex items-start gap-3 flex-wrap">
+  const renderSection = (key: CardSectionKey, idx: number) => {
+    const spacing = idx === 0 ? "" : "mt-3";
+    switch (key) {
+      case "header":
+        return (
+          <div key="header" className={cn(spacing, "flex items-start gap-3 flex-wrap")}>
             <h3 className="text-lg font-semibold leading-tight">{space.name}</h3>
             {space.floor && (
               <span className="inline-flex items-center rounded-full bg-[var(--kth-navy)]/10 text-[var(--kth-navy)] text-xs font-semibold px-2.5 py-1">
@@ -48,8 +56,10 @@ export function SpaceCard({ space }: { space: Space }) {
               </span>
             ))}
           </div>
-
-          <div className="mt-3 flex flex-wrap items-center gap-2">
+        );
+      case "chips":
+        return (
+          <div key="chips" className={cn(spacing, "flex flex-wrap items-center gap-2")}>
             {chips.map((c) => {
               const opt = lookup.get(c.key);
               if (!opt) return null;
@@ -65,33 +75,46 @@ export function SpaceCard({ space }: { space: Space }) {
               );
             })}
           </div>
+        );
+      case "buttons":
+        if (!space.map_url && !space.booking_url) return null;
+        return (
+          <div key="buttons" className={cn(spacing, "flex flex-wrap gap-2")}>
+            {space.map_url && (
+              <a
+                href={space.map_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3.5 py-1.5 text-xs font-medium hover:opacity-90"
+              >
+                <MapPin className="h-3.5 w-3.5" /> Visa på karta
+              </a>
+            )}
+            {space.booking_url && (
+              <a
+                href={space.booking_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-2 rounded-full bg-secondary text-foreground border border-border px-3.5 py-1.5 text-xs font-medium hover:bg-accent"
+              >
+                <Calendar className="h-3.5 w-3.5" /> Se bokningsschema
+              </a>
+            )}
+          </div>
+        );
+    }
+  };
 
-          {(space.map_url || space.booking_url) && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {space.map_url && (
-                <a
-                  href={space.map_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3.5 py-1.5 text-xs font-medium hover:opacity-90"
-                >
-                  <MapPin className="h-3.5 w-3.5" /> Visa på karta
-                </a>
-              )}
-              {space.booking_url && (
-                <a
-                  href={space.booking_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="inline-flex items-center gap-2 rounded-full bg-secondary text-foreground border border-border px-3.5 py-1.5 text-xs font-medium hover:bg-accent"
-                >
-                  <Calendar className="h-3.5 w-3.5" /> Se bokningsschema
-                </a>
-              )}
-            </div>
-          )}
+  return (
+    <article
+      onClick={() => setOpen((o) => !o)}
+      className="bg-card rounded-2xl border border-border overflow-hidden cursor-pointer transition-all hover:shadow-md"
+    >
+      <div className="flex items-stretch gap-4 p-4">
+        <div className="flex-1 min-w-0 flex flex-col">
+          {layout.map((k, i) => renderSection(k, i))}
 
           <div className="mt-auto pt-3 flex items-center text-xs text-muted-foreground">
             <ChevronDown
@@ -105,7 +128,6 @@ export function SpaceCard({ space }: { space: Space }) {
           <ImageCarousel images={images} alts={space.image_alts ?? []} alt={space.name} />
         </div>
       </div>
-
 
       <div
         className={cn(
