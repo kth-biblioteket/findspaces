@@ -1,8 +1,9 @@
-import { Search } from "lucide-react";
+import { Search, Check } from "lucide-react";
 import { PillToggle } from "./PillToggle";
 import { OptionIcon } from "./OptionIcon";
 import { useFilterOptions, groupOptions } from "@/lib/useFilterOptions";
-import type { FilterOption } from "@/lib/spaces";
+import { useCategoryTitles } from "@/lib/useSettings";
+import { DEFAULT_CATEGORY_TITLES, type FilterOption } from "@/lib/spaces";
 import { cn } from "@/lib/utils";
 
 export type Filters = {
@@ -11,10 +12,11 @@ export type Filters = {
   noise: string[];
   equipment: string[];
   facilities: string[];
+  lokaltyp: string[];
 };
 
 export const emptyFilters: Filters = {
-  query: "", intent: [], noise: [], equipment: [], facilities: [],
+  query: "", intent: [], noise: [], equipment: [], facilities: [], lokaltyp: [],
 };
 
 function toggle(arr: string[], v: string) {
@@ -25,7 +27,9 @@ export function FilterPanel({
   filters, onChange,
 }: { filters: Filters; onChange: (f: Filters) => void }) {
   const { data: options = [] } = useFilterOptions();
+  const { data: titles } = useCategoryTitles();
   const groups = groupOptions(options);
+  const t = titles ?? DEFAULT_CATEGORY_TITLES;
 
   return (
     <div className="space-y-7">
@@ -42,7 +46,7 @@ export function FilterPanel({
       </div>
 
       <div>
-        <h3 className="text-sm font-semibold mb-3">Jag vill arbeta</h3>
+        <h3 className="text-sm font-semibold mb-3">{t.intent}</h3>
         <ul className="space-y-1">
           {groups.intent.map((opt) => {
             const selected = filters.intent.includes(opt.label);
@@ -58,6 +62,13 @@ export function FilterPanel({
                       : "hover:bg-accent text-foreground"
                   )}
                 >
+                  <span className="inline-flex h-4 w-4 items-center justify-center shrink-0">
+                    {selected ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <span className="h-3 w-3 rounded-full border border-current opacity-30" />
+                    )}
+                  </span>
                   <OptionIcon option={opt} className="h-4 w-4" />
                   <span>{opt.label}</span>
                 </button>
@@ -68,19 +79,25 @@ export function FilterPanel({
       </div>
 
       <FilterGroup
-        title="Ljudnivå"
+        title={t.noise}
         options={groups.noise}
         selected={filters.noise}
         onToggle={(v) => onChange({ ...filters, noise: toggle(filters.noise, v) })}
       />
       <FilterGroup
-        title="Utrustning"
+        title={t.lokaltyp}
+        options={groups.lokaltyp}
+        selected={filters.lokaltyp}
+        onToggle={(v) => onChange({ ...filters, lokaltyp: toggle(filters.lokaltyp, v) })}
+      />
+      <FilterGroup
+        title={t.equipment}
         options={groups.equipment}
         selected={filters.equipment}
         onToggle={(v) => onChange({ ...filters, equipment: toggle(filters.equipment, v) })}
       />
       <FilterGroup
-        title="Faciliteter"
+        title={t.facility}
         options={groups.facility}
         selected={filters.facilities}
         onToggle={(v) => onChange({ ...filters, facilities: toggle(filters.facilities, v) })}
@@ -97,6 +114,7 @@ function FilterGroup({
   selected: string[];
   onToggle: (v: string) => void;
 }) {
+  if (options.length === 0) return null;
   return (
     <div>
       <h3 className="text-sm font-semibold mb-3">{title}</h3>
