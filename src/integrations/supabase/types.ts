@@ -123,6 +123,7 @@ export type Database = {
           map_url: string | null
           name: string
           noise: string
+          notice: string | null
           sort_order: number
           tags: Json
           updated_at: string
@@ -145,6 +146,7 @@ export type Database = {
           map_url?: string | null
           name: string
           noise?: string
+          notice?: string | null
           sort_order?: number
           tags?: Json
           updated_at?: string
@@ -167,6 +169,7 @@ export type Database = {
           map_url?: string | null
           name?: string
           noise?: string
+          notice?: string | null
           sort_order?: number
           tags?: Json
           updated_at?: string

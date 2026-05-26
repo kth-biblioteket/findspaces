@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, MapPin, Calendar } from "lucide-react";
+import { ChevronDown, MapPin, Calendar, AlertTriangle } from "lucide-react";
 import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
@@ -114,6 +114,12 @@ export function SpaceCard({
       onClick={() => setOpen((o) => !o)}
       className="bg-card rounded-2xl border border-border overflow-hidden cursor-pointer transition-all hover:shadow-md"
     >
+      {space.notice && (
+        <div className="flex items-start gap-2 bg-amber-100 text-amber-900 border-b border-amber-200 px-4 py-2.5 text-sm">
+          <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
+          <span className="whitespace-pre-line">{space.notice}</span>
+        </div>
+      )}
       <div className="flex items-stretch gap-4 p-4">
         <div className="flex-1 min-w-0 flex flex-col">
           {layout.map((k, i) => renderSection(k, i))}

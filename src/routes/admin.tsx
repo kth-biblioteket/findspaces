@@ -63,6 +63,7 @@ type FormState = {
   image_alts: string[];
   map_url: string;
   booking_url: string;
+  notice: string;
   sort_order: number;
 };
 
@@ -71,6 +72,7 @@ const emptyForm: FormState = {
   intent: [], noise: "", equipment: [], facilities: [], lokaltyp: [],
   tags: {},
   images: [], image_alts: [], map_url: "", booking_url: "",
+  notice: "",
   sort_order: 999,
 };
 
@@ -92,6 +94,7 @@ function spaceToForm(s: Space): FormState {
     tags: (s.tags ?? {}) as Record<string, string[]>,
     images, image_alts,
     map_url: s.map_url ?? "", booking_url: s.booking_url ?? "",
+    notice: s.notice ?? "",
     sort_order: s.sort_order,
   };
 }
@@ -193,6 +196,7 @@ function AdminPage() {
         image_url: f.images[0] ?? null,
         map_url: f.map_url.trim() || null,
         booking_url: f.booking_url.trim() || null,
+        notice: f.notice.trim() || null,
       };
 
       if (f.id) {
@@ -353,6 +357,16 @@ function AdminPage() {
                         rows={3}
                         value={form.description}
                         onChange={(e) => setForm({ ...form, description: e.target.value })}
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                      />
+                    </Field>
+
+                    <Field label="Tillfällig information (visas som notis ovanpå lokalkortet, t.ex. ”Renoveras” eller ”Stängd tillfälligt”)">
+                      <textarea
+                        rows={2}
+                        value={form.notice}
+                        onChange={(e) => setForm({ ...form, notice: e.target.value })}
+                        placeholder="Lämna tomt om ingen notis ska visas"
                         className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                       />
                     </Field>
@@ -1156,6 +1170,7 @@ const DUMMY_SPACE: Space = {
   floor: "Plan 3",
   capacity: null,
   tags: {},
+  notice: null,
 };
 
 function CardLayoutTab() {
