@@ -25,6 +25,9 @@ import {
   useCardLayout, useSaveCardLayout,
   CARD_SECTION_KEYS, CARD_SECTION_LABELS, type CardSectionKey,
 } from "@/lib/useCardLayout";
+import {
+  useLandingMessage, useSaveLandingMessage, DEFAULT_LANDING_MESSAGE,
+} from "@/lib/useLandingMessage";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
