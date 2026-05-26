@@ -42,7 +42,6 @@ const MAX_IMAGES = 3;
 type FormState = {
   id?: string;
   name: string;
-  category: string;
   description: string;
   floor: string;
   intent: string[];
@@ -52,16 +51,17 @@ type FormState = {
   lokaltyp: string[];
   tags: Record<string, string[]>;
   images: string[];
+  image_alts: string[];
   map_url: string;
   booking_url: string;
   sort_order: number;
 };
 
 const emptyForm: FormState = {
-  name: "", category: "", description: "", floor: "",
+  name: "", description: "", floor: "",
   intent: [], noise: "", equipment: [], facilities: [], lokaltyp: [],
   tags: {},
-  images: [], map_url: "", booking_url: "",
+  images: [], image_alts: [], map_url: "", booking_url: "",
   sort_order: 999,
 };
 
@@ -70,18 +70,22 @@ function spaceToForm(s: Space): FormState {
     s.images && s.images.length > 0
       ? s.images
       : s.image_url ? [s.image_url] : [];
+  const image_alts = (s.image_alts ?? []).slice(0, images.length);
+  while (image_alts.length < images.length) image_alts.push("");
   return {
     id: s.id,
-    name: s.name, category: s.category, description: s.description,
+    name: s.name, description: s.description,
     floor: s.floor ?? "",
     intent: s.intent ?? [], noise: s.noise ?? "",
     equipment: s.equipment ?? [], facilities: s.facilities ?? [],
     lokaltyp: s.lokaltyp ?? [],
     tags: (s.tags ?? {}) as Record<string, string[]>,
-    images, map_url: s.map_url ?? "", booking_url: s.booking_url ?? "",
+    images, image_alts,
+    map_url: s.map_url ?? "", booking_url: s.booking_url ?? "",
     sort_order: s.sort_order,
   };
 }
+
 
 function getFormValues(form: FormState, key: string): string[] {
   switch (key) {
