@@ -25,6 +25,9 @@ import {
   useCardLayout, useSaveCardLayout,
   CARD_SECTION_KEYS, CARD_SECTION_LABELS, type CardSectionKey,
 } from "@/lib/useCardLayout";
+import {
+  useLandingMessage, useSaveLandingMessage, DEFAULT_LANDING_MESSAGE,
+} from "@/lib/useLandingMessage";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -296,6 +299,7 @@ function AdminPage() {
             <TabsTrigger value="spaces">Lokaler</TabsTrigger>
             <TabsTrigger value="filters">Filteralternativ</TabsTrigger>
             <TabsTrigger value="layout">Kortlayout</TabsTrigger>
+            <TabsTrigger value="landing">Startsida</TabsTrigger>
           </TabsList>
 
           <TabsContent value="spaces" className="space-y-4">
@@ -511,6 +515,10 @@ function AdminPage() {
 
           <TabsContent value="layout">
             <CardLayoutTab />
+          </TabsContent>
+
+          <TabsContent value="landing">
+            <LandingMessageTab />
           </TabsContent>
         </Tabs>
       </div>
@@ -1250,6 +1258,51 @@ function SortableSectionRow({ id, label }: { id: string; label: string }) {
       </button>
       <span className="text-sm">{label}</span>
     </li>
+  );
+}
+
+function LandingMessageTab() {
+  const { data: remote, isLoading } = useLandingMessage();
+  const save = useSaveLandingMessage();
+  const [value, setValue] = useState("");
+
+  useEffect(() => {
+    if (typeof remote === "string") setValue(remote);
+  }, [remote]);
+
+  return (
+    <div className="bg-card rounded-2xl border border-border p-6 max-w-2xl space-y-4">
+      <div>
+        <h2 className="text-lg font-bold">Välkomsttext på startsidan</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Visas när besökaren ännu inte valt något filter.
+        </p>
+      </div>
+      <textarea
+        rows={4}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        disabled={isLoading}
+        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+      />
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => save.mutate(value, { onSuccess: () => toast.success("Sparat") })}
+          disabled={save.isPending}
+          className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50"
+        >
+          Spara
+        </button>
+        <button
+          type="button"
+          onClick={() => setValue(DEFAULT_LANDING_MESSAGE)}
+          className="inline-flex items-center gap-2 rounded-full bg-secondary text-foreground px-4 py-2 text-sm font-medium hover:bg-accent"
+        >
+          Återställ till standard
+        </button>
+      </div>
+    </div>
   );
 }
 

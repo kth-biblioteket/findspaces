@@ -7,6 +7,7 @@ import { type Space, getSpaceValues } from "@/lib/spaces";
 import { useFilterCategories } from "@/lib/useFilterCategories";
 import { FilterPanel, emptyFilters, type Filters } from "@/components/FilterPanel";
 import { SpaceCard } from "@/components/SpaceCard";
+import { useLandingMessage } from "@/lib/useLandingMessage";
 import {
   Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle,
 } from "@/components/ui/sheet";
@@ -35,6 +36,12 @@ function SpaceFinder() {
   });
 
   const { data: categories = [] } = useFilterCategories();
+  const { data: landingMessage } = useLandingMessage();
+
+  const hasActiveFilter =
+    filters.query.trim().length > 0 ||
+    filters.workMode !== null ||
+    Object.values(filters.byCategory).some((arr) => arr.length > 0);
 
   const filtered = useMemo(() => {
     const q = filters.query.trim().toLowerCase();
@@ -113,19 +120,30 @@ function SpaceFinder() {
           <div className="flex items-baseline justify-between mb-4">
             <h2 className="text-xl font-bold">Studieplatser</h2>
             <span className="text-sm text-muted-foreground">
-              {isLoading ? "Laddar..." : `${filtered.length} av ${spaces.length}`}
+              {isLoading
+                ? "Laddar..."
+                : hasActiveFilter
+                  ? `${filtered.length} av ${spaces.length}`
+                  : `${spaces.length} lokaler`}
             </span>
           </div>
 
-          {!isLoading && filtered.length === 0 && (
-            <div className="bg-card rounded-2xl border border-border p-10 text-center text-muted-foreground">
-              Inga lokaler matchar dina filter.
+          {!hasActiveFilter ? (
+            <div className="bg-card rounded-2xl border border-border p-10 text-center text-muted-foreground whitespace-pre-line">
+              {landingMessage}
             </div>
+          ) : (
+            <>
+              {!isLoading && filtered.length === 0 && (
+                <div className="bg-card rounded-2xl border border-border p-10 text-center text-muted-foreground">
+                  Inga lokaler matchar dina filter.
+                </div>
+              )}
+              <div className="space-y-3">
+                {filtered.map((s) => <SpaceCard key={s.id} space={s} />)}
+              </div>
+            </>
           )}
-
-          <div className="space-y-3">
-            {filtered.map((s) => <SpaceCard key={s.id} space={s} />)}
-          </div>
         </main>
       </div>
     </div>
