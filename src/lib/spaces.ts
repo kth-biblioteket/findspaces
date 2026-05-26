@@ -20,6 +20,7 @@ export type Space = {
   floor: string | null;
   capacity: number | null;
   tags: Record<string, string[]>;
+  notice: string | null;
 };
 
 /** Category keys that map to dedicated columns on the spaces table. */
