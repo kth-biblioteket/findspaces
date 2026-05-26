@@ -42,7 +42,6 @@ const MAX_IMAGES = 3;
 type FormState = {
   id?: string;
   name: string;
-  category: string;
   description: string;
   floor: string;
   intent: string[];
@@ -52,16 +51,17 @@ type FormState = {
   lokaltyp: string[];
   tags: Record<string, string[]>;
   images: string[];
+  image_alts: string[];
   map_url: string;
   booking_url: string;
   sort_order: number;
 };
 
 const emptyForm: FormState = {
-  name: "", category: "", description: "", floor: "",
+  name: "", description: "", floor: "",
   intent: [], noise: "", equipment: [], facilities: [], lokaltyp: [],
   tags: {},
-  images: [], map_url: "", booking_url: "",
+  images: [], image_alts: [], map_url: "", booking_url: "",
   sort_order: 999,
 };
 
@@ -70,18 +70,22 @@ function spaceToForm(s: Space): FormState {
     s.images && s.images.length > 0
       ? s.images
       : s.image_url ? [s.image_url] : [];
+  const image_alts = (s.image_alts ?? []).slice(0, images.length);
+  while (image_alts.length < images.length) image_alts.push("");
   return {
     id: s.id,
-    name: s.name, category: s.category, description: s.description,
+    name: s.name, description: s.description,
     floor: s.floor ?? "",
     intent: s.intent ?? [], noise: s.noise ?? "",
     equipment: s.equipment ?? [], facilities: s.facilities ?? [],
     lokaltyp: s.lokaltyp ?? [],
     tags: (s.tags ?? {}) as Record<string, string[]>,
-    images, map_url: s.map_url ?? "", booking_url: s.booking_url ?? "",
+    images, image_alts,
+    map_url: s.map_url ?? "", booking_url: s.booking_url ?? "",
     sort_order: s.sort_order,
   };
 }
+
 
 function getFormValues(form: FormState, key: string): string[] {
   switch (key) {
@@ -166,17 +170,19 @@ function AdminPage() {
   const save = useMutation({
     mutationFn: async (f: FormState) => {
       const payload: any = {
-        name: f.name, category: f.category, description: f.description,
+        name: f.name, description: f.description,
         floor: f.floor?.trim() ? f.floor.trim() : null,
         intent: f.intent, noise: f.noise || "Tyst",
         equipment: f.equipment,
         facilities: f.facilities, lokaltyp: f.lokaltyp,
         tags: f.tags,
         images: f.images,
+        image_alts: f.image_alts,
         image_url: f.images[0] ?? null,
         map_url: f.map_url.trim() || null,
         booking_url: f.booking_url.trim() || null,
       };
+
       if (f.id) {
         const { error } = await supabase.from("spaces").update(payload).eq("id", f.id);
         if (error) throw error;
@@ -214,7 +220,11 @@ function AdminPage() {
     const { error } = await supabase.storage.from("space-images").upload(path, file);
     if (error) { toast.error(error.message); return; }
     const { data } = supabase.storage.from("space-images").getPublicUrl(path);
-    setForm((f) => ({ ...f, images: [...f.images, data.publicUrl] }));
+    setForm((f) => ({
+      ...f,
+      images: [...f.images, data.publicUrl],
+      image_alts: [...f.image_alts, ""],
+    }));
     toast.success("Bild uppladdad");
   };
 
@@ -222,15 +232,32 @@ function AdminPage() {
     setForm((f) => {
       const j = i + delta;
       if (j < 0 || j >= f.images.length) return f;
-      const next = [...f.images];
-      [next[i], next[j]] = [next[j], next[i]];
-      return { ...f, images: next };
+      const imgs = [...f.images];
+      const alts = [...f.image_alts];
+      while (alts.length < imgs.length) alts.push("");
+      [imgs[i], imgs[j]] = [imgs[j], imgs[i]];
+      [alts[i], alts[j]] = [alts[j], alts[i]];
+      return { ...f, images: imgs, image_alts: alts };
     });
   };
 
   const removeImage = (i: number) => {
-    setForm((f) => ({ ...f, images: f.images.filter((_, idx) => idx !== i) }));
+    setForm((f) => ({
+      ...f,
+      images: f.images.filter((_, idx) => idx !== i),
+      image_alts: f.image_alts.filter((_, idx) => idx !== i),
+    }));
   };
+
+  const setAlt = (i: number, value: string) => {
+    setForm((f) => {
+      const alts = [...f.image_alts];
+      while (alts.length < f.images.length) alts.push("");
+      alts[i] = value;
+      return { ...f, image_alts: alts };
+    });
+  };
+
 
   const openEdit = (s: Space) => { setForm(spaceToForm(s)); setOpen(true); };
   const openNew = () => { setForm(emptyForm); setOpen(true); };
@@ -286,23 +313,15 @@ function AdminPage() {
                         className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                       />
                     </Field>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Field label="Kategori">
-                        <input
-                          value={form.category}
-                          onChange={(e) => setForm({ ...form, category: e.target.value })}
-                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                        />
-                      </Field>
-                      <Field label="Våningsplan">
-                        <input
-                          value={form.floor}
-                          onChange={(e) => setForm({ ...form, floor: e.target.value })}
-                          placeholder="t.ex. Plan 3"
-                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                        />
-                      </Field>
-                    </div>
+                    <Field label="Våningsplan">
+                      <input
+                        value={form.floor}
+                        onChange={(e) => setForm({ ...form, floor: e.target.value })}
+                        placeholder="t.ex. Plan 3"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                      />
+                    </Field>
+
                     <Field label="Beskrivning">
                       <textarea
                         rows={3}
@@ -336,40 +355,49 @@ function AdminPage() {
                     <Field label={`Bilder (max ${MAX_IMAGES}, första är primär)`}>
                       <div className="space-y-3">
                         {form.images.length > 0 && (
-                          <ul className="flex gap-3 flex-wrap">
+                          <ul className="space-y-3">
                             {form.images.map((url, i) => (
-                              <li key={url + i} className="relative group">
-                                <img src={url} alt="" className="h-20 w-28 rounded-md object-cover border border-border" />
-                                {i === 0 && (
-                                  <span className="absolute top-1 left-1 text-[10px] font-semibold bg-primary text-primary-foreground rounded px-1.5 py-0.5">
-                                    Primär
-                                  </span>
-                                )}
-                                <div className="absolute bottom-1 left-1 right-1 flex items-center justify-between gap-1">
-                                  <div className="flex gap-1">
+                              <li key={url + i} className="flex gap-3 items-start rounded-lg border border-border p-2">
+                                <div className="relative shrink-0">
+                                  <img src={url} alt="" className="h-20 w-28 object-cover border border-border" />
+                                  {i === 0 && (
+                                    <span className="absolute top-1 left-1 text-[10px] font-semibold bg-primary text-primary-foreground rounded px-1.5 py-0.5">
+                                      Primär
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0 space-y-2">
+                                  <input
+                                    value={form.image_alts[i] ?? ""}
+                                    onChange={(e) => setAlt(i, e.target.value)}
+                                    placeholder="Alt-text (beskriv bilden för skärmläsare)"
+                                    className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs"
+                                  />
+                                  <div className="flex items-center gap-1">
                                     <button
                                       type="button" onClick={() => moveImage(i, -1)}
                                       disabled={i === 0}
-                                      className="h-5 w-5 rounded bg-black/60 text-white flex items-center justify-center disabled:opacity-30"
-                                      aria-label="Flytta vänster"
-                                    ><ChevronLeft className="h-3 w-3" /></button>
+                                      className="h-7 w-7 rounded bg-secondary text-foreground flex items-center justify-center disabled:opacity-30"
+                                      aria-label="Flytta upp"
+                                    ><ChevronLeft className="h-3.5 w-3.5" /></button>
                                     <button
                                       type="button" onClick={() => moveImage(i, 1)}
                                       disabled={i === form.images.length - 1}
-                                      className="h-5 w-5 rounded bg-black/60 text-white flex items-center justify-center disabled:opacity-30"
-                                      aria-label="Flytta höger"
-                                    ><ChevronRight className="h-3 w-3" /></button>
+                                      className="h-7 w-7 rounded bg-secondary text-foreground flex items-center justify-center disabled:opacity-30"
+                                      aria-label="Flytta ner"
+                                    ><ChevronRight className="h-3.5 w-3.5" /></button>
+                                    <button
+                                      type="button" onClick={() => removeImage(i)}
+                                      className="h-7 w-7 rounded bg-destructive/10 text-destructive flex items-center justify-center ml-auto"
+                                      aria-label="Ta bort"
+                                    ><X className="h-3.5 w-3.5" /></button>
                                   </div>
-                                  <button
-                                    type="button" onClick={() => removeImage(i)}
-                                    className="h-5 w-5 rounded bg-destructive text-destructive-foreground flex items-center justify-center"
-                                    aria-label="Ta bort"
-                                  ><X className="h-3 w-3" /></button>
                                 </div>
                               </li>
                             ))}
                           </ul>
                         )}
+
                         <div className="flex items-center gap-3 flex-wrap">
                           <label className={cn(
                             "inline-flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2 text-sm cursor-pointer hover:bg-accent",
@@ -412,7 +440,7 @@ function AdminPage() {
                       className="px-4 py-2 rounded-lg text-sm border border-border"
                     >Avbryt</button>
                     <button
-                      disabled={save.isPending || !form.name || !form.category}
+                      disabled={save.isPending || !form.name}
                       onClick={() => save.mutate(form)}
                       className="px-4 py-2 rounded-lg text-sm bg-primary text-primary-foreground disabled:opacity-50"
                     >{save.isPending ? "Sparar..." : "Spara"}</button>
@@ -432,7 +460,7 @@ function AdminPage() {
                         <th className="px-2 py-3 w-8"></th>
                         <th className="px-4 py-3 font-semibold">Namn</th>
                         <th className="px-4 py-3 font-semibold hidden md:table-cell">Våning</th>
-                        <th className="px-4 py-3 font-semibold hidden md:table-cell">Kategori</th>
+                        <th className="px-4 py-3 font-semibold hidden md:table-cell">Lokaltyp</th>
                         <th className="px-4 py-3 font-semibold hidden md:table-cell">Ljudnivå</th>
                         <th className="px-4 py-3 font-semibold text-right">Åtgärder</th>
                       </tr>
@@ -1037,7 +1065,7 @@ function SortableSpaceRow({
       </td>
       <td className="px-4 py-3 font-medium">{space.name}</td>
       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.floor ?? "—"}</td>
-      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.category}</td>
+      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.lokaltyp?.join(", ") || "—"}</td>
       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.noise}</td>
       <td className="px-4 py-3 text-right">
         <div className="inline-flex gap-1">

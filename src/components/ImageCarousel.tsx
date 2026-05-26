@@ -3,8 +3,8 @@ import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function ImageCarousel({
-  images, alt, className,
-}: { images: string[]; alt: string; className?: string }) {
+  images, alt, alts = [], className,
+}: { images: string[]; alt: string; alts?: string[]; className?: string }) {
   const [idx, setIdx] = useState(0);
   const list = images.filter(Boolean);
   const count = list.length;
@@ -26,10 +26,11 @@ export function ImageCarousel({
     <div className={cn("relative w-full h-full overflow-hidden bg-secondary", className)}>
       <img
         src={list[idx]}
-        alt={alt}
+        alt={alts[idx]?.trim() || alt}
         className="w-full h-full object-cover"
         loading="lazy"
       />
+
       {count > 1 && (
         <>
           <button

@@ -13,6 +13,7 @@ export type Space = {
   lokaltyp: string[];
   image_url: string | null;
   images: string[];
+  image_alts: string[];
   map_url: string | null;
   booking_url: string | null;
   sort_order: number;

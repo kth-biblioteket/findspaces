@@ -95,12 +95,14 @@ function ListGroup({
                 )}
               >
                 <span className="inline-flex h-4 w-4 items-center justify-center shrink-0">
-                  {isSelected ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
-                    <span className="h-3 w-3 rounded-full border border-current opacity-30" />
-                  )}
+                  <Check
+                    className={cn(
+                      "h-4 w-4",
+                      isSelected ? "opacity-100" : "opacity-25"
+                    )}
+                  />
                 </span>
+
                 <OptionIcon option={opt} className="h-4 w-4" />
                 <span>{opt.label}</span>
               </button>
