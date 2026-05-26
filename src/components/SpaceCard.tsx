@@ -21,7 +21,6 @@ export function SpaceCard({ space }: { space: Space }) {
 
   const chips: { key: string; label: string }[] = [
     { key: `noise:${space.noise}`, label: space.noise },
-    ...(space.lokaltyp ?? []).map((l) => ({ key: `lokaltyp:${l}`, label: l })),
     ...space.equipment.map((e) => ({ key: `equipment:${e}`, label: e })),
     ...space.facilities.map((f) => ({ key: `facility:${f}`, label: f })),
   ];
@@ -40,9 +39,14 @@ export function SpaceCard({ space }: { space: Space }) {
                 {space.floor}
               </span>
             )}
-            <span className="inline-flex items-center rounded-full bg-secondary text-foreground text-xs font-medium px-2.5 py-1">
-              {space.category}
-            </span>
+            {(space.lokaltyp ?? []).map((l) => (
+              <span
+                key={l}
+                className="inline-flex items-center rounded-full bg-secondary text-foreground text-xs font-medium px-2.5 py-1"
+              >
+                {l}
+              </span>
+            ))}
           </div>
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -70,10 +74,11 @@ export function SpaceCard({ space }: { space: Space }) {
           </div>
         </div>
 
-        <div className="w-24 sm:w-40 md:w-48 shrink-0 aspect-[4/3] rounded-xl overflow-hidden">
-          <ImageCarousel images={images} alt={space.name} />
+        <div className="w-24 sm:w-40 md:w-48 shrink-0 aspect-[4/3] overflow-hidden">
+          <ImageCarousel images={images} alts={space.image_alts ?? []} alt={space.name} />
         </div>
       </div>
+
 
       <div
         className={cn(
