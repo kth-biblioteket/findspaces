@@ -28,6 +28,8 @@ import {
 import {
   useLandingMessage, useSaveLandingMessage, DEFAULT_LANDING_MESSAGE,
 } from "@/lib/useLandingMessage";
+import { useHiddenIcons, useSaveHiddenIcons } from "@/lib/useHiddenIcons";
+
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -302,9 +304,11 @@ function AdminPage() {
           <TabsList className="mb-6">
             <TabsTrigger value="spaces">Lokaler</TabsTrigger>
             <TabsTrigger value="filters">Filteralternativ</TabsTrigger>
+            <TabsTrigger value="icons">Ikonbibliotek</TabsTrigger>
             <TabsTrigger value="layout">Kortlayout</TabsTrigger>
             <TabsTrigger value="landing">Startsida</TabsTrigger>
           </TabsList>
+
 
           <TabsContent value="spaces" className="space-y-4">
             <div className="flex items-center justify-between">
