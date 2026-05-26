@@ -121,6 +121,46 @@ function SpaceFinder() {
         </div>
 
         <main>
+          {/* Top-level intent bar */}
+          <div className="mb-4 bg-card rounded-2xl border border-border p-2 grid grid-cols-2 gap-2">
+            <IntentButton
+              icon={<User className="h-5 w-5" />}
+              label="Enskilt"
+              active={topIntent === "single"}
+              onClick={() => {
+                setTopIntent(topIntent === "single" ? null : "single");
+                setGroupSize(null);
+              }}
+            />
+            <IntentButton
+              icon={<Users className="h-5 w-5" />}
+              label="Grupparbete"
+              active={topIntent === "group"}
+              onClick={() =>
+                setTopIntent(topIntent === "group" ? null : "group")
+              }
+            />
+          </div>
+
+          {/* Conditional group size */}
+          {topIntent === "group" && (
+            <div className="mb-4 bg-card rounded-2xl border border-border p-4">
+              <h3 className="text-sm font-semibold mb-3">Gruppstorlek</h3>
+              <div className="flex flex-wrap gap-2">
+                <SizePill
+                  label="2–4 pers"
+                  active={groupSize === "small"}
+                  onClick={() => setGroupSize(groupSize === "small" ? null : "small")}
+                />
+                <SizePill
+                  label="5+ pers"
+                  active={groupSize === "large"}
+                  onClick={() => setGroupSize(groupSize === "large" ? null : "large")}
+                />
+              </div>
+            </div>
+          )}
+
           <div className="flex items-baseline justify-between mb-4">
             <h2 className="text-xl font-bold">Studieplatser</h2>
             <span className="text-sm text-muted-foreground">
