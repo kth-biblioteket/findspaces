@@ -114,12 +114,6 @@ export function SpaceCard({
       onClick={() => setOpen((o) => !o)}
       className="bg-card rounded-2xl border border-border overflow-hidden cursor-pointer transition-all hover:shadow-md"
     >
-      {space.notice && (
-        <div className="flex items-start gap-2 bg-amber-100 text-amber-900 border-b border-amber-200 px-4 py-2.5 text-sm">
-          <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
-          <span className="whitespace-pre-line">{space.notice}</span>
-        </div>
-      )}
       <div className="flex items-stretch gap-4 p-4">
         <div className="flex-1 min-w-0 flex flex-col">
           {layout.map((k, i) => renderSection(k, i))}
@@ -145,6 +139,12 @@ export function SpaceCard({
       >
         <div className="overflow-hidden">
           <div className="px-4 pb-5 pt-1 border-t border-border/60">
+            {space.notice && (
+              <div className="mt-3 flex items-start gap-2 bg-amber-100 text-amber-900 border border-amber-200 rounded-md px-3 py-2 text-sm">
+                <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
+                <span className="whitespace-pre-line">{space.notice}</span>
+              </div>
+            )}
             <p className="text-sm text-foreground/80 leading-relaxed pt-3">
               {space.description}
             </p>
