@@ -1125,3 +1125,132 @@ function SortableFilterOptionRow({
     </li>
   );
 }
+
+// ---------------- Card Layout Tab ----------------
+
+const DUMMY_SPACE: Space = {
+  id: "dummy",
+  name: "Exempel-lokal",
+  category: "",
+  description:
+    "Detta är en förhandsvisning. Ändringar i listan här bredvid uppdaterar ordningen på sektionerna i alla lokalkort i studentvyn.",
+  intent: [],
+  noise: "Samtalston",
+  equipment: ["Whiteboard", "Datorer"],
+  facilities: ["Dagsljus", "Mat tillåten"],
+  lokaltyp: ["Studieplats"],
+  image_url: null,
+  images: [],
+  image_alts: [],
+  map_url: "#",
+  booking_url: "#",
+  sort_order: 0,
+  floor: "Plan 3",
+  capacity: null,
+  tags: {},
+};
+
+function CardLayoutTab() {
+  const { data: saved = [...CARD_SECTION_KEYS] } = useCardLayout();
+  const [order, setOrder] = useState<CardSectionKey[]>(saved);
+  const save = useSaveCardLayout();
+
+  // Sync when remote layout loads/changes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useState(() => { setOrder(saved); return undefined; });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const onDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const oldIdx = order.indexOf(active.id as CardSectionKey);
+    const newIdx = order.indexOf(over.id as CardSectionKey);
+    if (oldIdx < 0 || newIdx < 0) return;
+    setOrder(arrayMove(order, oldIdx, newIdx));
+  };
+
+  const dirty = JSON.stringify(order) !== JSON.stringify(saved);
+
+  return (
+    <div className="grid lg:grid-cols-[360px_1fr] gap-6">
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-xl font-bold">Kortlayout</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Dra för att ändra ordningen på sektionerna i lokalkorten. Bilden och
+            knappen "Visa beskrivning" har fasta positioner.
+          </p>
+        </div>
+
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+          <SortableContext items={order} strategy={verticalListSortingStrategy}>
+            <ul className="space-y-2">
+              {order.map((k) => (
+                <SortableSectionRow key={k} id={k} label={CARD_SECTION_LABELS[k]} />
+              ))}
+            </ul>
+          </SortableContext>
+        </DndContext>
+
+        <div className="flex gap-2">
+          <button
+            disabled={!dirty || save.isPending}
+            onClick={() =>
+              save.mutate(order, {
+                onSuccess: () => toast.success("Layouten sparad"),
+                onError: (e) => toast.error((e as Error).message),
+              })
+            }
+            className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50"
+          >
+            Spara layout
+          </button>
+          <button
+            disabled={!dirty}
+            onClick={() => setOrder(saved)}
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent disabled:opacity-50"
+          >
+            Återställ
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-semibold text-muted-foreground mb-2">Förhandsvisning</h3>
+        <SpaceCard space={DUMMY_SPACE} layoutOverride={order} />
+      </div>
+    </div>
+  );
+}
+
+function SortableSectionRow({ id, label }: { id: string; label: string }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5"
+    >
+      <button
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
+        aria-label="Dra för att flytta"
+      >
+        <GripVertical className="h-4 w-4" />
+      </button>
+      <span className="text-sm">{label}</span>
+    </li>
+  );
+}
+
