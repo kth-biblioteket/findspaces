@@ -734,23 +734,16 @@ function FilterCategoryCard({
           className="flex-1 min-w-0 font-semibold text-base bg-transparent border border-transparent rounded-md px-2 py-1 hover:border-border focus:border-primary focus:outline-none"
         />
 
-        {cat.locked && (
-          <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wide font-semibold text-muted-foreground" title="Inbyggd kategori — kan inte tas bort">
-            <Lock className="h-3 w-3" /> Inbyggd
-          </span>
-        )}
-
         <button
           onClick={() => setEditingCat(true)}
           className="p-1.5 rounded-md hover:bg-accent text-muted-foreground" title="Egenskaper"
         ><Pencil className="h-3.5 w-3.5" /></button>
 
-        {!cat.locked && (
-          <button
-            onClick={handleDeleteCategory}
-            className="p-1.5 rounded-md hover:bg-destructive/10 text-destructive" title="Ta bort kategori"
-          ><Trash2 className="h-3.5 w-3.5" /></button>
-        )}
+        <button
+          onClick={handleDeleteCategory}
+          className="p-1.5 rounded-md hover:bg-destructive/10 text-destructive" title="Ta bort kategori"
+        ><Trash2 className="h-3.5 w-3.5" /></button>
+
 
         <button
           onClick={() => setCreating(true)}
