@@ -296,6 +296,7 @@ function AdminPage() {
             <TabsTrigger value="spaces">Lokaler</TabsTrigger>
             <TabsTrigger value="filters">Filteralternativ</TabsTrigger>
             <TabsTrigger value="layout">Kortlayout</TabsTrigger>
+            <TabsTrigger value="landing">Startsida</TabsTrigger>
           </TabsList>
 
           <TabsContent value="spaces" className="space-y-4">
