@@ -182,3 +182,42 @@ function SpaceFinder() {
     </div>
   );
 }
+
+function IntentButton({
+  icon, label, active, onClick,
+}: { icon: React.ReactNode; label: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-colors",
+        active
+          ? "bg-[var(--kth-navy)] text-white"
+          : "bg-secondary text-foreground hover:bg-accent"
+      )}
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
+  );
+}
+
+function SizePill({
+  label, active, onClick,
+}: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "rounded-full px-4 py-2 text-sm font-medium border transition-colors",
+        active
+          ? "bg-primary text-primary-foreground border-primary"
+          : "bg-card text-foreground border-border hover:bg-accent"
+      )}
+    >
+      {label}
+    </button>
+  );
+}
