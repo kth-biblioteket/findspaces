@@ -847,42 +847,33 @@ function CategoryDialog({
             </div>
           </Field>
 
-          {!isLocked && (
-            <>
-              <Field label="Hur ska val matchas mot lokaler?">
-                <div className="flex gap-2">
-                  {(["any", "all"] as const).map((m) => (
-                    <button
-                      key={m} type="button" onClick={() => setMatchMode(m)}
-                      className={cn(
-                        "flex-1 rounded-lg px-3 py-2 text-sm border text-left",
-                        matchMode === m ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-transparent"
-                      )}
-                    >
-                      <div className="font-medium">{m === "any" ? "Något av" : "Alla av"}</div>
-                      <div className="text-xs opacity-80">
-                        {m === "any" ? "Lokalen matchar om något val finns" : "Lokalen måste ha alla valda"}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </Field>
+          <Field label="Hur ska val matchas mot lokaler?">
+            <div className="flex gap-2">
+              {(["any", "all"] as const).map((m) => (
+                <button
+                  key={m} type="button" onClick={() => setMatchMode(m)}
+                  className={cn(
+                    "flex-1 rounded-lg px-3 py-2 text-sm border text-left",
+                    matchMode === m ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-transparent"
+                  )}
+                >
+                  <div className="font-medium">{m === "any" ? "Något av" : "Alla av"}</div>
+                  <div className="text-xs opacity-80">
+                    {m === "any" ? "Lokalen matchar om något val finns" : "Lokalen måste ha alla valda"}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </Field>
 
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox" checked={isSingle}
-                  onChange={(e) => setIsSingle(e.target.checked)}
-                />
-                Endast ett alternativ kan väljas per lokal (som Ljudnivå)
-              </label>
-            </>
-          )}
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox" checked={isSingle}
+              onChange={(e) => setIsSingle(e.target.checked)}
+            />
+            Endast ett alternativ kan väljas per lokal (som Ljudnivå)
+          </label>
 
-          {isLocked && (
-            <p className="text-xs text-muted-foreground">
-              Detta är en inbyggd kategori. Du kan ändra titel och visningsstil, men inte matchningsläge.
-            </p>
-          )}
         </div>
         <DialogFooter>
           <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm border border-border">Avbryt</button>
