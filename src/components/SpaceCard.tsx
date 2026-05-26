@@ -66,6 +66,33 @@ export function SpaceCard({ space }: { space: Space }) {
             })}
           </div>
 
+          {(space.map_url || space.booking_url) && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {space.map_url && (
+                <a
+                  href={space.map_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3.5 py-1.5 text-xs font-medium hover:opacity-90"
+                >
+                  <MapPin className="h-3.5 w-3.5" /> Visa på karta
+                </a>
+              )}
+              {space.booking_url && (
+                <a
+                  href={space.booking_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="inline-flex items-center gap-2 rounded-full bg-secondary text-foreground border border-border px-3.5 py-1.5 text-xs font-medium hover:bg-accent"
+                >
+                  <Calendar className="h-3.5 w-3.5" /> Se bokningsschema
+                </a>
+              )}
+            </div>
+          )}
+
           <div className="mt-auto pt-3 flex items-center text-xs text-muted-foreground">
             <ChevronDown
               className={cn("h-4 w-4 transition-transform", open && "rotate-180")}
@@ -74,7 +101,7 @@ export function SpaceCard({ space }: { space: Space }) {
           </div>
         </div>
 
-        <div className="w-24 sm:w-40 md:w-48 shrink-0 aspect-[4/3] overflow-hidden">
+        <div className="w-40 sm:w-56 md:w-72 lg:w-80 shrink-0 aspect-[4/3] overflow-hidden">
           <ImageCarousel images={images} alts={space.image_alts ?? []} alt={space.name} />
         </div>
       </div>
@@ -91,32 +118,6 @@ export function SpaceCard({ space }: { space: Space }) {
             <p className="text-sm text-foreground/80 leading-relaxed pt-3">
               {space.description}
             </p>
-            {(space.map_url || space.booking_url) && (
-              <div className="mt-4 flex flex-wrap gap-2">
-                {space.map_url && (
-                  <a
-                    href={space.map_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90"
-                  >
-                    <MapPin className="h-4 w-4" /> Visa på karta
-                  </a>
-                )}
-                {space.booking_url && (
-                  <a
-                    href={space.booking_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center gap-2 rounded-full bg-secondary text-foreground border border-border px-4 py-2 text-sm font-medium hover:bg-accent"
-                  >
-                    <Calendar className="h-4 w-4" /> Se bokningsschema
-                  </a>
-                )}
-              </div>
-            )}
           </div>
         </div>
       </div>
