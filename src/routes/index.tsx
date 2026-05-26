@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { SlidersHorizontal, Library, Settings, User, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
