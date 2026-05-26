@@ -220,7 +220,11 @@ function AdminPage() {
     const { error } = await supabase.storage.from("space-images").upload(path, file);
     if (error) { toast.error(error.message); return; }
     const { data } = supabase.storage.from("space-images").getPublicUrl(path);
-    setForm((f) => ({ ...f, images: [...f.images, data.publicUrl] }));
+    setForm((f) => ({
+      ...f,
+      images: [...f.images, data.publicUrl],
+      image_alts: [...f.image_alts, ""],
+    }));
     toast.success("Bild uppladdad");
   };
 
@@ -228,15 +232,32 @@ function AdminPage() {
     setForm((f) => {
       const j = i + delta;
       if (j < 0 || j >= f.images.length) return f;
-      const next = [...f.images];
-      [next[i], next[j]] = [next[j], next[i]];
-      return { ...f, images: next };
+      const imgs = [...f.images];
+      const alts = [...f.image_alts];
+      while (alts.length < imgs.length) alts.push("");
+      [imgs[i], imgs[j]] = [imgs[j], imgs[i]];
+      [alts[i], alts[j]] = [alts[j], alts[i]];
+      return { ...f, images: imgs, image_alts: alts };
     });
   };
 
   const removeImage = (i: number) => {
-    setForm((f) => ({ ...f, images: f.images.filter((_, idx) => idx !== i) }));
+    setForm((f) => ({
+      ...f,
+      images: f.images.filter((_, idx) => idx !== i),
+      image_alts: f.image_alts.filter((_, idx) => idx !== i),
+    }));
   };
+
+  const setAlt = (i: number, value: string) => {
+    setForm((f) => {
+      const alts = [...f.image_alts];
+      while (alts.length < f.images.length) alts.push("");
+      alts[i] = value;
+      return { ...f, image_alts: alts };
+    });
+  };
+
 
   const openEdit = (s: Space) => { setForm(spaceToForm(s)); setOpen(true); };
   const openNew = () => { setForm(emptyForm); setOpen(true); };
