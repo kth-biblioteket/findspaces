@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, MapPin, Calendar, User, Users } from "lucide-react";
+import { ChevronDown, MapPin, Calendar } from "lucide-react";
 import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { OptionIcon } from "./OptionIcon";
@@ -47,18 +47,6 @@ export function SpaceCard({ space }: { space: Space }) {
                 {l}
               </span>
             ))}
-            {space.capacity != null && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-[var(--kth-blue)]/10 text-[var(--kth-blue)] text-xs font-semibold px-2.5 py-1">
-                {space.capacity >= 2 ? (
-                  <Users className="h-3.5 w-3.5" />
-                ) : (
-                  <User className="h-3.5 w-3.5" />
-                )}
-                {space.capacity <= 1
-                  ? `${space.capacity} plats`
-                  : `Max ${space.capacity} platser`}
-              </span>
-            )}
           </div>
 
           <div className="mt-3 flex flex-wrap items-center gap-2">

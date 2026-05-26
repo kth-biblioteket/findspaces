@@ -1,19 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { SlidersHorizontal, Library, Settings, User, Users } from "lucide-react";
+import { SlidersHorizontal, Library, Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { type Space, getSpaceValues } from "@/lib/spaces";
 import { useFilterCategories } from "@/lib/useFilterCategories";
 import { FilterPanel, emptyFilters, type Filters } from "@/components/FilterPanel";
 import { SpaceCard } from "@/components/SpaceCard";
-import { cn } from "@/lib/utils";
 import {
   Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle,
 } from "@/components/ui/sheet";
-
-type TopIntent = "single" | "group" | null;
-type GroupSize = "small" | "large" | null;
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,8 +23,6 @@ export const Route = createFileRoute("/")({
 
 function SpaceFinder() {
   const [filters, setFilters] = useState<Filters>(emptyFilters);
-  const [topIntent, setTopIntent] = useState<TopIntent>(null);
-  const [groupSize, setGroupSize] = useState<GroupSize>(null);
 
   const { data: spaces = [], isLoading } = useQuery({
     queryKey: ["spaces"],
@@ -46,19 +40,7 @@ function SpaceFinder() {
     const q = filters.query.trim().toLowerCase();
     return spaces.filter((s) => {
       if (q && !s.name.toLowerCase().includes(q) && !(s.lokaltyp ?? []).some((l) => l.toLowerCase().includes(q))) return false;
-
-      // Top-level intent: single vs group based on capacity
-      const cap = s.capacity;
-      if (topIntent === "single") {
-        if (cap != null && cap > 1) return false;
-      } else if (topIntent === "group") {
-        if (cap == null || cap < 2) return false;
-        if (groupSize === "small" && !(cap >= 2 && cap <= 4)) return false;
-        if (groupSize === "large" && !(cap >= 5)) return false;
-      }
-
       for (const cat of categories) {
-        if (cat.key === "intent") continue;
         const selected = filters.byCategory[cat.key] ?? [];
         if (selected.length === 0) continue;
         const values = getSpaceValues(s, cat.key);
@@ -70,7 +52,7 @@ function SpaceFinder() {
       }
       return true;
     });
-  }, [spaces, filters, categories, topIntent, groupSize]);
+  }, [spaces, filters, categories]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -121,46 +103,6 @@ function SpaceFinder() {
         </div>
 
         <main>
-          {/* Top-level intent bar */}
-          <div className="mb-4 bg-card rounded-2xl border border-border p-2 grid grid-cols-2 gap-2">
-            <IntentButton
-              icon={<User className="h-5 w-5" />}
-              label="Enskilt"
-              active={topIntent === "single"}
-              onClick={() => {
-                setTopIntent(topIntent === "single" ? null : "single");
-                setGroupSize(null);
-              }}
-            />
-            <IntentButton
-              icon={<Users className="h-5 w-5" />}
-              label="Grupparbete"
-              active={topIntent === "group"}
-              onClick={() =>
-                setTopIntent(topIntent === "group" ? null : "group")
-              }
-            />
-          </div>
-
-          {/* Conditional group size */}
-          {topIntent === "group" && (
-            <div className="mb-4 bg-card rounded-2xl border border-border p-4">
-              <h3 className="text-sm font-semibold mb-3">Gruppstorlek</h3>
-              <div className="flex flex-wrap gap-2">
-                <SizePill
-                  label="2–4 pers"
-                  active={groupSize === "small"}
-                  onClick={() => setGroupSize(groupSize === "small" ? null : "small")}
-                />
-                <SizePill
-                  label="5+ pers"
-                  active={groupSize === "large"}
-                  onClick={() => setGroupSize(groupSize === "large" ? null : "large")}
-                />
-              </div>
-            </div>
-          )}
-
           <div className="flex items-baseline justify-between mb-4">
             <h2 className="text-xl font-bold">Studieplatser</h2>
             <span className="text-sm text-muted-foreground">
@@ -180,44 +122,5 @@ function SpaceFinder() {
         </main>
       </div>
     </div>
-  );
-}
-
-function IntentButton({
-  icon, label, active, onClick,
-}: { icon: ReactNode; label: string; active: boolean; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-colors",
-        active
-          ? "bg-[var(--kth-navy)] text-white"
-          : "bg-secondary text-foreground hover:bg-accent"
-      )}
-    >
-      {icon}
-      <span>{label}</span>
-    </button>
-  );
-}
-
-function SizePill({
-  label, active, onClick,
-}: { label: string; active: boolean; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "rounded-full px-4 py-2 text-sm font-medium border transition-colors",
-        active
-          ? "bg-primary text-primary-foreground border-primary"
-          : "bg-card text-foreground border-border hover:bg-accent"
-      )}
-    >
-      {label}
-    </button>
   );
 }

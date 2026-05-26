@@ -19,7 +19,6 @@ export type Space = {
   sort_order: number;
   floor: string | null;
   tags: Record<string, string[]>;
-  capacity: number | null;
 };
 
 /** Category keys that map to dedicated columns on the spaces table. */

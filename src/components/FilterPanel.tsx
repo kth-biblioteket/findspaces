@@ -42,7 +42,7 @@ export function FilterPanel({
         </label>
       </div>
 
-      {categories.filter((c) => c.key !== "intent").map((cat) => {
+      {categories.map((cat) => {
         const opts = byKey[cat.key] ?? [];
         if (opts.length === 0) return null;
         const selected = filters.byCategory[cat.key] ?? [];

@@ -44,7 +44,6 @@ type FormState = {
   name: string;
   description: string;
   floor: string;
-  capacity: string;
   intent: string[];
   noise: string;
   equipment: string[];
@@ -59,7 +58,7 @@ type FormState = {
 };
 
 const emptyForm: FormState = {
-  name: "", description: "", floor: "", capacity: "",
+  name: "", description: "", floor: "",
   intent: [], noise: "", equipment: [], facilities: [], lokaltyp: [],
   tags: {},
   images: [], image_alts: [], map_url: "", booking_url: "",
@@ -77,7 +76,6 @@ function spaceToForm(s: Space): FormState {
     id: s.id,
     name: s.name, description: s.description,
     floor: s.floor ?? "",
-    capacity: s.capacity != null ? String(s.capacity) : "",
     intent: s.intent ?? [], noise: s.noise ?? "",
     equipment: s.equipment ?? [], facilities: s.facilities ?? [],
     lokaltyp: s.lokaltyp ?? [],
@@ -174,7 +172,6 @@ function AdminPage() {
       const payload: any = {
         name: f.name, description: f.description,
         floor: f.floor?.trim() ? f.floor.trim() : null,
-        capacity: f.capacity.trim() === "" ? null : Math.max(0, parseInt(f.capacity, 10) || 0),
         intent: f.intent, noise: f.noise || "Tyst",
         equipment: f.equipment,
         facilities: f.facilities, lokaltyp: f.lokaltyp,
@@ -316,26 +313,14 @@ function AdminPage() {
                         className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                       />
                     </Field>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Field label="Våningsplan">
-                        <input
-                          value={form.floor}
-                          onChange={(e) => setForm({ ...form, floor: e.target.value })}
-                          placeholder="t.ex. Plan 3"
-                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                        />
-                      </Field>
-                      <Field label="Kapacitet (Max platser)">
-                        <input
-                          type="number"
-                          min={0}
-                          value={form.capacity}
-                          onChange={(e) => setForm({ ...form, capacity: e.target.value })}
-                          placeholder="t.ex. 4"
-                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                        />
-                      </Field>
-                    </div>
+                    <Field label="Våningsplan">
+                      <input
+                        value={form.floor}
+                        onChange={(e) => setForm({ ...form, floor: e.target.value })}
+                        placeholder="t.ex. Plan 3"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                      />
+                    </Field>
 
                     <Field label="Beskrivning">
                       <textarea
