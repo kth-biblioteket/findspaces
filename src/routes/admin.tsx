@@ -797,7 +797,7 @@ function CategoryDialog({
   const [isSingle, setIsSingle] = useState<boolean>(category?.is_single_select ?? false);
 
   const isNew = !category;
-  const isLocked = !!category?.locked;
+
 
   const handleSave = async () => {
     try {
