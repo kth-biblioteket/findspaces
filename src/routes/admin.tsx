@@ -77,6 +77,7 @@ function spaceToForm(s: Space): FormState {
     id: s.id,
     name: s.name, description: s.description,
     floor: s.floor ?? "",
+    capacity: s.capacity != null ? String(s.capacity) : "",
     intent: s.intent ?? [], noise: s.noise ?? "",
     equipment: s.equipment ?? [], facilities: s.facilities ?? [],
     lokaltyp: s.lokaltyp ?? [],
