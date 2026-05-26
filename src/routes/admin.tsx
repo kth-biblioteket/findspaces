@@ -703,7 +703,6 @@ function FilterCategoryCard({
   };
 
   const handleDeleteCategory = async () => {
-    if (cat.locked) return;
     if (!confirm(`Ta bort kategorin "${cat.title}" och alla dess alternativ?`)) return;
     try {
       // First delete options for this category, then the category
@@ -714,6 +713,7 @@ function FilterCategoryCard({
       toast.error(e.message);
     }
   };
+
 
   return (
     <div className="bg-card rounded-2xl border border-border p-4">
