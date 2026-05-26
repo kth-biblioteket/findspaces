@@ -18,6 +18,7 @@ export type Space = {
   booking_url: string | null;
   sort_order: number;
   floor: string | null;
+  capacity: number | null;
   tags: Record<string, string[]>;
 };
 
