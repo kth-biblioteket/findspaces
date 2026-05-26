@@ -1065,7 +1065,7 @@ function SortableSpaceRow({
       </td>
       <td className="px-4 py-3 font-medium">{space.name}</td>
       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.floor ?? "—"}</td>
-      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.category}</td>
+      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.lokaltyp?.join(", ") || "—"}</td>
       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.noise}</td>
       <td className="px-4 py-3 text-right">
         <div className="inline-flex gap-1">
