@@ -7,6 +7,7 @@ import { type Space, getSpaceValues } from "@/lib/spaces";
 import { useFilterCategories } from "@/lib/useFilterCategories";
 import { FilterPanel, emptyFilters, type Filters } from "@/components/FilterPanel";
 import { SpaceCard } from "@/components/SpaceCard";
+import { useLandingMessage } from "@/lib/useLandingMessage";
 import {
   Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle,
 } from "@/components/ui/sheet";
