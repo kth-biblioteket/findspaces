@@ -1156,8 +1156,7 @@ function CardLayoutTab() {
   const save = useSaveCardLayout();
 
   // Sync when remote layout loads/changes.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useState(() => { setOrder(saved); return undefined; });
+  useEffect(() => { setOrder(saved); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [saved.join("|")]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
