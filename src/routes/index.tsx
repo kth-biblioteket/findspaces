@@ -185,7 +185,7 @@ function SpaceFinder() {
 
 function IntentButton({
   icon, label, active, onClick,
-}: { icon: React.ReactNode; label: string; active: boolean; onClick: () => void }) {
+}: { icon: ReactNode; label: string; active: boolean; onClick: () => void }) {
   return (
     <button
       type="button"
