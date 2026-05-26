@@ -531,6 +531,11 @@ function AdminPage() {
             <FiltersTab categories={categories} byKey={byKey} />
           </TabsContent>
 
+          <TabsContent value="icons">
+            <IconLibraryTab />
+          </TabsContent>
+
+
           <TabsContent value="layout">
             <CardLayoutTab />
           </TabsContent>
