@@ -410,7 +410,7 @@ function AdminPage() {
                       className="px-4 py-2 rounded-lg text-sm border border-border"
                     >Avbryt</button>
                     <button
-                      disabled={save.isPending || !form.name || !form.category}
+                      disabled={save.isPending || !form.name}
                       onClick={() => save.mutate(form)}
                       className="px-4 py-2 rounded-lg text-sm bg-primary text-primary-foreground disabled:opacity-50"
                     >{save.isPending ? "Sparar..." : "Spara"}</button>
