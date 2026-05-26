@@ -171,9 +171,11 @@ function AdminPage() {
 
   const save = useMutation({
     mutationFn: async (f: FormState) => {
+      const capNum = f.capacity.trim() ? parseInt(f.capacity, 10) : NaN;
       const payload: any = {
         name: f.name, description: f.description,
         floor: f.floor?.trim() ? f.floor.trim() : null,
+        capacity: Number.isFinite(capNum) ? capNum : null,
         intent: f.intent, noise: f.noise || "Tyst",
         equipment: f.equipment,
         facilities: f.facilities, lokaltyp: f.lokaltyp,
