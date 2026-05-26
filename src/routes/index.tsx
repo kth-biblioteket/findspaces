@@ -27,6 +27,8 @@ export const Route = createFileRoute("/")({
 
 function SpaceFinder() {
   const [filters, setFilters] = useState<Filters>(emptyFilters);
+  const [topIntent, setTopIntent] = useState<TopIntent>(null);
+  const [groupSize, setGroupSize] = useState<GroupSize>(null);
 
   const { data: spaces = [], isLoading } = useQuery({
     queryKey: ["spaces"],
@@ -44,7 +46,19 @@ function SpaceFinder() {
     const q = filters.query.trim().toLowerCase();
     return spaces.filter((s) => {
       if (q && !s.name.toLowerCase().includes(q) && !(s.lokaltyp ?? []).some((l) => l.toLowerCase().includes(q))) return false;
+
+      // Top-level intent: single vs group based on capacity
+      const cap = s.capacity;
+      if (topIntent === "single") {
+        if (cap != null && cap > 1) return false;
+      } else if (topIntent === "group") {
+        if (cap == null || cap < 2) return false;
+        if (groupSize === "small" && !(cap >= 2 && cap <= 4)) return false;
+        if (groupSize === "large" && !(cap >= 5)) return false;
+      }
+
       for (const cat of categories) {
+        if (cat.key === "intent") continue;
         const selected = filters.byCategory[cat.key] ?? [];
         if (selected.length === 0) continue;
         const values = getSpaceValues(s, cat.key);
@@ -56,7 +70,7 @@ function SpaceFinder() {
       }
       return true;
     });
-  }, [spaces, filters, categories]);
+  }, [spaces, filters, categories, topIntent, groupSize]);
 
   return (
     <div className="min-h-screen bg-background">
