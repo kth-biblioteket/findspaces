@@ -36,6 +36,12 @@ function SpaceFinder() {
   });
 
   const { data: categories = [] } = useFilterCategories();
+  const { data: landingMessage } = useLandingMessage();
+
+  const hasActiveFilter =
+    filters.query.trim().length > 0 ||
+    filters.workMode !== null ||
+    Object.values(filters.byCategory).some((arr) => arr.length > 0);
 
   const filtered = useMemo(() => {
     const q = filters.query.trim().toLowerCase();
