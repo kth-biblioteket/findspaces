@@ -355,40 +355,49 @@ function AdminPage() {
                     <Field label={`Bilder (max ${MAX_IMAGES}, första är primär)`}>
                       <div className="space-y-3">
                         {form.images.length > 0 && (
-                          <ul className="flex gap-3 flex-wrap">
+                          <ul className="space-y-3">
                             {form.images.map((url, i) => (
-                              <li key={url + i} className="relative group">
-                                <img src={url} alt="" className="h-20 w-28 rounded-md object-cover border border-border" />
-                                {i === 0 && (
-                                  <span className="absolute top-1 left-1 text-[10px] font-semibold bg-primary text-primary-foreground rounded px-1.5 py-0.5">
-                                    Primär
-                                  </span>
-                                )}
-                                <div className="absolute bottom-1 left-1 right-1 flex items-center justify-between gap-1">
-                                  <div className="flex gap-1">
+                              <li key={url + i} className="flex gap-3 items-start rounded-lg border border-border p-2">
+                                <div className="relative shrink-0">
+                                  <img src={url} alt="" className="h-20 w-28 object-cover border border-border" />
+                                  {i === 0 && (
+                                    <span className="absolute top-1 left-1 text-[10px] font-semibold bg-primary text-primary-foreground rounded px-1.5 py-0.5">
+                                      Primär
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0 space-y-2">
+                                  <input
+                                    value={form.image_alts[i] ?? ""}
+                                    onChange={(e) => setAlt(i, e.target.value)}
+                                    placeholder="Alt-text (beskriv bilden för skärmläsare)"
+                                    className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs"
+                                  />
+                                  <div className="flex items-center gap-1">
                                     <button
                                       type="button" onClick={() => moveImage(i, -1)}
                                       disabled={i === 0}
-                                      className="h-5 w-5 rounded bg-black/60 text-white flex items-center justify-center disabled:opacity-30"
-                                      aria-label="Flytta vänster"
-                                    ><ChevronLeft className="h-3 w-3" /></button>
+                                      className="h-7 w-7 rounded bg-secondary text-foreground flex items-center justify-center disabled:opacity-30"
+                                      aria-label="Flytta upp"
+                                    ><ChevronLeft className="h-3.5 w-3.5" /></button>
                                     <button
                                       type="button" onClick={() => moveImage(i, 1)}
                                       disabled={i === form.images.length - 1}
-                                      className="h-5 w-5 rounded bg-black/60 text-white flex items-center justify-center disabled:opacity-30"
-                                      aria-label="Flytta höger"
-                                    ><ChevronRight className="h-3 w-3" /></button>
+                                      className="h-7 w-7 rounded bg-secondary text-foreground flex items-center justify-center disabled:opacity-30"
+                                      aria-label="Flytta ner"
+                                    ><ChevronRight className="h-3.5 w-3.5" /></button>
+                                    <button
+                                      type="button" onClick={() => removeImage(i)}
+                                      className="h-7 w-7 rounded bg-destructive/10 text-destructive flex items-center justify-center ml-auto"
+                                      aria-label="Ta bort"
+                                    ><X className="h-3.5 w-3.5" /></button>
                                   </div>
-                                  <button
-                                    type="button" onClick={() => removeImage(i)}
-                                    className="h-5 w-5 rounded bg-destructive text-destructive-foreground flex items-center justify-center"
-                                    aria-label="Ta bort"
-                                  ><X className="h-3 w-3" /></button>
                                 </div>
                               </li>
                             ))}
                           </ul>
                         )}
+
                         <div className="flex items-center gap-3 flex-wrap">
                           <label className={cn(
                             "inline-flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2 text-sm cursor-pointer hover:bg-accent",
