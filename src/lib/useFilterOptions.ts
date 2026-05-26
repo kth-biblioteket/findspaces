@@ -19,8 +19,10 @@ export function useFilterOptions() {
 
 export function groupOptions(options: FilterOption[]) {
   const groups: Record<FilterCategory, FilterOption[]> = {
-    intent: [], noise: [], equipment: [], facility: [],
+    intent: [], noise: [], equipment: [], facility: [], lokaltyp: [],
   };
-  for (const o of options) groups[o.category].push(o);
+  for (const o of options) {
+    if (groups[o.category]) groups[o.category].push(o);
+  }
   return groups;
 }
