@@ -1,15 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { SlidersHorizontal, Library, Settings } from "lucide-react";
+import { SlidersHorizontal, Library, Settings, User, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { type Space, getSpaceValues } from "@/lib/spaces";
 import { useFilterCategories } from "@/lib/useFilterCategories";
 import { FilterPanel, emptyFilters, type Filters } from "@/components/FilterPanel";
 import { SpaceCard } from "@/components/SpaceCard";
+import { cn } from "@/lib/utils";
 import {
   Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle,
 } from "@/components/ui/sheet";
+
+type TopIntent = "single" | "group" | null;
+type GroupSize = "small" | "large" | null;
 
 export const Route = createFileRoute("/")({
   head: () => ({
