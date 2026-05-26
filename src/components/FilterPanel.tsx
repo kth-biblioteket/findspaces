@@ -1,23 +1,17 @@
 import { Search, Check } from "lucide-react";
 import { PillToggle } from "./PillToggle";
 import { OptionIcon } from "./OptionIcon";
-import { useFilterOptions, groupOptions } from "@/lib/useFilterOptions";
-import { useCategoryTitles } from "@/lib/useSettings";
-import { DEFAULT_CATEGORY_TITLES, type FilterOption } from "@/lib/spaces";
+import { useFilterOptions, groupOptionsByKey } from "@/lib/useFilterOptions";
+import { useFilterCategories } from "@/lib/useFilterCategories";
+import { type FilterOption, type FilterCategoryRow } from "@/lib/spaces";
 import { cn } from "@/lib/utils";
 
 export type Filters = {
   query: string;
-  intent: string[];
-  noise: string[];
-  equipment: string[];
-  facilities: string[];
-  lokaltyp: string[];
+  byCategory: Record<string, string[]>;
 };
 
-export const emptyFilters: Filters = {
-  query: "", intent: [], noise: [], equipment: [], facilities: [], lokaltyp: [],
-};
+export const emptyFilters: Filters = { query: "", byCategory: {} };
 
 function toggle(arr: string[], v: string) {
   return arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
@@ -27,9 +21,12 @@ export function FilterPanel({
   filters, onChange,
 }: { filters: Filters; onChange: (f: Filters) => void }) {
   const { data: options = [] } = useFilterOptions();
-  const { data: titles } = useCategoryTitles();
-  const groups = groupOptions(options);
-  const t = titles ?? DEFAULT_CATEGORY_TITLES;
+  const { data: categories = [] } = useFilterCategories();
+  const byKey = groupOptionsByKey(options);
+
+  const setSelected = (key: string, values: string[]) => {
+    onChange({ ...filters, byCategory: { ...filters.byCategory, [key]: values } });
+  };
 
   return (
     <div className="space-y-7">
@@ -45,79 +42,87 @@ export function FilterPanel({
         </label>
       </div>
 
-      <div>
-        <h3 className="text-sm font-semibold mb-3">{t.intent}</h3>
-        <ul className="space-y-1">
-          {groups.intent.map((opt) => {
-            const selected = filters.intent.includes(opt.label);
-            return (
-              <li key={opt.id}>
-                <button
-                  type="button"
-                  onClick={() => onChange({ ...filters, intent: toggle(filters.intent, opt.label) })}
-                  className={cn(
-                    "w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors inline-flex items-center gap-2",
-                    selected
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-accent text-foreground"
-                  )}
-                >
-                  <span className="inline-flex h-4 w-4 items-center justify-center shrink-0">
-                    {selected ? (
-                      <Check className="h-4 w-4" />
-                    ) : (
-                      <span className="h-3 w-3 rounded-full border border-current opacity-30" />
-                    )}
-                  </span>
-                  <OptionIcon option={opt} className="h-4 w-4" />
-                  <span>{opt.label}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-
-      <FilterGroup
-        title={t.noise}
-        options={groups.noise}
-        selected={filters.noise}
-        onToggle={(v) => onChange({ ...filters, noise: toggle(filters.noise, v) })}
-      />
-      <FilterGroup
-        title={t.lokaltyp}
-        options={groups.lokaltyp}
-        selected={filters.lokaltyp}
-        onToggle={(v) => onChange({ ...filters, lokaltyp: toggle(filters.lokaltyp, v) })}
-      />
-      <FilterGroup
-        title={t.equipment}
-        options={groups.equipment}
-        selected={filters.equipment}
-        onToggle={(v) => onChange({ ...filters, equipment: toggle(filters.equipment, v) })}
-      />
-      <FilterGroup
-        title={t.facility}
-        options={groups.facility}
-        selected={filters.facilities}
-        onToggle={(v) => onChange({ ...filters, facilities: toggle(filters.facilities, v) })}
-      />
+      {categories.map((cat) => {
+        const opts = byKey[cat.key] ?? [];
+        if (opts.length === 0) return null;
+        const selected = filters.byCategory[cat.key] ?? [];
+        return cat.style === "list" ? (
+          <ListGroup
+            key={cat.id}
+            cat={cat}
+            options={opts}
+            selected={selected}
+            onToggle={(v) => setSelected(cat.key, toggle(selected, v))}
+          />
+        ) : (
+          <PillGroup
+            key={cat.id}
+            cat={cat}
+            options={opts}
+            selected={selected}
+            onToggle={(v) => setSelected(cat.key, toggle(selected, v))}
+          />
+        );
+      })}
     </div>
   );
 }
 
-function FilterGroup({
-  title, options, selected, onToggle,
+function ListGroup({
+  cat, options, selected, onToggle,
 }: {
-  title: string;
+  cat: FilterCategoryRow;
   options: FilterOption[];
   selected: string[];
   onToggle: (v: string) => void;
 }) {
-  if (options.length === 0) return null;
   return (
     <div>
-      <h3 className="text-sm font-semibold mb-3">{title}</h3>
+      <h3 className="text-sm font-semibold mb-3">{cat.title}</h3>
+      <ul className="space-y-1">
+        {options.map((opt) => {
+          const isSelected = selected.includes(opt.label);
+          return (
+            <li key={opt.id}>
+              <button
+                type="button"
+                onClick={() => onToggle(opt.label)}
+                className={cn(
+                  "w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors inline-flex items-center gap-2",
+                  isSelected
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-accent text-foreground"
+                )}
+              >
+                <span className="inline-flex h-4 w-4 items-center justify-center shrink-0">
+                  {isSelected ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <span className="h-3 w-3 rounded-full border border-current opacity-30" />
+                  )}
+                </span>
+                <OptionIcon option={opt} className="h-4 w-4" />
+                <span>{opt.label}</span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+function PillGroup({
+  cat, options, selected, onToggle,
+}: {
+  cat: FilterCategoryRow;
+  options: FilterOption[];
+  selected: string[];
+  onToggle: (v: string) => void;
+}) {
+  return (
+    <div>
+      <h3 className="text-sm font-semibold mb-3">{cat.title}</h3>
       <div className="flex flex-wrap gap-2">
         {options.map((o) => (
           <PillToggle

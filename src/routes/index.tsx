@@ -3,7 +3,8 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { SlidersHorizontal, Library, Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import type { Space } from "@/lib/spaces";
+import { type Space, getSpaceValues } from "@/lib/spaces";
+import { useFilterCategories } from "@/lib/useFilterCategories";
 import { FilterPanel, emptyFilters, type Filters } from "@/components/FilterPanel";
 import { SpaceCard } from "@/components/SpaceCard";
 import {
@@ -33,18 +34,25 @@ function SpaceFinder() {
     },
   });
 
+  const { data: categories = [] } = useFilterCategories();
+
   const filtered = useMemo(() => {
     const q = filters.query.trim().toLowerCase();
     return spaces.filter((s) => {
       if (q && !s.name.toLowerCase().includes(q) && !s.category.toLowerCase().includes(q)) return false;
-      if (filters.intent.length && !filters.intent.some((i) => s.intent.includes(i))) return false;
-      if (filters.noise.length && !filters.noise.includes(s.noise)) return false;
-      if (filters.equipment.length && !filters.equipment.every((e) => s.equipment.includes(e))) return false;
-      if (filters.facilities.length && !filters.facilities.every((f) => s.facilities.includes(f))) return false;
-      if (filters.lokaltyp.length && !filters.lokaltyp.some((l) => (s.lokaltyp ?? []).includes(l))) return false;
+      for (const cat of categories) {
+        const selected = filters.byCategory[cat.key] ?? [];
+        if (selected.length === 0) continue;
+        const values = getSpaceValues(s, cat.key);
+        if (cat.match_mode === "all") {
+          if (!selected.every((v) => values.includes(v))) return false;
+        } else {
+          if (!selected.some((v) => values.includes(v))) return false;
+        }
+      }
       return true;
     });
-  }, [spaces, filters]);
+  }, [spaces, filters, categories]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -70,14 +78,12 @@ function SpaceFinder() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 lg:grid lg:grid-cols-[320px_1fr] lg:gap-8">
-        {/* Desktop sidebar */}
         <aside className="hidden lg:block">
           <div className="sticky top-6 bg-card rounded-2xl border border-border p-6">
             <FilterPanel filters={filters} onChange={setFilters} />
           </div>
         </aside>
 
-        {/* Mobile filter sheet */}
         <div className="lg:hidden mb-4">
           <Sheet>
             <SheetTrigger asChild>
