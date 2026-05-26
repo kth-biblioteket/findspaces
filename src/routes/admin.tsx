@@ -953,6 +953,8 @@ function FilterOptionDialog({
   const [iconUrl, setIconUrl] = useState<string | null>(option?.icon_url ?? null);
   const [defaultIcon, setDefaultIcon] = useState<string | null>(option?.default_icon ?? null);
   const [uploading, setUploading] = useState(false);
+  const { data: hiddenIcons = [] } = useHiddenIcons();
+
 
   const save = useMutation({
     mutationFn: async () => {
@@ -999,7 +1001,8 @@ function FilterOptionDialog({
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+
         <DialogHeader>
           <DialogTitle>{option ? "Redigera alternativ" : "Nytt alternativ"}</DialogTitle>
         </DialogHeader>
@@ -1041,8 +1044,8 @@ function FilterOptionDialog({
 
           {!iconUrl && (
             <Field label="Standardikon">
-              <div className="grid grid-cols-8 gap-1.5">
-                {LUCIDE_ICON_CHOICES.map((name) => {
+              <div className="grid grid-cols-8 gap-1.5 max-h-72 overflow-y-auto rounded-md border border-border p-2">
+                {LUCIDE_ICON_CHOICES.filter((n) => !hiddenIcons.includes(n)).map((name) => {
                   const Icon = getLucideIcon(name);
                   if (!Icon) return null;
                   const selected = defaultIcon === name;
@@ -1061,6 +1064,7 @@ function FilterOptionDialog({
               </div>
             </Field>
           )}
+
         </div>
 
         <DialogFooter>
