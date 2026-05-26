@@ -295,6 +295,7 @@ function AdminPage() {
           <TabsList className="mb-6">
             <TabsTrigger value="spaces">Lokaler</TabsTrigger>
             <TabsTrigger value="filters">Filteralternativ</TabsTrigger>
+            <TabsTrigger value="layout">Kortlayout</TabsTrigger>
           </TabsList>
 
           <TabsContent value="spaces" className="space-y-4">
