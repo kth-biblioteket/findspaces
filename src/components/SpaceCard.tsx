@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, MapPin, Calendar } from "lucide-react";
+import { ChevronDown, MapPin, Calendar, AlertTriangle } from "lucide-react";
 import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
