@@ -63,6 +63,7 @@ type FormState = {
   image_alts: string[];
   map_url: string;
   booking_url: string;
+  notice: string;
   sort_order: number;
 };
 
@@ -71,6 +72,7 @@ const emptyForm: FormState = {
   intent: [], noise: "", equipment: [], facilities: [], lokaltyp: [],
   tags: {},
   images: [], image_alts: [], map_url: "", booking_url: "",
+  notice: "",
   sort_order: 999,
 };
 
