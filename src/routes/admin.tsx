@@ -438,7 +438,7 @@ function AdminPage() {
                             />
                           </label>
                           <p className="text-xs text-muted-foreground max-w-xs">
-                            Rekommenderad storlek: <strong>1200×900 px</strong> (4:3-format). JPG eller PNG, max 2 MB.
+                            Rekommenderad storlek: <strong>1600×1200 px</strong> (4:3-format). JPG eller PNG, max 2 MB.
                             Upp till {MAX_IMAGES} bilder per lokal.
                           </p>
                         </div>
