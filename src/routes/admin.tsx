@@ -1156,6 +1156,7 @@ const DUMMY_SPACE: Space = {
   floor: "Plan 3",
   capacity: null,
   tags: {},
+  notice: null,
 };
 
 function CardLayoutTab() {
