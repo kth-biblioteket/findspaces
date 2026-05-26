@@ -39,7 +39,7 @@ function SpaceFinder() {
   const filtered = useMemo(() => {
     const q = filters.query.trim().toLowerCase();
     return spaces.filter((s) => {
-      if (q && !s.name.toLowerCase().includes(q) && !s.category.toLowerCase().includes(q)) return false;
+      if (q && !s.name.toLowerCase().includes(q) && !(s.lokaltyp ?? []).some((l) => l.toLowerCase().includes(q))) return false;
       for (const cat of categories) {
         const selected = filters.byCategory[cat.key] ?? [];
         if (selected.length === 0) continue;
