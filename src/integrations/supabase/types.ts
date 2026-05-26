@@ -107,13 +107,14 @@ export type Database = {
       spaces: {
         Row: {
           booking_url: string | null
-          category: string
+          category: string | null
           created_at: string
           description: string
           equipment: string[]
           facilities: string[]
           floor: string | null
           id: string
+          image_alts: string[]
           image_url: string | null
           images: string[]
           intent: string[]
@@ -127,13 +128,14 @@ export type Database = {
         }
         Insert: {
           booking_url?: string | null
-          category: string
+          category?: string | null
           created_at?: string
           description?: string
           equipment?: string[]
           facilities?: string[]
           floor?: string | null
           id?: string
+          image_alts?: string[]
           image_url?: string | null
           images?: string[]
           intent?: string[]
@@ -147,13 +149,14 @@ export type Database = {
         }
         Update: {
           booking_url?: string | null
-          category?: string
+          category?: string | null
           created_at?: string
           description?: string
           equipment?: string[]
           facilities?: string[]
           floor?: string | null
           id?: string
+          image_alts?: string[]
           image_url?: string | null
           images?: string[]
           intent?: string[]
