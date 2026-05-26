@@ -174,6 +174,7 @@ function AdminPage() {
       const payload: any = {
         name: f.name, description: f.description,
         floor: f.floor?.trim() ? f.floor.trim() : null,
+        capacity: f.capacity.trim() === "" ? null : Math.max(0, parseInt(f.capacity, 10) || 0),
         intent: f.intent, noise: f.noise || "Tyst",
         equipment: f.equipment,
         facilities: f.facilities, lokaltyp: f.lokaltyp,
