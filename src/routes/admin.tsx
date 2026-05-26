@@ -508,6 +508,10 @@ function AdminPage() {
           <TabsContent value="filters">
             <FiltersTab categories={categories} byKey={byKey} />
           </TabsContent>
+
+          <TabsContent value="layout">
+            <CardLayoutTab />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
