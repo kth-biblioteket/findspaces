@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ChevronDown, MapPin, Calendar, AlertTriangle } from "lucide-react";
+import { ChevronDown, MapPin, Calendar, Info } from "lucide-react";
+
 import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
@@ -118,13 +119,6 @@ export function SpaceCard({
         <div className="flex-1 min-w-0 flex flex-col">
           {layout.map((k, i) => renderSection(k, i))}
 
-          {space.notice && (
-            <div className="mt-3 flex items-start gap-2 bg-amber-100 text-amber-900 border border-amber-200 rounded-md px-3 py-2 text-sm">
-              <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
-              <span className="whitespace-pre-line">{space.notice}</span>
-            </div>
-          )}
-
           <div className="mt-auto pt-3 flex items-center text-xs text-muted-foreground">
             <ChevronDown
               className={cn("h-4 w-4 transition-transform", open && "rotate-180")}
@@ -138,6 +132,16 @@ export function SpaceCard({
           <ImageCarousel images={images} alts={space.image_alts ?? []} alt={space.name} />
         </div>
       </div>
+
+      {space.notice && (
+        <div className="px-4 pb-4">
+          <div className="flex items-start gap-2 bg-amber-100 text-amber-900 border border-amber-200 rounded-md px-3 py-2 text-sm">
+            <Info className="h-4 w-4 mt-0.5 shrink-0" />
+            <span className="whitespace-pre-line">{space.notice}</span>
+          </div>
+        </div>
+      )}
+
 
       <div
         className={cn(
