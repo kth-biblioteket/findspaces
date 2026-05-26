@@ -1,4 +1,4 @@
-import { Search, Check } from "lucide-react";
+import { Search, Check, User, Users } from "lucide-react";
 import { PillToggle } from "./PillToggle";
 import { OptionIcon } from "./OptionIcon";
 import { useFilterOptions, groupOptionsByKey } from "@/lib/useFilterOptions";
@@ -6,12 +6,22 @@ import { useFilterCategories } from "@/lib/useFilterCategories";
 import { type FilterOption, type FilterCategoryRow } from "@/lib/spaces";
 import { cn } from "@/lib/utils";
 
+export type WorkMode = "enskilt" | "grupparbete" | null;
+export type GroupSize = "2-4" | "5+" | null;
+
 export type Filters = {
   query: string;
+  workMode: WorkMode;
+  groupSize: GroupSize;
   byCategory: Record<string, string[]>;
 };
 
-export const emptyFilters: Filters = { query: "", byCategory: {} };
+export const emptyFilters: Filters = {
+  query: "",
+  workMode: null,
+  groupSize: null,
+  byCategory: {},
+};
 
 function toggle(arr: string[], v: string) {
   return arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
@@ -28,6 +38,23 @@ export function FilterPanel({
     onChange({ ...filters, byCategory: { ...filters.byCategory, [key]: values } });
   };
 
+  const setWorkMode = (mode: WorkMode) => {
+    const next = filters.workMode === mode ? null : mode;
+    onChange({
+      ...filters,
+      workMode: next,
+      // Reset size when leaving group mode
+      groupSize: next === "grupparbete" ? filters.groupSize : null,
+    });
+  };
+
+  const setGroupSize = (size: GroupSize) => {
+    onChange({
+      ...filters,
+      groupSize: filters.groupSize === size ? null : size,
+    });
+  };
+
   return (
     <div className="space-y-7">
       <div>
@@ -40,6 +67,42 @@ export function FilterPanel({
             className="w-full rounded-full border border-border bg-card pl-10 pr-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/30"
           />
         </label>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-semibold mb-3">Jag vill arbeta</h3>
+        <div className="flex flex-wrap gap-2">
+          <PillToggle
+            label="Enskilt"
+            icon={<User className="h-4 w-4" />}
+            selected={filters.workMode === "enskilt"}
+            onClick={() => setWorkMode("enskilt")}
+          />
+          <PillToggle
+            label="Grupparbete"
+            icon={<Users className="h-4 w-4" />}
+            selected={filters.workMode === "grupparbete"}
+            onClick={() => setWorkMode("grupparbete")}
+          />
+        </div>
+
+        {filters.workMode === "grupparbete" && (
+          <div className="mt-3">
+            <p className="text-xs text-muted-foreground mb-2">Antal personer</p>
+            <div className="flex flex-wrap gap-2">
+              <PillToggle
+                label="2–4 pers"
+                selected={filters.groupSize === "2-4"}
+                onClick={() => setGroupSize("2-4")}
+              />
+              <PillToggle
+                label="5+ pers"
+                selected={filters.groupSize === "5+"}
+                onClick={() => setGroupSize("5+")}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {categories.map((cat) => {
