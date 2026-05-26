@@ -513,6 +513,10 @@ function AdminPage() {
           <TabsContent value="layout">
             <CardLayoutTab />
           </TabsContent>
+
+          <TabsContent value="landing">
+            <LandingMessageTab />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
