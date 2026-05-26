@@ -28,6 +28,8 @@ import {
 import {
   useLandingMessage, useSaveLandingMessage, DEFAULT_LANDING_MESSAGE,
 } from "@/lib/useLandingMessage";
+import { useHiddenIcons, useSaveHiddenIcons } from "@/lib/useHiddenIcons";
+
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -302,9 +304,11 @@ function AdminPage() {
           <TabsList className="mb-6">
             <TabsTrigger value="spaces">Lokaler</TabsTrigger>
             <TabsTrigger value="filters">Filteralternativ</TabsTrigger>
+            <TabsTrigger value="icons">Ikonbibliotek</TabsTrigger>
             <TabsTrigger value="layout">Kortlayout</TabsTrigger>
             <TabsTrigger value="landing">Startsida</TabsTrigger>
           </TabsList>
+
 
           <TabsContent value="spaces" className="space-y-4">
             <div className="flex items-center justify-between">
@@ -526,6 +530,11 @@ function AdminPage() {
           <TabsContent value="filters">
             <FiltersTab categories={categories} byKey={byKey} />
           </TabsContent>
+
+          <TabsContent value="icons">
+            <IconLibraryTab />
+          </TabsContent>
+
 
           <TabsContent value="layout">
             <CardLayoutTab />
@@ -944,6 +953,8 @@ function FilterOptionDialog({
   const [iconUrl, setIconUrl] = useState<string | null>(option?.icon_url ?? null);
   const [defaultIcon, setDefaultIcon] = useState<string | null>(option?.default_icon ?? null);
   const [uploading, setUploading] = useState(false);
+  const { data: hiddenIcons = [] } = useHiddenIcons();
+
 
   const save = useMutation({
     mutationFn: async () => {
@@ -990,7 +1001,8 @@ function FilterOptionDialog({
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+
         <DialogHeader>
           <DialogTitle>{option ? "Redigera alternativ" : "Nytt alternativ"}</DialogTitle>
         </DialogHeader>
@@ -1032,8 +1044,8 @@ function FilterOptionDialog({
 
           {!iconUrl && (
             <Field label="Standardikon">
-              <div className="grid grid-cols-8 gap-1.5">
-                {LUCIDE_ICON_CHOICES.map((name) => {
+              <div className="grid grid-cols-8 gap-1.5 max-h-72 overflow-y-auto rounded-md border border-border p-2">
+                {LUCIDE_ICON_CHOICES.filter((n) => !hiddenIcons.includes(n)).map((name) => {
                   const Icon = getLucideIcon(name);
                   if (!Icon) return null;
                   const selected = defaultIcon === name;
@@ -1052,6 +1064,7 @@ function FilterOptionDialog({
               </div>
             </Field>
           )}
+
         </div>
 
         <DialogFooter>
@@ -1320,4 +1333,86 @@ function LandingMessageTab() {
     </div>
   );
 }
+
+function IconLibraryTab() {
+  const { data: hiddenIcons = [] } = useHiddenIcons();
+  const save = useSaveHiddenIcons();
+  const [query, setQuery] = useState("");
+
+  const toggle = (name: string) => {
+    const next = hiddenIcons.includes(name)
+      ? hiddenIcons.filter((n) => n !== name)
+      : [...hiddenIcons, name];
+    save.mutate(next);
+  };
+
+  const q = query.trim().toLowerCase();
+  const filtered = LUCIDE_ICON_CHOICES.filter((n) => !q || n.toLowerCase().includes(q));
+  const visibleCount = LUCIDE_ICON_CHOICES.length - hiddenIcons.length;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h2 className="text-xl font-bold">Ikonbibliotek</h2>
+          <p className="text-sm text-muted-foreground">
+            {visibleCount} av {LUCIDE_ICON_CHOICES.length} ikoner är synliga i ikonväljaren.
+            Klicka på en ikon för att dölja eller visa den.
+          </p>
+        </div>
+        {hiddenIcons.length > 0 && (
+          <button
+            onClick={() => save.mutate([])}
+            className="text-sm rounded-full border border-border px-3 py-1.5 hover:bg-accent"
+          >
+            Återställ alla
+          </button>
+        )}
+      </div>
+
+      <input
+        type="text"
+        placeholder="Sök ikon..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        className="w-full max-w-sm rounded-lg border border-border bg-card px-3 py-2 text-sm"
+      />
+
+      <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2 rounded-lg border border-border bg-card p-3">
+        {filtered.map((name) => {
+          const Icon = getLucideIcon(name);
+          if (!Icon) return null;
+          const hidden = hiddenIcons.includes(name);
+          return (
+            <button
+              key={name}
+              type="button"
+              onClick={() => toggle(name)}
+              title={`${name}${hidden ? " (dold)" : ""}`}
+              className={cn(
+                "relative h-12 w-12 rounded-md flex items-center justify-center border transition-colors",
+                hidden
+                  ? "bg-secondary/40 border-dashed border-border text-muted-foreground opacity-50 hover:opacity-100"
+                  : "bg-secondary border-transparent hover:bg-accent"
+              )}
+            >
+              <Icon className="h-5 w-5" />
+              {hidden && (
+                <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-0.5">
+                  <X className="h-2.5 w-2.5" />
+                </span>
+              )}
+            </button>
+          );
+        })}
+        {filtered.length === 0 && (
+          <p className="col-span-full text-sm text-muted-foreground py-6 text-center">
+            Inga ikoner matchar sökningen.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 
