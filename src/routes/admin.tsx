@@ -170,17 +170,19 @@ function AdminPage() {
   const save = useMutation({
     mutationFn: async (f: FormState) => {
       const payload: any = {
-        name: f.name, category: f.category, description: f.description,
+        name: f.name, description: f.description,
         floor: f.floor?.trim() ? f.floor.trim() : null,
         intent: f.intent, noise: f.noise || "Tyst",
         equipment: f.equipment,
         facilities: f.facilities, lokaltyp: f.lokaltyp,
         tags: f.tags,
         images: f.images,
+        image_alts: f.image_alts,
         image_url: f.images[0] ?? null,
         map_url: f.map_url.trim() || null,
         booking_url: f.booking_url.trim() || null,
       };
+
       if (f.id) {
         const { error } = await supabase.from("spaces").update(payload).eq("id", f.id);
         if (error) throw error;
