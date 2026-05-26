@@ -82,13 +82,13 @@ export function FilterPanel({
             <div className="flex flex-wrap gap-2">
               <PillToggle
                 label={enskiltOpt.label}
-                icon={<OptionIcon option={enskiltOpt} fallback={<User className="h-4 w-4" />} className="h-4 w-4" />}
+                icon={<OptionIcon option={enskiltOpt} className="h-4 w-4" />}
                 selected={filters.workMode === "enskilt"}
                 onClick={() => setWorkMode("enskilt")}
               />
               <PillToggle
                 label={groupOpt.label}
-                icon={<OptionIcon option={groupOpt} fallback={<Users className="h-4 w-4" />} className="h-4 w-4" />}
+                icon={<OptionIcon option={groupOpt} className="h-4 w-4" />}
                 selected={filters.workMode === "grupparbete"}
                 onClick={() => setWorkMode("grupparbete")}
               />
