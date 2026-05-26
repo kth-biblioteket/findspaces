@@ -361,6 +361,16 @@ function AdminPage() {
                       />
                     </Field>
 
+                    <Field label="Tillfällig information (visas som notis ovanpå lokalkortet, t.ex. ”Renoveras” eller ”Stängd tillfälligt”)">
+                      <textarea
+                        rows={2}
+                        value={form.notice}
+                        onChange={(e) => setForm({ ...form, notice: e.target.value })}
+                        placeholder="Lämna tomt om ingen notis ska visas"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                      />
+                    </Field>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <Field label="Länk till karta (map_url)">
                         <input
