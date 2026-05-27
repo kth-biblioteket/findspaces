@@ -1184,6 +1184,7 @@ const DUMMY_SPACE: Space = {
   capacity: null,
   tags: {},
   notice: null,
+  show_capacity_publicly: false,
 };
 
 function CardLayoutTab() {
