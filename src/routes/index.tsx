@@ -48,9 +48,9 @@ function SpaceFinder() {
     return spaces.filter((s) => {
       if (q && !s.name.toLowerCase().includes(q) && !(s.lokaltyp ?? []).some((l) => l.toLowerCase().includes(q))) return false;
 
-      // Group room → only spaces with lokaltyp "Grupprum"
+      // Arbetssätt
       if (filters.workMode === "grupprum") {
-        if (!(s.lokaltyp ?? []).includes("Grupprum")) return false;
+        if (!(s.lokaltyp ?? []).includes("Grupprum") && !(s.intent ?? []).includes("grupprum")) return false;
         if (filters.groupSize) {
           const cap = s.capacity ?? 0;
           if (filters.groupSize === "5+") {
@@ -59,7 +59,10 @@ function SpaceFinder() {
             if (cap < 2 || cap > 4) return false;
           }
         }
+      } else if (filters.workMode === "enskilt" || filters.workMode === "tillsammans") {
+        if (!(s.intent ?? []).includes(filters.workMode)) return false;
       }
+
 
 
       for (const cat of categories) {
