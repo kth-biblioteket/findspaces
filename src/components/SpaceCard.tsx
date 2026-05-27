@@ -64,7 +64,12 @@ export function SpaceCard({
             )}
             {showCapacity && (
               <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-foreground">
-                <ChairIcon className="h-4 w-4 text-muted-foreground" />
+                {capacityIconUrl ? (
+                  <img src={capacityIconUrl} alt="" className="h-4 w-4 object-contain" />
+                ) : (
+                  <ChairIcon className="h-4 w-4 text-muted-foreground" />
+                )}
+
                 <span><span className="font-semibold">{space.capacity}</span> platser</span>
               </p>
             )}
