@@ -6,9 +6,11 @@ import { ChairIcon } from "./icons/ChairIcon";
 import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
+import { useCapacityIcon } from "@/lib/useCapacityIcon";
 import { OptionIcon } from "./OptionIcon";
 import { ImageCarousel } from "./ImageCarousel";
 import { cn } from "@/lib/utils";
+
 
 export function SpaceCard({
   space,
