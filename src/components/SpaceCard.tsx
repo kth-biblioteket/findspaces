@@ -153,19 +153,7 @@ export function SpaceCard({
             <p className="text-sm text-foreground/80 leading-relaxed pt-3">
               {space.description}
             </p>
-            {space.map_url && (
-              <div className="mt-4 flex flex-wrap gap-2">
-                <a
-                  href={space.map_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3.5 py-1.5 text-xs font-medium hover:opacity-90"
-                >
-                  <MapPin className="h-3.5 w-3.5" /> Visa på karta
-                </a>
-              </div>
-            )}
+
           </div>
         </div>
       </div>
