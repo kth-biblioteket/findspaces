@@ -36,26 +36,23 @@ export function SpaceCard({
     ...space.facilities.map((f) => ({ key: `facility:${f}`, label: f })),
   ];
 
+  const metaParts = [
+    space.floor,
+    ...(space.lokaltyp ?? []),
+  ].filter(Boolean) as string[];
+
   const renderSection = (key: CardSectionKey, idx: number) => {
     const spacing = idx === 0 ? "" : "mt-3";
     switch (key) {
       case "header":
         return (
-          <div key="header" className={cn(spacing, "flex items-start gap-3 flex-wrap")}>
+          <div key="header" className={cn(spacing)}>
             <h3 className="text-lg font-semibold leading-tight">{space.name}</h3>
-            {space.floor && (
-              <span className="inline-flex items-center rounded-full bg-[var(--kth-navy)]/10 text-[var(--kth-navy)] text-xs font-semibold px-2.5 py-1">
-                {space.floor}
-              </span>
+            {metaParts.length > 0 && (
+              <p className="mt-1 text-sm text-muted-foreground">
+                {metaParts.join(" • ")}
+              </p>
             )}
-            {(space.lokaltyp ?? []).map((l) => (
-              <span
-                key={l}
-                className="inline-flex items-center rounded-full bg-secondary text-foreground text-xs font-medium px-2.5 py-1"
-              >
-                {l}
-              </span>
-            ))}
           </div>
         );
       case "chips":
@@ -68,30 +65,18 @@ export function SpaceCard({
                 <span
                   key={c.key}
                   title={c.label}
-                  className="inline-flex items-center gap-1.5 text-xs text-muted-foreground bg-secondary/60 rounded-md px-2 py-1"
+                  className="inline-flex items-center gap-1.5 text-xs text-muted-foreground bg-secondary/60 rounded-md px-2 py-1 max-w-full"
                 >
-                  <OptionIcon option={opt} className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">{c.label}</span>
+                  <OptionIcon option={opt} className="h-3.5 w-3.5 shrink-0" />
+                  <span className="hidden sm:inline break-words">{c.label}</span>
                 </span>
               );
             })}
           </div>
         );
       case "button_map":
-        if (!space.map_url) return null;
-        return (
-          <div key="button_map" className={cn(spacing, "flex flex-wrap gap-2")}>
-            <a
-              href={space.map_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3.5 py-1.5 text-xs font-medium hover:opacity-90"
-            >
-              <MapPin className="h-3.5 w-3.5" /> Visa på karta
-            </a>
-          </div>
-        );
+        // Moved into the expanded area; render nothing here.
+        return null;
       case "button_booking":
         if (!space.booking_url) return null;
         return (
@@ -115,8 +100,8 @@ export function SpaceCard({
       onClick={() => setOpen((o) => !o)}
       className="bg-card rounded-2xl border border-border overflow-hidden cursor-pointer transition-all hover:shadow-md"
     >
-      <div className="flex items-stretch gap-4 p-4">
-        <div className="flex-1 min-w-0 flex flex-col">
+      <div className="flex items-stretch gap-4">
+        <div className="flex-1 min-w-0 flex flex-col p-4">
           {layout.map((k, i) => renderSection(k, i))}
 
           <div className="mt-auto pt-3 flex items-center text-xs text-muted-foreground">
@@ -125,10 +110,9 @@ export function SpaceCard({
             />
             <span className="ml-1">{open ? "Dölj beskrivning" : "Visa beskrivning"}</span>
           </div>
-
         </div>
 
-        <div className="w-40 sm:w-56 md:w-72 lg:w-80 shrink-0 aspect-[4/3] overflow-hidden">
+        <div className="w-40 sm:w-56 md:w-72 lg:w-80 shrink-0 self-stretch aspect-[4/3] overflow-hidden">
           <ImageCarousel images={images} alts={space.image_alts ?? []} alt={space.name} />
         </div>
       </div>
@@ -142,7 +126,6 @@ export function SpaceCard({
         </div>
       )}
 
-
       <div
         className={cn(
           "grid transition-all duration-300 ease-out",
@@ -154,8 +137,20 @@ export function SpaceCard({
             <p className="text-sm text-foreground/80 leading-relaxed pt-3">
               {space.description}
             </p>
+            {space.map_url && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                <a
+                  href={space.map_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3.5 py-1.5 text-xs font-medium hover:opacity-90"
+                >
+                  <MapPin className="h-3.5 w-3.5" /> Visa på karta
+                </a>
+              </div>
+            )}
           </div>
-
         </div>
       </div>
     </article>
