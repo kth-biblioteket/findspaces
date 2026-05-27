@@ -29,6 +29,9 @@ import {
   useLandingMessage, useSaveLandingMessage, DEFAULT_LANDING_MESSAGE,
 } from "@/lib/useLandingMessage";
 import { useHiddenIcons, useSaveHiddenIcons } from "@/lib/useHiddenIcons";
+import { useCapacityIcon, useSaveCapacityIcon } from "@/lib/useCapacityIcon";
+import { ChairIcon } from "@/components/icons/ChairIcon";
+
 
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
