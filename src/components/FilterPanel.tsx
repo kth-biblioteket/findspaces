@@ -1,4 +1,4 @@
-import { Search, Check, User, Users } from "lucide-react";
+import { Search, Check, User, Users, DoorClosed } from "lucide-react";
 import { PillToggle } from "./PillToggle";
 import { OptionIcon } from "./OptionIcon";
 import { useFilterOptions, groupOptionsByKey } from "@/lib/useFilterOptions";
@@ -6,7 +6,7 @@ import { useFilterCategories } from "@/lib/useFilterCategories";
 import { type FilterOption, type FilterCategoryRow } from "@/lib/spaces";
 import { cn } from "@/lib/utils";
 
-export type WorkMode = "enskilt" | "grupparbete" | null;
+export type WorkMode = "enskilt" | "tillsammans" | "grupprum" | null;
 export type GroupSize = "2-4" | "5+" | null;
 
 export type Filters = {
@@ -23,6 +23,12 @@ export const emptyFilters: Filters = {
   byCategory: {},
 };
 
+const INTENT_TABS: { key: Exclude<WorkMode, null>; label: string; Icon: typeof User }[] = [
+  { key: "enskilt", label: "Enskilt", Icon: User },
+  { key: "tillsammans", label: "Tillsammans", Icon: Users },
+  { key: "grupprum", label: "I grupprum", Icon: DoorClosed },
+];
+
 function toggle(arr: string[], v: string) {
   return arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
 }
@@ -38,13 +44,12 @@ export function FilterPanel({
     onChange({ ...filters, byCategory: { ...filters.byCategory, [key]: values } });
   };
 
-  const setWorkMode = (mode: WorkMode) => {
+  const setWorkMode = (mode: Exclude<WorkMode, null>) => {
     const next = filters.workMode === mode ? null : mode;
     onChange({
       ...filters,
       workMode: next,
-      // Reset size when leaving group mode
-      groupSize: next === "grupparbete" ? filters.groupSize : null,
+      groupSize: next === "grupprum" ? filters.groupSize : null,
     });
   };
 
@@ -54,6 +59,8 @@ export function FilterPanel({
       groupSize: filters.groupSize === size ? null : size,
     });
   };
+
+  const intentTitle = categories.find((c) => c.key === "intent")?.title ?? "Jag vill arbeta";
 
   return (
     <div className="space-y-10">
@@ -69,51 +76,49 @@ export function FilterPanel({
         </label>
       </div>
 
-      {(() => {
-        const intentCat = categories.find((c) => c.key === "intent");
-        if (!intentCat) return null;
-        const intentOpts = byKey["intent"] ?? [];
-        const enskiltOpt = intentOpts[0];
-        const groupOpt = intentOpts[1];
-        if (!enskiltOpt || !groupOpt) return null;
-        return (
-          <div>
-            <h3 className="text-sm font-semibold mb-3">{intentCat.title}</h3>
+      <div>
+        <h3 className="text-sm font-semibold mb-3">{intentTitle}</h3>
+        <div className="grid grid-cols-3 rounded-full border border-border bg-card p-1">
+          {INTENT_TABS.map(({ key, label, Icon }) => {
+            const active = filters.workMode === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setWorkMode(key)}
+                className={cn(
+                  "inline-flex items-center justify-center gap-1.5 rounded-full px-2 py-2 text-xs font-medium transition-colors",
+                  active
+                    ? "bg-primary text-primary-foreground"
+                    : "text-foreground hover:bg-accent"
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                <span className="truncate">{label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {filters.workMode === "grupprum" && (
+          <div className="mt-3">
+            <p className="text-xs text-muted-foreground mb-2">Gruppstorlek</p>
             <div className="flex flex-wrap gap-2">
               <PillToggle
-                label={enskiltOpt.label}
-                icon={<OptionIcon option={enskiltOpt} className="h-4 w-4" />}
-                selected={filters.workMode === "enskilt"}
-                onClick={() => setWorkMode("enskilt")}
+                label="2–4 pers"
+                selected={filters.groupSize === "2-4"}
+                onClick={() => setGroupSize("2-4")}
               />
               <PillToggle
-                label={groupOpt.label}
-                icon={<OptionIcon option={groupOpt} className="h-4 w-4" />}
-                selected={filters.workMode === "grupparbete"}
-                onClick={() => setWorkMode("grupparbete")}
+                label="5+ pers"
+                selected={filters.groupSize === "5+"}
+                onClick={() => setGroupSize("5+")}
               />
             </div>
-
-            {filters.workMode === "grupparbete" && (
-              <div className="mt-3">
-                <p className="text-xs text-muted-foreground mb-2">Antal personer</p>
-                <div className="flex flex-wrap gap-2">
-                  <PillToggle
-                    label="2–4 pers"
-                    selected={filters.groupSize === "2-4"}
-                    onClick={() => setGroupSize("2-4")}
-                  />
-                  <PillToggle
-                    label="5+ pers"
-                    selected={filters.groupSize === "5+"}
-                    onClick={() => setGroupSize("5+")}
-                  />
-                </div>
-              </div>
-            )}
           </div>
-        );
-      })()}
+        )}
+      </div>
+
 
       {categories.map((cat) => {
         if (cat.key === "intent") return null;
