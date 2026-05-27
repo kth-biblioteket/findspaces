@@ -192,6 +192,7 @@ function AdminPage() {
         name: f.name, description: f.description,
         floor: f.floor?.trim() ? f.floor.trim() : null,
         capacity: Number.isFinite(capNum) ? capNum : null,
+        show_capacity_publicly: f.show_capacity_publicly,
         intent: f.intent, noise: f.noise || "Tyst",
         equipment: f.equipment,
         facilities: f.facilities, lokaltyp: f.lokaltyp,
