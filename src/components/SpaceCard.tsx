@@ -73,11 +73,18 @@ export function SpaceCard({
                 <span><span className="font-semibold">{space.capacity}</span> platser</span>
               </p>
             )}
+            {space.notice && (
+              <div className="mt-3 mb-1 flex items-start gap-2 bg-amber-100 text-amber-900 border border-amber-200 rounded-md px-3 py-2 text-sm">
+                <Info className="h-4 w-4 mt-0.5 shrink-0" />
+                <span className="whitespace-pre-line">{space.notice}</span>
+              </div>
+            )}
           </div>
         );
       case "chips":
         return (
-          <div key="chips" className={cn(spacing, "flex flex-wrap items-center gap-2")}>
+          <div key="chips" className={cn(spacing, "mb-4 flex flex-wrap items-center gap-2")}>
+
             {chips.map((c) => {
               const opt = lookup.get(c.key);
               if (!opt) return null;
