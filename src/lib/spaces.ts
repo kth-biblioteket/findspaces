@@ -21,6 +21,7 @@ export type Space = {
   capacity: number | null;
   tags: Record<string, string[]>;
   notice: string | null;
+  show_capacity_publicly: boolean;
 };
 
 /** Category keys that map to dedicated columns on the spaces table. */

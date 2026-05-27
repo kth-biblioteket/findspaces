@@ -55,6 +55,7 @@ type FormState = {
   description: string;
   floor: string;
   capacity: string;
+  show_capacity_publicly: boolean;
   intent: string[];
   noise: string;
   equipment: string[];
@@ -71,6 +72,7 @@ type FormState = {
 
 const emptyForm: FormState = {
   name: "", description: "", floor: "", capacity: "",
+  show_capacity_publicly: false,
   intent: [], noise: "", equipment: [], facilities: [], lokaltyp: [],
   tags: {},
   images: [], image_alts: [], map_url: "", booking_url: "",
@@ -90,6 +92,7 @@ function spaceToForm(s: Space): FormState {
     name: s.name, description: s.description,
     floor: s.floor ?? "",
     capacity: s.capacity != null ? String(s.capacity) : "",
+    show_capacity_publicly: s.show_capacity_publicly ?? false,
     intent: s.intent ?? [], noise: s.noise ?? "",
     equipment: s.equipment ?? [], facilities: s.facilities ?? [],
     lokaltyp: s.lokaltyp ?? [],
@@ -189,6 +192,7 @@ function AdminPage() {
         name: f.name, description: f.description,
         floor: f.floor?.trim() ? f.floor.trim() : null,
         capacity: Number.isFinite(capNum) ? capNum : null,
+        show_capacity_publicly: f.show_capacity_publicly,
         intent: f.intent, noise: f.noise || "Tyst",
         equipment: f.equipment,
         facilities: f.facilities, lokaltyp: f.lokaltyp,
@@ -355,6 +359,16 @@ function AdminPage() {
                         />
                       </Field>
                     </div>
+
+                    <label className="flex items-start gap-2 text-sm cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={form.show_capacity_publicly}
+                        onChange={(e) => setForm({ ...form, show_capacity_publicly: e.target.checked })}
+                        className="mt-0.5 h-4 w-4 rounded border-border cursor-pointer accent-[var(--kth-blue)]"
+                      />
+                      <span>Visa antal platser publikt på lokalkortet</span>
+                    </label>
 
                     <Field label="Beskrivning">
                       <textarea
@@ -1184,6 +1198,7 @@ const DUMMY_SPACE: Space = {
   capacity: null,
   tags: {},
   notice: null,
+  show_capacity_publicly: false,
 };
 
 function CardLayoutTab() {
