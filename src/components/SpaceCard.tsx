@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { ChevronDown, MapPin, Calendar, Info, Armchair } from "lucide-react";
+import { ChevronDown, MapPin, Calendar, Info } from "lucide-react";
+import { ChairIcon } from "./icons/ChairIcon";
+
 
 import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
@@ -58,7 +60,7 @@ export function SpaceCard({
             )}
             {showCapacity && (
               <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-foreground">
-                <Armchair className="h-4 w-4 text-muted-foreground" />
+                <ChairIcon className="h-4 w-4 text-muted-foreground" />
                 <span><span className="font-semibold">{space.capacity}</span> platser</span>
               </p>
             )}
