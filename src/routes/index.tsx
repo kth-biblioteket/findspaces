@@ -48,15 +48,19 @@ function SpaceFinder() {
     return spaces.filter((s) => {
       if (q && !s.name.toLowerCase().includes(q) && !(s.lokaltyp ?? []).some((l) => l.toLowerCase().includes(q))) return false;
 
-      // Group room → capacity filter
-      if (filters.workMode === "grupprum" && filters.groupSize) {
-        const cap = s.capacity ?? 0;
-        if (filters.groupSize === "5+") {
-          if (cap < 5) return false;
-        } else {
-          if (cap < 2 || cap > 4) return false;
+      // Group room → only spaces with lokaltyp "Grupprum"
+      if (filters.workMode === "grupprum") {
+        if (!(s.lokaltyp ?? []).includes("Grupprum")) return false;
+        if (filters.groupSize) {
+          const cap = s.capacity ?? 0;
+          if (filters.groupSize === "5+") {
+            if (cap < 5) return false;
+          } else {
+            if (cap < 2 || cap > 4) return false;
+          }
         }
       }
+
 
       for (const cat of categories) {
         const selected = filters.byCategory[cat.key] ?? [];
