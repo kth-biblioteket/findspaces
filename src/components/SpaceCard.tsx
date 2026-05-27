@@ -160,14 +160,8 @@ export function SpaceCard({
         </div>
       </div>
 
-      {space.notice && (
-        <div className="px-4 pb-4">
-          <div className="flex items-start gap-2 bg-amber-100 text-amber-900 border border-amber-200 rounded-md px-3 py-2 text-sm">
-            <Info className="h-4 w-4 mt-0.5 shrink-0" />
-            <span className="whitespace-pre-line">{space.notice}</span>
-          </div>
-        </div>
-      )}
+
+
 
       <div
         className={cn(
