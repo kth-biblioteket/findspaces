@@ -360,6 +360,16 @@ function AdminPage() {
                       </Field>
                     </div>
 
+                    <label className="flex items-start gap-2 text-sm cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={form.show_capacity_publicly}
+                        onChange={(e) => setForm({ ...form, show_capacity_publicly: e.target.checked })}
+                        className="mt-0.5 h-4 w-4 rounded border-border cursor-pointer accent-[var(--kth-blue)]"
+                      />
+                      <span>Visa antal platser publikt på lokalkortet</span>
+                    </label>
+
                     <Field label="Beskrivning">
                       <textarea
                         rows={3}
