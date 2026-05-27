@@ -58,12 +58,12 @@ export function SpaceCard({
           <div key="header" className={cn(spacing)}>
             <h3 className="text-lg font-semibold leading-tight">{space.name}</h3>
             {metaParts.length > 0 && (
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-0.5 text-sm text-muted-foreground leading-snug">
                 {metaParts.join(" • ")}
               </p>
             )}
             {showCapacity && (
-              <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-foreground">
+              <p className="mt-0.5 inline-flex items-center gap-1.5 text-sm leading-snug text-foreground">
                 {capacityIconUrl ? (
                   <img src={capacityIconUrl} alt="" className="h-4 w-4 object-contain" />
                 ) : (
@@ -73,6 +73,7 @@ export function SpaceCard({
                 <span><span className="font-semibold">{space.capacity}</span> platser</span>
               </p>
             )}
+
             {space.notice && (
               <div className="mt-3 mb-1 flex items-start gap-2 bg-amber-100 text-amber-900 border border-amber-200 rounded-md px-3 py-2 text-sm">
                 <Info className="h-4 w-4 mt-0.5 shrink-0" />
