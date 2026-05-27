@@ -29,6 +29,9 @@ import {
   useLandingMessage, useSaveLandingMessage, DEFAULT_LANDING_MESSAGE,
 } from "@/lib/useLandingMessage";
 import { useHiddenIcons, useSaveHiddenIcons } from "@/lib/useHiddenIcons";
+import { useCapacityIcon, useSaveCapacityIcon } from "@/lib/useCapacityIcon";
+import { ChairIcon } from "@/components/icons/ChairIcon";
+
 
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -1366,8 +1369,11 @@ function IconLibraryTab() {
   const visibleCount = LUCIDE_ICON_CHOICES.length - hiddenIcons.length;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      <CapacityIconSection />
+
       <div className="flex items-center justify-between flex-wrap gap-3">
+
         <div>
           <h2 className="text-xl font-bold">Ikonbibliotek</h2>
           <p className="text-sm text-muted-foreground">
@@ -1429,5 +1435,81 @@ function IconLibraryTab() {
     </div>
   );
 }
+
+function CapacityIconSection() {
+  const { data: iconUrl } = useCapacityIcon();
+  const save = useSaveCapacityIcon();
+  const [uploading, setUploading] = useState(false);
+
+  const handleUpload = async (file: File) => {
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `capacity-${crypto.randomUUID()}.${ext}`;
+      const { error } = await supabase.storage.from("filter-icons").upload(path, file);
+      if (error) throw error;
+      const { data } = supabase.storage.from("filter-icons").getPublicUrl(path);
+      await save.mutateAsync(data.publicUrl);
+      toast.success("Sittplatsikon uppdaterad");
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="bg-card rounded-2xl border border-border p-6 max-w-2xl space-y-4">
+      <div>
+        <h2 className="text-lg font-bold">Ikon för antal sittplatser</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Visas bredvid antalet platser på alla lokalkort. Rekommenderat: kvadratisk
+          SVG eller PNG (minst 64×64 px) med transparent bakgrund.
+        </p>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <div className="h-12 w-12 rounded-md border border-border bg-secondary flex items-center justify-center">
+          {iconUrl ? (
+            <img src={iconUrl} alt="" className="h-7 w-7 object-contain" />
+          ) : (
+            <ChairIcon className="h-6 w-6 text-muted-foreground" />
+          )}
+        </div>
+        <div className="text-sm text-muted-foreground">
+          {iconUrl ? "Egen ikon används." : "Standardikon används."}
+        </div>
+      </div>
+
+      <div className="flex gap-2 flex-wrap">
+        <label className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 cursor-pointer">
+          <Upload className="h-4 w-4" />
+          {uploading ? "Laddar upp..." : "Ladda upp ikon"}
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            disabled={uploading}
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) handleUpload(f);
+              e.target.value = "";
+            }}
+          />
+        </label>
+        {iconUrl && (
+          <button
+            type="button"
+            onClick={() => save.mutate(null, { onSuccess: () => toast.success("Återställd till standard") })}
+            className="inline-flex items-center gap-2 rounded-full bg-secondary text-foreground px-4 py-2 text-sm font-medium hover:bg-accent"
+          >
+            Återställ till standard
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 
 

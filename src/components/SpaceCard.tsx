@@ -6,9 +6,11 @@ import { ChairIcon } from "./icons/ChairIcon";
 import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
+import { useCapacityIcon } from "@/lib/useCapacityIcon";
 import { OptionIcon } from "./OptionIcon";
 import { ImageCarousel } from "./ImageCarousel";
 import { cn } from "@/lib/utils";
+
 
 export function SpaceCard({
   space,
@@ -21,7 +23,9 @@ export function SpaceCard({
   const [open, setOpen] = useState(false);
   const { data: options = [] } = useFilterOptions();
   const { data: layoutFromDb = ["header", "chips", "button_map", "button_booking"] } = useCardLayout();
+  const { data: capacityIconUrl } = useCapacityIcon();
   const layout = layoutOverride ?? layoutFromDb;
+
 
   const lookup = new Map(options.map((o) => [`${o.category}:${o.label}`, o]));
 
@@ -60,7 +64,12 @@ export function SpaceCard({
             )}
             {showCapacity && (
               <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-foreground">
-                <ChairIcon className="h-4 w-4 text-muted-foreground" />
+                {capacityIconUrl ? (
+                  <img src={capacityIconUrl} alt="" className="h-4 w-4 object-contain" />
+                ) : (
+                  <ChairIcon className="h-4 w-4 text-muted-foreground" />
+                )}
+
                 <span><span className="font-semibold">{space.capacity}</span> platser</span>
               </p>
             )}
