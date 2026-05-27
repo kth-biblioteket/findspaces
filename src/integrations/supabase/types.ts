@@ -124,6 +124,7 @@ export type Database = {
           name: string
           noise: string
           notice: string | null
+          show_capacity_publicly: boolean
           sort_order: number
           tags: Json
           updated_at: string
@@ -147,6 +148,7 @@ export type Database = {
           name: string
           noise?: string
           notice?: string | null
+          show_capacity_publicly?: boolean
           sort_order?: number
           tags?: Json
           updated_at?: string
@@ -170,6 +172,7 @@ export type Database = {
           name?: string
           noise?: string
           notice?: string | null
+          show_capacity_publicly?: boolean
           sort_order?: number
           tags?: Json
           updated_at?: string
