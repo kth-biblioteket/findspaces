@@ -91,12 +91,41 @@ export function SpaceCard({
         <div className="flex-1 min-w-0 flex flex-col p-4">
           {layout.map((k, i) => renderSection(k, i))}
 
-          <div className="mt-auto pt-3 flex items-center text-xs text-muted-foreground">
-            <ChevronDown
-              className={cn("h-4 w-4 transition-transform", open && "rotate-180")}
-            />
-            <span className="ml-1">{open ? "Dölj beskrivning" : "Visa beskrivning"}</span>
+          <div className="mt-auto pt-3 flex items-center justify-between gap-3 flex-wrap">
+            <div className="inline-flex items-center text-xs text-muted-foreground">
+              <ChevronDown
+                className={cn("h-4 w-4 transition-transform", open && "rotate-180")}
+              />
+              <span className="ml-1">{open ? "Dölj beskrivning" : "Visa beskrivning"}</span>
+            </div>
+            {(space.map_url || space.booking_url) && (
+              <div className="flex flex-wrap items-center gap-2 ml-auto">
+                {space.map_url && (
+                  <a
+                    href={space.map_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-[var(--kth-blue)] bg-white text-[var(--kth-blue)] px-2.5 py-1 text-xs font-medium hover:bg-[var(--kth-blue)]/5"
+                  >
+                    <MapPin className="h-3.5 w-3.5" /> Visa på karta
+                  </a>
+                )}
+                {space.booking_url && (
+                  <a
+                    href={space.booking_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-[var(--kth-blue)] bg-white text-[var(--kth-blue)] px-2.5 py-1 text-xs font-medium hover:bg-[var(--kth-blue)]/5"
+                  >
+                    <Calendar className="h-3.5 w-3.5" /> Se bokningsschema
+                  </a>
+                )}
+              </div>
+            )}
           </div>
+
         </div>
 
         <div className="w-40 sm:w-56 md:w-72 lg:w-80 shrink-0 self-stretch aspect-[4/3] overflow-hidden">
