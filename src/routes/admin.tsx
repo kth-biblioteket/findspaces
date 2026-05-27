@@ -55,6 +55,7 @@ type FormState = {
   description: string;
   floor: string;
   capacity: string;
+  show_capacity_publicly: boolean;
   intent: string[];
   noise: string;
   equipment: string[];
@@ -71,6 +72,7 @@ type FormState = {
 
 const emptyForm: FormState = {
   name: "", description: "", floor: "", capacity: "",
+  show_capacity_publicly: false,
   intent: [], noise: "", equipment: [], facilities: [], lokaltyp: [],
   tags: {},
   images: [], image_alts: [], map_url: "", booking_url: "",
