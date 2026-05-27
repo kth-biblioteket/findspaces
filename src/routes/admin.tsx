@@ -373,6 +373,39 @@ function AdminPage() {
                       <span>Visa antal platser publikt på lokalkortet</span>
                     </label>
 
+                    <Field label="Arbetssätt (vilka val i ”Jag vill arbeta” som lokalen passar)">
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { key: "enskilt", label: "Enskilt" },
+                          { key: "tillsammans", label: "Tillsammans" },
+                          { key: "grupprum", label: "I grupprum" },
+                        ].map((wm) => {
+                          const active = form.intent.includes(wm.key);
+                          return (
+                            <button
+                              key={wm.key}
+                              type="button"
+                              onClick={() => {
+                                const next = active
+                                  ? form.intent.filter((v) => v !== wm.key)
+                                  : [...form.intent, wm.key];
+                                setForm({ ...form, intent: next });
+                              }}
+                              className={cn(
+                                "rounded-full border px-3 py-1.5 text-sm transition",
+                                active
+                                  ? "bg-[var(--kth-blue)] text-white border-[var(--kth-blue)]"
+                                  : "bg-card text-foreground border-border hover:bg-accent"
+                              )}
+                            >
+                              {wm.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </Field>
+
+
                     <Field label="Beskrivning">
                       <textarea
                         rows={3}
@@ -484,7 +517,7 @@ function AdminPage() {
                       </div>
                     </Field>
 
-                    {categories.map((cat) => (
+                    {categories.filter((c) => c.key !== "intent").map((cat) => (
                       <DynamicCategoryField
                         key={cat.id}
                         cat={cat}
@@ -493,6 +526,7 @@ function AdminPage() {
                         onChange={(values) => setForm(setFormValues(form, cat.key, values))}
                       />
                     ))}
+
                   </div>
 
                   <DialogFooter>
