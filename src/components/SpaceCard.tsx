@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, MapPin, Calendar, Info } from "lucide-react";
+import { ChevronDown, MapPin, Calendar, Info, Armchair } from "lucide-react";
 
 import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
