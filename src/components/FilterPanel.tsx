@@ -78,27 +78,18 @@ export function FilterPanel({
 
       <div>
         <h3 className="text-sm font-semibold mb-3">{intentTitle}</h3>
-        <div className="grid grid-cols-3 rounded-full border border-border bg-card p-1">
-          {INTENT_TABS.map(({ key, label, Icon }) => {
-            const active = filters.workMode === key;
-            return (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setWorkMode(key)}
-                className={cn(
-                  "inline-flex items-center justify-center gap-1.5 rounded-full px-2 py-2 text-xs font-medium transition-colors",
-                  active
-                    ? "bg-primary text-primary-foreground"
-                    : "text-foreground hover:bg-accent"
-                )}
-              >
-                <Icon className="h-4 w-4" />
-                <span className="truncate">{label}</span>
-              </button>
-            );
-          })}
+        <div className="flex flex-wrap gap-2">
+          {INTENT_TABS.map(({ key, label, Icon }) => (
+            <PillToggle
+              key={key}
+              label={label}
+              icon={<Icon className="h-4 w-4" />}
+              selected={filters.workMode === key}
+              onClick={() => setWorkMode(key)}
+            />
+          ))}
         </div>
+
 
         {filters.workMode === "grupprum" && (
           <div className="mt-3">
