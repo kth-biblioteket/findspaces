@@ -75,25 +75,12 @@ export function SpaceCard({
           </div>
         );
       case "button_map":
-        // Moved into the expanded area; render nothing here.
-        return null;
       case "button_booking":
-        if (!space.booking_url) return null;
-        return (
-          <div key="button_booking" className={cn(spacing, "flex flex-wrap gap-2")}>
-            <a
-              href={space.booking_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-2 rounded-full bg-secondary text-foreground border border-border px-3.5 py-1.5 text-xs font-medium hover:bg-accent"
-            >
-              <Calendar className="h-3.5 w-3.5" /> Se bokningsschema
-            </a>
-          </div>
-        );
+        // Rendered together in the bottom action row.
+        return null;
     }
   };
+
 
   return (
     <article
