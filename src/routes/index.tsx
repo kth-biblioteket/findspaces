@@ -48,10 +48,14 @@ function SpaceFinder() {
     return spaces.filter((s) => {
       if (q && !s.name.toLowerCase().includes(q) && !(s.lokaltyp ?? []).some((l) => l.toLowerCase().includes(q))) return false;
 
-      // Work mode / group size → capacity filter
-      if (filters.workMode === "grupparbete") {
-        const minNeeded = filters.groupSize === "5+" ? 5 : 2;
-        if ((s.capacity ?? 0) < minNeeded) return false;
+      // Group room → capacity filter
+      if (filters.workMode === "grupprum" && filters.groupSize) {
+        const cap = s.capacity ?? 0;
+        if (filters.groupSize === "5+") {
+          if (cap < 5) return false;
+        } else {
+          if (cap < 2 || cap > 4) return false;
+        }
       }
 
       for (const cat of categories) {
