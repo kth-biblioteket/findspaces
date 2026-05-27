@@ -23,7 +23,9 @@ export function SpaceCard({
   const [open, setOpen] = useState(false);
   const { data: options = [] } = useFilterOptions();
   const { data: layoutFromDb = ["header", "chips", "button_map", "button_booking"] } = useCardLayout();
+  const { data: capacityIconUrl } = useCapacityIcon();
   const layout = layoutOverride ?? layoutFromDb;
+
 
   const lookup = new Map(options.map((o) => [`${o.category}:${o.label}`, o]));
 
