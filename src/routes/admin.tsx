@@ -517,7 +517,7 @@ function AdminPage() {
                       </div>
                     </Field>
 
-                    {categories.map((cat) => (
+                    {categories.filter((c) => c.key !== "intent").map((cat) => (
                       <DynamicCategoryField
                         key={cat.id}
                         cat={cat}
@@ -526,6 +526,7 @@ function AdminPage() {
                         onChange={(values) => setForm(setFormValues(form, cat.key, values))}
                       />
                     ))}
+
                   </div>
 
                   <DialogFooter>
