@@ -41,6 +41,9 @@ export function SpaceCard({
     ...(space.lokaltyp ?? []),
   ].filter(Boolean) as string[];
 
+  const showCapacity =
+    space.show_capacity_publicly && (space.capacity ?? 0) > 0;
+
   const renderSection = (key: CardSectionKey, idx: number) => {
     const spacing = idx === 0 ? "" : "mt-3";
     switch (key) {
@@ -51,6 +54,12 @@ export function SpaceCard({
             {metaParts.length > 0 && (
               <p className="mt-1 text-sm text-muted-foreground">
                 {metaParts.join(" • ")}
+              </p>
+            )}
+            {showCapacity && (
+              <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-foreground">
+                <Armchair className="h-4 w-4 text-muted-foreground" />
+                <span><span className="font-semibold">{space.capacity}</span> platser</span>
               </p>
             )}
           </div>
