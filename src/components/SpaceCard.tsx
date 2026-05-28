@@ -67,17 +67,25 @@ export function SpaceCard({
                 {capacityIconUrl ? (
                   <img src={capacityIconUrl} alt="" className="h-4 w-4 object-contain" />
                 ) : (
-                  <ChairIcon className="h-4 w-4 text-muted-foreground" />
+                  <ChairIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                 )}
-
-                <span><span className="font-semibold">{space.capacity}</span> platser</span>
+                <span>
+                  <span className="sr-only">Kapacitet: </span>
+                  <span className="font-semibold">{space.capacity}</span> platser
+                </span>
               </p>
             )}
 
             {space.notice && (
-              <div className="mt-3 mb-1 flex items-start gap-2 bg-amber-100 text-amber-900 border border-amber-200 rounded-md px-3 py-2 text-sm">
-                <Info className="h-4 w-4 mt-0.5 shrink-0" />
-                <span className="whitespace-pre-line">{space.notice}</span>
+              <div
+                role="status"
+                className="mt-3 mb-1 flex items-start gap-2 bg-amber-100 text-amber-900 border border-amber-200 rounded-md px-3 py-2 text-sm"
+              >
+                <Info className="h-4 w-4 mt-0.5 shrink-0" aria-hidden="true" />
+                <span className="whitespace-pre-line">
+                  <span className="sr-only">Viktigt meddelande: </span>
+                  {space.notice}
+                </span>
               </div>
             )}
           </div>
