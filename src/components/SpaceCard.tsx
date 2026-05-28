@@ -116,22 +116,7 @@ export function SpaceCard({
       className="bg-card rounded-2xl border border-border overflow-hidden cursor-pointer transition-all hover:shadow-md"
     >
       <div className="flex flex-col md:flex-row items-stretch gap-4">
-        <div className="flex-1 min-w-0 flex flex-col p-4 order-2 md:order-1">
-
-      case "button_booking":
-        // Rendered together in the bottom action row.
-        return null;
-    }
-  };
-
-
-  return (
-    <article
-      onClick={() => setOpen((o) => !o)}
-      className="bg-card rounded-2xl border border-border overflow-hidden cursor-pointer transition-all hover:shadow-md"
-    >
-      <div className="flex items-stretch gap-4">
-        <div className="flex-1 min-w-0 flex flex-col p-4">
+        <div className="order-2 md:order-1 flex-1 min-w-0 flex flex-col p-4">
           {layout.map((k, i) => renderSection(k, i))}
 
           <div className="mt-auto pt-3 flex items-center justify-between gap-3 flex-wrap">
@@ -171,10 +156,11 @@ export function SpaceCard({
 
         </div>
 
-        <div className="w-40 sm:w-56 md:w-72 lg:w-80 shrink-0 self-stretch aspect-[4/3] overflow-hidden">
+        <div className="order-1 md:order-2 w-full md:w-72 lg:w-80 shrink-0 self-stretch h-56 md:h-auto md:aspect-[4/3] overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-r-2xl">
           <ImageCarousel images={images} alts={space.image_alts ?? []} alt={space.name} />
         </div>
       </div>
+
 
 
 
