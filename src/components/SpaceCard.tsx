@@ -67,17 +67,25 @@ export function SpaceCard({
                 {capacityIconUrl ? (
                   <img src={capacityIconUrl} alt="" className="h-4 w-4 object-contain" />
                 ) : (
-                  <ChairIcon className="h-4 w-4 text-muted-foreground" />
+                  <ChairIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                 )}
-
-                <span><span className="font-semibold">{space.capacity}</span> platser</span>
+                <span>
+                  <span className="sr-only">Kapacitet: </span>
+                  <span className="font-semibold">{space.capacity}</span> platser
+                </span>
               </p>
             )}
 
             {space.notice && (
-              <div className="mt-3 mb-1 flex items-start gap-2 bg-amber-100 text-amber-900 border border-amber-200 rounded-md px-3 py-2 text-sm">
-                <Info className="h-4 w-4 mt-0.5 shrink-0" />
-                <span className="whitespace-pre-line">{space.notice}</span>
+              <div
+                role="status"
+                className="mt-3 mb-1 flex items-start gap-2 bg-amber-100 text-amber-900 border border-amber-200 rounded-md px-3 py-2 text-sm"
+              >
+                <Info className="h-4 w-4 mt-0.5 shrink-0" aria-hidden="true" />
+                <span className="whitespace-pre-line">
+                  <span className="sr-only">Viktigt meddelande: </span>
+                  {space.notice}
+                </span>
               </div>
             )}
           </div>
@@ -112,20 +120,33 @@ export function SpaceCard({
 
   return (
     <article
+      role="button"
+      tabIndex={0}
+      aria-expanded={open}
+      aria-label={`${space.name} – ${open ? "dölj" : "visa"} beskrivning`}
       onClick={() => setOpen((o) => !o)}
-      className="bg-card rounded-2xl border border-border overflow-hidden cursor-pointer transition-all hover:shadow-md"
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          setOpen((o) => !o);
+        }
+      }}
+      className="bg-card rounded-2xl border border-border overflow-hidden cursor-pointer transition-all hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
     >
       <div className="flex flex-col md:flex-row items-stretch gap-4">
         <div className="order-2 md:order-1 flex-1 min-w-0 flex flex-col p-4">
           {layout.map((k, i) => renderSection(k, i))}
 
           <div className="mt-auto pt-3 flex items-center justify-between gap-3 flex-wrap">
-            <div className="inline-flex items-center text-xs text-muted-foreground">
+            <span
+              className="inline-flex items-center text-xs text-muted-foreground"
+              aria-hidden="true"
+            >
               <ChevronDown
                 className={cn("h-4 w-4 transition-transform", open && "rotate-180")}
               />
               <span className="ml-1">{open ? "Dölj beskrivning" : "Visa beskrivning"}</span>
-            </div>
+            </span>
             {(space.map_url || space.booking_url) && (
               <div className="flex flex-wrap items-center gap-2 ml-auto">
                 {space.map_url && (
@@ -134,9 +155,11 @@ export function SpaceCard({
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-[var(--kth-blue)] bg-white text-[var(--kth-blue)] px-2.5 py-1 text-xs font-medium hover:bg-[var(--kth-blue)]/5"
+                    className="inline-flex items-center gap-1.5 rounded-md border border-[var(--kth-blue)] bg-white text-[var(--kth-blue)] px-2.5 py-1 text-xs font-medium hover:bg-[var(--kth-blue)]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                   >
-                    <MapPin className="h-3.5 w-3.5" /> Visa på karta
+                    <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span>Visa på karta</span>
+                    <span className="sr-only">(öppnas i en ny flik)</span>
                   </a>
                 )}
                 {space.booking_url && (
@@ -145,9 +168,11 @@ export function SpaceCard({
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-[var(--kth-blue)] bg-white text-[var(--kth-blue)] px-2.5 py-1 text-xs font-medium hover:bg-[var(--kth-blue)]/5"
+                    className="inline-flex items-center gap-1.5 rounded-md border border-[var(--kth-blue)] bg-white text-[var(--kth-blue)] px-2.5 py-1 text-xs font-medium hover:bg-[var(--kth-blue)]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                   >
-                    <Calendar className="h-3.5 w-3.5" /> Se bokningsschema
+                    <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span>Se bokningsschema</span>
+                    <span className="sr-only">(öppnas i en ny flik)</span>
                   </a>
                 )}
               </div>
