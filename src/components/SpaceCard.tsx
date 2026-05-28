@@ -96,13 +96,28 @@ export function SpaceCard({
                   className="inline-flex items-center gap-1.5 text-xs text-muted-foreground bg-secondary/60 rounded-md px-2 py-1 max-w-full"
                 >
                   <OptionIcon option={opt} className="h-3.5 w-3.5 shrink-0" />
-                  <span className="hidden sm:inline break-words">{c.label}</span>
+                  <span className="break-words">{c.label}</span>
                 </span>
               );
             })}
           </div>
         );
       case "button_map":
+      case "button_booking":
+        // Rendered together in the bottom action row.
+        return null;
+    }
+  };
+
+
+  return (
+    <article
+      onClick={() => setOpen((o) => !o)}
+      className="bg-card rounded-2xl border border-border overflow-hidden cursor-pointer transition-all hover:shadow-md"
+    >
+      <div className="flex flex-col md:flex-row items-stretch gap-4">
+        <div className="flex-1 min-w-0 flex flex-col p-4 order-2 md:order-1">
+
       case "button_booking":
         // Rendered together in the bottom action row.
         return null;
