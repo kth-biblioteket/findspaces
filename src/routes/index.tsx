@@ -112,8 +112,8 @@ function SpaceFinder() {
         <div className="lg:hidden mb-4">
           <Sheet>
             <SheetTrigger asChild>
-              <button className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2.5 text-sm font-medium">
-                <SlidersHorizontal className="h-4 w-4" /> Filter
+              <button className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2.5 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary">
+                <SlidersHorizontal className="h-4 w-4" aria-hidden="true" /> Filter
               </button>
             </SheetTrigger>
             <SheetContent side="bottom" className="h-[85vh] p-0 flex flex-col">
@@ -127,14 +127,14 @@ function SpaceFinder() {
                 <button
                   type="button"
                   onClick={() => setFilters(emptyFilters)}
-                  className="px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent rounded-full"
+                  className="px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                 >
                   Rensa
                 </button>
                 <SheetClose asChild>
                   <button
                     type="button"
-                    className="flex-1 rounded-full bg-primary text-primary-foreground px-4 py-3 text-sm font-semibold"
+                    className="flex-1 rounded-full bg-primary text-primary-foreground px-4 py-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                   >
                     Visa resultat{hasActiveFilter ? ` (${filtered.length})` : ""}
                   </button>
