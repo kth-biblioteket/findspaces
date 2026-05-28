@@ -9,7 +9,7 @@ import { FilterPanel, emptyFilters, type Filters } from "@/components/FilterPane
 import { SpaceCard } from "@/components/SpaceCard";
 import { useLandingMessage } from "@/lib/useLandingMessage";
 import {
-  Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle,
+  Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose,
 } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/")({
