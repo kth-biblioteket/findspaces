@@ -159,8 +159,10 @@ function ListGroup({
               <button
                 type="button"
                 onClick={() => onToggle(opt.label)}
+                aria-pressed={isSelected}
                 className={cn(
                   "w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors inline-flex items-center gap-2",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary",
                   isSelected
                     ? "bg-primary text-primary-foreground"
                     : "hover:bg-accent text-foreground"
