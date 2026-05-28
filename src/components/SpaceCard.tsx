@@ -128,12 +128,15 @@ export function SpaceCard({
           {layout.map((k, i) => renderSection(k, i))}
 
           <div className="mt-auto pt-3 flex items-center justify-between gap-3 flex-wrap">
-            <div className="inline-flex items-center text-xs text-muted-foreground">
+            <span
+              className="inline-flex items-center text-xs text-muted-foreground"
+              aria-hidden="true"
+            >
               <ChevronDown
                 className={cn("h-4 w-4 transition-transform", open && "rotate-180")}
               />
               <span className="ml-1">{open ? "Dölj beskrivning" : "Visa beskrivning"}</span>
-            </div>
+            </span>
             {(space.map_url || space.booking_url) && (
               <div className="flex flex-wrap items-center gap-2 ml-auto">
                 {space.map_url && (
@@ -142,9 +145,11 @@ export function SpaceCard({
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-[var(--kth-blue)] bg-white text-[var(--kth-blue)] px-2.5 py-1 text-xs font-medium hover:bg-[var(--kth-blue)]/5"
+                    className="inline-flex items-center gap-1.5 rounded-md border border-[var(--kth-blue)] bg-white text-[var(--kth-blue)] px-2.5 py-1 text-xs font-medium hover:bg-[var(--kth-blue)]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                   >
-                    <MapPin className="h-3.5 w-3.5" /> Visa på karta
+                    <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span>Visa på karta</span>
+                    <span className="sr-only">(öppnas i en ny flik)</span>
                   </a>
                 )}
                 {space.booking_url && (
@@ -153,9 +158,11 @@ export function SpaceCard({
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-[var(--kth-blue)] bg-white text-[var(--kth-blue)] px-2.5 py-1 text-xs font-medium hover:bg-[var(--kth-blue)]/5"
+                    className="inline-flex items-center gap-1.5 rounded-md border border-[var(--kth-blue)] bg-white text-[var(--kth-blue)] px-2.5 py-1 text-xs font-medium hover:bg-[var(--kth-blue)]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                   >
-                    <Calendar className="h-3.5 w-3.5" /> Se bokningsschema
+                    <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span>Se bokningsschema</span>
+                    <span className="sr-only">(öppnas i en ny flik)</span>
                   </a>
                 )}
               </div>
