@@ -116,12 +116,29 @@ function SpaceFinder() {
                 <SlidersHorizontal className="h-4 w-4" /> Filter
               </button>
             </SheetTrigger>
-            <SheetContent side="bottom" className="h-[85vh] overflow-y-auto">
-              <SheetHeader>
+            <SheetContent side="bottom" className="h-[85vh] p-0 flex flex-col">
+              <SheetHeader className="px-6 pt-6 pb-2 shrink-0">
                 <SheetTitle>Filter</SheetTitle>
               </SheetHeader>
-              <div className="mt-4">
+              <div className="flex-1 overflow-y-auto px-6 pb-6 pt-4">
                 <FilterPanel filters={filters} onChange={setFilters} />
+              </div>
+              <div className="shrink-0 border-t border-border bg-white p-4 flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setFilters(emptyFilters)}
+                  className="px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent rounded-full"
+                >
+                  Rensa
+                </button>
+                <SheetClose asChild>
+                  <button
+                    type="button"
+                    className="flex-1 rounded-full bg-primary text-primary-foreground px-4 py-3 text-sm font-semibold"
+                  >
+                    Visa resultat{hasActiveFilter ? ` (${filtered.length})` : ""}
+                  </button>
+                </SheetClose>
               </div>
             </SheetContent>
           </Sheet>
