@@ -120,8 +120,18 @@ export function SpaceCard({
 
   return (
     <article
+      role="button"
+      tabIndex={0}
+      aria-expanded={open}
+      aria-label={`${space.name} – ${open ? "dölj" : "visa"} beskrivning`}
       onClick={() => setOpen((o) => !o)}
-      className="bg-card rounded-2xl border border-border overflow-hidden cursor-pointer transition-all hover:shadow-md"
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          setOpen((o) => !o);
+        }
+      }}
+      className="bg-card rounded-2xl border border-border overflow-hidden cursor-pointer transition-all hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
     >
       <div className="flex flex-col md:flex-row items-stretch gap-4">
         <div className="order-2 md:order-1 flex-1 min-w-0 flex flex-col p-4">
