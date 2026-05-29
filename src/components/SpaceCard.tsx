@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, MapPin, Calendar, Info } from "lucide-react";
+import { ChevronDown, MapPin, Calendar, Info, Monitor } from "lucide-react";
 import { ChairIcon } from "./icons/ChairIcon";
 
 
@@ -37,7 +37,7 @@ export function SpaceCard({
       : [];
 
   const chips: { key: string; label: string }[] = [
-    { key: `noise:${space.noise}`, label: space.noise },
+    ...(space.noise ?? []).map((n) => ({ key: `noise:${n}`, label: n })),
     ...space.equipment.map((e) => ({ key: `equipment:${e}`, label: e })),
     ...space.facilities.map((f) => ({ key: `facility:${f}`, label: f })),
   ];
@@ -147,7 +147,7 @@ export function SpaceCard({
               />
               <span className="ml-1">{open ? "Dölj beskrivning" : "Visa beskrivning"}</span>
             </span>
-            {(space.map_url || space.booking_url) && (
+            {(space.map_url || space.booking_url || space.computers_url) && (
               <div className="flex flex-wrap items-center gap-2 ml-auto">
                 {space.map_url && (
                   <a
@@ -172,6 +172,19 @@ export function SpaceCard({
                   >
                     <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
                     <span>Se bokningsschema</span>
+                    <span className="sr-only">(öppnas i en ny flik)</span>
+                  </a>
+                )}
+                {space.computers_url && (
+                  <a
+                    href={space.computers_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-[var(--kth-blue)] bg-white text-[var(--kth-blue)] px-2.5 py-1 text-xs font-medium hover:bg-[var(--kth-blue)]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                  >
+                    <Monitor className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span>Lediga datorer</span>
                     <span className="sr-only">(öppnas i en ny flik)</span>
                   </a>
                 )}
