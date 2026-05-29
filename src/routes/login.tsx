@@ -11,7 +11,6 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,20 +25,11 @@ function LoginPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email, password,
-          options: { emailRedirectTo: `${window.location.origin}/admin` },
-        });
-        if (error) throw error;
-        toast.success("Konto skapat. Du loggas in...");
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-      }
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
       navigate({ to: "/admin" });
     } catch (err: any) {
-      toast.error(err.message ?? "Något gick fel");
+      toast.error(err.message ?? "Inloggning misslyckades");
     } finally {
       setLoading(false);
     }
@@ -54,9 +44,7 @@ function LoginPage() {
           </div>
           <div>
             <h1 className="text-lg font-bold leading-tight">Admin — KTH Biblioteket</h1>
-            <p className="text-xs text-muted-foreground">
-              {mode === "login" ? "Logga in för att hantera lokaler" : "Skapa adminkonto"}
-            </p>
+            <p className="text-xs text-muted-foreground">Logga in för att hantera lokaler</p>
           </div>
         </div>
 
@@ -72,8 +60,8 @@ function LoginPage() {
           <div>
             <label htmlFor="password" className="block text-sm font-medium mb-1">Lösenord</label>
             <input
-              id="password" type="password" required minLength={6}
-              autoComplete={mode === "signup" ? "new-password" : "current-password"}
+              id="password" type="password" required
+              autoComplete="current-password"
               value={password} onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             />
@@ -82,27 +70,13 @@ function LoginPage() {
             type="submit" disabled={loading}
             className="w-full rounded-full bg-primary text-primary-foreground px-4 py-2.5 text-sm font-semibold disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
           >
-            {loading ? "Vänta..." : mode === "login" ? "Logga in" : "Skapa konto"}
+            {loading ? "Vänta..." : "Logga in"}
           </button>
         </form>
 
-        <div className="mt-4 text-center text-sm text-muted-foreground">
-          {mode === "login" ? (
-            <>
-              Inget konto ännu?{" "}
-              <button type="button" onClick={() => setMode("signup")} className="text-primary hover:underline">
-                Skapa adminkonto
-              </button>
-            </>
-          ) : (
-            <>
-              Har du redan konto?{" "}
-              <button type="button" onClick={() => setMode("login")} className="text-primary hover:underline">
-                Logga in
-              </button>
-            </>
-          )}
-        </div>
+        <p className="mt-4 text-center text-xs text-muted-foreground">
+          Endast inbjudna administratörer har tillgång.
+        </p>
 
         <div className="mt-6 text-center">
           <Link to="/" className="text-xs text-muted-foreground hover:text-foreground">
