@@ -50,7 +50,7 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-const MAX_IMAGES = 3;
+const MAX_IMAGES = 5;
 
 type FormState = {
   id?: string;
@@ -60,7 +60,7 @@ type FormState = {
   capacity: string;
   show_capacity_publicly: boolean;
   intent: string[];
-  noise: string;
+  noise: string[];
   equipment: string[];
   facilities: string[];
   lokaltyp: string[];
@@ -69,6 +69,7 @@ type FormState = {
   image_alts: string[];
   map_url: string;
   booking_url: string;
+  computers_url: string;
   notice: string;
   sort_order: number;
 };
@@ -76,9 +77,9 @@ type FormState = {
 const emptyForm: FormState = {
   name: "", description: "", floor: "", capacity: "",
   show_capacity_publicly: false,
-  intent: [], noise: "", equipment: [], facilities: [], lokaltyp: [],
+  intent: [], noise: [], equipment: [], facilities: [], lokaltyp: [],
   tags: {},
-  images: [], image_alts: [], map_url: "", booking_url: "",
+  images: [], image_alts: [], map_url: "", booking_url: "", computers_url: "",
   notice: "",
   sort_order: 999,
 };
@@ -96,12 +97,13 @@ function spaceToForm(s: Space): FormState {
     floor: s.floor ?? "",
     capacity: s.capacity != null ? String(s.capacity) : "",
     show_capacity_publicly: s.show_capacity_publicly ?? false,
-    intent: s.intent ?? [], noise: s.noise ?? "",
+    intent: s.intent ?? [], noise: s.noise ?? [],
     equipment: s.equipment ?? [], facilities: s.facilities ?? [],
     lokaltyp: s.lokaltyp ?? [],
     tags: (s.tags ?? {}) as Record<string, string[]>,
     images, image_alts,
     map_url: s.map_url ?? "", booking_url: s.booking_url ?? "",
+    computers_url: s.computers_url ?? "",
     notice: s.notice ?? "",
     sort_order: s.sort_order,
   };
@@ -111,7 +113,7 @@ function spaceToForm(s: Space): FormState {
 function getFormValues(form: FormState, key: string): string[] {
   switch (key) {
     case "intent": return form.intent;
-    case "noise": return form.noise ? [form.noise] : [];
+    case "noise": return form.noise;
     case "equipment": return form.equipment;
     case "facility": return form.facilities;
     case "lokaltyp": return form.lokaltyp;
@@ -122,7 +124,7 @@ function getFormValues(form: FormState, key: string): string[] {
 function setFormValues(form: FormState, key: string, values: string[]): FormState {
   switch (key) {
     case "intent": return { ...form, intent: values };
-    case "noise": return { ...form, noise: values[0] ?? "" };
+    case "noise": return { ...form, noise: values };
     case "equipment": return { ...form, equipment: values };
     case "facility": return { ...form, facilities: values };
     case "lokaltyp": return { ...form, lokaltyp: values };
@@ -223,7 +225,7 @@ function AdminPage() {
         floor: f.floor?.trim() ? f.floor.trim() : null,
         capacity: Number.isFinite(capNum) ? capNum : null,
         show_capacity_publicly: f.show_capacity_publicly,
-        intent: f.intent, noise: f.noise || "Tyst",
+        intent: f.intent, noise: f.noise,
         equipment: f.equipment,
         facilities: f.facilities, lokaltyp: f.lokaltyp,
         tags: f.tags,
@@ -232,6 +234,7 @@ function AdminPage() {
         image_url: f.images[0] ?? null,
         map_url: f.map_url.trim() || null,
         booking_url: f.booking_url.trim() || null,
+        computers_url: f.computers_url.trim() || null,
         notice: f.notice.trim() || null,
       };
 
@@ -486,6 +489,15 @@ function AdminPage() {
                           type="url"
                           value={form.booking_url}
                           onChange={(e) => setForm({ ...form, booking_url: e.target.value })}
+                          placeholder="https://..."
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        />
+                      </Field>
+                      <Field label="Länk till lediga datorer (computers_url)">
+                        <input
+                          type="url"
+                          value={form.computers_url}
+                          onChange={(e) => setForm({ ...form, computers_url: e.target.value })}
                           placeholder="https://..."
                           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                         />
@@ -1267,7 +1279,7 @@ const DUMMY_SPACE: Space = {
   description:
     "Detta är en förhandsvisning. Ändringar i listan här bredvid uppdaterar ordningen på sektionerna i alla lokalkort i studentvyn.",
   intent: [],
-  noise: "Samtalston",
+  noise: ["Samtalston"],
   equipment: ["Whiteboard", "Datorer"],
   facilities: ["Dagsljus", "Mat tillåten"],
   lokaltyp: ["Studieplats"],
@@ -1276,6 +1288,7 @@ const DUMMY_SPACE: Space = {
   image_alts: [],
   map_url: "#",
   booking_url: "#",
+  computers_url: null,
   sort_order: 0,
   floor: "Plan 3",
   capacity: null,
