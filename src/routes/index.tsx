@@ -8,15 +8,13 @@ import { useFilterCategories } from "@/lib/useFilterCategories";
 import { FilterPanel, emptyFilters, type Filters } from "@/components/FilterPanel";
 import { SpaceCard } from "@/components/SpaceCard";
 import { useLandingMessage } from "@/lib/useLandingMessage";
-import {
-  Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "KTH Biblioteket — Hitta studieplats" },
-      { name: "description", content: "Hitta rätt studieplats på KTH Biblioteket — filtrera efter ljudnivå, utrustning och faciliteter." },
+      { title: "Hitta studieplats demo" },
+      { name: "description", content: "Hitta rätt studieplats på KTH Biblioteket." },
     ],
   }),
   component: SpaceFinder,
@@ -28,8 +26,7 @@ function SpaceFinder() {
   const { data: spaces = [], isLoading } = useQuery({
     queryKey: ["spaces"],
     queryFn: async (): Promise<Space[]> => {
-      const { data, error } = await supabase
-        .from("spaces").select("*").order("sort_order").order("name");
+      const { data, error } = await supabase.from("spaces").select("*").order("sort_order").order("name");
       if (error) throw error;
       return data as unknown as Space[];
     },
@@ -46,7 +43,8 @@ function SpaceFinder() {
   const filtered = useMemo(() => {
     const q = filters.query.trim().toLowerCase();
     return spaces.filter((s) => {
-      if (q && !s.name.toLowerCase().includes(q) && !(s.lokaltyp ?? []).some((l) => l.toLowerCase().includes(q))) return false;
+      if (q && !s.name.toLowerCase().includes(q) && !(s.lokaltyp ?? []).some((l) => l.toLowerCase().includes(q)))
+        return false;
 
       // Arbetssätt
       if (filters.workMode === "grupprum") {
@@ -62,8 +60,6 @@ function SpaceFinder() {
       } else if (filters.workMode === "enskilt" || filters.workMode === "tillsammans") {
         if (!(s.intent ?? []).includes(filters.workMode)) return false;
       }
-
-
 
       for (const cat of categories) {
         const selected = filters.byCategory[cat.key] ?? [];
@@ -96,7 +92,6 @@ function SpaceFinder() {
               </div>
               <p className="text-xs text-muted-foreground">Hitta din studieplats</p>
             </div>
-
           </div>
           <Link
             to="/admin"
@@ -174,7 +169,9 @@ function SpaceFinder() {
                 </div>
               )}
               <div className="space-y-3">
-                {filtered.map((s) => <SpaceCard key={s.id} space={s} />)}
+                {filtered.map((s) => (
+                  <SpaceCard key={s.id} space={s} />
+                ))}
               </div>
             </>
           )}
