@@ -7,7 +7,7 @@ export type Space = {
   category: string;
   description: string;
   intent: string[];
-  noise: string;
+  noise: string[];
   equipment: string[];
   facilities: string[];
   lokaltyp: string[];
@@ -16,6 +16,7 @@ export type Space = {
   image_alts: string[];
   map_url: string | null;
   booking_url: string | null;
+  computers_url: string | null;
   sort_order: number;
   floor: string | null;
   capacity: number | null;
@@ -58,7 +59,7 @@ export type FilterOption = {
 export function getSpaceValues(space: Space, key: string): string[] {
   switch (key) {
     case "intent": return space.intent ?? [];
-    case "noise": return space.noise ? [space.noise] : [];
+    case "noise": return space.noise ?? [];
     case "equipment": return space.equipment ?? [];
     case "facility": return space.facilities ?? [];
     case "lokaltyp": return space.lokaltyp ?? [];
