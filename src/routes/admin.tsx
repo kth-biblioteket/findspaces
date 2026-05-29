@@ -137,8 +137,35 @@ function setFormValues(form: FormState, key: string, values: string[]): FormStat
 
 function AdminPage() {
   const qc = useQueryClient();
+  const navigate = Route.useNavigate();
+  const [authChecked, setAuthChecked] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
+
+  useEffect(() => {
+    let mounted = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return;
+      if (!data.session) {
+        navigate({ to: "/login" });
+        return;
+      }
+      setUserEmail(data.session.user.email ?? null);
+      setAuthChecked(true);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (!session) navigate({ to: "/login" });
+      else setUserEmail(session.user.email ?? null);
+    });
+    return () => { mounted = false; sub.subscription.unsubscribe(); };
+  }, [navigate]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/login" });
+  };
+
 
   const { data: spaces = [], isLoading } = useQuery({
     queryKey: ["spaces"],
