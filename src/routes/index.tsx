@@ -85,12 +85,12 @@ function SpaceFinder() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-bold leading-tight">KTH Biblioteket</h1>
+                <h1 className="text-base sm:text-lg font-bold leading-tight">Hitta studieplats på KTH Biblioteket</h1>
                 <span className="inline-flex items-center rounded-full bg-amber-100 text-amber-900 text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 border border-amber-300">
                   Prototyp
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground">Hitta din studieplats</p>
+              <p className="text-xs text-muted-foreground">DEMO</p>
             </div>
           </div>
           <Link
