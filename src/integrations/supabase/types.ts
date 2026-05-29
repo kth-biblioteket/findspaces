@@ -109,6 +109,7 @@ export type Database = {
           booking_url: string | null
           capacity: number | null
           category: string | null
+          computers_url: string | null
           created_at: string
           description: string
           equipment: string[]
@@ -122,7 +123,7 @@ export type Database = {
           lokaltyp: string[]
           map_url: string | null
           name: string
-          noise: string
+          noise: string[]
           notice: string | null
           show_capacity_publicly: boolean
           sort_order: number
@@ -133,6 +134,7 @@ export type Database = {
           booking_url?: string | null
           capacity?: number | null
           category?: string | null
+          computers_url?: string | null
           created_at?: string
           description?: string
           equipment?: string[]
@@ -146,7 +148,7 @@ export type Database = {
           lokaltyp?: string[]
           map_url?: string | null
           name: string
-          noise?: string
+          noise?: string[]
           notice?: string | null
           show_capacity_publicly?: boolean
           sort_order?: number
@@ -157,6 +159,7 @@ export type Database = {
           booking_url?: string | null
           capacity?: number | null
           category?: string | null
+          computers_url?: string | null
           created_at?: string
           description?: string
           equipment?: string[]
@@ -170,7 +173,7 @@ export type Database = {
           lokaltyp?: string[]
           map_url?: string | null
           name?: string
-          noise?: string
+          noise?: string[]
           notice?: string | null
           show_capacity_publicly?: boolean
           sort_order?: number
