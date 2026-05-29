@@ -137,8 +137,35 @@ function setFormValues(form: FormState, key: string, values: string[]): FormStat
 
 function AdminPage() {
   const qc = useQueryClient();
+  const navigate = Route.useNavigate();
+  const [authChecked, setAuthChecked] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
+
+  useEffect(() => {
+    let mounted = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return;
+      if (!data.session) {
+        navigate({ to: "/login" });
+        return;
+      }
+      setUserEmail(data.session.user.email ?? null);
+      setAuthChecked(true);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (!session) navigate({ to: "/login" });
+      else setUserEmail(session.user.email ?? null);
+    });
+    return () => { mounted = false; sub.subscription.unsubscribe(); };
+  }, [navigate]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/login" });
+  };
+
 
   const { data: spaces = [], isLoading } = useQuery({
     queryKey: ["spaces"],
@@ -287,6 +314,14 @@ function AdminPage() {
   const openEdit = (s: Space) => { setForm(spaceToForm(s)); setOpen(true); };
   const openNew = () => { setForm(emptyForm); setOpen(true); };
 
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-sm text-muted-foreground">
+        Laddar...
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-card border-b border-border">
@@ -300,11 +335,22 @@ function AdminPage() {
               <p className="text-xs text-muted-foreground">Hantera lokaler och filteralternativ</p>
             </div>
           </div>
-          <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-4 w-4" /> Till studentvy
-          </Link>
+          <div className="flex items-center gap-4">
+            {userEmail && <span className="hidden sm:inline text-xs text-muted-foreground">{userEmail}</span>}
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="text-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+            >
+              Logga ut
+            </button>
+            <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="h-4 w-4" /> Till studentvy
+            </Link>
+          </div>
         </div>
       </header>
+
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
         <Tabs defaultValue="spaces" className="w-full">

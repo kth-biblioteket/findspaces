@@ -88,9 +88,15 @@ function SpaceFinder() {
               <Library className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h1 className="text-base sm:text-lg font-bold leading-tight">KTH Biblioteket</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-base sm:text-lg font-bold leading-tight">KTH Biblioteket</h1>
+                <span className="inline-flex items-center rounded-full bg-amber-100 text-amber-900 text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 border border-amber-300">
+                  Prototyp
+                </span>
+              </div>
               <p className="text-xs text-muted-foreground">Hitta din studieplats</p>
             </div>
+
           </div>
           <Link
             to="/admin"
