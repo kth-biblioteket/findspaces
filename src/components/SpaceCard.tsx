@@ -198,9 +198,25 @@ export function SpaceCard({
         </div>
 
         <div className="order-1 md:order-2 w-full md:w-72 lg:w-80 shrink-0 self-stretch h-56 md:h-auto md:aspect-[4/3] overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-r-2xl">
-          <ImageCarousel images={images} alts={space.image_alts ?? []} alt={space.name} />
+          <ImageCarousel
+            images={images}
+            alts={space.image_alts ?? []}
+            alt={space.name}
+            onImageClick={(i) => {
+              setLightboxIndex(i);
+              setLightboxOpen(true);
+            }}
+          />
         </div>
       </div>
+
+      <ImageLightbox
+        images={images}
+        alts={space.image_alts ?? []}
+        initialIndex={lightboxIndex}
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+      />
 
 
 
