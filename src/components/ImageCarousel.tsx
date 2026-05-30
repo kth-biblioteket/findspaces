@@ -3,8 +3,8 @@ import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function ImageCarousel({
-  images, alt, alts = [], className,
-}: { images: string[]; alt: string; alts?: string[]; className?: string }) {
+  images, alt, alts = [], className, onImageClick,
+}: { images: string[]; alt: string; alts?: string[]; className?: string; onImageClick?: (index: number) => void }) {
   const [idx, setIdx] = useState(0);
   const list = images.filter(Boolean);
   const count = list.length;
