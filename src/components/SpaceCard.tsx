@@ -9,6 +9,7 @@ import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
 import { useCapacityIcon } from "@/lib/useCapacityIcon";
 import { OptionIcon } from "./OptionIcon";
 import { ImageCarousel } from "./ImageCarousel";
+import { ImageLightbox } from "./ImageLightbox";
 import { cn } from "@/lib/utils";
 
 
