@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { SlidersHorizontal, Library, Settings } from "lucide-react";
+import { SlidersHorizontal, Library, Settings, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { type Space, getSpaceValues } from "@/lib/spaces";
 import { useFilterCategories } from "@/lib/useFilterCategories";
@@ -106,6 +106,19 @@ function SpaceFinder() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 lg:grid lg:grid-cols-[320px_1fr] lg:gap-8">
         <aside className="hidden lg:block">
           <div className="sticky top-6 bg-card rounded-2xl border border-border p-6">
+            <div className="flex items-center justify-between mb-4 min-h-[28px]">
+              <span className="text-sm font-semibold">Filter</span>
+              {hasActiveFilter && (
+                <button
+                  type="button"
+                  onClick={() => setFilters(emptyFilters)}
+                  className="inline-flex items-center gap-1 text-sm font-medium text-[var(--kth-blue)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary rounded"
+                >
+                  <X className="h-4 w-4" aria-hidden="true" />
+                  Rensa alla
+                </button>
+              )}
+            </div>
             <FilterPanel filters={filters} onChange={setFilters} />
           </div>
         </aside>
