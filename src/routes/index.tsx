@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { type Space, getSpaceValues } from "@/lib/spaces";
 import { useFilterCategories } from "@/lib/useFilterCategories";
 import { FilterPanel, emptyFilters, type Filters } from "@/components/FilterPanel";
+import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { SpaceCard } from "@/components/SpaceCard";
 import { useLandingMessage } from "@/lib/useLandingMessage";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
@@ -169,6 +170,8 @@ function SpaceFinder() {
                   : `${spaces.length} lokaler`}
             </span>
           </div>
+
+          <ActiveFilterChips filters={filters} onChange={setFilters} />
 
           {!hasActiveFilter ? (
             <div className="bg-card rounded-2xl border border-border p-10 text-center text-muted-foreground whitespace-pre-line">
