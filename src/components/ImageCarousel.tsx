@@ -3,8 +3,8 @@ import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function ImageCarousel({
-  images, alt, alts = [], className,
-}: { images: string[]; alt: string; alts?: string[]; className?: string }) {
+  images, alt, alts = [], className, onImageClick,
+}: { images: string[]; alt: string; alts?: string[]; className?: string; onImageClick?: (index: number) => void }) {
   const [idx, setIdx] = useState(0);
   const list = images.filter(Boolean);
   const count = list.length;
@@ -24,12 +24,22 @@ export function ImageCarousel({
 
   return (
     <div className={cn("relative w-full h-full overflow-hidden bg-secondary", className)}>
-      <img
-        src={list[idx]}
-        alt={alts[idx]?.trim() || alt}
-        className="w-full h-full object-cover"
-        loading="lazy"
-      />
+      <button
+        type="button"
+        className="w-full h-full p-0 m-0 border-0 bg-transparent cursor-pointer"
+        onClick={(e) => {
+          e.stopPropagation();
+          onImageClick?.(idx);
+        }}
+        aria-label="Öppna bild i full storlek"
+      >
+        <img
+          src={list[idx]}
+          alt={alts[idx]?.trim() || alt}
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
+      </button>
 
       {count > 1 && (
         <>

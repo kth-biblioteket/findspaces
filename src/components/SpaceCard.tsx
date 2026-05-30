@@ -9,6 +9,7 @@ import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
 import { useCapacityIcon } from "@/lib/useCapacityIcon";
 import { OptionIcon } from "./OptionIcon";
 import { ImageCarousel } from "./ImageCarousel";
+import { ImageLightbox } from "./ImageLightbox";
 import { cn } from "@/lib/utils";
 
 
@@ -21,6 +22,8 @@ export function SpaceCard({
   layoutOverride?: CardSectionKey[];
 }) {
   const [open, setOpen] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   const { data: options = [] } = useFilterOptions();
   const { data: layoutFromDb = ["header", "chips", "button_map", "button_booking"] } = useCardLayout();
   const { data: capacityIconUrl } = useCapacityIcon();
@@ -195,9 +198,25 @@ export function SpaceCard({
         </div>
 
         <div className="order-1 md:order-2 w-full md:w-72 lg:w-80 shrink-0 self-stretch h-56 md:h-auto md:aspect-[4/3] overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-r-2xl">
-          <ImageCarousel images={images} alts={space.image_alts ?? []} alt={space.name} />
+          <ImageCarousel
+            images={images}
+            alts={space.image_alts ?? []}
+            alt={space.name}
+            onImageClick={(i) => {
+              setLightboxIndex(i);
+              setLightboxOpen(true);
+            }}
+          />
         </div>
       </div>
+
+      <ImageLightbox
+        images={images}
+        alts={space.image_alts ?? []}
+        initialIndex={lightboxIndex}
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+      />
 
 
 
