@@ -1,15 +1,26 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { SlidersHorizontal, Library, Settings, X } from "lucide-react";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { type Space, getSpaceValues } from "@/lib/spaces";
+import { type Space } from "@/lib/spaces";
 import { useFilterCategories } from "@/lib/useFilterCategories";
 import { FilterPanel, emptyFilters, type Filters } from "@/components/FilterPanel";
 import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { SpaceCard } from "@/components/SpaceCard";
 import { useLandingMessage } from "@/lib/useLandingMessage";
+import { matchesSpace } from "@/lib/filterMatch";
+import { useNarrowestFilter } from "@/lib/useNarrowestFilter";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
+
+const searchSchema = z.object({
+  q: fallback(z.string(), "").default(""),
+  mode: fallback(z.enum(["enskilt", "tillsammans", "grupprum"]).optional(), undefined),
+  size: fallback(z.enum(["2-4", "5+"]).optional(), undefined),
+  cats: fallback(z.record(z.string(), z.array(z.string())), {}).default({}),
+});
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -18,11 +29,40 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Hitta rätt studieplats på KTH Biblioteket." },
     ],
   }),
+  validateSearch: zodValidator(searchSchema),
   component: SpaceFinder,
 });
 
+function searchToFilters(s: { q: string; mode?: "enskilt" | "tillsammans" | "grupprum"; size?: "2-4" | "5+"; cats: Record<string, string[]> }): Filters {
+  return {
+    query: s.q ?? "",
+    workMode: s.mode ?? null,
+    groupSize: s.mode === "grupprum" ? (s.size ?? null) : null,
+    byCategory: s.cats ?? {},
+  };
+}
+
+function filtersToSearch(f: Filters) {
+  const cats: Record<string, string[]> = {};
+  for (const [k, v] of Object.entries(f.byCategory)) {
+    if (v && v.length > 0) cats[k] = v;
+  }
+  return {
+    q: f.query.trim() ? f.query : undefined,
+    mode: f.workMode ?? undefined,
+    size: f.workMode === "grupprum" && f.groupSize ? f.groupSize : undefined,
+    cats: Object.keys(cats).length > 0 ? cats : undefined,
+  };
+}
+
 function SpaceFinder() {
-  const [filters, setFilters] = useState<Filters>(emptyFilters);
+  const search = Route.useSearch();
+  const navigate = useNavigate({ from: "/" });
+  const filters = useMemo(() => searchToFilters(search), [search]);
+
+  const setFilters = (next: Filters) => {
+    navigate({ search: filtersToSearch(next) as never, replace: true });
+  };
 
   const { data: spaces = [], isLoading } = useQuery({
     queryKey: ["spaces"],
@@ -41,40 +81,12 @@ function SpaceFinder() {
     filters.workMode !== null ||
     Object.values(filters.byCategory).some((arr) => arr.length > 0);
 
-  const filtered = useMemo(() => {
-    const q = filters.query.trim().toLowerCase();
-    return spaces.filter((s) => {
-      if (q && !s.name.toLowerCase().includes(q) && !(s.lokaltyp ?? []).some((l) => l.toLowerCase().includes(q)))
-        return false;
+  const filtered = useMemo(
+    () => spaces.filter((s) => matchesSpace(s, filters, categories)),
+    [spaces, filters, categories]
+  );
 
-      // Arbetssätt
-      if (filters.workMode === "grupprum") {
-        if (!(s.lokaltyp ?? []).includes("Grupprum") && !(s.intent ?? []).includes("grupprum")) return false;
-        if (filters.groupSize) {
-          const cap = s.capacity ?? 0;
-          if (filters.groupSize === "5+") {
-            if (cap < 5) return false;
-          } else {
-            if (cap < 2 || cap > 4) return false;
-          }
-        }
-      } else if (filters.workMode === "enskilt" || filters.workMode === "tillsammans") {
-        if (!(s.intent ?? []).includes(filters.workMode)) return false;
-      }
-
-      for (const cat of categories) {
-        const selected = filters.byCategory[cat.key] ?? [];
-        if (selected.length === 0) continue;
-        const values = getSpaceValues(s, cat.key);
-        if (cat.match_mode === "all") {
-          if (!selected.every((v) => values.includes(v))) return false;
-        } else {
-          if (!selected.some((v) => values.includes(v))) return false;
-        }
-      }
-      return true;
-    });
-  }, [spaces, filters, categories]);
+  const narrowest = useNarrowestFilter(spaces, filters, categories);
 
   return (
     <div className="min-h-screen bg-background">
@@ -180,8 +192,49 @@ function SpaceFinder() {
           ) : (
             <>
               {!isLoading && filtered.length === 0 && (
-                <div className="bg-card rounded-2xl border border-border p-10 text-center text-muted-foreground">
-                  Inga lokaler matchar dina filter.
+                <div className="bg-card rounded-2xl border border-border p-8 text-left">
+                  <p className="text-base font-semibold text-foreground mb-2">
+                    Inga lokaler matchar dina filter.
+                  </p>
+                  {narrowest && narrowest.wouldMatch > 0 ? (
+                    <>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Filtret <span className="font-medium text-foreground">{narrowest.label}</span> verkar smalast — om du tar bort det hittar vi{" "}
+                        <span className="font-medium text-foreground">{narrowest.wouldMatch}</span>{" "}
+                        {narrowest.wouldMatch === 1 ? "lokal" : "lokaler"}.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setFilters(narrowest.remove(filters))}
+                          className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                        >
+                          <X className="h-4 w-4" aria-hidden="true" />
+                          Ta bort {narrowest.label}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setFilters(emptyFilters)}
+                          className="inline-flex items-center rounded-full border border-border bg-card text-foreground px-4 py-2 text-sm font-medium hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                        >
+                          Rensa alla filter
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Prova att rensa filtren och börja om.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setFilters(emptyFilters)}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                      >
+                        Rensa alla filter
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
               <div className="space-y-3">
