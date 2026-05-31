@@ -2,8 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { SlidersHorizontal, Library, Settings, X } from "lucide-react";
-import { zodValidator, fallback } from "@tanstack/zod-adapter";
-import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { type Space } from "@/lib/spaces";
 import { useFilterCategories } from "@/lib/useFilterCategories";
@@ -15,12 +13,30 @@ import { matchesSpace } from "@/lib/filterMatch";
 import { useNarrowestFilter } from "@/lib/useNarrowestFilter";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 
-const searchSchema = z.object({
-  q: fallback(z.string(), "").default(""),
-  mode: fallback(z.enum(["enskilt", "tillsammans", "grupprum"]).optional(), undefined),
-  size: fallback(z.enum(["2-4", "5+"]).optional(), undefined),
-  cats: fallback(z.record(z.string(), z.array(z.string())), {}).default({}),
-});
+type SearchParams = {
+  q: string;
+  mode?: "enskilt" | "tillsammans" | "grupprum";
+  size?: "2-4" | "5+";
+  cats: Record<string, string[]>;
+};
+
+function validateSearch(input: Record<string, unknown>): SearchParams {
+  const q = typeof input.q === "string" ? input.q : "";
+  const modeRaw = input.mode;
+  const mode =
+    modeRaw === "enskilt" || modeRaw === "tillsammans" || modeRaw === "grupprum"
+      ? modeRaw
+      : undefined;
+  const sizeRaw = input.size;
+  const size = sizeRaw === "2-4" || sizeRaw === "5+" ? sizeRaw : undefined;
+  const cats: Record<string, string[]> = {};
+  if (input.cats && typeof input.cats === "object" && !Array.isArray(input.cats)) {
+    for (const [k, v] of Object.entries(input.cats as Record<string, unknown>)) {
+      if (Array.isArray(v)) cats[k] = v.filter((x): x is string => typeof x === "string");
+    }
+  }
+  return { q, mode, size, cats };
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -29,7 +45,7 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Hitta rätt studieplats på KTH Biblioteket." },
     ],
   }),
-  validateSearch: zodValidator(searchSchema),
+  validateSearch,
   component: SpaceFinder,
 });
 
