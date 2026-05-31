@@ -174,7 +174,7 @@ function SpaceFinder() {
           <ActiveFilterChips filters={filters} onChange={setFilters} />
 
           {!hasActiveFilter ? (
-            <div className="bg-card rounded-2xl border border-border p-10 text-center text-muted-foreground whitespace-pre-line">
+            <div className="bg-card rounded-2xl border border-border p-10 text-left text-muted-foreground whitespace-pre-line">
               {landingMessage}
             </div>
           ) : (
