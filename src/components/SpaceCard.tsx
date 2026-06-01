@@ -165,6 +165,19 @@ export function SpaceCard({
                     <span className="sr-only">(öppnas i en ny flik)</span>
                   </a>
                 )}
+                {space.group_booking_url && (
+                  <a
+                    href={space.group_booking_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-[var(--kth-blue)] bg-white text-[var(--kth-blue)] px-2.5 py-1 text-xs font-medium hover:bg-[var(--kth-blue)]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                  >
+                    <Users className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span>Boka grupprum</span>
+                    <span className="sr-only">(öppnas i en ny flik)</span>
+                  </a>
+                )}
                 {space.booking_url && (
                   <a
                     href={space.booking_url}
