@@ -28,6 +28,9 @@ import {
 import {
   useLandingMessage, useSaveLandingMessage, DEFAULT_LANDING_MESSAGE,
 } from "@/lib/useLandingMessage";
+import {
+  useUiText, useSaveUiText, UI_TEXT_DEFAULTS, UI_TEXT_META, type UiTextKey,
+} from "@/lib/useUiText";
 import { useHiddenIcons, useSaveHiddenIcons } from "@/lib/useHiddenIcons";
 import { useCapacityIcon, useSaveCapacityIcon } from "@/lib/useCapacityIcon";
 import { ChairIcon } from "@/components/icons/ChairIcon";
