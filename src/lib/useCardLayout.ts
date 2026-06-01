@@ -5,7 +5,9 @@ export const CARD_SECTION_KEYS = [
   "header",
   "chips",
   "button_map",
+  "button_group_booking",
   "button_booking",
+  "button_computers",
 ] as const;
 export type CardSectionKey = typeof CARD_SECTION_KEYS[number];
 
@@ -13,14 +15,18 @@ export const CARD_SECTION_LABELS: Record<CardSectionKey, string> = {
   header: "Rubrik (namn, våning, lokaltyp)",
   chips: "Ikon-chips (ljudnivå, utrustning, faciliteter)",
   button_map: "Knapp: Visa på karta",
+  button_group_booking: "Knapp: Boka grupprum",
   button_booking: "Knapp: Se bokningsschema",
+  button_computers: "Knapp: Lediga datorer",
 };
 
 const DEFAULT_ORDER: CardSectionKey[] = [
   "header",
   "chips",
   "button_map",
+  "button_group_booking",
   "button_booking",
+  "button_computers",
 ];
 const SETTINGS_KEY = "card_section_order";
 

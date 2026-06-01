@@ -28,6 +28,9 @@ import {
 import {
   useLandingMessage, useSaveLandingMessage, DEFAULT_LANDING_MESSAGE,
 } from "@/lib/useLandingMessage";
+import {
+  useUiText, useSaveUiText, UI_TEXT_DEFAULTS, UI_TEXT_META, type UiTextKey,
+} from "@/lib/useUiText";
 import { useHiddenIcons, useSaveHiddenIcons } from "@/lib/useHiddenIcons";
 import { useCapacityIcon, useSaveCapacityIcon } from "@/lib/useCapacityIcon";
 import { ChairIcon } from "@/components/icons/ChairIcon";
@@ -365,7 +368,7 @@ function AdminPage() {
             <TabsTrigger value="filters">Filteralternativ</TabsTrigger>
             <TabsTrigger value="icons">Ikonbibliotek</TabsTrigger>
             <TabsTrigger value="layout">Kortlayout</TabsTrigger>
-            <TabsTrigger value="landing">Startsida</TabsTrigger>
+            <TabsTrigger value="landing">Texter</TabsTrigger>
           </TabsList>
 
 
@@ -1300,8 +1303,8 @@ const DUMMY_SPACE: Space = {
   image_alts: [],
   map_url: "#",
   booking_url: "#",
-  group_booking_url: null,
-  computers_url: null,
+  group_booking_url: "#",
+  computers_url: "#",
   sort_order: 0,
   floor: "Plan 3",
   capacity: null,
@@ -1422,16 +1425,69 @@ function LandingMessageTab() {
     if (typeof remote === "string") setValue(remote);
   }, [remote]);
 
+  const uiKeys: UiTextKey[] = ["empty_title", "empty_suggest_template", "empty_fallback"];
+
   return (
-    <div className="bg-card rounded-2xl border border-border p-6 max-w-2xl space-y-4">
+    <div className="space-y-6 max-w-2xl">
+      <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
+        <div>
+          <h2 className="text-lg font-bold">Välkomsttext på startsidan</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Visas när besökaren ännu inte valt något filter.
+          </p>
+        </div>
+        <textarea
+          rows={4}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          disabled={isLoading}
+          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+        />
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => save.mutate(value, { onSuccess: () => toast.success("Sparat") })}
+            disabled={save.isPending}
+            className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50"
+          >
+            Spara
+          </button>
+          <button
+            type="button"
+            onClick={() => setValue(DEFAULT_LANDING_MESSAGE)}
+            className="inline-flex items-center gap-2 rounded-full bg-secondary text-foreground px-4 py-2 text-sm font-medium hover:bg-accent"
+          >
+            Återställ till standard
+          </button>
+        </div>
+      </div>
+
+      {uiKeys.map((k) => (
+        <UiTextEditor key={k} uiKey={k} />
+      ))}
+    </div>
+  );
+}
+
+function UiTextEditor({ uiKey }: { uiKey: UiTextKey }) {
+  const { data: remote, isLoading } = useUiText(uiKey);
+  const save = useSaveUiText();
+  const [value, setValue] = useState("");
+  const meta = UI_TEXT_META[uiKey];
+  const defaultValue = UI_TEXT_DEFAULTS[uiKey];
+
+  useEffect(() => {
+    if (typeof remote === "string") setValue(remote);
+  }, [remote]);
+
+  return (
+    <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
       <div>
-        <h2 className="text-lg font-bold">Välkomsttext på startsidan</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Visas när besökaren ännu inte valt något filter.
-        </p>
+        <h2 className="text-lg font-bold">{meta.title}</h2>
+        <p className="text-sm text-muted-foreground mt-1">{meta.description}</p>
       </div>
       <textarea
-        rows={4}
+        rows={meta.rows ?? 3}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         disabled={isLoading}
@@ -1440,7 +1496,12 @@ function LandingMessageTab() {
       <div className="flex gap-2">
         <button
           type="button"
-          onClick={() => save.mutate(value, { onSuccess: () => toast.success("Sparat") })}
+          onClick={() =>
+            save.mutate(
+              { key: uiKey, value },
+              { onSuccess: () => toast.success("Sparat") },
+            )
+          }
           disabled={save.isPending}
           className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50"
         >
@@ -1448,7 +1509,7 @@ function LandingMessageTab() {
         </button>
         <button
           type="button"
-          onClick={() => setValue(DEFAULT_LANDING_MESSAGE)}
+          onClick={() => setValue(defaultValue)}
           className="inline-flex items-center gap-2 rounded-full bg-secondary text-foreground px-4 py-2 text-sm font-medium hover:bg-accent"
         >
           Återställ till standard

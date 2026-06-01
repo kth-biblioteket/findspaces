@@ -9,6 +9,7 @@ import { FilterPanel, emptyFilters, type Filters } from "@/components/FilterPane
 import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { SpaceCard } from "@/components/SpaceCard";
 import { useLandingMessage } from "@/lib/useLandingMessage";
+import { useUiText, formatSuggestTemplate } from "@/lib/useUiText";
 import { matchesSpace } from "@/lib/filterMatch";
 import { useNarrowestFilter } from "@/lib/useNarrowestFilter";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
@@ -91,6 +92,9 @@ function SpaceFinder() {
 
   const { data: categories = [] } = useFilterCategories();
   const { data: landingMessage } = useLandingMessage();
+  const { data: emptyTitle } = useUiText("empty_title");
+  const { data: emptySuggestTemplate } = useUiText("empty_suggest_template");
+  const { data: emptyFallback } = useUiText("empty_fallback");
 
   const hasActiveFilter =
     filters.query.trim().length > 0 ||
@@ -209,15 +213,16 @@ function SpaceFinder() {
             <>
               {!isLoading && filtered.length === 0 && (
                 <div className="bg-card rounded-2xl border border-border p-8 text-left">
-                  <p className="text-base font-semibold text-foreground mb-2">
-                    Inga lokaler matchar dina filter.
+                  <p className="text-base font-semibold text-foreground mb-2 whitespace-pre-line">
+                    {emptyTitle}
                   </p>
                   {narrowest && narrowest.wouldMatch > 0 ? (
                     <>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Filtret <span className="font-medium text-foreground">{narrowest.label}</span> verkar smalast — om du tar bort det hittar vi{" "}
-                        <span className="font-medium text-foreground">{narrowest.wouldMatch}</span>{" "}
-                        {narrowest.wouldMatch === 1 ? "lokal" : "lokaler"}.
+                      <p className="text-sm text-muted-foreground mb-4 whitespace-pre-line">
+                        {formatSuggestTemplate(emptySuggestTemplate ?? "", {
+                          label: narrowest.label,
+                          count: narrowest.wouldMatch,
+                        })}
                       </p>
                       <div className="flex flex-wrap gap-2">
                         <button
@@ -239,8 +244,8 @@ function SpaceFinder() {
                     </>
                   ) : (
                     <>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Prova att rensa filtren och börja om.
+                      <p className="text-sm text-muted-foreground mb-4 whitespace-pre-line">
+                        {emptyFallback}
                       </p>
                       <button
                         type="button"
