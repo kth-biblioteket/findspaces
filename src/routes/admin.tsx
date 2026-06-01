@@ -104,6 +104,7 @@ function spaceToForm(s: Space): FormState {
     tags: (s.tags ?? {}) as Record<string, string[]>,
     images, image_alts,
     map_url: s.map_url ?? "", booking_url: s.booking_url ?? "",
+    group_booking_url: s.group_booking_url ?? "",
     computers_url: s.computers_url ?? "",
     notice: s.notice ?? "",
     sort_order: s.sort_order,
