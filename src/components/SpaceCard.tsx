@@ -114,11 +114,92 @@ export function SpaceCard({
           </div>
         );
       case "button_map":
+      case "button_group_booking":
       case "button_booking":
-        // Rendered together in the bottom action row.
+      case "button_computers":
+        // Rendered together in the bottom action row, in layout order.
         return null;
     }
   };
+
+  const buttonClass =
+    "inline-flex items-center gap-1.5 rounded-md border border-[var(--kth-blue)] bg-white text-[var(--kth-blue)] px-2.5 py-1 text-xs font-medium hover:bg-[var(--kth-blue)]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary";
+
+  const renderButton = (key: CardSectionKey) => {
+    switch (key) {
+      case "button_map":
+        if (!space.map_url) return null;
+        return (
+          <a
+            key="button_map"
+            href={space.map_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className={buttonClass}
+          >
+            <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>Visa på karta</span>
+            <span className="sr-only">(öppnas i en ny flik)</span>
+          </a>
+        );
+      case "button_group_booking":
+        if (!space.group_booking_url) return null;
+        return (
+          <a
+            key="button_group_booking"
+            href={space.group_booking_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className={buttonClass}
+          >
+            <Users className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>Boka grupprum</span>
+            <span className="sr-only">(öppnas i en ny flik)</span>
+          </a>
+        );
+      case "button_booking":
+        if (!space.booking_url) return null;
+        return (
+          <a
+            key="button_booking"
+            href={space.booking_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className={buttonClass}
+          >
+            <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>Se bokningsschema</span>
+            <span className="sr-only">(öppnas i en ny flik)</span>
+          </a>
+        );
+      case "button_computers":
+        if (!space.computers_url) return null;
+        return (
+          <a
+            key="button_computers"
+            href={space.computers_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className={buttonClass}
+          >
+            <Monitor className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>Lediga datorer</span>
+            <span className="sr-only">(öppnas i en ny flik)</span>
+          </a>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const buttonKeys = layout.filter((k): k is CardSectionKey =>
+    k === "button_map" || k === "button_group_booking" || k === "button_booking" || k === "button_computers"
+  );
+  const renderedButtons = buttonKeys.map(renderButton).filter(Boolean);
 
 
   return (
