@@ -1290,6 +1290,7 @@ const DUMMY_SPACE: Space = {
   image_alts: [],
   map_url: "#",
   booking_url: "#",
+  group_booking_url: null,
   computers_url: null,
   sort_order: 0,
   floor: "Plan 3",
