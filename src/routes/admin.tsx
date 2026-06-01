@@ -368,7 +368,7 @@ function AdminPage() {
             <TabsTrigger value="filters">Filteralternativ</TabsTrigger>
             <TabsTrigger value="icons">Ikonbibliotek</TabsTrigger>
             <TabsTrigger value="layout">Kortlayout</TabsTrigger>
-            <TabsTrigger value="landing">Startsida</TabsTrigger>
+            <TabsTrigger value="landing">Texter</TabsTrigger>
           </TabsList>
 
 
