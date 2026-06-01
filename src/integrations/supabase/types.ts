@@ -115,6 +115,7 @@ export type Database = {
           equipment: string[]
           facilities: string[]
           floor: string | null
+          group_booking_url: string | null
           id: string
           image_alts: string[]
           image_url: string | null
@@ -140,6 +141,7 @@ export type Database = {
           equipment?: string[]
           facilities?: string[]
           floor?: string | null
+          group_booking_url?: string | null
           id?: string
           image_alts?: string[]
           image_url?: string | null
@@ -165,6 +167,7 @@ export type Database = {
           equipment?: string[]
           facilities?: string[]
           floor?: string | null
+          group_booking_url?: string | null
           id?: string
           image_alts?: string[]
           image_url?: string | null
