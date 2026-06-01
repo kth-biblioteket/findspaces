@@ -1,0 +1,1 @@
+ALTER TABLE public.spaces ADD COLUMN IF NOT EXISTS group_booking_url text;

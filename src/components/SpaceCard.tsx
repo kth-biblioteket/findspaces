@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, MapPin, Calendar, Info, Monitor } from "lucide-react";
+import { ChevronDown, MapPin, Calendar, Info, Monitor, Users } from "lucide-react";
 import { ChairIcon } from "./icons/ChairIcon";
 
 
@@ -150,7 +150,7 @@ export function SpaceCard({
               />
               <span className="ml-1">{open ? "Dölj beskrivning" : "Visa beskrivning"}</span>
             </span>
-            {(space.map_url || space.booking_url || space.computers_url) && (
+            {(space.map_url || space.group_booking_url || space.booking_url || space.computers_url) && (
               <div className="flex flex-wrap items-center gap-2 ml-auto">
                 {space.map_url && (
                   <a
@@ -162,6 +162,19 @@ export function SpaceCard({
                   >
                     <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
                     <span>Visa på karta</span>
+                    <span className="sr-only">(öppnas i en ny flik)</span>
+                  </a>
+                )}
+                {space.group_booking_url && (
+                  <a
+                    href={space.group_booking_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-[var(--kth-blue)] bg-white text-[var(--kth-blue)] px-2.5 py-1 text-xs font-medium hover:bg-[var(--kth-blue)]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                  >
+                    <Users className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span>Boka grupprum</span>
                     <span className="sr-only">(öppnas i en ny flik)</span>
                   </a>
                 )}
