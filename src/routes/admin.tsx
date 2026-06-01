@@ -496,6 +496,15 @@ function AdminPage() {
                           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                         />
                       </Field>
+                      <Field label="Länk till boka grupprum (group_booking_url)">
+                        <input
+                          type="url"
+                          value={form.group_booking_url}
+                          onChange={(e) => setForm({ ...form, group_booking_url: e.target.value })}
+                          placeholder="https://..."
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        />
+                      </Field>
                       <Field label="Länk till lediga datorer (computers_url)">
                         <input
                           type="url"
