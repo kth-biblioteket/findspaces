@@ -236,6 +236,7 @@ function AdminPage() {
         image_url: f.images[0] ?? null,
         map_url: f.map_url.trim() || null,
         booking_url: f.booking_url.trim() || null,
+        group_booking_url: f.group_booking_url.trim() || null,
         computers_url: f.computers_url.trim() || null,
         notice: f.notice.trim() || null,
       };
