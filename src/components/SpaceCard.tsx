@@ -150,7 +150,7 @@ export function SpaceCard({
               />
               <span className="ml-1">{open ? "Dölj beskrivning" : "Visa beskrivning"}</span>
             </span>
-            {(space.map_url || space.booking_url || space.computers_url) && (
+            {(space.map_url || space.group_booking_url || space.booking_url || space.computers_url) && (
               <div className="flex flex-wrap items-center gap-2 ml-auto">
                 {space.map_url && (
                   <a
