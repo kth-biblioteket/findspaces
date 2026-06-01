@@ -69,6 +69,7 @@ type FormState = {
   image_alts: string[];
   map_url: string;
   booking_url: string;
+  group_booking_url: string;
   computers_url: string;
   notice: string;
   sort_order: number;
