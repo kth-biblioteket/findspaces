@@ -47,6 +47,7 @@ export function SpaceCard({
 
   const metaParts = [
     space.floor,
+    space.located_in,
     ...(space.lokaltyp ?? []),
   ].filter(Boolean) as string[];
 

@@ -60,6 +60,7 @@ type FormState = {
   name: string;
   description: string;
   floor: string;
+  located_in: string;
   capacity: string;
   show_capacity_publicly: boolean;
   intent: string[];
@@ -79,7 +80,7 @@ type FormState = {
 };
 
 const emptyForm: FormState = {
-  name: "", description: "", floor: "", capacity: "",
+  name: "", description: "", floor: "", located_in: "", capacity: "",
   show_capacity_publicly: false,
   intent: [], noise: [], equipment: [], facilities: [], lokaltyp: [],
   tags: {},
@@ -99,6 +100,7 @@ function spaceToForm(s: Space): FormState {
     id: s.id,
     name: s.name, description: s.description,
     floor: s.floor ?? "",
+    located_in: s.located_in ?? "",
     capacity: s.capacity != null ? String(s.capacity) : "",
     show_capacity_publicly: s.show_capacity_publicly ?? false,
     intent: s.intent ?? [], noise: s.noise ?? [],
@@ -228,6 +230,7 @@ function AdminPage() {
       const payload: any = {
         name: f.name, description: f.description,
         floor: f.floor?.trim() ? f.floor.trim() : null,
+        located_in: f.located_in?.trim() ? f.located_in.trim() : null,
         capacity: Number.isFinite(capNum) ? capNum : null,
         show_capacity_publicly: f.show_capacity_publicly,
         intent: f.intent, noise: f.noise,
@@ -417,6 +420,15 @@ function AdminPage() {
                         />
                       </Field>
                     </div>
+                    <Field label="Ligger i lokal (visas mellan plan och lokaltyp)">
+                      <input
+                        value={form.located_in}
+                        onChange={(e) => setForm({ ...form, located_in: e.target.value })}
+                        placeholder="t.ex. Biblioteket"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                      />
+                    </Field>
+
 
                     <label className="flex items-start gap-2 text-sm cursor-pointer">
                       <input
@@ -1307,6 +1319,7 @@ const DUMMY_SPACE: Space = {
   computers_url: "#",
   sort_order: 0,
   floor: "Plan 3",
+  located_in: "Biblioteket",
   capacity: null,
   tags: {},
   notice: null,
