@@ -1,34 +1,35 @@
-# Plan: Rensa-knapp i desktop + förbättringsförslag
+## Problem
 
-## Del 1 – Implementera nu
+I studentvyn är sektionen **"Jag vill arbeta"** hårdkodad i `FilterPanel.tsx` till exakt tre alternativ — **Enskilt**, **Tillsammans**, **I grupprum** — plus en undermeny **Gruppstorlek** (2–4 / 5+) som visas när "I grupprum" är vald.
 
-**Rensa filter i desktop-sidopanelen**
-- I `src/routes/index.tsx`: i `<aside>`-sidopanelen, lägg till en rad ovanför `<FilterPanel>` som visar antal aktiva filter och en "Rensa alla"-knapp som anropar `setFilters(emptyFilters)`.
-- Knappen visas endast när `hasActiveFilter` är true (annars disabled/dold) så att layouten inte hoppar.
-- Stil: liten textknapp i KTH Blue, ikon `X` från lucide-react, `focus-visible`-ring för tillgänglighet.
-- Resultaträknaren i headern (`{filtered.length} av {spaces.length}`) bibehålls.
+I adminläget under **Filter**-fliken visas däremot kategorin `intent` ("Jag vill arbeta") som en helt vanlig redigerbar kategori. Databasen innehåller där bara två stale alternativ ("Enskilt", "I grupp") som inte alls används av studentvyn — admin tror alltså att man kan ändra dessa, men ändringar får ingen effekt. Det är detta som inte stämmer.
 
-Det är hela kodändringen – isolerad till `index.tsx`.
+I lokal-redigeringsformuläret är detta redan korrekt löst: raden `categories.filter((c) => c.key !== "intent")` döljer kategorin, och en hårdkodad checkbox-grupp med de tre rätta alternativen används istället (admin.tsx rad 443–460). Samma logik saknas i `FiltersTab`.
 
-## Del 2 – Förslag på vad som saknas jämfört med liknande sajter (TU Delft, Aalto, Lund, m.fl.)
+## Åtgärd
 
-Inget av nedanstående byggs i denna plan – välj vad du vill prioritera så gör jag en separat plan.
+**1. `src/routes/admin.tsx` — `FiltersTab`:**
+- Filtrera bort `intent`-kategorin ur listan som mappas i `categories.map(...)` (rad ~787).
+- Lägg in ett litet låst infokort överst som visar:
+  - Titeln "Jag vill arbeta" (systemstyrd)
+  - De tre fasta valen: Enskilt · Tillsammans · I grupprum
+  - Undertexten: Gruppstorlek (2–4, 5+) visas automatiskt när "I grupprum" är vald
+  - Kort förklaring: "Dessa val är inbyggda i studentvyn och kan inte redigeras här. Använd lokal-redigeraren för att markera vilka arbetssätt varje lokal passar för."
+- Drag-and-drop-ordningen (`handleDragEnd`) bör fortfarande fungera för övriga kategorier; `intent` ingår inte i den sorterbara listan.
 
-1. **Aktiva filter som "chips" ovanför resultatlistan** – varje vald filter blir en liten pill med X för att ta bort enskilt filter. Standard på i stort sett alla moderna sökgränssnitt.
-2. **Öppningstider / "Öppet nu"-indikator** – per lokal, ev. ett filter "Öppet just nu".
-3. **Karta-vy** – växla mellan lista och karta (planritning av biblioteket) med markörer för varje lokal. KTH:s nuvarande hitta-på-KTH löser detta separat, men inbäddad miniplan är vanligt.
-4. **Realtids-beläggning** – "X av Y platser lediga" om sensordata finns; annars en upplevd-trafik-indikator (lugnt/medel/fullt) som admin kan sätta.
-5. **Direktbokning i kortet** – idag länk ut. Vissa system har inline-bokningsmodul.
-6. **Favoriter / "spara lokal"** – localStorage-baserat, ingen inloggning krävs.
-7. **Delbar URL för filter** – synka `filters` med query string så man kan länka till t.ex. "tysta grupprum med whiteboard".
-8. **Sortering** – t.ex. "Närmast entré", "Störst kapacitet", "A–Ö".
-9. **Bättre tomt-tillstånd** – när inga lokaler matchar: föreslå vilket filter som är "smalast" och erbjud "ta bort det".
-10. **Språkväxel SV/EN** – KTH är tvåspråkigt; engelsk version av UI och innehåll.
-11. **Tillgänglighet-filter på lokalnivå** – "Rullstolsanpassad", "Hörselslinga", "Justerbar belysning" (delvis täckt av faciliteter idag).
-12. **Bildgalleri-lightbox** – klick på kortbild öppnar full storlek (idag bara karusell i kortet).
-13. **Vägbeskrivning / våningsplan-länk** – "Visa på planritning" per lokal utöver generell kartlänk.
-14. **Brödsmulor / sektionsnavigering i headern** – Om/Kontakt/FAQ-sidor (idag finns bara start + admin).
-15. **Skeleton-laddning** istället för "Laddar..."-text.
-16. **Analytics-eventspårning** – vilka filter används mest, vilka lokaler klickas på (kräver Cloud-funktion).
+**2. Ingen DB-städning** av de stale `filter_options`-raderna för `intent` ("Enskilt", "I grupp") — de används inte längre någonstans i koden, så de gör ingen skada. Säg till om du vill att jag rensar dem också.
 
-Vill du att jag bygger Del 1 direkt och sedan tar något av punkterna i Del 2?
+## Andra liknande fel som kontrollerats
+
+- **Lokal-formuläret (admin)**: ✅ redan korrekt, använder hårdkodade tre val.
+- **`lokaltyp`-kategorin**: ✅ innehåller "Grupprum" som studentvyn använder för workMode-matchning.
+- **Gruppstorlek (2–4 / 5+)**: hårdkodad bara i studentvyn, finns inte alls i admin — vilket är rimligt eftersom den är direkt knuten till `capacity`-fältet på lokalen. Ingen åtgärd.
+- **Kortlayout-fliken**: använder `CARD_SECTION_KEYS` (inte filter_categories), så ingen mismatch där.
+- **Texter-fliken**: använder fasta nycklar i `useUiText`, ingen mismatch.
+
+## Tekniska detaljer
+
+Filer som ändras:
+- `src/routes/admin.tsx` — `FiltersTab`-komponenten (rad ~746–797).
+
+Inga DB-migrations, inga typändringar, inga ändringar i studentvyn.
