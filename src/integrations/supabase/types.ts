@@ -121,6 +121,7 @@ export type Database = {
           image_url: string | null
           images: string[]
           intent: string[]
+          located_in: string | null
           lokaltyp: string[]
           map_url: string | null
           name: string
@@ -147,6 +148,7 @@ export type Database = {
           image_url?: string | null
           images?: string[]
           intent?: string[]
+          located_in?: string | null
           lokaltyp?: string[]
           map_url?: string | null
           name: string
@@ -173,6 +175,7 @@ export type Database = {
           image_url?: string | null
           images?: string[]
           intent?: string[]
+          located_in?: string | null
           lokaltyp?: string[]
           map_url?: string | null
           name?: string
