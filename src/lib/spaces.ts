@@ -20,6 +20,7 @@ export type Space = {
   computers_url: string | null;
   sort_order: number;
   floor: string | null;
+  located_in: string | null;
   capacity: number | null;
   tags: Record<string, string[]>;
   notice: string | null;
