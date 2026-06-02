@@ -763,6 +763,8 @@ function FiltersTab({
     reorder.mutate(arrayMove(categories, oldIdx, newIdx));
   };
 
+  const editableCategories = categories.filter((c) => c.key !== "intent");
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -781,10 +783,30 @@ function FiltersTab({
         Redigera kategorinamn direkt, dra för att ändra ordningen i studentvyn, och lägg till egna alternativ med valfri ikon.
       </p>
 
+      <div className="bg-muted/40 rounded-2xl border border-dashed border-border p-4">
+        <div className="flex items-center gap-2 mb-1">
+          <h3 className="font-semibold text-base">Jag vill arbeta</h3>
+          <span className="text-xs rounded-full bg-secondary px-2 py-0.5 text-muted-foreground">Systemstyrd</span>
+        </div>
+        <p className="text-sm text-muted-foreground mb-3">
+          Dessa val är inbyggda i studentvyn och kan inte redigeras här. Använd lokal-redigeraren för att markera vilka arbetssätt varje lokal passar för.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {["Enskilt", "Tillsammans", "I grupprum"].map((label) => (
+            <span key={label} className="inline-flex items-center rounded-full border border-border bg-card px-3 py-1 text-sm">
+              {label}
+            </span>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground mt-3">
+          När <strong>I grupprum</strong> är vald visas även gruppstorlek (2–4 / 5+) automatiskt utifrån lokalens kapacitet.
+        </p>
+      </div>
+
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={categories.map((c) => c.id)} strategy={verticalListSortingStrategy}>
+        <SortableContext items={editableCategories.map((c) => c.id)} strategy={verticalListSortingStrategy}>
           <div className="space-y-4">
-            {categories.map((cat) => (
+            {editableCategories.map((cat) => (
               <SortableCategoryCard key={cat.id} cat={cat} items={byKey[cat.key] ?? []} />
             ))}
           </div>
@@ -795,6 +817,7 @@ function FiltersTab({
     </div>
   );
 }
+
 
 function SortableCategoryCard({
   cat, items,
