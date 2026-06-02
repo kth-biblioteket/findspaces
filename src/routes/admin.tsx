@@ -1310,6 +1310,7 @@ const DUMMY_SPACE: Space = {
   computers_url: "#",
   sort_order: 0,
   floor: "Plan 3",
+  located_in: "Biblioteket",
   capacity: null,
   tags: {},
   notice: null,
