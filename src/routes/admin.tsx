@@ -1117,14 +1117,24 @@ function FilterOptionDialog({
 
   const save = useMutation({
     mutationFn: async () => {
+      const newLabel = label.trim();
       const payload = {
-        category: categoryKey, label: label.trim(),
+        category: categoryKey, label: newLabel,
         icon_url: iconUrl,
         default_icon: iconUrl ? null : defaultIcon,
       };
       if (option) {
+        const oldLabel = option.label;
         const { error } = await supabase.from("filter_options").update(payload).eq("id", option.id);
         if (error) throw error;
+        if (oldLabel && oldLabel !== newLabel) {
+          const { error: rpcErr } = await supabase.rpc("rename_filter_option" as any, {
+            p_category: categoryKey,
+            p_old_label: oldLabel,
+            p_new_label: newLabel,
+          });
+          if (rpcErr) throw rpcErr;
+        }
       } else {
         const { error } = await supabase.from("filter_options").insert({
           ...payload,
@@ -1133,6 +1143,15 @@ function FilterOptionDialog({
         if (error) throw error;
       }
     },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["filter_options"] });
+      qc.invalidateQueries({ queryKey: ["spaces"] });
+      toast.success("Sparat");
+      onClose();
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["filter_options"] });
       toast.success("Sparat");
