@@ -74,7 +74,6 @@ type FormState = {
   map_url: string;
   booking_url: string;
   group_booking_url: string;
-  computers_url: string;
   notice: string;
   sort_order: number;
 };
@@ -84,7 +83,7 @@ const emptyForm: FormState = {
   show_capacity_publicly: false,
   intent: [], noise: [], equipment: [], facilities: [], lokaltyp: [],
   tags: {},
-  images: [], image_alts: [], map_url: "", booking_url: "", group_booking_url: "", computers_url: "",
+  images: [], image_alts: [], map_url: "", booking_url: "", group_booking_url: "",
   notice: "",
   sort_order: 999,
 };
@@ -110,7 +109,6 @@ function spaceToForm(s: Space): FormState {
     images, image_alts,
     map_url: s.map_url ?? "", booking_url: s.booking_url ?? "",
     group_booking_url: s.group_booking_url ?? "",
-    computers_url: s.computers_url ?? "",
     notice: s.notice ?? "",
     sort_order: s.sort_order,
   };
@@ -243,7 +241,6 @@ function AdminPage() {
         map_url: f.map_url.trim() || null,
         booking_url: f.booking_url.trim() || null,
         group_booking_url: f.group_booking_url.trim() || null,
-        computers_url: f.computers_url.trim() || null,
         notice: f.notice.trim() || null,
       };
 
@@ -516,15 +513,6 @@ function AdminPage() {
                           type="url"
                           value={form.group_booking_url}
                           onChange={(e) => setForm({ ...form, group_booking_url: e.target.value })}
-                          placeholder="https://..."
-                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                        />
-                      </Field>
-                      <Field label="Länk till lediga datorer (computers_url)">
-                        <input
-                          type="url"
-                          value={form.computers_url}
-                          onChange={(e) => setForm({ ...form, computers_url: e.target.value })}
                           placeholder="https://..."
                           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                         />
@@ -1352,7 +1340,6 @@ const DUMMY_SPACE: Space = {
   map_url: "#",
   booking_url: "#",
   group_booking_url: "#",
-  computers_url: "#",
   sort_order: 0,
   floor: "Plan 3",
   located_in: "Biblioteket",
@@ -1362,11 +1349,8 @@ const DUMMY_SPACE: Space = {
   show_capacity_publicly: false,
 };
 
-const HIDDEN_ADMIN_KEYS: CardSectionKey[] = ["button_computers"];
-
 function CardLayoutTab() {
-  const { data: fullSaved = [...CARD_SECTION_KEYS] } = useCardLayout();
-  const saved = fullSaved.filter((k) => !HIDDEN_ADMIN_KEYS.includes(k));
+  const { data: saved = [...CARD_SECTION_KEYS] } = useCardLayout();
   const [order, setOrder] = useState<CardSectionKey[]>(saved);
   const save = useSaveCardLayout();
 
@@ -1388,19 +1372,6 @@ function CardLayoutTab() {
   };
 
   const dirty = JSON.stringify(order) !== JSON.stringify(saved);
-
-  const handleSave = () => {
-    const toSave = [...order];
-    // Append hidden keys in their original relative order from the full saved layout.
-    const hiddenInOriginal = fullSaved.filter((k) => HIDDEN_ADMIN_KEYS.includes(k));
-    for (const k of hiddenInOriginal) {
-      if (!toSave.includes(k)) toSave.push(k);
-    }
-    save.mutate(toSave as CardSectionKey[], {
-      onSuccess: () => toast.success("Layouten sparad"),
-      onError: (e) => toast.error((e as Error).message),
-    });
-  };
 
   return (
     <div className="grid lg:grid-cols-[360px_1fr] gap-6">
@@ -1426,7 +1397,12 @@ function CardLayoutTab() {
         <div className="flex gap-2">
           <button
             disabled={!dirty || save.isPending}
-            onClick={handleSave}
+            onClick={() =>
+              save.mutate(order, {
+                onSuccess: () => toast.success("Layouten sparad"),
+                onError: (e) => toast.error((e as Error).message),
+              })
+            }
             className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50"
           >
             Spara layout
