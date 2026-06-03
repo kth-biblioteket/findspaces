@@ -1350,8 +1350,7 @@ const DUMMY_SPACE: Space = {
 };
 
 function CardLayoutTab() {
-  const { data: fullSaved = [...CARD_SECTION_KEYS] } = useCardLayout();
-  const saved = fullSaved.filter((k) => !HIDDEN_ADMIN_KEYS.includes(k));
+  const { data: saved = [...CARD_SECTION_KEYS] } = useCardLayout();
   const [order, setOrder] = useState<CardSectionKey[]>(saved);
   const save = useSaveCardLayout();
 
@@ -1373,19 +1372,6 @@ function CardLayoutTab() {
   };
 
   const dirty = JSON.stringify(order) !== JSON.stringify(saved);
-
-  const handleSave = () => {
-    const toSave = [...order];
-    // Append hidden keys in their original relative order from the full saved layout.
-    const hiddenInOriginal = fullSaved.filter((k) => HIDDEN_ADMIN_KEYS.includes(k));
-    for (const k of hiddenInOriginal) {
-      if (!toSave.includes(k)) toSave.push(k);
-    }
-    save.mutate(toSave as CardSectionKey[], {
-      onSuccess: () => toast.success("Layouten sparad"),
-      onError: (e) => toast.error((e as Error).message),
-    });
-  };
 
   return (
     <div className="grid lg:grid-cols-[360px_1fr] gap-6">

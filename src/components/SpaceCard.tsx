@@ -117,7 +117,6 @@ export function SpaceCard({
       case "button_map":
       case "button_group_booking":
       case "button_booking":
-      case "button_computers":
         // Rendered together in the bottom action row, in layout order.
         return null;
     }
@@ -176,29 +175,13 @@ export function SpaceCard({
             <span className="sr-only">(öppnas i en ny flik)</span>
           </a>
         );
-      case "button_computers":
-        if (!space.computers_url) return null;
-        return (
-          <a
-            key="button_computers"
-            href={space.computers_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className={buttonClass}
-          >
-            <Monitor className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>Lediga datorer</span>
-            <span className="sr-only">(öppnas i en ny flik)</span>
-          </a>
-        );
       default:
         return null;
     }
   };
 
   const buttonKeys = layout.filter((k): k is CardSectionKey =>
-    k === "button_map" || k === "button_group_booking" || k === "button_booking" || k === "button_computers"
+    k === "button_map" || k === "button_group_booking" || k === "button_booking"
   );
   const renderedButtons = buttonKeys.map(renderButton).filter(Boolean);
 
