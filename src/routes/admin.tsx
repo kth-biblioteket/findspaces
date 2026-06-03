@@ -1152,13 +1152,7 @@ function FilterOptionDialog({
     onError: (e: any) => toast.error(e.message),
   });
 
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["filter_options"] });
-      toast.success("Sparat");
-      onClose();
-    },
-    onError: (e: any) => toast.error(e.message),
-  });
+
 
   const handleUploadIcon = async (file: File) => {
     setUploading(true);
