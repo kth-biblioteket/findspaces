@@ -1362,8 +1362,11 @@ const DUMMY_SPACE: Space = {
   show_capacity_publicly: false,
 };
 
+const HIDDEN_ADMIN_KEYS: CardSectionKey[] = ["button_computers"];
+
 function CardLayoutTab() {
-  const { data: saved = [...CARD_SECTION_KEYS] } = useCardLayout();
+  const { data: fullSaved = [...CARD_SECTION_KEYS] } = useCardLayout();
+  const saved = fullSaved.filter((k) => !HIDDEN_ADMIN_KEYS.includes(k));
   const [order, setOrder] = useState<CardSectionKey[]>(saved);
   const save = useSaveCardLayout();
 
@@ -1385,6 +1388,19 @@ function CardLayoutTab() {
   };
 
   const dirty = JSON.stringify(order) !== JSON.stringify(saved);
+
+  const handleSave = () => {
+    const toSave = [...order];
+    // Append hidden keys in their original relative order from the full saved layout.
+    const hiddenInOriginal = fullSaved.filter((k) => HIDDEN_ADMIN_KEYS.includes(k));
+    for (const k of hiddenInOriginal) {
+      if (!toSave.includes(k)) toSave.push(k);
+    }
+    save.mutate(toSave as CardSectionKey[], {
+      onSuccess: () => toast.success("Layouten sparad"),
+      onError: (e) => toast.error((e as Error).message),
+    });
+  };
 
   return (
     <div className="grid lg:grid-cols-[360px_1fr] gap-6">
@@ -1410,12 +1426,7 @@ function CardLayoutTab() {
         <div className="flex gap-2">
           <button
             disabled={!dirty || save.isPending}
-            onClick={() =>
-              save.mutate(order, {
-                onSuccess: () => toast.success("Layouten sparad"),
-                onError: (e) => toast.error((e as Error).message),
-              })
-            }
+            onClick={handleSave}
             className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50"
           >
             Spara layout
