@@ -17,7 +17,7 @@ export type Space = {
   map_url: string | null;
   booking_url: string | null;
   group_booking_url: string | null;
-  computers_url: string | null;
+  
   sort_order: number;
   floor: string | null;
   located_in: string | null;

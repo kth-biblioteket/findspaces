@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, MapPin, Calendar, Info, Monitor, Users } from "lucide-react";
+import { ChevronDown, MapPin, Calendar, Info, Users } from "lucide-react";
 import { ChairIcon } from "./icons/ChairIcon";
 
 
