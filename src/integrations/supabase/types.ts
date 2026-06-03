@@ -193,7 +193,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      rename_filter_option: {
+        Args: { p_category: string; p_new_label: string; p_old_label: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
