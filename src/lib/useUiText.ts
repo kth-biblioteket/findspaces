@@ -130,8 +130,16 @@ export function useUiTextAdmin(key: UiTextKey) {
 export function formatSuggestTemplate(
   template: string,
   vars: { label: string; count: number },
+  lang: Lang = "sv",
 ): string {
-  const lokal = vars.count === 1 ? "lokal" : "lokaler";
+  const lokal =
+    lang === "en"
+      ? vars.count === 1
+        ? "space"
+        : "spaces"
+      : vars.count === 1
+        ? "lokal"
+        : "lokaler";
   return template
     .replaceAll("{label}", vars.label)
     .replaceAll("{count}", String(vars.count))
