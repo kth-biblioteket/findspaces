@@ -1346,6 +1346,11 @@ const DUMMY_SPACE: Space = {
   capacity: null,
   tags: {},
   notice: null,
+  name_en: null,
+  description_en: null,
+  floor_en: null,
+  located_in_en: null,
+  notice_en: null,
   show_capacity_publicly: false,
 };
 
