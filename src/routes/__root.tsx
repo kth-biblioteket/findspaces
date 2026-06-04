@@ -10,6 +10,7 @@ import {
 
 import appCss from "../styles.css?url";
 import ToasterMount from "@/components/ToasterMount";
+import "@/i18n";
 
 function NotFoundComponent() {
   return (
