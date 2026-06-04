@@ -523,7 +523,7 @@ function AdminPage() {
                     </Field>
 
 
-                    <Field label="Beskrivning">
+                    <Field label="Beskrivning (SV)">
                       <textarea
                         rows={3}
                         value={form.description}
@@ -531,8 +531,17 @@ function AdminPage() {
                         className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                       />
                     </Field>
+                    <Field label="Description (EN)">
+                      <textarea
+                        rows={3}
+                        value={form.description_en}
+                        onChange={(e) => setForm({ ...form, description_en: e.target.value })}
+                        placeholder="Lämna tomt för att använda svenska som fallback"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                      />
+                    </Field>
 
-                    <Field label="Tillfällig information (visas som notis ovanpå lokalkortet, t.ex. ”Renoveras” eller ”Stängd tillfälligt”)">
+                    <Field label="Tillfällig information (SV)">
                       <textarea
                         rows={2}
                         value={form.notice}
@@ -541,6 +550,16 @@ function AdminPage() {
                         className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                       />
                     </Field>
+                    <Field label="Temporary notice (EN)">
+                      <textarea
+                        rows={2}
+                        value={form.notice_en}
+                        onChange={(e) => setForm({ ...form, notice_en: e.target.value })}
+                        placeholder="Leave empty to fall back to Swedish"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                      />
+                    </Field>
+
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <Field label="Länk till karta (map_url)">
