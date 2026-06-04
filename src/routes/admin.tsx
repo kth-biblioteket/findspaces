@@ -1068,6 +1068,7 @@ function CategoryDialog({
 }: { category: FilterCategoryRow | null; onClose: () => void }) {
   const saveCategory = useSaveCategory();
   const [title, setTitle] = useState(category?.title ?? "");
+  const [titleEn, setTitleEn] = useState(category?.title_en ?? "");
   const [style, setStyle] = useState<"list" | "pills">(category?.style ?? "pills");
   const [matchMode, setMatchMode] = useState<"any" | "all">(category?.match_mode ?? "any");
   const [isSingle, setIsSingle] = useState<boolean>(category?.is_single_select ?? false);
@@ -1077,7 +1078,8 @@ function CategoryDialog({
 
   const handleSave = async () => {
     try {
-      const payload: any = { title: title.trim(), style, match_mode: matchMode, is_single_select: isSingle };
+      const payload: any = { title: title.trim(), title_en: titleEn.trim() || null, style, match_mode: matchMode, is_single_select: isSingle };
+
       if (isNew) {
         const key = slugifyKey(title);
         // Avoid colliding with locked keys
