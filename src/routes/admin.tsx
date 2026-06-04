@@ -60,9 +60,13 @@ const MAX_IMAGES = 5;
 type FormState = {
   id?: string;
   name: string;
+  name_en: string;
   description: string;
+  description_en: string;
   floor: string;
+  floor_en: string;
   located_in: string;
+  located_in_en: string;
   capacity: string;
   show_capacity_publicly: boolean;
   intent: string[];
@@ -77,18 +81,24 @@ type FormState = {
   booking_url: string;
   group_booking_url: string;
   notice: string;
+  notice_en: string;
   sort_order: number;
 };
 
 const emptyForm: FormState = {
-  name: "", description: "", floor: "", located_in: "", capacity: "",
+  name: "", name_en: "",
+  description: "", description_en: "",
+  floor: "", floor_en: "",
+  located_in: "", located_in_en: "",
+  capacity: "",
   show_capacity_publicly: false,
   intent: [], noise: [], equipment: [], facilities: [], lokaltyp: [],
   tags: {},
   images: [], image_alts: [], map_url: "", booking_url: "", group_booking_url: "",
-  notice: "",
+  notice: "", notice_en: "",
   sort_order: 999,
 };
+
 
 function spaceToForm(s: Space): FormState {
   const images =
