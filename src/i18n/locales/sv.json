@@ -12,7 +12,16 @@
     "clear_all": "Rensa alla",
     "clear": "Rensa",
     "show_results": "Visa resultat",
-    "show_results_count": "Visa resultat ({{count}})"
+    "show_results_count": "Visa resultat ({{count}})",
+    "search_placeholder": "Sök på lokal...",
+    "search_sr": "Sök på lokal",
+    "intent_default_title": "Jag vill arbeta",
+    "intent_enskilt": "Enskilt",
+    "intent_tillsammans": "Tillsammans",
+    "intent_grupprum": "I grupprum",
+    "group_size_label": "Gruppstorlek",
+    "group_size_2_4": "2–4 pers",
+    "group_size_5plus": "5+ pers"
   },
   "results": {
     "heading": "Studieplatser",
@@ -22,5 +31,23 @@
     "count_total_other": "{{count}} lokaler",
     "remove_filter": "Ta bort {{label}}",
     "clear_all_filters": "Rensa alla filter"
+  },
+  "chips": {
+    "search_label": "Sök: \"{{query}}\"",
+    "remove_aria": "Ta bort filter: {{label}}"
+  },
+  "card": {
+    "capacity_sr": "Kapacitet:",
+    "capacity_seats": "platser",
+    "notice_sr": "Viktigt meddelande:",
+    "expand_aria": "{{name}} – {{action}} beskrivning",
+    "expand_show": "visa",
+    "expand_hide": "dölj",
+    "show_description": "Visa beskrivning",
+    "hide_description": "Dölj beskrivning",
+    "button_map": "Visa på karta",
+    "button_group_booking": "Boka grupprum",
+    "button_booking": "Se bokningsschema",
+    "opens_new_tab_sr": "(öppnas i en ny flik)"
   }
 }

@@ -1,7 +1,9 @@
 import { useMemo } from "react";
-import { type Space, type FilterCategoryRow } from "@/lib/spaces";
+import { useTranslation } from "react-i18next";
+import { type Space, type FilterCategoryRow, type FilterOption } from "@/lib/spaces";
 import { emptyFilters, type Filters } from "@/components/FilterPanel";
 import { matchesSpace } from "@/lib/filterMatch";
+import { pickLocalized, type Lang } from "@/i18n";
 
 export type FilterDimension = {
   id: string;
@@ -18,20 +20,29 @@ export type FilterDimension = {
 export function useNarrowestFilter(
   spaces: Space[],
   filters: Filters,
-  categories: FilterCategoryRow[]
+  categories: FilterCategoryRow[],
+  options: FilterOption[] = [],
 ): FilterDimension | null {
+  const { t, i18n } = useTranslation();
+  const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
+
   return useMemo(() => {
+    const optLookup = new Map(options.map((o) => [`${o.category}:${o.label}`, o]));
     const dimensions: Omit<FilterDimension, "wouldMatch">[] = [];
 
     if (filters.query.trim()) {
       dimensions.push({
         id: "query",
-        label: `Sök: "${filters.query.trim()}"`,
+        label: t("chips.search_label", { query: filters.query.trim() }),
         remove: (f) => ({ ...f, query: "" }),
       });
     }
     if (filters.workMode) {
-      const labels = { enskilt: "Enskilt", tillsammans: "Tillsammans", grupprum: "I grupprum" } as const;
+      const labels: Record<NonNullable<Filters["workMode"]>, string> = {
+        enskilt: t("filters.intent_enskilt"),
+        tillsammans: t("filters.intent_tillsammans"),
+        grupprum: t("filters.intent_grupprum"),
+      };
       dimensions.push({
         id: "workMode",
         label: labels[filters.workMode],
@@ -41,16 +52,22 @@ export function useNarrowestFilter(
     if (filters.groupSize) {
       dimensions.push({
         id: "groupSize",
-        label: filters.groupSize === "2-4" ? "2–4 pers" : "5+ pers",
+        label: filters.groupSize === "2-4" ? t("filters.group_size_2_4") : t("filters.group_size_5plus"),
         remove: (f) => ({ ...f, groupSize: null }),
       });
     }
     for (const cat of categories) {
       const vals = filters.byCategory[cat.key] ?? [];
       if (vals.length === 0) continue;
+      const localizedVals = vals
+        .map((v) => {
+          const o = optLookup.get(`${cat.key}:${v}`);
+          return o ? pickLocalized(o, "label", lang) : v;
+        })
+        .join(", ");
       dimensions.push({
         id: `cat:${cat.key}`,
-        label: `${cat.title}: ${vals.join(", ")}`,
+        label: `${pickLocalized(cat, "title", lang)}: ${localizedVals}`,
         remove: (f) => ({
           ...f,
           byCategory: { ...f.byCategory, [cat.key]: [] },
@@ -69,7 +86,7 @@ export function useNarrowestFilter(
     // Pick dimension whose removal yields most matches; tie-break by id stability
     scored.sort((a, b) => b.wouldMatch - a.wouldMatch);
     return scored[0] ?? null;
-  }, [spaces, filters, categories]);
+  }, [spaces, filters, categories, options, t, lang]);
 }
 
 export { emptyFilters };

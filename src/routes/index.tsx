@@ -14,6 +14,7 @@ import { useLandingMessage } from "@/lib/useLandingMessage";
 import { useUiText, formatSuggestTemplate } from "@/lib/useUiText";
 import { matchesSpace } from "@/lib/filterMatch";
 import { useNarrowestFilter } from "@/lib/useNarrowestFilter";
+import { useFilterOptions } from "@/lib/useFilterOptions";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 
 type SearchParams = {
@@ -75,7 +76,8 @@ function filtersToSearch(f: Filters) {
 }
 
 function SpaceFinder() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = (i18n.resolvedLanguage ?? "sv") as "sv" | "en";
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/" });
   const filters = useMemo(() => searchToFilters(search), [search]);
@@ -109,7 +111,8 @@ function SpaceFinder() {
     [spaces, filters, categories]
   );
 
-  const narrowest = useNarrowestFilter(spaces, filters, categories);
+  const { data: filterOptions = [] } = useFilterOptions();
+  const narrowest = useNarrowestFilter(spaces, filters, categories, filterOptions);
 
   return (
     <div className="min-h-screen bg-background">
@@ -230,7 +233,7 @@ function SpaceFinder() {
                         {formatSuggestTemplate(emptySuggestTemplate ?? "", {
                           label: narrowest.label,
                           count: narrowest.wouldMatch,
-                        })}
+                        }, lang)}
                       </p>
                       <div className="flex flex-wrap gap-2">
                         <button

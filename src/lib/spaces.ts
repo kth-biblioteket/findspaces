@@ -4,8 +4,10 @@ import type { LucideIcon } from "lucide-react";
 export type Space = {
   id: string;
   name: string;
+  name_en: string | null;
   category: string;
   description: string;
+  description_en: string | null;
   intent: string[];
   noise: string[];
   equipment: string[];
@@ -17,13 +19,16 @@ export type Space = {
   map_url: string | null;
   booking_url: string | null;
   group_booking_url: string | null;
-  
+
   sort_order: number;
   floor: string | null;
+  floor_en: string | null;
   located_in: string | null;
+  located_in_en: string | null;
   capacity: number | null;
   tags: Record<string, string[]>;
   notice: string | null;
+  notice_en: string | null;
   show_capacity_publicly: boolean;
 };
 
@@ -41,6 +46,7 @@ export type FilterCategoryRow = {
   id: string;
   key: string;
   title: string;
+  title_en: string | null;
   style: "list" | "pills";
   match_mode: "any" | "all";
   is_single_select: boolean;
@@ -52,6 +58,7 @@ export type FilterOption = {
   id: string;
   category: string;
   label: string;
+  label_en: string | null;
   icon_url: string | null;
   default_icon: string | null;
   sort_order: number;

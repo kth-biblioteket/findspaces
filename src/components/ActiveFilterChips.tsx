@@ -1,17 +1,9 @@
 import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { emptyFilters, type Filters } from "./FilterPanel";
 import { useFilterCategories } from "@/lib/useFilterCategories";
-
-const WORK_MODE_LABEL: Record<NonNullable<Filters["workMode"]>, string> = {
-  enskilt: "Enskilt",
-  tillsammans: "Tillsammans",
-  grupprum: "I grupprum",
-};
-
-const GROUP_SIZE_LABEL: Record<NonNullable<Filters["groupSize"]>, string> = {
-  "2-4": "2–4 pers",
-  "5+": "5+ pers",
-};
+import { useFilterOptions } from "@/lib/useFilterOptions";
+import { pickLocalized, type Lang } from "@/i18n";
 
 type Chip = { key: string; label: string; onRemove: () => void };
 
@@ -22,14 +14,28 @@ export function ActiveFilterChips({
   filters: Filters;
   onChange: (f: Filters) => void;
 }) {
+  const { t, i18n } = useTranslation();
+  const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
   const { data: categories = [] } = useFilterCategories();
+  const { data: options = [] } = useFilterOptions();
+  const optLookup = new Map(options.map((o) => [`${o.category}:${o.label}`, o]));
+
+  const workModeLabel: Record<NonNullable<Filters["workMode"]>, string> = {
+    enskilt: t("filters.intent_enskilt"),
+    tillsammans: t("filters.intent_tillsammans"),
+    grupprum: t("filters.intent_grupprum"),
+  };
+  const groupSizeLabel: Record<NonNullable<Filters["groupSize"]>, string> = {
+    "2-4": t("filters.group_size_2_4"),
+    "5+": t("filters.group_size_5plus"),
+  };
 
   const chips: Chip[] = [];
 
   if (filters.query.trim()) {
     chips.push({
       key: "query",
-      label: `Sök: "${filters.query.trim()}"`,
+      label: t("chips.search_label", { query: filters.query.trim() }),
       onRemove: () => onChange({ ...filters, query: "" }),
     });
   }
@@ -37,7 +43,7 @@ export function ActiveFilterChips({
   if (filters.workMode) {
     chips.push({
       key: "workMode",
-      label: WORK_MODE_LABEL[filters.workMode],
+      label: workModeLabel[filters.workMode],
       onRemove: () => onChange({ ...filters, workMode: null, groupSize: null }),
     });
   }
@@ -45,7 +51,7 @@ export function ActiveFilterChips({
   if (filters.groupSize) {
     chips.push({
       key: "groupSize",
-      label: GROUP_SIZE_LABEL[filters.groupSize],
+      label: groupSizeLabel[filters.groupSize],
       onRemove: () => onChange({ ...filters, groupSize: null }),
     });
   }
@@ -53,9 +59,11 @@ export function ActiveFilterChips({
   for (const [catKey, values] of Object.entries(filters.byCategory)) {
     if (!values || values.length === 0) continue;
     for (const v of values) {
+      const opt = optLookup.get(`${catKey}:${v}`);
+      const display = opt ? pickLocalized(opt, "label", lang) : v;
       chips.push({
         key: `${catKey}:${v}`,
-        label: v,
+        label: display,
         onRemove: () =>
           onChange({
             ...filters,
@@ -80,7 +88,7 @@ export function ActiveFilterChips({
           key={c.key}
           type="button"
           onClick={c.onRemove}
-          aria-label={`Ta bort filter: ${c.label}`}
+          aria-label={t("chips.remove_aria", { label: c.label })}
           className="inline-flex items-center gap-1.5 rounded-full bg-secondary text-foreground border border-border pl-3 pr-2 py-1 text-xs font-medium hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
         >
           <span>{c.label}</span>
@@ -93,7 +101,7 @@ export function ActiveFilterChips({
           onClick={() => onChange(emptyFilters)}
           className="text-xs font-medium text-[var(--kth-blue)] hover:underline ml-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary rounded"
         >
-          Rensa alla
+          {t("filters.clear_all")}
         </button>
       )}
     </div>

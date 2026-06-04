@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ChevronDown, MapPin, Calendar, Info, Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { ChairIcon } from "./icons/ChairIcon";
 
 
@@ -7,6 +8,7 @@ import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
 import { useCapacityIcon } from "@/lib/useCapacityIcon";
+import { pickLocalized, type Lang } from "@/i18n";
 import { OptionIcon } from "./OptionIcon";
 import { ImageCarousel } from "./ImageCarousel";
 import { ImageLightbox } from "./ImageLightbox";
@@ -21,6 +23,8 @@ export function SpaceCard({
   /** Optional override for live preview in admin. */
   layoutOverride?: CardSectionKey[];
 }) {
+  const { t, i18n } = useTranslation();
+  const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
   const [open, setOpen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -39,17 +43,28 @@ export function SpaceCard({
       ? [space.image_url]
       : [];
 
+  const localizedName = pickLocalized(space, "name", lang);
+  const localizedDescription = pickLocalized(space, "description", lang);
+  const localizedNotice = pickLocalized(space, "notice", lang);
+  const localizedFloor = pickLocalized(space, "floor", lang);
+  const localizedLocatedIn = pickLocalized(space, "located_in", lang);
+
+  const localizeChip = (category: string, value: string): string => {
+    const opt = lookup.get(`${category}:${value}`);
+    return opt ? pickLocalized(opt, "label", lang) : value;
+  };
+
   const chips: { key: string; label: string }[] = [
-    ...(space.noise ?? []).map((n) => ({ key: `noise:${n}`, label: n })),
-    ...space.equipment.map((e) => ({ key: `equipment:${e}`, label: e })),
-    ...space.facilities.map((f) => ({ key: `facility:${f}`, label: f })),
+    ...(space.noise ?? []).map((n) => ({ key: `noise:${n}`, label: localizeChip("noise", n) })),
+    ...space.equipment.map((e) => ({ key: `equipment:${e}`, label: localizeChip("equipment", e) })),
+    ...space.facilities.map((f) => ({ key: `facility:${f}`, label: localizeChip("facility", f) })),
   ];
 
   const metaParts = [
-    space.floor,
-    space.located_in,
-    ...(space.lokaltyp ?? []),
-  ].filter(Boolean) as string[];
+    localizedFloor,
+    localizedLocatedIn,
+    ...(space.lokaltyp ?? []).map((l) => localizeChip("lokaltyp", l)),
+  ].filter((s): s is string => Boolean(s && s.length > 0));
 
   const showCapacity =
     space.show_capacity_publicly && (space.capacity ?? 0) > 0;
@@ -60,7 +75,7 @@ export function SpaceCard({
       case "header":
         return (
           <div key="header" className={cn(spacing)}>
-            <h3 className="text-lg font-semibold leading-tight">{space.name}</h3>
+            <h3 className="text-lg font-semibold leading-tight">{localizedName}</h3>
             {metaParts.length > 0 && (
               <p className="mt-0.5 text-sm text-muted-foreground leading-snug">
                 {metaParts.join(" • ")}
@@ -74,21 +89,21 @@ export function SpaceCard({
                   <ChairIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                 )}
                 <span>
-                  <span className="sr-only">Kapacitet: </span>
-                  <span className="font-semibold">{space.capacity}</span> platser
+                  <span className="sr-only">{t("card.capacity_sr")} </span>
+                  <span className="font-semibold">{space.capacity}</span> {t("card.capacity_seats")}
                 </span>
               </p>
             )}
 
-            {space.notice && (
+            {localizedNotice && (
               <div
                 role="status"
                 className="mt-3 mb-1 flex items-start gap-2 bg-amber-100 text-amber-900 border border-amber-200 rounded-md px-3 py-2 text-sm"
               >
                 <Info className="h-4 w-4 mt-0.5 shrink-0" aria-hidden="true" />
                 <span className="whitespace-pre-line">
-                  <span className="sr-only">Viktigt meddelande: </span>
-                  {space.notice}
+                  <span className="sr-only">{t("card.notice_sr")} </span>
+                  {localizedNotice}
                 </span>
               </div>
             )}
@@ -139,8 +154,8 @@ export function SpaceCard({
             className={buttonClass}
           >
             <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>Visa på karta</span>
-            <span className="sr-only">(öppnas i en ny flik)</span>
+            <span>{t("card.button_map")}</span>
+            <span className="sr-only">{t("card.opens_new_tab_sr")}</span>
           </a>
         );
       case "button_group_booking":
@@ -155,8 +170,8 @@ export function SpaceCard({
             className={buttonClass}
           >
             <Users className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>Boka grupprum</span>
-            <span className="sr-only">(öppnas i en ny flik)</span>
+            <span>{t("card.button_group_booking")}</span>
+            <span className="sr-only">{t("card.opens_new_tab_sr")}</span>
           </a>
         );
       case "button_booking":
@@ -171,8 +186,8 @@ export function SpaceCard({
             className={buttonClass}
           >
             <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>Se bokningsschema</span>
-            <span className="sr-only">(öppnas i en ny flik)</span>
+            <span>{t("card.button_booking")}</span>
+            <span className="sr-only">{t("card.opens_new_tab_sr")}</span>
           </a>
         );
       default:
@@ -191,7 +206,10 @@ export function SpaceCard({
       role="button"
       tabIndex={0}
       aria-expanded={open}
-      aria-label={`${space.name} – ${open ? "dölj" : "visa"} beskrivning`}
+      aria-label={t("card.expand_aria", {
+        name: localizedName,
+        action: open ? t("card.expand_hide") : t("card.expand_show"),
+      })}
       onClick={() => setOpen((o) => !o)}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -213,7 +231,7 @@ export function SpaceCard({
               <ChevronDown
                 className={cn("h-4 w-4 transition-transform", open && "rotate-180")}
               />
-              <span className="ml-1">{open ? "Dölj beskrivning" : "Visa beskrivning"}</span>
+              <span className="ml-1">{open ? t("card.hide_description") : t("card.show_description")}</span>
             </span>
             {renderedButtons.length > 0 && (
               <div className="flex flex-wrap items-center gap-2 ml-auto">
@@ -228,7 +246,7 @@ export function SpaceCard({
           <ImageCarousel
             images={images}
             alts={space.image_alts ?? []}
-            alt={space.name}
+            alt={localizedName}
             onImageClick={(i) => {
               setLightboxIndex(i);
               setLightboxOpen(true);
@@ -248,7 +266,6 @@ export function SpaceCard({
 
 
 
-
       <div
         className={cn(
           "grid transition-all duration-300 ease-out",
@@ -258,7 +275,7 @@ export function SpaceCard({
         <div className="overflow-hidden">
           <div className="px-4 pb-5 pt-1 border-t border-border/60">
             <p className="text-sm text-foreground/80 leading-relaxed pt-3">
-              {space.description}
+              {localizedDescription}
             </p>
 
           </div>
