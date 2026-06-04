@@ -58,10 +58,9 @@ export function FilterPanel({
     });
   };
 
-  const intentCat = categories.find((c) => c.key === "intent");
-  const intentTitle = intentCat
-    ? pickLocalized(intentCat, "title", lang) || t("filters.intent_default_title")
-    : t("filters.intent_default_title");
+  // Intent section is hard-coded in the student view, so the title should
+  // always come from the translation file (not the DB).
+  const intentTitle = t("filters.intent_default_title");
 
   const intentTabs: { key: Exclude<WorkMode, null>; label: string; Icon: typeof User }[] = [
     { key: "enskilt", label: t("filters.intent_enskilt"), Icon: User },
