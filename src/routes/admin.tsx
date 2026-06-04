@@ -1457,50 +1457,138 @@ function SortableSectionRow({ id, label }: { id: string; label: string }) {
   );
 }
 
-function LandingMessageTab() {
-  const { data: remote, isLoading } = useLandingMessage();
-  const save = useSaveLandingMessage();
-  const [value, setValue] = useState("");
-
-  useEffect(() => {
-    if (typeof remote === "string") setValue(remote);
-  }, [remote]);
-
-  const uiKeys: UiTextKey[] = ["empty_title", "empty_suggest_template", "empty_fallback"];
+function LangPairEditor({
+  labelSv,
+  labelEn,
+  rows,
+  valueSv,
+  valueEn,
+  onSaveSv,
+  onSaveEn,
+  defaultSv,
+  defaultEn,
+  isPending,
+  isLoading,
+}: {
+  labelSv: string;
+  labelEn: string;
+  rows: number;
+  valueSv: string;
+  valueEn: string;
+  onSaveSv: (v: string) => void;
+  onSaveEn: (v: string) => void;
+  defaultSv?: string;
+  defaultEn?: string;
+  isPending: boolean;
+  isLoading: boolean;
+}) {
+  const [sv, setSv] = useState(valueSv);
+  const [en, setEn] = useState(valueEn);
+  useEffect(() => setSv(valueSv), [valueSv]);
+  useEffect(() => setEn(valueEn), [valueEn]);
 
   return (
-    <div className="space-y-6 max-w-2xl">
-      <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
-        <div>
-          <h2 className="text-lg font-bold">Välkomsttext på startsidan</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Visas när besökaren ännu inte valt något filter.
-          </p>
-        </div>
+    <div className="grid gap-4 md:grid-cols-2">
+      <div className="space-y-2">
+        <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          {labelSv} (SV)
+        </label>
         <textarea
-          rows={4}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
+          rows={rows}
+          value={sv}
+          onChange={(e) => setSv(e.target.value)}
           disabled={isLoading}
           className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
         />
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={() => save.mutate(value, { onSuccess: () => toast.success("Sparat") })}
-            disabled={save.isPending}
-            className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50"
+            onClick={() => onSaveSv(sv)}
+            disabled={isPending}
+            className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium hover:opacity-90 disabled:opacity-50"
           >
-            Spara
+            Spara SV
           </button>
+          {defaultSv !== undefined && (
+            <button
+              type="button"
+              onClick={() => setSv(defaultSv)}
+              className="inline-flex items-center gap-2 rounded-full bg-secondary text-foreground px-3 py-1.5 text-xs font-medium hover:bg-accent"
+            >
+              Återställ
+            </button>
+          )}
+        </div>
+      </div>
+      <div className="space-y-2">
+        <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          {labelEn} (EN)
+        </label>
+        <textarea
+          rows={rows}
+          value={en}
+          onChange={(e) => setEn(e.target.value)}
+          disabled={isLoading}
+          placeholder="Lämna tomt för att falla tillbaka till svenska."
+          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+        />
+        <div className="flex gap-2">
           <button
             type="button"
-            onClick={() => setValue(DEFAULT_LANDING_MESSAGE)}
-            className="inline-flex items-center gap-2 rounded-full bg-secondary text-foreground px-4 py-2 text-sm font-medium hover:bg-accent"
+            onClick={() => onSaveEn(en)}
+            disabled={isPending}
+            className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium hover:opacity-90 disabled:opacity-50"
           >
-            Återställ till standard
+            Spara EN
           </button>
+          {defaultEn !== undefined && (
+            <button
+              type="button"
+              onClick={() => setEn(defaultEn)}
+              className="inline-flex items-center gap-2 rounded-full bg-secondary text-foreground px-3 py-1.5 text-xs font-medium hover:bg-accent"
+            >
+              Återställ
+            </button>
+          )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function LandingMessageTab() {
+  const { data: pair, isLoading } = useLandingMessageAdmin();
+  const save = useSaveLandingMessage();
+
+  const uiKeys: UiTextKey[] = ["empty_title", "empty_suggest_template", "empty_fallback"];
+
+  return (
+    <div className="space-y-6 max-w-4xl">
+      <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
+        <div>
+          <h2 className="text-lg font-bold">Välkomsttext på startsidan</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Visas när besökaren ännu inte valt något filter. Engelsk version visas
+            när användaren byter språk; lämnas den tom används svenska som fallback.
+          </p>
+        </div>
+        <LangPairEditor
+          labelSv="Välkomsttext"
+          labelEn="Welcome message"
+          rows={4}
+          valueSv={pair?.sv ?? ""}
+          valueEn={pair?.en ?? ""}
+          defaultSv={DEFAULT_LANDING_MESSAGE}
+          defaultEn={DEFAULT_LANDING_MESSAGE_EN}
+          isPending={save.isPending}
+          isLoading={isLoading}
+          onSaveSv={(v) =>
+            save.mutate({ message: v, lang: "sv" }, { onSuccess: () => toast.success("Sparat (SV)") })
+          }
+          onSaveEn={(v) =>
+            save.mutate({ message: v, lang: "en" }, { onSuccess: () => toast.success("Sparat (EN)") })
+          }
+        />
       </div>
 
       {uiKeys.map((k) => (
@@ -1511,15 +1599,9 @@ function LandingMessageTab() {
 }
 
 function UiTextEditor({ uiKey }: { uiKey: UiTextKey }) {
-  const { data: remote, isLoading } = useUiText(uiKey);
+  const { data: pair, isLoading } = useUiTextAdmin(uiKey);
   const save = useSaveUiText();
-  const [value, setValue] = useState("");
   const meta = UI_TEXT_META[uiKey];
-  const defaultValue = UI_TEXT_DEFAULTS[uiKey];
-
-  useEffect(() => {
-    if (typeof remote === "string") setValue(remote);
-  }, [remote]);
 
   return (
     <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
@@ -1527,35 +1609,23 @@ function UiTextEditor({ uiKey }: { uiKey: UiTextKey }) {
         <h2 className="text-lg font-bold">{meta.title}</h2>
         <p className="text-sm text-muted-foreground mt-1">{meta.description}</p>
       </div>
-      <textarea
+      <LangPairEditor
+        labelSv={meta.title}
+        labelEn={meta.title}
         rows={meta.rows ?? 3}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        disabled={isLoading}
-        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+        valueSv={pair?.sv ?? ""}
+        valueEn={pair?.en ?? ""}
+        defaultSv={UI_TEXT_DEFAULTS[uiKey]}
+        defaultEn={UI_TEXT_DEFAULTS_EN[uiKey]}
+        isPending={save.isPending}
+        isLoading={isLoading}
+        onSaveSv={(v) =>
+          save.mutate({ key: uiKey, value: v, lang: "sv" }, { onSuccess: () => toast.success("Sparat (SV)") })
+        }
+        onSaveEn={(v) =>
+          save.mutate({ key: uiKey, value: v, lang: "en" }, { onSuccess: () => toast.success("Sparat (EN)") })
+        }
       />
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={() =>
-            save.mutate(
-              { key: uiKey, value },
-              { onSuccess: () => toast.success("Sparat") },
-            )
-          }
-          disabled={save.isPending}
-          className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50"
-        >
-          Spara
-        </button>
-        <button
-          type="button"
-          onClick={() => setValue(defaultValue)}
-          className="inline-flex items-center gap-2 rounded-full bg-secondary text-foreground px-4 py-2 text-sm font-medium hover:bg-accent"
-        >
-          Återställ till standard
-        </button>
-      </div>
     </div>
   );
 }

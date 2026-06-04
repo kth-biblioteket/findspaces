@@ -76,7 +76,8 @@ function filtersToSearch(f: Filters) {
 }
 
 function SpaceFinder() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = (i18n.resolvedLanguage ?? "sv") as "sv" | "en";
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/" });
   const filters = useMemo(() => searchToFilters(search), [search]);
@@ -232,7 +233,7 @@ function SpaceFinder() {
                         {formatSuggestTemplate(emptySuggestTemplate ?? "", {
                           label: narrowest.label,
                           count: narrowest.wouldMatch,
-                        })}
+                        }, lang)}
                       </p>
                       <div className="flex flex-wrap gap-2">
                         <button
