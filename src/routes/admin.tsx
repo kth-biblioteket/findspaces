@@ -1102,7 +1102,7 @@ function CategoryDialog({
           <DialogTitle>{isNew ? "Ny filterkategori" : "Redigera kategori"}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-2">
-          <Field label="Titel">
+          <Field label="Titel (SV)">
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -1110,6 +1110,15 @@ function CategoryDialog({
               className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
             />
           </Field>
+          <Field label="Title (EN)">
+            <input
+              value={titleEn}
+              onChange={(e) => setTitleEn(e.target.value)}
+              placeholder="Leave empty to fall back to Swedish"
+              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+            />
+          </Field>
+
 
           <Field label="Visningsstil i sidopanelen">
             <div className="flex gap-2">
