@@ -12,7 +12,16 @@
     "clear_all": "Clear all",
     "clear": "Clear",
     "show_results": "Show results",
-    "show_results_count": "Show results ({{count}})"
+    "show_results_count": "Show results ({{count}})",
+    "search_placeholder": "Search for a space...",
+    "search_sr": "Search for a space",
+    "intent_default_title": "I want to work",
+    "intent_enskilt": "Alone",
+    "intent_tillsammans": "Together",
+    "intent_grupprum": "In a group room",
+    "group_size_label": "Group size",
+    "group_size_2_4": "2–4 people",
+    "group_size_5plus": "5+ people"
   },
   "results": {
     "heading": "Study spaces",
@@ -22,5 +31,23 @@
     "count_total_other": "{{count}} spaces",
     "remove_filter": "Remove {{label}}",
     "clear_all_filters": "Clear all filters"
+  },
+  "chips": {
+    "search_label": "Search: \"{{query}}\"",
+    "remove_aria": "Remove filter: {{label}}"
+  },
+  "card": {
+    "capacity_sr": "Capacity:",
+    "capacity_seats": "seats",
+    "notice_sr": "Important notice:",
+    "expand_aria": "{{name}} – {{action}} description",
+    "expand_show": "show",
+    "expand_hide": "hide",
+    "show_description": "Show description",
+    "hide_description": "Hide description",
+    "button_map": "Show on map",
+    "button_group_booking": "Book group room",
+    "button_booking": "See booking schedule",
+    "opens_new_tab_sr": "(opens in a new tab)"
   }
 }

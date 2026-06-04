@@ -1,9 +1,11 @@
 import { Search, Check, User, Users, DoorClosed } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { PillToggle } from "./PillToggle";
 import { OptionIcon } from "./OptionIcon";
 import { useFilterOptions, groupOptionsByKey } from "@/lib/useFilterOptions";
 import { useFilterCategories } from "@/lib/useFilterCategories";
 import { type FilterOption, type FilterCategoryRow } from "@/lib/spaces";
+import { pickLocalized, type Lang } from "@/i18n";
 import { cn } from "@/lib/utils";
 
 export type WorkMode = "enskilt" | "tillsammans" | "grupprum" | null;
@@ -23,12 +25,6 @@ export const emptyFilters: Filters = {
   byCategory: {},
 };
 
-const INTENT_TABS: { key: Exclude<WorkMode, null>; label: string; Icon: typeof User }[] = [
-  { key: "enskilt", label: "Enskilt", Icon: User },
-  { key: "tillsammans", label: "Tillsammans", Icon: Users },
-  { key: "grupprum", label: "I grupprum", Icon: DoorClosed },
-];
-
 function toggle(arr: string[], v: string) {
   return arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
 }
@@ -36,6 +32,8 @@ function toggle(arr: string[], v: string) {
 export function FilterPanel({
   filters, onChange,
 }: { filters: Filters; onChange: (f: Filters) => void }) {
+  const { t, i18n } = useTranslation();
+  const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
   const { data: options = [] } = useFilterOptions();
   const { data: categories = [] } = useFilterCategories();
   const byKey = groupOptionsByKey(options);
@@ -60,18 +58,27 @@ export function FilterPanel({
     });
   };
 
-  const intentTitle = categories.find((c) => c.key === "intent")?.title ?? "Jag vill arbeta";
+  const intentCat = categories.find((c) => c.key === "intent");
+  const intentTitle = intentCat
+    ? pickLocalized(intentCat, "title", lang) || t("filters.intent_default_title")
+    : t("filters.intent_default_title");
+
+  const intentTabs: { key: Exclude<WorkMode, null>; label: string; Icon: typeof User }[] = [
+    { key: "enskilt", label: t("filters.intent_enskilt"), Icon: User },
+    { key: "tillsammans", label: t("filters.intent_tillsammans"), Icon: Users },
+    { key: "grupprum", label: t("filters.intent_grupprum"), Icon: DoorClosed },
+  ];
 
   return (
     <div className="space-y-10">
       <div>
         <label className="relative block">
-          <span className="sr-only">Sök på lokal</span>
+          <span className="sr-only">{t("filters.search_sr")}</span>
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
           <input
             value={filters.query}
             onChange={(e) => onChange({ ...filters, query: e.target.value })}
-            placeholder="Sök på lokal..."
+            placeholder={t("filters.search_placeholder")}
             className="w-full rounded-full border border-border bg-card pl-10 pr-4 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
           />
         </label>
@@ -80,7 +87,7 @@ export function FilterPanel({
       <div>
         <h3 className="text-sm font-semibold mb-3">{intentTitle}</h3>
         <div className="flex flex-wrap gap-2">
-          {INTENT_TABS.map(({ key, label, Icon }) => (
+          {intentTabs.map(({ key, label, Icon }) => (
             <PillToggle
               key={key}
               label={label}
@@ -94,15 +101,15 @@ export function FilterPanel({
 
         {filters.workMode === "grupprum" && (
           <div className="mt-3">
-            <p className="text-xs text-muted-foreground mb-2">Gruppstorlek</p>
+            <p className="text-xs text-muted-foreground mb-2">{t("filters.group_size_label")}</p>
             <div className="flex flex-wrap gap-2">
               <PillToggle
-                label="2–4 pers"
+                label={t("filters.group_size_2_4")}
                 selected={filters.groupSize === "2-4"}
                 onClick={() => setGroupSize("2-4")}
               />
               <PillToggle
-                label="5+ pers"
+                label={t("filters.group_size_5plus")}
                 selected={filters.groupSize === "5+"}
                 onClick={() => setGroupSize("5+")}
               />
@@ -125,6 +132,7 @@ export function FilterPanel({
             options={opts}
             selected={selected}
             onToggle={(v) => setSelected(cat.key, toggle(selected, v))}
+            lang={lang}
           />
         ) : (
           <PillGroup
@@ -133,6 +141,7 @@ export function FilterPanel({
             options={opts}
             selected={selected}
             onToggle={(v) => setSelected(cat.key, toggle(selected, v))}
+            lang={lang}
           />
         );
       })}
@@ -141,19 +150,21 @@ export function FilterPanel({
 }
 
 function ListGroup({
-  cat, options, selected, onToggle,
+  cat, options, selected, onToggle, lang,
 }: {
   cat: FilterCategoryRow;
   options: FilterOption[];
   selected: string[];
   onToggle: (v: string) => void;
+  lang: Lang;
 }) {
   return (
     <div>
-      <h3 className="text-sm font-semibold mb-3">{cat.title}</h3>
+      <h3 className="text-sm font-semibold mb-3">{pickLocalized(cat, "title", lang)}</h3>
       <ul className="space-y-1">
         {options.map((opt) => {
           const isSelected = selected.includes(opt.label);
+          const display = pickLocalized(opt, "label", lang);
           return (
             <li key={opt.id}>
               <button
@@ -178,7 +189,7 @@ function ListGroup({
                 </span>
 
                 <OptionIcon option={opt} className="h-4 w-4" />
-                <span>{opt.label}</span>
+                <span>{display}</span>
               </button>
             </li>
           );
@@ -189,21 +200,22 @@ function ListGroup({
 }
 
 function PillGroup({
-  cat, options, selected, onToggle,
+  cat, options, selected, onToggle, lang,
 }: {
   cat: FilterCategoryRow;
   options: FilterOption[];
   selected: string[];
   onToggle: (v: string) => void;
+  lang: Lang;
 }) {
   return (
     <div>
-      <h3 className="text-sm font-semibold mb-3">{cat.title}</h3>
+      <h3 className="text-sm font-semibold mb-3">{pickLocalized(cat, "title", lang)}</h3>
       <div className="flex flex-wrap gap-2">
         {options.map((o) => (
           <PillToggle
             key={o.id}
-            label={o.label}
+            label={pickLocalized(o, "label", lang)}
             icon={<OptionIcon option={o} className="h-4 w-4" />}
             selected={selected.includes(o.label)}
             onClick={() => onToggle(o.label)}
