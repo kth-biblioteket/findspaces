@@ -1254,13 +1254,22 @@ function FilterOptionDialog({
         </DialogHeader>
 
         <div className="space-y-5 py-2">
-          <Field label="Etikett">
+          <Field label="Etikett (SV)">
             <input
               value={label}
               onChange={(e) => setLabel(e.target.value)}
               className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
             />
           </Field>
+          <Field label="Label (EN)">
+            <input
+              value={labelEn}
+              onChange={(e) => setLabelEn(e.target.value)}
+              placeholder="Leave empty to fall back to Swedish"
+              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+            />
+          </Field>
+
 
           <Field label="Egen ikon (valfritt)">
             <div className="flex items-center gap-3 flex-wrap">
