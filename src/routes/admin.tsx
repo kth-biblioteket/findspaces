@@ -109,9 +109,14 @@ function spaceToForm(s: Space): FormState {
   while (image_alts.length < images.length) image_alts.push("");
   return {
     id: s.id,
-    name: s.name, description: s.description,
+    name: s.name,
+    name_en: s.name_en ?? "",
+    description: s.description,
+    description_en: s.description_en ?? "",
     floor: s.floor ?? "",
+    floor_en: s.floor_en ?? "",
     located_in: s.located_in ?? "",
+    located_in_en: s.located_in_en ?? "",
     capacity: s.capacity != null ? String(s.capacity) : "",
     show_capacity_publicly: s.show_capacity_publicly ?? false,
     intent: s.intent ?? [], noise: s.noise ?? [],
@@ -122,9 +127,11 @@ function spaceToForm(s: Space): FormState {
     map_url: s.map_url ?? "", booking_url: s.booking_url ?? "",
     group_booking_url: s.group_booking_url ?? "",
     notice: s.notice ?? "",
+    notice_en: s.notice_en ?? "",
     sort_order: s.sort_order,
   };
 }
+
 
 
 function getFormValues(form: FormState, key: string): string[] {
