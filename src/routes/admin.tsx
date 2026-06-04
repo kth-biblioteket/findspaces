@@ -245,9 +245,14 @@ function AdminPage() {
     mutationFn: async (f: FormState) => {
       const capNum = f.capacity.trim() ? parseInt(f.capacity, 10) : NaN;
       const payload: any = {
-        name: f.name, description: f.description,
+        name: f.name,
+        name_en: f.name_en.trim() || null,
+        description: f.description,
+        description_en: f.description_en.trim() || null,
         floor: f.floor?.trim() ? f.floor.trim() : null,
+        floor_en: f.floor_en?.trim() ? f.floor_en.trim() : null,
         located_in: f.located_in?.trim() ? f.located_in.trim() : null,
+        located_in_en: f.located_in_en?.trim() ? f.located_in_en.trim() : null,
         capacity: Number.isFinite(capNum) ? capNum : null,
         show_capacity_publicly: f.show_capacity_publicly,
         intent: f.intent, noise: f.noise,
@@ -261,6 +266,8 @@ function AdminPage() {
         booking_url: f.booking_url.trim() || null,
         group_booking_url: f.group_booking_url.trim() || null,
         notice: f.notice.trim() || null,
+        notice_en: f.notice_en.trim() || null,
+
       };
 
       if (f.id) {
