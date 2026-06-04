@@ -1180,6 +1180,7 @@ function FilterOptionDialog({
 }: { categoryKey: string; option: FilterOption | null; onClose: () => void }) {
   const qc = useQueryClient();
   const [label, setLabel] = useState(option?.label ?? "");
+  const [labelEn, setLabelEn] = useState(option?.label_en ?? "");
   const [iconUrl, setIconUrl] = useState<string | null>(option?.icon_url ?? null);
   const [defaultIcon, setDefaultIcon] = useState<string | null>(option?.default_icon ?? null);
   const [uploading, setUploading] = useState(false);
@@ -1191,9 +1192,11 @@ function FilterOptionDialog({
       const newLabel = label.trim();
       const payload = {
         category: categoryKey, label: newLabel,
+        label_en: labelEn.trim() || null,
         icon_url: iconUrl,
         default_icon: iconUrl ? null : defaultIcon,
       };
+
       if (option) {
         const oldLabel = option.label;
         const { error } = await supabase.from("filter_options").update(payload).eq("id", option.id);
