@@ -1,0 +1,26 @@
+{
+  "header": {
+    "title": "Hitta studieplats på KTH Biblioteket",
+    "subtitle": "DEMO",
+    "prototype_badge": "Prototyp",
+    "admin": "Admin",
+    "language": "Språk"
+  },
+  "filters": {
+    "title": "Filter",
+    "open": "Filter",
+    "clear_all": "Rensa alla",
+    "clear": "Rensa",
+    "show_results": "Visa resultat",
+    "show_results_count": "Visa resultat ({{count}})"
+  },
+  "results": {
+    "heading": "Studieplatser",
+    "loading": "Laddar...",
+    "count_filtered": "{{filtered}} av {{total}}",
+    "count_total_one": "{{count}} lokal",
+    "count_total_other": "{{count}} lokaler",
+    "remove_filter": "Ta bort {{label}}",
+    "clear_all_filters": "Rensa alla filter"
+  }
+}

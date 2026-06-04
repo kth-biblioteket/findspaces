@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { SlidersHorizontal, Library, Settings, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { type Space } from "@/lib/spaces";
@@ -8,6 +9,7 @@ import { useFilterCategories } from "@/lib/useFilterCategories";
 import { FilterPanel, emptyFilters, type Filters } from "@/components/FilterPanel";
 import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { SpaceCard } from "@/components/SpaceCard";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLandingMessage } from "@/lib/useLandingMessage";
 import { useUiText, formatSuggestTemplate } from "@/lib/useUiText";
 import { matchesSpace } from "@/lib/filterMatch";
@@ -73,6 +75,7 @@ function filtersToSearch(f: Filters) {
 }
 
 function SpaceFinder() {
+  const { t } = useTranslation();
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/" });
   const filters = useMemo(() => searchToFilters(search), [search]);
@@ -118,21 +121,24 @@ function SpaceFinder() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-bold leading-tight">Hitta studieplats på KTH Biblioteket</h1>
+                <h1 className="text-base sm:text-lg font-bold leading-tight">{t("header.title")}</h1>
                 <span className="inline-flex items-center rounded-full bg-amber-100 text-amber-900 text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 border border-amber-300">
-                  Prototyp
+                  {t("header.prototype_badge")}
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground">DEMO</p>
+              <p className="text-xs text-muted-foreground">{t("header.subtitle")}</p>
             </div>
           </div>
-          <Link
-            to="/admin"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <Settings className="h-4 w-4" />
-            <span className="hidden sm:inline">Admin</span>
-          </Link>
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher />
+            <Link
+              to="/admin"
+              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <Settings className="h-4 w-4" />
+              <span className="hidden sm:inline">{t("header.admin")}</span>
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -140,7 +146,7 @@ function SpaceFinder() {
         <aside className="hidden lg:block">
           <div className="sticky top-6 bg-card rounded-2xl border border-border p-6">
             <div className="flex items-center justify-between mb-4 min-h-[28px]">
-              <span className="text-sm font-semibold">Filter</span>
+              <span className="text-sm font-semibold">{t("filters.title")}</span>
               {hasActiveFilter && (
                 <button
                   type="button"
@@ -148,7 +154,7 @@ function SpaceFinder() {
                   className="inline-flex items-center gap-1 text-sm font-medium text-[var(--kth-blue)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary rounded"
                 >
                   <X className="h-4 w-4" aria-hidden="true" />
-                  Rensa alla
+                  {t("filters.clear_all")}
                 </button>
               )}
             </div>
@@ -160,12 +166,12 @@ function SpaceFinder() {
           <Sheet>
             <SheetTrigger asChild>
               <button className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2.5 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary">
-                <SlidersHorizontal className="h-4 w-4" aria-hidden="true" /> Filter
+                <SlidersHorizontal className="h-4 w-4" aria-hidden="true" /> {t("filters.open")}
               </button>
             </SheetTrigger>
             <SheetContent side="bottom" className="h-[85vh] p-0 flex flex-col">
               <SheetHeader className="px-6 pt-6 pb-2 shrink-0">
-                <SheetTitle>Filter</SheetTitle>
+                <SheetTitle>{t("filters.title")}</SheetTitle>
               </SheetHeader>
               <div className="flex-1 overflow-y-auto px-6 pb-6 pt-4">
                 <FilterPanel filters={filters} onChange={setFilters} />
@@ -176,14 +182,16 @@ function SpaceFinder() {
                   onClick={() => setFilters(emptyFilters)}
                   className="px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                 >
-                  Rensa
+                  {t("filters.clear")}
                 </button>
                 <SheetClose asChild>
                   <button
                     type="button"
                     className="flex-1 rounded-full bg-primary text-primary-foreground px-4 py-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                   >
-                    Visa resultat{hasActiveFilter ? ` (${filtered.length})` : ""}
+                    {hasActiveFilter
+                      ? t("filters.show_results_count", { count: filtered.length })
+                      : t("filters.show_results")}
                   </button>
                 </SheetClose>
               </div>
@@ -193,13 +201,13 @@ function SpaceFinder() {
 
         <main>
           <div className="flex items-baseline justify-between mb-4">
-            <h2 className="text-xl font-bold">Studieplatser</h2>
+            <h2 className="text-xl font-bold">{t("results.heading")}</h2>
             <span className="text-sm text-muted-foreground">
               {isLoading
-                ? "Laddar..."
+                ? t("results.loading")
                 : hasActiveFilter
-                  ? `${filtered.length} av ${spaces.length}`
-                  : `${spaces.length} lokaler`}
+                  ? t("results.count_filtered", { filtered: filtered.length, total: spaces.length })
+                  : t("results.count_total", { count: spaces.length })}
             </span>
           </div>
 
@@ -231,14 +239,14 @@ function SpaceFinder() {
                           className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                         >
                           <X className="h-4 w-4" aria-hidden="true" />
-                          Ta bort {narrowest.label}
+                          {t("results.remove_filter", { label: narrowest.label })}
                         </button>
                         <button
                           type="button"
                           onClick={() => setFilters(emptyFilters)}
                           className="inline-flex items-center rounded-full border border-border bg-card text-foreground px-4 py-2 text-sm font-medium hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                         >
-                          Rensa alla filter
+                          {t("results.clear_all_filters")}
                         </button>
                       </div>
                     </>
@@ -252,7 +260,7 @@ function SpaceFinder() {
                         onClick={() => setFilters(emptyFilters)}
                         className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                       >
-                        Rensa alla filter
+                        {t("results.clear_all_filters")}
                       </button>
                     </>
                   )}

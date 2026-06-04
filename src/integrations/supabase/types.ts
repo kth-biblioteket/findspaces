@@ -43,6 +43,7 @@ export type Database = {
           sort_order: number
           style: string
           title: string
+          title_en: string | null
           updated_at: string
         }
         Insert: {
@@ -55,6 +56,7 @@ export type Database = {
           sort_order?: number
           style?: string
           title: string
+          title_en?: string | null
           updated_at?: string
         }
         Update: {
@@ -67,6 +69,7 @@ export type Database = {
           sort_order?: number
           style?: string
           title?: string
+          title_en?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -79,6 +82,7 @@ export type Database = {
           icon_url: string | null
           id: string
           label: string
+          label_en: string | null
           sort_order: number
           updated_at: string
         }
@@ -89,6 +93,7 @@ export type Database = {
           icon_url?: string | null
           id?: string
           label: string
+          label_en?: string | null
           sort_order?: number
           updated_at?: string
         }
@@ -99,6 +104,7 @@ export type Database = {
           icon_url?: string | null
           id?: string
           label?: string
+          label_en?: string | null
           sort_order?: number
           updated_at?: string
         }
@@ -112,9 +118,11 @@ export type Database = {
           computers_url: string | null
           created_at: string
           description: string
+          description_en: string | null
           equipment: string[]
           facilities: string[]
           floor: string | null
+          floor_en: string | null
           group_booking_url: string | null
           id: string
           image_alts: string[]
@@ -122,11 +130,14 @@ export type Database = {
           images: string[]
           intent: string[]
           located_in: string | null
+          located_in_en: string | null
           lokaltyp: string[]
           map_url: string | null
           name: string
+          name_en: string | null
           noise: string[]
           notice: string | null
+          notice_en: string | null
           show_capacity_publicly: boolean
           sort_order: number
           tags: Json
@@ -139,9 +150,11 @@ export type Database = {
           computers_url?: string | null
           created_at?: string
           description?: string
+          description_en?: string | null
           equipment?: string[]
           facilities?: string[]
           floor?: string | null
+          floor_en?: string | null
           group_booking_url?: string | null
           id?: string
           image_alts?: string[]
@@ -149,11 +162,14 @@ export type Database = {
           images?: string[]
           intent?: string[]
           located_in?: string | null
+          located_in_en?: string | null
           lokaltyp?: string[]
           map_url?: string | null
           name: string
+          name_en?: string | null
           noise?: string[]
           notice?: string | null
+          notice_en?: string | null
           show_capacity_publicly?: boolean
           sort_order?: number
           tags?: Json
@@ -166,9 +182,11 @@ export type Database = {
           computers_url?: string | null
           created_at?: string
           description?: string
+          description_en?: string | null
           equipment?: string[]
           facilities?: string[]
           floor?: string | null
+          floor_en?: string | null
           group_booking_url?: string | null
           id?: string
           image_alts?: string[]
@@ -176,11 +194,14 @@ export type Database = {
           images?: string[]
           intent?: string[]
           located_in?: string | null
+          located_in_en?: string | null
           lokaltyp?: string[]
           map_url?: string | null
           name?: string
+          name_en?: string | null
           noise?: string[]
           notice?: string | null
+          notice_en?: string | null
           show_capacity_publicly?: boolean
           sort_order?: number
           tags?: Json
