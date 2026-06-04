@@ -416,19 +416,35 @@ function AdminPage() {
                   </DialogHeader>
 
                   <div className="space-y-5 py-2">
-                    <Field label="Namn">
+                    <Field label="Namn (SV)">
                       <input
                         value={form.name}
                         onChange={(e) => setForm({ ...form, name: e.target.value })}
                         className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                       />
                     </Field>
+                    <Field label="Name (EN)">
+                      <input
+                        value={form.name_en}
+                        onChange={(e) => setForm({ ...form, name_en: e.target.value })}
+                        placeholder="Lämna tomt för att använda svenska som fallback"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                      />
+                    </Field>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Field label="Våningsplan">
+                      <Field label="Våningsplan (SV)">
                         <input
                           value={form.floor}
                           onChange={(e) => setForm({ ...form, floor: e.target.value })}
                           placeholder="t.ex. Plan 3"
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        />
+                      </Field>
+                      <Field label="Floor (EN)">
+                        <input
+                          value={form.floor_en}
+                          onChange={(e) => setForm({ ...form, floor_en: e.target.value })}
+                          placeholder="e.g. Floor 3"
                           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                         />
                       </Field>
@@ -443,14 +459,25 @@ function AdminPage() {
                         />
                       </Field>
                     </div>
-                    <Field label="Ligger i lokal (visas mellan plan och lokaltyp)">
-                      <input
-                        value={form.located_in}
-                        onChange={(e) => setForm({ ...form, located_in: e.target.value })}
-                        placeholder="t.ex. Biblioteket"
-                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                      />
-                    </Field>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <Field label="Ligger i lokal (SV)">
+                        <input
+                          value={form.located_in}
+                          onChange={(e) => setForm({ ...form, located_in: e.target.value })}
+                          placeholder="t.ex. Biblioteket"
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        />
+                      </Field>
+                      <Field label="Located in (EN)">
+                        <input
+                          value={form.located_in_en}
+                          onChange={(e) => setForm({ ...form, located_in_en: e.target.value })}
+                          placeholder="e.g. The Library"
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        />
+                      </Field>
+                    </div>
+
 
 
                     <label className="flex items-start gap-2 text-sm cursor-pointer">
