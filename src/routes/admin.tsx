@@ -60,9 +60,13 @@ const MAX_IMAGES = 5;
 type FormState = {
   id?: string;
   name: string;
+  name_en: string;
   description: string;
+  description_en: string;
   floor: string;
+  floor_en: string;
   located_in: string;
+  located_in_en: string;
   capacity: string;
   show_capacity_publicly: boolean;
   intent: string[];
@@ -77,18 +81,24 @@ type FormState = {
   booking_url: string;
   group_booking_url: string;
   notice: string;
+  notice_en: string;
   sort_order: number;
 };
 
 const emptyForm: FormState = {
-  name: "", description: "", floor: "", located_in: "", capacity: "",
+  name: "", name_en: "",
+  description: "", description_en: "",
+  floor: "", floor_en: "",
+  located_in: "", located_in_en: "",
+  capacity: "",
   show_capacity_publicly: false,
   intent: [], noise: [], equipment: [], facilities: [], lokaltyp: [],
   tags: {},
   images: [], image_alts: [], map_url: "", booking_url: "", group_booking_url: "",
-  notice: "",
+  notice: "", notice_en: "",
   sort_order: 999,
 };
+
 
 function spaceToForm(s: Space): FormState {
   const images =
@@ -99,9 +109,14 @@ function spaceToForm(s: Space): FormState {
   while (image_alts.length < images.length) image_alts.push("");
   return {
     id: s.id,
-    name: s.name, description: s.description,
+    name: s.name,
+    name_en: s.name_en ?? "",
+    description: s.description,
+    description_en: s.description_en ?? "",
     floor: s.floor ?? "",
+    floor_en: s.floor_en ?? "",
     located_in: s.located_in ?? "",
+    located_in_en: s.located_in_en ?? "",
     capacity: s.capacity != null ? String(s.capacity) : "",
     show_capacity_publicly: s.show_capacity_publicly ?? false,
     intent: s.intent ?? [], noise: s.noise ?? [],
@@ -112,9 +127,11 @@ function spaceToForm(s: Space): FormState {
     map_url: s.map_url ?? "", booking_url: s.booking_url ?? "",
     group_booking_url: s.group_booking_url ?? "",
     notice: s.notice ?? "",
+    notice_en: s.notice_en ?? "",
     sort_order: s.sort_order,
   };
 }
+
 
 
 function getFormValues(form: FormState, key: string): string[] {
@@ -228,9 +245,14 @@ function AdminPage() {
     mutationFn: async (f: FormState) => {
       const capNum = f.capacity.trim() ? parseInt(f.capacity, 10) : NaN;
       const payload: any = {
-        name: f.name, description: f.description,
+        name: f.name,
+        name_en: f.name_en.trim() || null,
+        description: f.description,
+        description_en: f.description_en.trim() || null,
         floor: f.floor?.trim() ? f.floor.trim() : null,
+        floor_en: f.floor_en?.trim() ? f.floor_en.trim() : null,
         located_in: f.located_in?.trim() ? f.located_in.trim() : null,
+        located_in_en: f.located_in_en?.trim() ? f.located_in_en.trim() : null,
         capacity: Number.isFinite(capNum) ? capNum : null,
         show_capacity_publicly: f.show_capacity_publicly,
         intent: f.intent, noise: f.noise,
@@ -244,6 +266,8 @@ function AdminPage() {
         booking_url: f.booking_url.trim() || null,
         group_booking_url: f.group_booking_url.trim() || null,
         notice: f.notice.trim() || null,
+        notice_en: f.notice_en.trim() || null,
+
       };
 
       if (f.id) {
@@ -392,19 +416,35 @@ function AdminPage() {
                   </DialogHeader>
 
                   <div className="space-y-5 py-2">
-                    <Field label="Namn">
+                    <Field label="Namn (SV)">
                       <input
                         value={form.name}
                         onChange={(e) => setForm({ ...form, name: e.target.value })}
                         className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                       />
                     </Field>
+                    <Field label="Name (EN)">
+                      <input
+                        value={form.name_en}
+                        onChange={(e) => setForm({ ...form, name_en: e.target.value })}
+                        placeholder="Lämna tomt för att använda svenska som fallback"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                      />
+                    </Field>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Field label="Våningsplan">
+                      <Field label="Våningsplan (SV)">
                         <input
                           value={form.floor}
                           onChange={(e) => setForm({ ...form, floor: e.target.value })}
                           placeholder="t.ex. Plan 3"
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        />
+                      </Field>
+                      <Field label="Floor (EN)">
+                        <input
+                          value={form.floor_en}
+                          onChange={(e) => setForm({ ...form, floor_en: e.target.value })}
+                          placeholder="e.g. Floor 3"
                           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                         />
                       </Field>
@@ -419,14 +459,25 @@ function AdminPage() {
                         />
                       </Field>
                     </div>
-                    <Field label="Ligger i lokal (visas mellan plan och lokaltyp)">
-                      <input
-                        value={form.located_in}
-                        onChange={(e) => setForm({ ...form, located_in: e.target.value })}
-                        placeholder="t.ex. Biblioteket"
-                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                      />
-                    </Field>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <Field label="Ligger i lokal (SV)">
+                        <input
+                          value={form.located_in}
+                          onChange={(e) => setForm({ ...form, located_in: e.target.value })}
+                          placeholder="t.ex. Biblioteket"
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        />
+                      </Field>
+                      <Field label="Located in (EN)">
+                        <input
+                          value={form.located_in_en}
+                          onChange={(e) => setForm({ ...form, located_in_en: e.target.value })}
+                          placeholder="e.g. The Library"
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        />
+                      </Field>
+                    </div>
+
 
 
                     <label className="flex items-start gap-2 text-sm cursor-pointer">
@@ -472,7 +523,7 @@ function AdminPage() {
                     </Field>
 
 
-                    <Field label="Beskrivning">
+                    <Field label="Beskrivning (SV)">
                       <textarea
                         rows={3}
                         value={form.description}
@@ -480,8 +531,17 @@ function AdminPage() {
                         className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                       />
                     </Field>
+                    <Field label="Description (EN)">
+                      <textarea
+                        rows={3}
+                        value={form.description_en}
+                        onChange={(e) => setForm({ ...form, description_en: e.target.value })}
+                        placeholder="Lämna tomt för att använda svenska som fallback"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                      />
+                    </Field>
 
-                    <Field label="Tillfällig information (visas som notis ovanpå lokalkortet, t.ex. ”Renoveras” eller ”Stängd tillfälligt”)">
+                    <Field label="Tillfällig information (SV)">
                       <textarea
                         rows={2}
                         value={form.notice}
@@ -490,6 +550,16 @@ function AdminPage() {
                         className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                       />
                     </Field>
+                    <Field label="Temporary notice (EN)">
+                      <textarea
+                        rows={2}
+                        value={form.notice_en}
+                        onChange={(e) => setForm({ ...form, notice_en: e.target.value })}
+                        placeholder="Leave empty to fall back to Swedish"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                      />
+                    </Field>
+
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <Field label="Länk till karta (map_url)">
@@ -998,6 +1068,7 @@ function CategoryDialog({
 }: { category: FilterCategoryRow | null; onClose: () => void }) {
   const saveCategory = useSaveCategory();
   const [title, setTitle] = useState(category?.title ?? "");
+  const [titleEn, setTitleEn] = useState(category?.title_en ?? "");
   const [style, setStyle] = useState<"list" | "pills">(category?.style ?? "pills");
   const [matchMode, setMatchMode] = useState<"any" | "all">(category?.match_mode ?? "any");
   const [isSingle, setIsSingle] = useState<boolean>(category?.is_single_select ?? false);
@@ -1007,7 +1078,8 @@ function CategoryDialog({
 
   const handleSave = async () => {
     try {
-      const payload: any = { title: title.trim(), style, match_mode: matchMode, is_single_select: isSingle };
+      const payload: any = { title: title.trim(), title_en: titleEn.trim() || null, style, match_mode: matchMode, is_single_select: isSingle };
+
       if (isNew) {
         const key = slugifyKey(title);
         // Avoid colliding with locked keys
@@ -1030,7 +1102,7 @@ function CategoryDialog({
           <DialogTitle>{isNew ? "Ny filterkategori" : "Redigera kategori"}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-2">
-          <Field label="Titel">
+          <Field label="Titel (SV)">
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -1038,6 +1110,15 @@ function CategoryDialog({
               className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
             />
           </Field>
+          <Field label="Title (EN)">
+            <input
+              value={titleEn}
+              onChange={(e) => setTitleEn(e.target.value)}
+              placeholder="Leave empty to fall back to Swedish"
+              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+            />
+          </Field>
+
 
           <Field label="Visningsstil i sidopanelen">
             <div className="flex gap-2">
@@ -1099,6 +1180,7 @@ function FilterOptionDialog({
 }: { categoryKey: string; option: FilterOption | null; onClose: () => void }) {
   const qc = useQueryClient();
   const [label, setLabel] = useState(option?.label ?? "");
+  const [labelEn, setLabelEn] = useState(option?.label_en ?? "");
   const [iconUrl, setIconUrl] = useState<string | null>(option?.icon_url ?? null);
   const [defaultIcon, setDefaultIcon] = useState<string | null>(option?.default_icon ?? null);
   const [uploading, setUploading] = useState(false);
@@ -1110,9 +1192,11 @@ function FilterOptionDialog({
       const newLabel = label.trim();
       const payload = {
         category: categoryKey, label: newLabel,
+        label_en: labelEn.trim() || null,
         icon_url: iconUrl,
         default_icon: iconUrl ? null : defaultIcon,
       };
+
       if (option) {
         const oldLabel = option.label;
         const { error } = await supabase.from("filter_options").update(payload).eq("id", option.id);
@@ -1170,13 +1254,22 @@ function FilterOptionDialog({
         </DialogHeader>
 
         <div className="space-y-5 py-2">
-          <Field label="Etikett">
+          <Field label="Etikett (SV)">
             <input
               value={label}
               onChange={(e) => setLabel(e.target.value)}
               className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
             />
           </Field>
+          <Field label="Label (EN)">
+            <input
+              value={labelEn}
+              onChange={(e) => setLabelEn(e.target.value)}
+              placeholder="Leave empty to fall back to Swedish"
+              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+            />
+          </Field>
+
 
           <Field label="Egen ikon (valfritt)">
             <div className="flex items-center gap-3 flex-wrap">
