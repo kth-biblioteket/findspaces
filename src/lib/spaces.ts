@@ -72,6 +72,9 @@ export function getSpaceValues(space: Space, key: string): string[] {
     case "equipment": return space.equipment ?? [];
     case "facility": return space.facilities ?? [];
     case "lokaltyp": return space.lokaltyp ?? [];
+    // Floor-level category: derived from the space.floor column so the
+    // existing per-space floor value powers the filter automatically.
+    case "vaningsplan": return space.floor ? [space.floor] : [];
     default: {
       const v = space.tags?.[key];
       return Array.isArray(v) ? v : [];
