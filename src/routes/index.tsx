@@ -14,6 +14,7 @@ import { useLandingMessage } from "@/lib/useLandingMessage";
 import { useUiText, formatSuggestTemplate } from "@/lib/useUiText";
 import { matchesSpace } from "@/lib/filterMatch";
 import { useNarrowestFilter } from "@/lib/useNarrowestFilter";
+import { useFilterOptions } from "@/lib/useFilterOptions";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 
 type SearchParams = {
@@ -109,7 +110,8 @@ function SpaceFinder() {
     [spaces, filters, categories]
   );
 
-  const narrowest = useNarrowestFilter(spaces, filters, categories);
+  const { data: filterOptions = [] } = useFilterOptions();
+  const narrowest = useNarrowestFilter(spaces, filters, categories, filterOptions);
 
   return (
     <div className="min-h-screen bg-background">
