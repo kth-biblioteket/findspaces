@@ -26,10 +26,12 @@ import {
   CARD_SECTION_KEYS, CARD_SECTION_LABELS, type CardSectionKey,
 } from "@/lib/useCardLayout";
 import {
-  useLandingMessage, useSaveLandingMessage, DEFAULT_LANDING_MESSAGE,
+  useLandingMessage, useLandingMessageAdmin, useSaveLandingMessage,
+  DEFAULT_LANDING_MESSAGE, DEFAULT_LANDING_MESSAGE_EN,
 } from "@/lib/useLandingMessage";
 import {
-  useUiText, useSaveUiText, UI_TEXT_DEFAULTS, UI_TEXT_META, type UiTextKey,
+  useUiText, useUiTextAdmin, useSaveUiText,
+  UI_TEXT_DEFAULTS, UI_TEXT_DEFAULTS_EN, UI_TEXT_META, type UiTextKey,
 } from "@/lib/useUiText";
 import { useHiddenIcons, useSaveHiddenIcons } from "@/lib/useHiddenIcons";
 import { useCapacityIcon, useSaveCapacityIcon } from "@/lib/useCapacityIcon";
