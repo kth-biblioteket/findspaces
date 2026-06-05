@@ -179,11 +179,11 @@ export function SpaceCard({
           </a>
         );
       case "button_group_booking":
-        if (!space.group_booking_url) return null;
+        if (!localizedGroupBookingUrl) return null;
         return (
           <a
             key="button_group_booking"
-            href={space.group_booking_url}
+            href={localizedGroupBookingUrl}
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
