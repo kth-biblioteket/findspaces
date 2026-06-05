@@ -124,6 +124,7 @@ export type Database = {
           floor: string | null
           floor_en: string | null
           group_booking_url: string | null
+          group_booking_url_en: string | null
           id: string
           image_alts: string[]
           image_url: string | null
@@ -156,6 +157,7 @@ export type Database = {
           floor?: string | null
           floor_en?: string | null
           group_booking_url?: string | null
+          group_booking_url_en?: string | null
           id?: string
           image_alts?: string[]
           image_url?: string | null
@@ -188,6 +190,7 @@ export type Database = {
           floor?: string | null
           floor_en?: string | null
           group_booking_url?: string | null
+          group_booking_url_en?: string | null
           id?: string
           image_alts?: string[]
           image_url?: string | null

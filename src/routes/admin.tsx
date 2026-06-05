@@ -80,6 +80,7 @@ type FormState = {
   map_url: string;
   booking_url: string;
   group_booking_url: string;
+  group_booking_url_en: string;
   notice: string;
   notice_en: string;
   sort_order: number;
@@ -94,7 +95,7 @@ const emptyForm: FormState = {
   show_capacity_publicly: false,
   intent: [], noise: [], equipment: [], facilities: [], lokaltyp: [],
   tags: {},
-  images: [], image_alts: [], map_url: "", booking_url: "", group_booking_url: "",
+  images: [], image_alts: [], map_url: "", booking_url: "", group_booking_url: "", group_booking_url_en: "",
   notice: "", notice_en: "",
   sort_order: 999,
 };
@@ -126,6 +127,7 @@ function spaceToForm(s: Space): FormState {
     images, image_alts,
     map_url: s.map_url ?? "", booking_url: s.booking_url ?? "",
     group_booking_url: s.group_booking_url ?? "",
+    group_booking_url_en: s.group_booking_url_en ?? "",
     notice: s.notice ?? "",
     notice_en: s.notice_en ?? "",
     sort_order: s.sort_order,
@@ -265,6 +267,7 @@ function AdminPage() {
         map_url: f.map_url.trim() || null,
         booking_url: f.booking_url.trim() || null,
         group_booking_url: f.group_booking_url.trim() || null,
+        group_booking_url_en: f.group_booking_url_en.trim() || null,
         notice: f.notice.trim() || null,
         notice_en: f.notice_en.trim() || null,
 
@@ -523,21 +526,28 @@ function AdminPage() {
                     </Field>
 
 
+                    <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground leading-relaxed">
+                      <strong className="text-foreground">Tips:</strong> Du kan använda HTML i beskrivningstexten för att lägga in länkar och enkel formatering. Exempel:
+                      <code className="block mt-1 bg-card border border-border rounded px-2 py-1 text-[11px] font-mono whitespace-pre-wrap break-all">
+                        Läs mer på &lt;a href="https://kth.se" target="_blank" rel="noopener"&gt;kth.se&lt;/a&gt;.
+                      </code>
+                      Tillåtna taggar: <code>&lt;a&gt;</code>, <code>&lt;b&gt;</code>, <code>&lt;strong&gt;</code>, <code>&lt;i&gt;</code>, <code>&lt;em&gt;</code>, <code>&lt;br&gt;</code>, <code>&lt;p&gt;</code>, <code>&lt;ul&gt;</code>, <code>&lt;ol&gt;</code>, <code>&lt;li&gt;</code>. Länkar öppnas i ny flik automatiskt.
+                    </div>
                     <Field label="Beskrivning (SV)">
                       <textarea
-                        rows={3}
+                        rows={4}
                         value={form.description}
                         onChange={(e) => setForm({ ...form, description: e.target.value })}
-                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
                       />
                     </Field>
                     <Field label="Description (EN)">
                       <textarea
-                        rows={3}
+                        rows={4}
                         value={form.description_en}
                         onChange={(e) => setForm({ ...form, description_en: e.target.value })}
                         placeholder="Lämna tomt för att använda svenska som fallback"
-                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
                       />
                     </Field>
 
@@ -580,12 +590,21 @@ function AdminPage() {
                           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                         />
                       </Field>
-                      <Field label="Länk till boka grupprum (group_booking_url)">
+                      <Field label="Länk till boka grupprum – SV (group_booking_url)">
                         <input
                           type="url"
                           value={form.group_booking_url}
                           onChange={(e) => setForm({ ...form, group_booking_url: e.target.value })}
-                          placeholder="https://..."
+                          placeholder="https://... (svensk bokningssida)"
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        />
+                      </Field>
+                      <Field label="Link to book group room – EN (group_booking_url_en)">
+                        <input
+                          type="url"
+                          value={form.group_booking_url_en}
+                          onChange={(e) => setForm({ ...form, group_booking_url_en: e.target.value })}
+                          placeholder="https://... (lämna tomt för att använda svenska som fallback)"
                           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                         />
                       </Field>
@@ -1435,6 +1454,7 @@ const DUMMY_SPACE: Space = {
   map_url: "#",
   booking_url: "#",
   group_booking_url: "#",
+  group_booking_url_en: null,
   sort_order: 0,
   floor: "Plan 3",
   located_in: "Biblioteket",
