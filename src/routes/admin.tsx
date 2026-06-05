@@ -1435,6 +1435,7 @@ const DUMMY_SPACE: Space = {
   map_url: "#",
   booking_url: "#",
   group_booking_url: "#",
+  group_booking_url_en: null,
   sort_order: 0,
   floor: "Plan 3",
   located_in: "Biblioteket",
