@@ -294,9 +294,10 @@ export function SpaceCard({
       >
         <div className="overflow-hidden">
           <div className="px-4 pb-5 pt-1 border-t border-border/60">
-            <p className="text-sm text-foreground/80 leading-relaxed pt-3">
-              {localizedDescription}
-            </p>
+            <div
+              className="text-sm text-foreground/80 leading-relaxed pt-3 space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
+              dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+            />
 
           </div>
         </div>
