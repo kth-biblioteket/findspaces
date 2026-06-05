@@ -49,6 +49,25 @@ export function SpaceCard({
   const localizedNotice = pickLocalized(space, "notice", lang);
   const localizedFloor = pickLocalized(space, "floor", lang);
   const localizedLocatedIn = pickLocalized(space, "located_in", lang);
+  const localizedGroupBookingUrl =
+    pickLocalized(space, "group_booking_url", lang) || space.group_booking_url || "";
+
+  const sanitizedDescription = useMemo(() => {
+    if (!localizedDescription) return "";
+    const clean = DOMPurify.sanitize(localizedDescription, {
+      ALLOWED_TAGS: ["a", "b", "strong", "i", "em", "br", "p", "ul", "ol", "li", "span"],
+      ALLOWED_ATTR: ["href", "target", "rel", "title"],
+    });
+    // Force all links to open safely in a new tab.
+    if (typeof window === "undefined") return clean;
+    const tmp = document.createElement("div");
+    tmp.innerHTML = clean;
+    tmp.querySelectorAll("a").forEach((a) => {
+      a.setAttribute("target", "_blank");
+      a.setAttribute("rel", "noopener noreferrer");
+    });
+    return tmp.innerHTML;
+  }, [localizedDescription]);
 
   const localizeChip = (category: string, value: string): string => {
     const opt = lookup.get(`${category}:${value}`);
