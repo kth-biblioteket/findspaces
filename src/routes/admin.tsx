@@ -80,6 +80,7 @@ type FormState = {
   map_url: string;
   booking_url: string;
   group_booking_url: string;
+  group_booking_url_en: string;
   notice: string;
   notice_en: string;
   sort_order: number;
