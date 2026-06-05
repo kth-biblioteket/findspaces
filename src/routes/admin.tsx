@@ -95,7 +95,7 @@ const emptyForm: FormState = {
   show_capacity_publicly: false,
   intent: [], noise: [], equipment: [], facilities: [], lokaltyp: [],
   tags: {},
-  images: [], image_alts: [], map_url: "", booking_url: "", group_booking_url: "",
+  images: [], image_alts: [], map_url: "", booking_url: "", group_booking_url: "", group_booking_url_en: "",
   notice: "", notice_en: "",
   sort_order: 999,
 };
