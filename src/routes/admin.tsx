@@ -267,6 +267,7 @@ function AdminPage() {
         map_url: f.map_url.trim() || null,
         booking_url: f.booking_url.trim() || null,
         group_booking_url: f.group_booking_url.trim() || null,
+        group_booking_url_en: f.group_booking_url_en.trim() || null,
         notice: f.notice.trim() || null,
         notice_en: f.notice_en.trim() || null,
 
