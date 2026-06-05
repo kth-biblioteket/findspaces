@@ -590,12 +590,21 @@ function AdminPage() {
                           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                         />
                       </Field>
-                      <Field label="Länk till boka grupprum (group_booking_url)">
+                      <Field label="Länk till boka grupprum – SV (group_booking_url)">
                         <input
                           type="url"
                           value={form.group_booking_url}
                           onChange={(e) => setForm({ ...form, group_booking_url: e.target.value })}
-                          placeholder="https://..."
+                          placeholder="https://... (svensk bokningssida)"
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        />
+                      </Field>
+                      <Field label="Link to book group room – EN (group_booking_url_en)">
+                        <input
+                          type="url"
+                          value={form.group_booking_url_en}
+                          onChange={(e) => setForm({ ...form, group_booking_url_en: e.target.value })}
+                          placeholder="https://... (lämna tomt för att använda svenska som fallback)"
                           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                         />
                       </Field>
