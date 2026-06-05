@@ -526,21 +526,28 @@ function AdminPage() {
                     </Field>
 
 
+                    <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground leading-relaxed">
+                      <strong className="text-foreground">Tips:</strong> Du kan använda HTML i beskrivningstexten för att lägga in länkar och enkel formatering. Exempel:
+                      <code className="block mt-1 bg-card border border-border rounded px-2 py-1 text-[11px] font-mono whitespace-pre-wrap break-all">
+                        Läs mer på &lt;a href="https://kth.se" target="_blank" rel="noopener"&gt;kth.se&lt;/a&gt;.
+                      </code>
+                      Tillåtna taggar: <code>&lt;a&gt;</code>, <code>&lt;b&gt;</code>, <code>&lt;strong&gt;</code>, <code>&lt;i&gt;</code>, <code>&lt;em&gt;</code>, <code>&lt;br&gt;</code>, <code>&lt;p&gt;</code>, <code>&lt;ul&gt;</code>, <code>&lt;ol&gt;</code>, <code>&lt;li&gt;</code>. Länkar öppnas i ny flik automatiskt.
+                    </div>
                     <Field label="Beskrivning (SV)">
                       <textarea
-                        rows={3}
+                        rows={4}
                         value={form.description}
                         onChange={(e) => setForm({ ...form, description: e.target.value })}
-                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
                       />
                     </Field>
                     <Field label="Description (EN)">
                       <textarea
-                        rows={3}
+                        rows={4}
                         value={form.description_en}
                         onChange={(e) => setForm({ ...form, description_en: e.target.value })}
                         placeholder="Lämna tomt för att använda svenska som fallback"
-                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
                       />
                     </Field>
 
