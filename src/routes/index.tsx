@@ -218,7 +218,15 @@ function SpaceFinder() {
 
           {!hasActiveFilter ? (
             <div className="bg-card rounded-2xl border border-border p-10 text-center text-muted-foreground whitespace-pre-line">
-              <Compass className="h-12 w-12 mx-auto mb-4 text-[var(--kth-navy)]" strokeWidth={1.5} />
+              {welcomeImageUrl ? (
+                <img
+                  src={welcomeImageUrl}
+                  alt=""
+                  className="mx-auto mb-4 max-h-32 w-auto object-contain"
+                />
+              ) : (
+                <BookOpen className="h-12 w-12 mx-auto mb-4 text-[var(--kth-navy)]" strokeWidth={1.5} />
+              )}
               {landingMessage}
             </div>
           ) : (
