@@ -2,7 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { SlidersHorizontal, Library, Settings, X, Compass } from "lucide-react";
+import { SlidersHorizontal, Library, Settings, X, BookOpen } from "lucide-react";
+import { useWelcomeImage } from "@/lib/useWelcomeImage";
 import { supabase } from "@/integrations/supabase/client";
 import { type Space } from "@/lib/spaces";
 import { useFilterCategories } from "@/lib/useFilterCategories";
@@ -97,6 +98,7 @@ function SpaceFinder() {
 
   const { data: categories = [] } = useFilterCategories();
   const { data: landingMessage } = useLandingMessage();
+  const { data: welcomeImageUrl } = useWelcomeImage();
   const { data: emptyTitle } = useUiText("empty_title");
   const { data: emptySuggestTemplate } = useUiText("empty_suggest_template");
   const { data: emptyFallback } = useUiText("empty_fallback");
@@ -216,7 +218,15 @@ function SpaceFinder() {
 
           {!hasActiveFilter ? (
             <div className="bg-card rounded-2xl border border-border p-10 text-center text-muted-foreground whitespace-pre-line">
-              <Compass className="h-12 w-12 mx-auto mb-4 text-[var(--kth-navy)]" strokeWidth={1.5} />
+              {welcomeImageUrl ? (
+                <img
+                  src={welcomeImageUrl}
+                  alt=""
+                  className="mx-auto mb-4 max-h-32 w-auto object-contain"
+                />
+              ) : (
+                <BookOpen className="h-12 w-12 mx-auto mb-4 text-[var(--kth-navy)]" strokeWidth={1.5} />
+              )}
               {landingMessage}
             </div>
           ) : (
