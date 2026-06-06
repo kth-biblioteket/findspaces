@@ -93,7 +93,10 @@
   h1, h2, h3, h4 { color: var(--kth-navy); font-weight: 700; letter-spacing: -0.01em; }
 }
 
-@utility scrollbar-hide {
+.scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
