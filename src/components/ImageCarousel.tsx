@@ -24,6 +24,7 @@ export function ImageCarousel({
 
   return (
     <div className={cn("relative w-full h-full overflow-hidden bg-secondary", className)}>
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent z-10" />
       <button
         type="button"
         className="w-full h-full p-0 m-0 border-0 bg-transparent cursor-pointer"
