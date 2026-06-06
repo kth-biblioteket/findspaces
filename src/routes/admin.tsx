@@ -35,6 +35,7 @@ import {
 } from "@/lib/useUiText";
 import { useHiddenIcons, useSaveHiddenIcons } from "@/lib/useHiddenIcons";
 import { useCapacityIcon, useSaveCapacityIcon } from "@/lib/useCapacityIcon";
+import { useWelcomeImage, useSaveWelcomeImage } from "@/lib/useWelcomeImage";
 import { ChairIcon } from "@/components/icons/ChairIcon";
 
 
