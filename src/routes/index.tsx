@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { SlidersHorizontal, Library, Settings, X } from "lucide-react";
+import { SlidersHorizontal, Library, Settings, X, Compass } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { type Space } from "@/lib/spaces";
 import { useFilterCategories } from "@/lib/useFilterCategories";
@@ -192,9 +192,7 @@ function SpaceFinder() {
                     type="button"
                     className="flex-1 rounded-full bg-primary text-primary-foreground px-4 py-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                   >
-                    {hasActiveFilter
-                      ? t("filters.show_results_count", { count: filtered.length })
-                      : t("filters.show_results")}
+                    {t("filters.show_results_count", { count: filtered.length })}
                   </button>
                 </SheetClose>
               </div>
@@ -217,7 +215,8 @@ function SpaceFinder() {
           <ActiveFilterChips filters={filters} onChange={setFilters} />
 
           {!hasActiveFilter ? (
-            <div className="bg-card rounded-2xl border border-border p-10 text-left text-muted-foreground whitespace-pre-line">
+            <div className="bg-card rounded-2xl border border-border p-10 text-center text-muted-foreground whitespace-pre-line">
+              <Compass className="h-12 w-12 mx-auto mb-4 text-[var(--kth-navy)]" strokeWidth={1.5} />
               {landingMessage}
             </div>
           ) : (
