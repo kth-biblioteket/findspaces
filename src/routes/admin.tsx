@@ -1680,6 +1680,7 @@ function LandingMessageTab() {
 
   return (
     <div className="space-y-6 max-w-4xl">
+      <WelcomeImageSection />
       <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
         <div>
           <h2 className="text-lg font-bold">Välkomsttext på startsidan</h2>
