@@ -1906,5 +1906,83 @@ function CapacityIconSection() {
   );
 }
 
+function WelcomeImageSection() {
+  const { data: imageUrl } = useWelcomeImage();
+  const save = useSaveWelcomeImage();
+  const [uploading, setUploading] = useState(false);
 
+  const handleUpload = async (file: File) => {
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `welcome-${crypto.randomUUID()}.${ext}`;
+      const { error } = await supabase.storage.from("filter-icons").upload(path, file);
+      if (error) throw error;
+      const { data } = supabase.storage.from("filter-icons").getPublicUrl(path);
+      await save.mutateAsync(data.publicUrl);
+      toast.success("Välkomstbild uppdaterad");
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
+      <div>
+        <h2 className="text-lg font-bold">Bild ovanför välkomsttexten</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Visas på startsidan ovanför välkomsttexten innan något filter valts.
+          Lämnas tom används standardikonen (bok).
+        </p>
+        <p className="text-xs text-muted-foreground mt-2">
+          <strong>Rekommenderad storlek:</strong> kvadratisk eller liggande bild,
+          minst 256×256 px (SVG eller PNG med transparent bakgrund ger bäst resultat).
+          Bilden skalas automatiskt till max 128 px höjd. Håll filstorleken under 200 kB.
+        </p>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <div className="h-20 w-20 rounded-md border border-border bg-secondary flex items-center justify-center overflow-hidden">
+          {imageUrl ? (
+            <img src={imageUrl} alt="" className="max-h-16 w-auto object-contain" />
+          ) : (
+            <BookOpen className="h-8 w-8 text-[var(--kth-navy)]" strokeWidth={1.5} />
+          )}
+        </div>
+        <div className="text-sm text-muted-foreground">
+          {imageUrl ? "Egen bild används." : "Standardikon (bok) används."}
+        </div>
+      </div>
+
+      <div className="flex gap-2 flex-wrap">
+        <label className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 cursor-pointer">
+          <Upload className="h-4 w-4" />
+          {uploading ? "Laddar upp..." : "Ladda upp bild"}
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            disabled={uploading}
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) handleUpload(f);
+              e.target.value = "";
+            }}
+          />
+        </label>
+        {imageUrl && (
+          <button
+            type="button"
+            onClick={() => save.mutate(null, { onSuccess: () => toast.success("Återställd till standard") })}
+            className="inline-flex items-center gap-2 rounded-full bg-secondary text-foreground px-4 py-2 text-sm font-medium hover:bg-accent"
+          >
+            Återställ till standard
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
 
