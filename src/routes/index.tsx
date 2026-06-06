@@ -98,6 +98,7 @@ function SpaceFinder() {
 
   const { data: categories = [] } = useFilterCategories();
   const { data: landingMessage } = useLandingMessage();
+  const { data: welcomeImageUrl } = useWelcomeImage();
   const { data: emptyTitle } = useUiText("empty_title");
   const { data: emptySuggestTemplate } = useUiText("empty_suggest_template");
   const { data: emptyFallback } = useUiText("empty_fallback");
