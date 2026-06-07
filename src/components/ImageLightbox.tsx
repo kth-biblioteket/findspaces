@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function ImageLightbox({
@@ -16,8 +16,22 @@ export function ImageLightbox({
   onClose: () => void;
 }) {
   const [idx, setIdx] = useState(initialIndex);
+  const [imgLoaded, setImgLoaded] = useState(false);
   const list = images.filter(Boolean);
   const count = list.length;
+
+  useEffect(() => {
+    setImgLoaded(false);
+  }, [idx, open]);
+
+  // Preload neighbors
+  useEffect(() => {
+    if (!open || count <= 1) return;
+    [(idx + 1) % count, (idx - 1 + count) % count].forEach((i) => {
+      const img = new Image();
+      img.src = list[i];
+    });
+  }, [idx, open, count, list]);
 
   useEffect(() => {
     if (open) {
@@ -84,10 +98,18 @@ export function ImageLightbox({
         className="relative max-w-[90vw] max-h-[85vh] flex items-center justify-center"
         onClick={(e) => e.stopPropagation()}
       >
+        {!imgLoaded && (
+          <Loader2 className="absolute h-10 w-10 text-white/80 animate-spin" aria-hidden="true" />
+        )}
         <img
+          key={list[idx]}
           src={list[idx]}
           alt={alts[idx]?.trim() || `Bild ${idx + 1}`}
-          className="max-w-full max-h-[85vh] object-contain"
+          onLoad={() => setImgLoaded(true)}
+          className={cn(
+            "max-w-full max-h-[85vh] object-contain transition-opacity duration-200",
+            imgLoaded ? "opacity-100" : "opacity-0"
+          )}
         />
       </div>
 
