@@ -1468,6 +1468,7 @@ const DUMMY_SPACE: Space = {
   located_in_en: null,
   notice_en: null,
   show_capacity_publicly: false,
+  countmatters_sensor_id: null,
 };
 
 function CardLayoutTab() {
