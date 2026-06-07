@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { StudySpotIcon } from "./icons/StudySpotIcon";
 
 function Placeholder({ className }: { className?: string }) {
   return (
@@ -12,7 +11,7 @@ function Placeholder({ className }: { className?: string }) {
       )}
       aria-hidden="true"
     >
-      <StudySpotIcon className="h-14 w-14 text-muted-foreground/60" />
+      <BookOpen className="h-20 w-20 text-primary" />
     </div>
   );
 }
@@ -53,7 +52,7 @@ export function ImageCarousel({
       {/* Skeleton shown until current image loads */}
       {!isLoaded && (
         <div className="absolute inset-0 z-0 animate-pulse bg-gradient-to-br from-muted via-muted/70 to-muted flex items-center justify-center">
-          <StudySpotIcon className="h-12 w-12 text-muted-foreground/40" aria-hidden="true" />
+          <BookOpen className="h-16 w-16 text-primary/40" aria-hidden="true" />
         </div>
       )}
 
