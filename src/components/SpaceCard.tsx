@@ -426,12 +426,12 @@ const OCCUPANCY_LABELS: Record<OccupancyStatus, string> = {
 
 function OccupancyBlocks({ level }: { level: 1 | 2 | 3 }) {
   return (
-    <div className="flex items-end gap-[2px]" aria-hidden="true">
+    <div className="flex items-center gap-[2px]" aria-hidden="true">
       {[1, 2, 3].map((i) => (
         <div
           key={i}
           className={cn(
-            "w-[3px] h-3 rounded-[1px]",
+            "w-5 h-2 rounded-sm",
             i <= level ? "bg-[#1954a6]" : "bg-gray-200"
           )}
         />
@@ -449,10 +449,15 @@ function OccupancyBadge({
 }) {
   const { t } = useTranslation();
   return (
-    <div className="mt-2 inline-flex items-center gap-2">
+    <div className="flex items-center gap-2 mb-3 mt-1">
+      <Users className="h-4 w-4 text-gray-600" aria-hidden="true" />
       <OccupancyBlocks level={level} />
-      <span className="text-sm font-medium text-gray-700">
+      <span className="text-sm text-gray-700">
+        <strong>{t("occupancy.right_now")}:</strong>{" "}
         {t(OCCUPANCY_LABELS[status])}
+      </span>
+      <span className="bg-yellow-100 text-yellow-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+        Demo
       </span>
     </div>
   );
