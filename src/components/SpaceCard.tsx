@@ -358,21 +358,25 @@ export function SpaceCard({
           {layout.map((k, i) => renderSection(k, i))}
 
           <div className="mt-auto pt-3 flex items-center justify-between gap-3 flex-wrap">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpen((o) => !o);
-              }}
-              aria-expanded={open}
-              className="inline-flex items-center text-xs text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary rounded"
-            >
-              <ChevronDown
-                className={cn("h-4 w-4 transition-transform", open && "rotate-180")}
-                aria-hidden="true"
-              />
-              <span className="ml-1">{open ? t("card.hide_description") : t("card.show_description")}</span>
-            </button>
+            {sanitizedDescription ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpen((o) => !o);
+                }}
+                aria-expanded={open}
+                className="inline-flex items-center text-xs text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary rounded"
+              >
+                <ChevronDown
+                  className={cn("h-4 w-4 transition-transform", open && "rotate-180")}
+                  aria-hidden="true"
+                />
+                <span className="ml-1">{open ? (hideDescriptionLabel ?? t("card.hide_description")) : (showDescriptionLabel ?? t("card.show_description"))}</span>
+              </button>
+            ) : (
+              <span />
+            )}
             {renderedButtons.length > 0 && (
               <div className="flex flex-wrap items-center gap-2 ml-auto">
                 {renderedButtons}
