@@ -280,7 +280,7 @@ function SpaceFinder() {
               )}
               <div className="space-y-3">
                 {filtered.map((s) => (
-                  <SpaceCard key={s.id} space={s} />
+                  <SpaceCard key={s.id} space={s} filters={filters} onFiltersChange={setFilters} />
                 ))}
               </div>
             </>
