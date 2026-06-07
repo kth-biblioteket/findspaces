@@ -2,8 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { SlidersHorizontal, Library, Settings, X, BookOpen } from "lucide-react";
-import { useWelcomeImage } from "@/lib/useWelcomeImage";
+import { SlidersHorizontal, Library, Settings, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { type Space } from "@/lib/spaces";
 import { useFilterCategories } from "@/lib/useFilterCategories";
@@ -11,7 +10,6 @@ import { FilterPanel, emptyFilters, type Filters } from "@/components/FilterPane
 import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { SpaceCard } from "@/components/SpaceCard";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { useLandingMessage } from "@/lib/useLandingMessage";
 import { useUiText, formatSuggestTemplate } from "@/lib/useUiText";
 import { matchesSpace } from "@/lib/filterMatch";
 import { useNarrowestFilter } from "@/lib/useNarrowestFilter";
@@ -97,8 +95,6 @@ function SpaceFinder() {
   });
 
   const { data: categories = [] } = useFilterCategories();
-  const { data: landingMessage } = useLandingMessage();
-  const { data: welcomeImageUrl } = useWelcomeImage();
   const { data: emptyTitle } = useUiText("empty_title");
   const { data: emptySuggestTemplate } = useUiText("empty_suggest_template");
   const { data: emptyFallback } = useUiText("empty_fallback");
@@ -216,75 +212,58 @@ function SpaceFinder() {
 
           <ActiveFilterChips filters={filters} onChange={setFilters} />
 
-          {!hasActiveFilter ? (
-            <div className="bg-card rounded-2xl border border-border p-10 text-center text-muted-foreground whitespace-pre-line">
-              {welcomeImageUrl ? (
-                <img
-                  src={welcomeImageUrl}
-                  alt=""
-                  className="mx-auto mb-4 max-h-32 w-auto object-contain"
-                />
-              ) : (
-                <BookOpen className="h-12 w-12 mx-auto mb-4 text-[var(--kth-navy)]" strokeWidth={1.5} />
-              )}
-              {landingMessage}
-            </div>
-          ) : (
-            <>
-              {!isLoading && filtered.length === 0 && (
-                <div className="bg-card rounded-2xl border border-border p-8 text-left">
-                  <p className="text-base font-semibold text-foreground mb-2 whitespace-pre-line">
-                    {emptyTitle}
+          {!isLoading && filtered.length === 0 && (
+            <div className="bg-card rounded-2xl border border-border p-8 text-left">
+              <p className="text-base font-semibold text-foreground mb-2 whitespace-pre-line">
+                {emptyTitle}
+              </p>
+              {narrowest && narrowest.wouldMatch > 0 ? (
+                <>
+                  <p className="text-sm text-muted-foreground mb-4 whitespace-pre-line">
+                    {formatSuggestTemplate(emptySuggestTemplate ?? "", {
+                      label: narrowest.label,
+                      count: narrowest.wouldMatch,
+                    }, lang)}
                   </p>
-                  {narrowest && narrowest.wouldMatch > 0 ? (
-                    <>
-                      <p className="text-sm text-muted-foreground mb-4 whitespace-pre-line">
-                        {formatSuggestTemplate(emptySuggestTemplate ?? "", {
-                          label: narrowest.label,
-                          count: narrowest.wouldMatch,
-                        }, lang)}
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setFilters(narrowest.remove(filters))}
-                          className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
-                        >
-                          <X className="h-4 w-4" aria-hidden="true" />
-                          {t("results.remove_filter", { label: narrowest.label })}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setFilters(emptyFilters)}
-                          className="inline-flex items-center rounded-full border border-border bg-card text-foreground px-4 py-2 text-sm font-medium hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
-                        >
-                          {t("results.clear_all_filters")}
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-sm text-muted-foreground mb-4 whitespace-pre-line">
-                        {emptyFallback}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => setFilters(emptyFilters)}
-                        className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
-                      >
-                        {t("results.clear_all_filters")}
-                      </button>
-                    </>
-                  )}
-                </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setFilters(narrowest.remove(filters))}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                    >
+                      <X className="h-4 w-4" aria-hidden="true" />
+                      {t("results.remove_filter", { label: narrowest.label })}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFilters(emptyFilters)}
+                      className="inline-flex items-center rounded-full border border-border bg-card text-foreground px-4 py-2 text-sm font-medium hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                    >
+                      {t("results.clear_all_filters")}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm text-muted-foreground mb-4 whitespace-pre-line">
+                    {emptyFallback}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setFilters(emptyFilters)}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                  >
+                    {t("results.clear_all_filters")}
+                  </button>
+                </>
               )}
-              <div className="space-y-3">
-                {filtered.map((s) => (
-                  <SpaceCard key={s.id} space={s} filters={filters} onFiltersChange={setFilters} />
-                ))}
-              </div>
-            </>
+            </div>
           )}
+          <div className="space-y-3">
+            {filtered.map((s) => (
+              <SpaceCard key={s.id} space={s} filters={filters} onFiltersChange={setFilters} />
+            ))}
+          </div>
         </main>
       </div>
     </div>
