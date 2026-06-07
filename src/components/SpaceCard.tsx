@@ -119,7 +119,7 @@ export function SpaceCard({
     onFiltersChange({
       ...filters,
       workMode: next,
-      groupSize: next === "grupprum" ? filters.groupSize : null,
+      groupSize: null,
     });
   };
 
