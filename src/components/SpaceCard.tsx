@@ -9,6 +9,7 @@ import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
 import { useCapacityIcon } from "@/lib/useCapacityIcon";
+import { useOccupancy, type OccupancyStatus } from "@/lib/useOccupancy";
 import { pickLocalized, type Lang } from "@/i18n";
 import { OptionIcon } from "./OptionIcon";
 import { ImageCarousel } from "./ImageCarousel";
@@ -32,6 +33,7 @@ export function SpaceCard({
   const { data: options = [] } = useFilterOptions();
   const { data: layoutFromDb = ["header", "chips", "button_map", "button_booking"] } = useCardLayout();
   const { data: capacityIconUrl } = useCapacityIcon();
+  const occupancy = useOccupancy(space.countmatters_sensor_id);
   const layout = layoutOverride ?? layoutFromDb;
 
 
@@ -114,6 +116,15 @@ export function SpaceCard({
                 </span>
               </p>
             )}
+            {occupancy && (
+              <OccupancyBadge
+                percent={occupancy.percent}
+                status={occupancy.status}
+                isLive={occupancy.isLive}
+                updatedAt={occupancy.updatedAt}
+              />
+            )}
+
 
             {localizedNotice && (
               <div
@@ -303,5 +314,49 @@ export function SpaceCard({
         </div>
       </div>
     </article>
+  );
+}
+
+const OCCUPANCY_STYLES: Record<OccupancyStatus, { dot: string; bar: string; bg: string; text: string; label: string }> = {
+  free:     { dot: "bg-emerald-500", bar: "bg-emerald-500", bg: "bg-emerald-50",  text: "text-emerald-900", label: "Ledigt" },
+  moderate: { dot: "bg-amber-500",   bar: "bg-amber-500",   bg: "bg-amber-50",    text: "text-amber-900",   label: "Halvfullt" },
+  busy:     { dot: "bg-rose-500",    bar: "bg-rose-500",    bg: "bg-rose-50",     text: "text-rose-900",    label: "Fullt" },
+};
+
+function OccupancyBadge({
+  percent, status, isLive, updatedAt,
+}: {
+  percent: number;
+  status: OccupancyStatus;
+  isLive: boolean;
+  updatedAt: Date;
+}) {
+  const s = OCCUPANCY_STYLES[status];
+  const time = updatedAt.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+  return (
+    <div
+      className={cn("mt-2 inline-flex flex-col gap-1 rounded-lg px-2.5 py-1.5 max-w-full", s.bg)}
+      title={`${s.label} • ${percent}% belagt • Uppdaterad ${time}${isLive ? "" : " (platshållare)"}`}
+    >
+      <div className={cn("flex items-center gap-2 text-xs font-medium", s.text)}>
+        <span className="relative flex h-2 w-2">
+          {isLive && (
+            <span className={cn("absolute inline-flex h-full w-full rounded-full opacity-60 animate-ping", s.dot)} />
+          )}
+          <span className={cn("relative inline-flex h-2 w-2 rounded-full", s.dot)} />
+        </span>
+        <span>{s.label}</span>
+        <span className="opacity-70">·</span>
+        <span className="tabular-nums">{percent}%</span>
+        {!isLive && (
+          <span className="ml-1 rounded-sm bg-white/70 px-1 text-[10px] uppercase tracking-wide opacity-80">
+            demo
+          </span>
+        )}
+      </div>
+      <div className="h-1 w-32 max-w-full overflow-hidden rounded-full bg-white/70">
+        <div className={cn("h-full transition-all duration-700", s.bar)} style={{ width: `${percent}%` }} />
+      </div>
+    </div>
   );
 }

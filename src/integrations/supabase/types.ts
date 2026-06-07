@@ -116,6 +116,7 @@ export type Database = {
           capacity: number | null
           category: string | null
           computers_url: string | null
+          countmatters_sensor_id: string | null
           created_at: string
           description: string
           description_en: string | null
@@ -149,6 +150,7 @@ export type Database = {
           capacity?: number | null
           category?: string | null
           computers_url?: string | null
+          countmatters_sensor_id?: string | null
           created_at?: string
           description?: string
           description_en?: string | null
@@ -182,6 +184,7 @@ export type Database = {
           capacity?: number | null
           category?: string | null
           computers_url?: string | null
+          countmatters_sensor_id?: string | null
           created_at?: string
           description?: string
           description_en?: string | null

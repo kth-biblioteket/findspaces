@@ -31,6 +31,7 @@ export type Space = {
   notice: string | null;
   notice_en: string | null;
   show_capacity_publicly: boolean;
+  countmatters_sensor_id: string | null;
 };
 
 /** Category keys that map to dedicated columns on the spaces table. */
