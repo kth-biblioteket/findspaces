@@ -1699,7 +1699,7 @@ function LandingMessageTab() {
   const { data: pair, isLoading } = useLandingMessageAdmin();
   const save = useSaveLandingMessage();
 
-  const uiKeys: UiTextKey[] = ["empty_title", "empty_suggest_template", "empty_fallback"];
+  const uiKeys: UiTextKey[] = ["empty_title", "empty_suggest_template", "empty_fallback", "show_description", "hide_description"];
 
   return (
     <div className="space-y-6 max-w-4xl">
