@@ -70,6 +70,7 @@ type FormState = {
   located_in_en: string;
   capacity: string;
   show_capacity_publicly: boolean;
+  countmatters_sensor_id: string;
   intent: string[];
   noise: string[];
   equipment: string[];
