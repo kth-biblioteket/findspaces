@@ -116,6 +116,15 @@ export function SpaceCard({
                 </span>
               </p>
             )}
+            {occupancy && (
+              <OccupancyBadge
+                percent={occupancy.percent}
+                status={occupancy.status}
+                isLive={occupancy.isLive}
+                updatedAt={occupancy.updatedAt}
+              />
+            )}
+
 
             {localizedNotice && (
               <div
