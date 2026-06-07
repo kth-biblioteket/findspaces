@@ -26,7 +26,7 @@
   "results": {
     "heading": "Studieplatser",
     "loading": "Laddar...",
-    "count_filtered": "{{filtered}} av {{total}}",
+    "count_filtered": "{{filtered}} av {{total}} matchar dina filter",
     "count_total_one": "{{count}} lokal",
     "count_total_other": "{{count}} lokaler",
     "remove_filter": "Ta bort {{label}}",

@@ -26,7 +26,7 @@
   "results": {
     "heading": "Study spaces",
     "loading": "Loading...",
-    "count_filtered": "{{filtered}} of {{total}}",
+    "count_filtered": "{{filtered}} of {{total}} matching your filters",
     "count_total_one": "{{count}} space",
     "count_total_other": "{{count}} spaces",
     "remove_filter": "Remove {{label}}",
