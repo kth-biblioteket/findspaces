@@ -13,7 +13,7 @@ export function OptionIcon({
   if (!r) return null;
   if (r.type === "lucide") {
     const Icon = r.Icon;
-    return <Icon className={cn("text-black", className)} />;
+    return <Icon className={cn("text-current", className)} />;
   }
   return <img src={r.url} alt="" className={cn("object-contain", className)} />;
 }
