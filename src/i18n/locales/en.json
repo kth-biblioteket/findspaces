@@ -49,5 +49,10 @@
     "button_group_booking": "Book group room",
     "button_booking": "See booking schedule",
     "opens_new_tab_sr": "(opens in a new tab)"
+  },
+  "occupancy": {
+    "free": "Plenty of space",
+    "moderate": "Moderately busy",
+    "busy": "Very busy"
   }
 }

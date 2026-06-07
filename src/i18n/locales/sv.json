@@ -49,5 +49,10 @@
     "button_group_booking": "Boka grupprum",
     "button_booking": "Se bokningsschema",
     "opens_new_tab_sr": "(öppnas i en ny flik)"
+  },
+  "occupancy": {
+    "free": "Gott om plats",
+    "moderate": "Halvfullt",
+    "busy": "Mycket folk"
   }
 }

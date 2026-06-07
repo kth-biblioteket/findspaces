@@ -190,12 +190,7 @@ export function SpaceCard({
               </p>
             )}
             {occupancy && (
-              <OccupancyBadge
-                percent={occupancy.percent}
-                status={occupancy.status}
-                isLive={occupancy.isLive}
-                updatedAt={occupancy.updatedAt}
-              />
+              <OccupancyBadge level={occupancy.level} status={occupancy.status} />
             )}
 
             {localizedNotice && (
@@ -423,46 +418,42 @@ export function SpaceCard({
   );
 }
 
-const OCCUPANCY_STYLES: Record<OccupancyStatus, { dot: string; bar: string; bg: string; text: string; label: string }> = {
-  free:     { dot: "bg-emerald-500", bar: "bg-emerald-500", bg: "bg-emerald-50",  text: "text-emerald-900", label: "Ledigt" },
-  moderate: { dot: "bg-amber-500",   bar: "bg-amber-500",   bg: "bg-amber-50",    text: "text-amber-900",   label: "Halvfullt" },
-  busy:     { dot: "bg-rose-500",    bar: "bg-rose-500",    bg: "bg-rose-50",     text: "text-rose-900",    label: "Fullt" },
+const OCCUPANCY_LABELS: Record<OccupancyStatus, string> = {
+  free: "occupancy.free",
+  moderate: "occupancy.moderate",
+  busy: "occupancy.busy",
 };
 
-function OccupancyBadge({
-  percent, status, isLive, updatedAt,
-}: {
-  percent: number;
-  status: OccupancyStatus;
-  isLive: boolean;
-  updatedAt: Date;
-}) {
-  const s = OCCUPANCY_STYLES[status];
-  const time = updatedAt.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+function OccupancyBlocks({ level }: { level: 1 | 2 | 3 }) {
   return (
-    <div
-      className={cn("mt-2 inline-flex flex-col gap-1 rounded-lg px-2.5 py-1.5 max-w-full", s.bg)}
-      title={`${s.label} • ${percent}% belagt • Uppdaterad ${time}${isLive ? "" : " (platshållare)"}`}
-    >
-      <div className={cn("flex items-center gap-2 text-xs font-medium", s.text)}>
-        <span className="relative flex h-2 w-2">
-          {isLive && (
-            <span className={cn("absolute inline-flex h-full w-full rounded-full opacity-60 animate-ping", s.dot)} />
+    <div className="flex items-end gap-[2px]" aria-hidden="true">
+      {[1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className={cn(
+            "w-[3px] h-3 rounded-[1px]",
+            i <= level ? "bg-[#1954a6]" : "bg-gray-200"
           )}
-          <span className={cn("relative inline-flex h-2 w-2 rounded-full", s.dot)} />
-        </span>
-        <span>{s.label}</span>
-        <span className="opacity-70">·</span>
-        <span className="tabular-nums">{percent}%</span>
-        {!isLive && (
-          <span className="ml-1 rounded-sm bg-white/70 px-1 text-[10px] uppercase tracking-wide opacity-80">
-            demo
-          </span>
-        )}
-      </div>
-      <div className="h-1 w-32 max-w-full overflow-hidden rounded-full bg-white/70">
-        <div className={cn("h-full transition-all duration-700", s.bar)} style={{ width: `${percent}%` }} />
-      </div>
+        />
+      ))}
+    </div>
+  );
+}
+
+function OccupancyBadge({
+  level,
+  status,
+}: {
+  level: 1 | 2 | 3;
+  status: OccupancyStatus;
+}) {
+  const { t } = useTranslation();
+  return (
+    <div className="mt-2 inline-flex items-center gap-2">
+      <OccupancyBlocks level={level} />
+      <span className="text-sm font-medium text-gray-700">
+        {t(OCCUPANCY_LABELS[status])}
+      </span>
     </div>
   );
 }
