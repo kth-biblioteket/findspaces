@@ -41,6 +41,8 @@ export function SpaceCard({
   const { data: layoutFromDb = ["header", "chips", "button_map", "button_booking"] } = useCardLayout();
   const { data: capacityIconUrl } = useCapacityIcon();
   const occupancy = useOccupancy(space.countmatters_sensor_id);
+  const { data: showDescriptionLabel } = useUiText("show_description");
+  const { data: hideDescriptionLabel } = useUiText("hide_description");
   const layout = layoutOverride ?? layoutFromDb;
 
   const interactive = Boolean(filters && onFiltersChange);
