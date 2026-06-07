@@ -261,6 +261,7 @@ function AdminPage() {
         located_in_en: f.located_in_en?.trim() ? f.located_in_en.trim() : null,
         capacity: Number.isFinite(capNum) ? capNum : null,
         show_capacity_publicly: f.show_capacity_publicly,
+        countmatters_sensor_id: f.countmatters_sensor_id.trim() || null,
         intent: f.intent, noise: f.noise,
         equipment: f.equipment,
         facilities: f.facilities, lokaltyp: f.lokaltyp,
