@@ -498,6 +498,24 @@ function AdminPage() {
                       <span>Visa antal platser publikt på lokalkortet</span>
                     </label>
 
+                    <div className="rounded-lg border border-dashed border-border bg-muted/30 p-3 space-y-2">
+                      <Field label="Countmatters sensor-ID (realtidsbeläggning)">
+                        <input
+                          value={form.countmatters_sensor_id}
+                          onChange={(e) => setForm({ ...form, countmatters_sensor_id: e.target.value })}
+                          placeholder="t.ex. cm-plan3-läsesal-01"
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
+                        />
+                      </Field>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        Fyll i ID:t från Countmatters-mätaren som sitter i lokalen. När det är ifyllt visas
+                        en realtidsindikator (grön/gul/röd) på lokalkortet med aktuell beläggningsgrad.
+                        Lämna tomt för lokaler utan mätare. <br />
+                        <span className="italic">Notera: tills Countmatters-API:t kopplas in visas en
+                        platshållarsiffra som uppdateras varje minut – så vi kan testa utseendet.</span>
+                      </p>
+                    </div>
+
                     <Field label="Arbetssätt (vilka val i ”Jag vill arbeta” som lokalen passar)">
                       <div className="flex flex-wrap gap-2">
                         {[
