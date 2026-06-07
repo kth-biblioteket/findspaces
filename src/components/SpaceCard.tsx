@@ -157,23 +157,11 @@ export function SpaceCard({
       case "header":
         return (
           <div key="header" className={cn(spacing)}>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpen((o) => !o);
-              }}
-              aria-expanded={open}
-              aria-label={t("card.expand_aria", {
-                name: localizedName,
-                action: open ? t("card.expand_hide") : t("card.expand_show"),
-              })}
-              className="text-left -m-1 p-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
-            >
-              <h3 className="text-lg font-semibold leading-tight hover:underline">
+            <div className="text-left">
+              <h3 className="text-lg font-semibold leading-tight">
                 {localizedName}
               </h3>
-            </button>
+            </div>
             {metaParts.length > 0 && (
               <p className="mt-0.5 text-sm text-muted-foreground leading-snug">
                 {metaParts.join(" • ")}
