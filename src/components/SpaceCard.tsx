@@ -10,6 +10,7 @@ import { useFilterOptions } from "@/lib/useFilterOptions";
 import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
 import { useCapacityIcon } from "@/lib/useCapacityIcon";
 import { useOccupancy, type OccupancyStatus } from "@/lib/useOccupancy";
+import { useUiText } from "@/lib/useUiText";
 import { pickLocalized, type Lang } from "@/i18n";
 import { OptionIcon } from "./OptionIcon";
 import { ImageCarousel } from "./ImageCarousel";
