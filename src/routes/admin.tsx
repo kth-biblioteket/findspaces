@@ -95,6 +95,7 @@ const emptyForm: FormState = {
   located_in: "", located_in_en: "",
   capacity: "",
   show_capacity_publicly: false,
+  countmatters_sensor_id: "",
   intent: [], noise: [], equipment: [], facilities: [], lokaltyp: [],
   tags: {},
   images: [], image_alts: [], map_url: "", booking_url: "", group_booking_url: "", group_booking_url_en: "",
