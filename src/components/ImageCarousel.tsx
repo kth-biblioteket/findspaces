@@ -1,20 +1,44 @@
-import { useState } from "react";
-import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { StudySpotIcon } from "./icons/StudySpotIcon";
+
+function Placeholder({ className }: { className?: string }) {
+  return (
+    <div
+      className={cn(
+        "relative w-full h-full bg-muted flex items-center justify-center",
+        className
+      )}
+      aria-hidden="true"
+    >
+      <StudySpotIcon className="h-14 w-14 text-muted-foreground/60" />
+    </div>
+  );
+}
 
 export function ImageCarousel({
   images, alt, alts = [], className, onImageClick,
 }: { images: string[]; alt: string; alts?: string[]; className?: string; onImageClick?: (index: number) => void }) {
   const [idx, setIdx] = useState(0);
+  const [loaded, setLoaded] = useState<Record<number, boolean>>({});
   const list = images.filter(Boolean);
   const count = list.length;
 
+  // Preload neighboring images for snappier paging
+  useEffect(() => {
+    if (count <= 1) return;
+    const neighbors = [(idx + 1) % count, (idx - 1 + count) % count];
+    neighbors.forEach((i) => {
+      if (loaded[i]) return;
+      const img = new Image();
+      img.src = list[i];
+      img.onload = () => setLoaded((prev) => (prev[i] ? prev : { ...prev, [i]: true }));
+    });
+  }, [idx, count, list, loaded]);
+
   if (count === 0) {
-    return (
-      <div className={cn("relative w-full h-full bg-[var(--kth-navy)] flex items-center justify-center", className)}>
-        <BookOpen className="h-10 w-10 text-white" strokeWidth={1.5} />
-      </div>
-    );
+    return <Placeholder className={className} />;
   }
 
   const go = (delta: number, e: React.MouseEvent) => {
@@ -22,11 +46,20 @@ export function ImageCarousel({
     setIdx((i) => (i + delta + count) % count);
   };
 
+  const isLoaded = !!loaded[idx];
+
   return (
-    <div className={cn("relative w-full h-full overflow-hidden bg-secondary group", className)}>
+    <div className={cn("relative w-full h-full overflow-hidden bg-muted group", className)}>
+      {/* Skeleton shown until current image loads */}
+      {!isLoaded && (
+        <div className="absolute inset-0 z-0 animate-pulse bg-gradient-to-br from-muted via-muted/70 to-muted flex items-center justify-center">
+          <StudySpotIcon className="h-12 w-12 text-muted-foreground/40" aria-hidden="true" />
+        </div>
+      )}
+
       <button
         type="button"
-        className="w-full h-full p-0 m-0 border-0 bg-transparent cursor-pointer"
+        className="relative z-[1] w-full h-full p-0 m-0 border-0 bg-transparent cursor-pointer"
         onClick={(e) => {
           e.stopPropagation();
           onImageClick?.(idx);
@@ -34,10 +67,16 @@ export function ImageCarousel({
         aria-label="Öppna bild i full storlek"
       >
         <img
+          key={list[idx]}
           src={list[idx]}
           alt={alts[idx]?.trim() || alt}
-          className="w-full h-full object-cover"
+          className={cn(
+            "w-full h-full object-cover transition-opacity duration-300",
+            isLoaded ? "opacity-100" : "opacity-0"
+          )}
           loading="lazy"
+          decoding="async"
+          onLoad={() => setLoaded((prev) => ({ ...prev, [idx]: true }))}
         />
       </button>
 
