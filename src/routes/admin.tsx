@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus, Pencil, Trash2, ArrowLeft, Library, Upload, X, Settings2, GripVertical,
-  ChevronLeft, ChevronRight, BookOpen,
+  ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -26,16 +26,10 @@ import {
   CARD_SECTION_KEYS, CARD_SECTION_LABELS, type CardSectionKey,
 } from "@/lib/useCardLayout";
 import {
-  useLandingMessage, useLandingMessageAdmin, useSaveLandingMessage,
-  DEFAULT_LANDING_MESSAGE, DEFAULT_LANDING_MESSAGE_EN,
-} from "@/lib/useLandingMessage";
-import {
   useUiText, useUiTextAdmin, useSaveUiText,
   UI_TEXT_DEFAULTS, UI_TEXT_DEFAULTS_EN, UI_TEXT_META, type UiTextKey,
 } from "@/lib/useUiText";
-import { useHiddenIcons, useSaveHiddenIcons } from "@/lib/useHiddenIcons";
 import { useCapacityIcon, useSaveCapacityIcon } from "@/lib/useCapacityIcon";
-import { useWelcomeImage, useSaveWelcomeImage } from "@/lib/useWelcomeImage";
 import {
   useOccupancySettings, useSaveOccupancySettings,
   DEFAULT_SCHEDULE, WEEKDAYS, WEEKDAY_LABELS_SV,
