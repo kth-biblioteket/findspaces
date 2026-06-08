@@ -10,6 +10,7 @@ import { useFilterOptions } from "@/lib/useFilterOptions";
 import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
 import { useCapacityIcon } from "@/lib/useCapacityIcon";
 import { useOccupancy, type OccupancyStatus } from "@/lib/useOccupancy";
+import { useOccupancySettings, isWithinSchedule } from "@/lib/useOccupancySettings";
 import { useUiText } from "@/lib/useUiText";
 import { pickLocalized, type Lang } from "@/i18n";
 import { OptionIcon } from "./OptionIcon";
@@ -40,7 +41,13 @@ export function SpaceCard({
   const { data: options = [] } = useFilterOptions();
   const { data: layoutFromDb = ["header", "chips", "button_map", "button_booking"] } = useCardLayout();
   const { data: capacityIconUrl } = useCapacityIcon();
-  const occupancy = useOccupancy(space.countmatters_sensor_id);
+  const rawOccupancy = useOccupancy(space.countmatters_sensor_id);
+  const { data: occSettings } = useOccupancySettings();
+  const occupancyVisible =
+    space.show_occupancy !== false &&
+    (occSettings?.enabled ?? true) &&
+    isWithinSchedule(occSettings?.schedule ?? ({} as never), new Date()) === true;
+  const occupancy = occupancyVisible ? rawOccupancy : null;
   const { data: showDescriptionLabel } = useUiText("show_description");
   const { data: hideDescriptionLabel } = useUiText("hide_description");
   const layout = layoutOverride ?? layoutFromDb;
