@@ -85,7 +85,7 @@ export function getSpaceValues(space: Space, key: string): string[] {
 }
 
 export const LUCIDE_ICON_CHOICES = [
-  "VolumeX", "Volume1", "Volume2", "Volume", "Ear", "EarOff", "BellOff",
+  "VolumeOff", "VolumeX", "Volume1", "Volume2", "Volume", "Ear", "EarOff", "BellOff",
   "Sliders", "Settings", "Monitor", "MonitorSmartphone", "Tv", "Tv2",
   "Laptop", "Computer", "Keyboard", "Mouse", "HardDrive",
   "Edit", "Edit3", "PenTool", "Pencil", "PencilRuler",
