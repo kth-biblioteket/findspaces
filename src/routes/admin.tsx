@@ -407,6 +407,7 @@ function AdminPage() {
             <TabsTrigger value="icons">Ikonbibliotek</TabsTrigger>
             <TabsTrigger value="layout">Kortlayout</TabsTrigger>
             <TabsTrigger value="landing">Texter</TabsTrigger>
+            <TabsTrigger value="occupancy">Beläggning</TabsTrigger>
           </TabsList>
 
 
@@ -793,6 +794,10 @@ function AdminPage() {
 
           <TabsContent value="landing">
             <LandingMessageTab />
+          </TabsContent>
+
+          <TabsContent value="occupancy">
+            <OccupancySettingsTab />
           </TabsContent>
         </Tabs>
       </div>
