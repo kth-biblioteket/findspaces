@@ -10,7 +10,7 @@ import { useFilterOptions } from "@/lib/useFilterOptions";
 import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
 import { useCapacityIcon } from "@/lib/useCapacityIcon";
 import { useOccupancy, type OccupancyStatus } from "@/lib/useOccupancy";
-import { useOccupancySettings, isWithinSchedule } from "@/lib/useOccupancySettings";
+import { useOccupancySettings, isWithinSchedule, DEFAULT_SCHEDULE } from "@/lib/useOccupancySettings";
 import { useUiText } from "@/lib/useUiText";
 import { pickLocalized, type Lang } from "@/i18n";
 import { OptionIcon } from "./OptionIcon";
@@ -46,7 +46,7 @@ export function SpaceCard({
   const occupancyVisible =
     space.show_occupancy !== false &&
     (occSettings?.enabled ?? true) &&
-    isWithinSchedule(occSettings?.schedule ?? ({} as never), new Date()) === true;
+    isWithinSchedule(occSettings?.schedule ?? DEFAULT_SCHEDULE, new Date());
   const occupancy = occupancyVisible ? rawOccupancy : null;
   const { data: showDescriptionLabel } = useUiText("show_description");
   const { data: hideDescriptionLabel } = useUiText("hide_description");
