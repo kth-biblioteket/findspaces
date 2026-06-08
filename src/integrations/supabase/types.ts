@@ -141,6 +141,7 @@ export type Database = {
           notice: string | null
           notice_en: string | null
           show_capacity_publicly: boolean
+          show_occupancy: boolean
           sort_order: number
           tags: Json
           updated_at: string
@@ -175,6 +176,7 @@ export type Database = {
           notice?: string | null
           notice_en?: string | null
           show_capacity_publicly?: boolean
+          show_occupancy?: boolean
           sort_order?: number
           tags?: Json
           updated_at?: string
@@ -209,6 +211,7 @@ export type Database = {
           notice?: string | null
           notice_en?: string | null
           show_capacity_publicly?: boolean
+          show_occupancy?: boolean
           sort_order?: number
           tags?: Json
           updated_at?: string
