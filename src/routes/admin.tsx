@@ -1581,9 +1581,12 @@ function CardLayoutTab() {
         </div>
       </div>
 
-      <div>
-        <h3 className="text-sm font-semibold text-muted-foreground mb-2">Förhandsvisning</h3>
-        <SpaceCard space={DUMMY_SPACE} layoutOverride={order} />
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-sm font-semibold text-muted-foreground mb-2">Förhandsvisning</h3>
+          <SpaceCard space={DUMMY_SPACE} layoutOverride={order} />
+        </div>
+        <CapacityIconSection />
       </div>
     </div>
   );
