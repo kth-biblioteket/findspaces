@@ -388,6 +388,7 @@ export function SpaceCard({
             images={images}
             alts={space.image_alts ?? []}
             alt={localizedName}
+            priority={priority}
             onImageClick={(i) => {
               setLightboxIndex(i);
               setLightboxOpen(true);
