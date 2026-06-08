@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus, Pencil, Trash2, ArrowLeft, Library, Upload, X, Settings2, GripVertical,
-  ChevronLeft, ChevronRight, BookOpen,
+  ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -26,16 +26,11 @@ import {
   CARD_SECTION_KEYS, CARD_SECTION_LABELS, type CardSectionKey,
 } from "@/lib/useCardLayout";
 import {
-  useLandingMessage, useLandingMessageAdmin, useSaveLandingMessage,
-  DEFAULT_LANDING_MESSAGE, DEFAULT_LANDING_MESSAGE_EN,
-} from "@/lib/useLandingMessage";
-import {
   useUiText, useUiTextAdmin, useSaveUiText,
   UI_TEXT_DEFAULTS, UI_TEXT_DEFAULTS_EN, UI_TEXT_META, type UiTextKey,
 } from "@/lib/useUiText";
-import { useHiddenIcons, useSaveHiddenIcons } from "@/lib/useHiddenIcons";
 import { useCapacityIcon, useSaveCapacityIcon } from "@/lib/useCapacityIcon";
-import { useWelcomeImage, useSaveWelcomeImage } from "@/lib/useWelcomeImage";
+import { useHiddenIcons } from "@/lib/useHiddenIcons";
 import {
   useOccupancySettings, useSaveOccupancySettings,
   DEFAULT_SCHEDULE, WEEKDAYS, WEEKDAY_LABELS_SV,
@@ -409,7 +404,6 @@ function AdminPage() {
           <TabsList className="mb-6">
             <TabsTrigger value="spaces">Lokaler</TabsTrigger>
             <TabsTrigger value="filters">Filteralternativ</TabsTrigger>
-            <TabsTrigger value="icons">Ikonbibliotek</TabsTrigger>
             <TabsTrigger value="layout">Kortlayout</TabsTrigger>
             <TabsTrigger value="landing">Texter</TabsTrigger>
             <TabsTrigger value="occupancy">Beläggning</TabsTrigger>
@@ -788,9 +782,6 @@ function AdminPage() {
             <FiltersTab categories={categories} byKey={byKey} />
           </TabsContent>
 
-          <TabsContent value="icons">
-            <IconLibraryTab />
-          </TabsContent>
 
 
           <TabsContent value="layout">
@@ -1585,9 +1576,12 @@ function CardLayoutTab() {
         </div>
       </div>
 
-      <div>
-        <h3 className="text-sm font-semibold text-muted-foreground mb-2">Förhandsvisning</h3>
-        <SpaceCard space={DUMMY_SPACE} layoutOverride={order} />
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-sm font-semibold text-muted-foreground mb-2">Förhandsvisning</h3>
+          <SpaceCard space={DUMMY_SPACE} layoutOverride={order} />
+        </div>
+        <CapacityIconSection />
       </div>
     </div>
   );
@@ -1720,41 +1714,10 @@ function LangPairEditor({
 }
 
 function LandingMessageTab() {
-  const { data: pair, isLoading } = useLandingMessageAdmin();
-  const save = useSaveLandingMessage();
-
   const uiKeys: UiTextKey[] = ["empty_title", "empty_suggest_template", "empty_fallback", "show_description", "hide_description"];
 
   return (
     <div className="space-y-6 max-w-4xl">
-      <WelcomeImageSection />
-      <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
-        <div>
-          <h2 className="text-lg font-bold">Välkomsttext på startsidan</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Visas när besökaren ännu inte valt något filter. Engelsk version visas
-            när användaren byter språk; lämnas den tom används svenska som fallback.
-          </p>
-        </div>
-        <LangPairEditor
-          labelSv="Välkomsttext"
-          labelEn="Welcome message"
-          rows={4}
-          valueSv={pair?.sv ?? ""}
-          valueEn={pair?.en ?? ""}
-          defaultSv={DEFAULT_LANDING_MESSAGE}
-          defaultEn={DEFAULT_LANDING_MESSAGE_EN}
-          isPending={save.isPending}
-          isLoading={isLoading}
-          onSaveSv={(v) =>
-            save.mutate({ message: v, lang: "sv" }, { onSuccess: () => toast.success("Sparat (SV)") })
-          }
-          onSaveEn={(v) =>
-            save.mutate({ message: v, lang: "en" }, { onSuccess: () => toast.success("Sparat (EN)") })
-          }
-        />
-      </div>
-
       {uiKeys.map((k) => (
         <UiTextEditor key={k} uiKey={k} />
       ))}
@@ -1794,89 +1757,6 @@ function UiTextEditor({ uiKey }: { uiKey: UiTextKey }) {
   );
 }
 
-function IconLibraryTab() {
-  const { data: hiddenIcons = [] } = useHiddenIcons();
-  const save = useSaveHiddenIcons();
-  const [query, setQuery] = useState("");
-
-  const toggle = (name: string) => {
-    const next = hiddenIcons.includes(name)
-      ? hiddenIcons.filter((n) => n !== name)
-      : [...hiddenIcons, name];
-    save.mutate(next);
-  };
-
-  const q = query.trim().toLowerCase();
-  const filtered = LUCIDE_ICON_CHOICES.filter((n) => !q || n.toLowerCase().includes(q));
-  const visibleCount = LUCIDE_ICON_CHOICES.length - hiddenIcons.length;
-
-  return (
-    <div className="space-y-6">
-      <CapacityIconSection />
-
-      <div className="flex items-center justify-between flex-wrap gap-3">
-
-        <div>
-          <h2 className="text-xl font-bold">Ikonbibliotek</h2>
-          <p className="text-sm text-muted-foreground">
-            {visibleCount} av {LUCIDE_ICON_CHOICES.length} ikoner är synliga i ikonväljaren.
-            Klicka på en ikon för att dölja eller visa den.
-          </p>
-        </div>
-        {hiddenIcons.length > 0 && (
-          <button
-            onClick={() => save.mutate([])}
-            className="text-sm rounded-full border border-border px-3 py-1.5 hover:bg-accent"
-          >
-            Återställ alla
-          </button>
-        )}
-      </div>
-
-      <input
-        type="text"
-        placeholder="Sök ikon..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className="w-full max-w-sm rounded-lg border border-border bg-card px-3 py-2 text-sm"
-      />
-
-      <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2 rounded-lg border border-border bg-card p-3">
-        {filtered.map((name) => {
-          const Icon = getLucideIcon(name);
-          if (!Icon) return null;
-          const hidden = hiddenIcons.includes(name);
-          return (
-            <button
-              key={name}
-              type="button"
-              onClick={() => toggle(name)}
-              title={`${name}${hidden ? " (dold)" : ""}`}
-              className={cn(
-                "relative h-12 w-12 rounded-md flex items-center justify-center border transition-colors",
-                hidden
-                  ? "bg-secondary/40 border-dashed border-border text-muted-foreground opacity-50 hover:opacity-100"
-                  : "bg-secondary border-transparent hover:bg-accent"
-              )}
-            >
-              <Icon className="h-5 w-5" />
-              {hidden && (
-                <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-0.5">
-                  <X className="h-2.5 w-2.5" />
-                </span>
-              )}
-            </button>
-          );
-        })}
-        {filtered.length === 0 && (
-          <p className="col-span-full text-sm text-muted-foreground py-6 text-center">
-            Inga ikoner matchar sökningen.
-          </p>
-        )}
-      </div>
-    </div>
-  );
-}
 
 function CapacityIconSection() {
   const { data: iconUrl } = useCapacityIcon();
@@ -1953,85 +1833,6 @@ function CapacityIconSection() {
   );
 }
 
-function WelcomeImageSection() {
-  const { data: imageUrl } = useWelcomeImage();
-  const save = useSaveWelcomeImage();
-  const [uploading, setUploading] = useState(false);
-
-  const handleUpload = async (file: File) => {
-    setUploading(true);
-    try {
-      const ext = file.name.split(".").pop();
-      const path = `welcome-${crypto.randomUUID()}.${ext}`;
-      const { error } = await supabase.storage.from("filter-icons").upload(path, file);
-      if (error) throw error;
-      const { data } = supabase.storage.from("filter-icons").getPublicUrl(path);
-      await save.mutateAsync(data.publicUrl);
-      toast.success("Välkomstbild uppdaterad");
-    } catch (e: any) {
-      toast.error(e.message);
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  return (
-    <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
-      <div>
-        <h2 className="text-lg font-bold">Bild ovanför välkomsttexten</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Visas på startsidan ovanför välkomsttexten innan något filter valts.
-          Lämnas tom används standardikonen (bok).
-        </p>
-        <p className="text-xs text-muted-foreground mt-2">
-          <strong>Rekommenderad storlek:</strong> kvadratisk eller liggande bild,
-          minst 256×256 px (SVG eller PNG med transparent bakgrund ger bäst resultat).
-          Bilden skalas automatiskt till max 128 px höjd. Håll filstorleken under 200 kB.
-        </p>
-      </div>
-
-      <div className="flex items-center gap-4">
-        <div className="h-20 w-20 rounded-md border border-border bg-secondary flex items-center justify-center overflow-hidden">
-          {imageUrl ? (
-            <img src={imageUrl} alt="" className="max-h-16 w-auto object-contain" />
-          ) : (
-            <BookOpen className="h-8 w-8 text-[var(--kth-navy)]" strokeWidth={1.5} />
-          )}
-        </div>
-        <div className="text-sm text-muted-foreground">
-          {imageUrl ? "Egen bild används." : "Standardikon (bok) används."}
-        </div>
-      </div>
-
-      <div className="flex gap-2 flex-wrap">
-        <label className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 cursor-pointer">
-          <Upload className="h-4 w-4" />
-          {uploading ? "Laddar upp..." : "Ladda upp bild"}
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            disabled={uploading}
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) handleUpload(f);
-              e.target.value = "";
-            }}
-          />
-        </label>
-        {imageUrl && (
-          <button
-            type="button"
-            onClick={() => save.mutate(null, { onSuccess: () => toast.success("Återställd till standard") })}
-            className="inline-flex items-center gap-2 rounded-full bg-secondary text-foreground px-4 py-2 text-sm font-medium hover:bg-accent"
-          >
-            Återställ till standard
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
 
 // ---------------- Occupancy Settings Tab ----------------
 
