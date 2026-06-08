@@ -31,6 +31,7 @@ export type Space = {
   notice: string | null;
   notice_en: string | null;
   show_capacity_publicly: boolean;
+  show_occupancy: boolean;
   countmatters_sensor_id: string | null;
 };
 
