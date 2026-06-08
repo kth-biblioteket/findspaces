@@ -1716,41 +1716,10 @@ function LangPairEditor({
 }
 
 function LandingMessageTab() {
-  const { data: pair, isLoading } = useLandingMessageAdmin();
-  const save = useSaveLandingMessage();
-
   const uiKeys: UiTextKey[] = ["empty_title", "empty_suggest_template", "empty_fallback", "show_description", "hide_description"];
 
   return (
     <div className="space-y-6 max-w-4xl">
-      <WelcomeImageSection />
-      <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
-        <div>
-          <h2 className="text-lg font-bold">Välkomsttext på startsidan</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Visas när besökaren ännu inte valt något filter. Engelsk version visas
-            när användaren byter språk; lämnas den tom används svenska som fallback.
-          </p>
-        </div>
-        <LangPairEditor
-          labelSv="Välkomsttext"
-          labelEn="Welcome message"
-          rows={4}
-          valueSv={pair?.sv ?? ""}
-          valueEn={pair?.en ?? ""}
-          defaultSv={DEFAULT_LANDING_MESSAGE}
-          defaultEn={DEFAULT_LANDING_MESSAGE_EN}
-          isPending={save.isPending}
-          isLoading={isLoading}
-          onSaveSv={(v) =>
-            save.mutate({ message: v, lang: "sv" }, { onSuccess: () => toast.success("Sparat (SV)") })
-          }
-          onSaveEn={(v) =>
-            save.mutate({ message: v, lang: "en" }, { onSuccess: () => toast.success("Sparat (EN)") })
-          }
-        />
-      </div>
-
       {uiKeys.map((k) => (
         <UiTextEditor key={k} uiKey={k} />
       ))}
