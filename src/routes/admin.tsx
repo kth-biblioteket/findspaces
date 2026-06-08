@@ -30,6 +30,7 @@ import {
   UI_TEXT_DEFAULTS, UI_TEXT_DEFAULTS_EN, UI_TEXT_META, type UiTextKey,
 } from "@/lib/useUiText";
 import { useCapacityIcon, useSaveCapacityIcon } from "@/lib/useCapacityIcon";
+import { useHiddenIcons } from "@/lib/useHiddenIcons";
 import {
   useOccupancySettings, useSaveOccupancySettings,
   DEFAULT_SCHEDULE, WEEKDAYS, WEEKDAY_LABELS_SV,
