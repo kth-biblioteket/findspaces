@@ -70,6 +70,7 @@ type FormState = {
   located_in_en: string;
   capacity: string;
   show_capacity_publicly: boolean;
+  show_occupancy: boolean;
   countmatters_sensor_id: string;
   intent: string[];
   noise: string[];
@@ -95,6 +96,7 @@ const emptyForm: FormState = {
   located_in: "", located_in_en: "",
   capacity: "",
   show_capacity_publicly: false,
+  show_occupancy: true,
   countmatters_sensor_id: "",
   intent: [], noise: [], equipment: [], facilities: [], lokaltyp: [],
   tags: {},
@@ -123,6 +125,7 @@ function spaceToForm(s: Space): FormState {
     located_in_en: s.located_in_en ?? "",
     capacity: s.capacity != null ? String(s.capacity) : "",
     show_capacity_publicly: s.show_capacity_publicly ?? false,
+    show_occupancy: s.show_occupancy ?? true,
     countmatters_sensor_id: s.countmatters_sensor_id ?? "",
     intent: s.intent ?? [], noise: s.noise ?? [],
     equipment: s.equipment ?? [], facilities: s.facilities ?? [],
@@ -261,6 +264,7 @@ function AdminPage() {
         located_in_en: f.located_in_en?.trim() ? f.located_in_en.trim() : null,
         capacity: Number.isFinite(capNum) ? capNum : null,
         show_capacity_publicly: f.show_capacity_publicly,
+        show_occupancy: f.show_occupancy,
         countmatters_sensor_id: f.countmatters_sensor_id.trim() || null,
         intent: f.intent, noise: f.noise,
         equipment: f.equipment,
@@ -507,6 +511,15 @@ function AdminPage() {
                           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
                         />
                       </Field>
+                      <label className="flex items-start gap-2 text-sm cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={form.show_occupancy}
+                          onChange={(e) => setForm({ ...form, show_occupancy: e.target.checked })}
+                          className="mt-0.5 h-4 w-4 rounded border-border cursor-pointer accent-[var(--kth-blue)]"
+                        />
+                        <span>Visa beläggningsindikator på lokalkortet (kan slås av vid tekniska problem utan att radera sensor-ID:t)</span>
+                      </label>
                       <p className="text-xs text-muted-foreground leading-relaxed">
                         Fyll i ID:t från Countmatters-mätaren som sitter i lokalen. När det är ifyllt visas
                         en realtidsindikator (grön/gul/röd) på lokalkortet med aktuell beläggningsgrad.
