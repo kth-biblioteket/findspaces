@@ -36,6 +36,11 @@ import {
 import { useHiddenIcons, useSaveHiddenIcons } from "@/lib/useHiddenIcons";
 import { useCapacityIcon, useSaveCapacityIcon } from "@/lib/useCapacityIcon";
 import { useWelcomeImage, useSaveWelcomeImage } from "@/lib/useWelcomeImage";
+import {
+  useOccupancySettings, useSaveOccupancySettings,
+  DEFAULT_SCHEDULE, WEEKDAYS, WEEKDAY_LABELS_SV,
+  type OccupancySchedule, type DaySchedule, type Weekday,
+} from "@/lib/useOccupancySettings";
 import { ChairIcon } from "@/components/icons/ChairIcon";
 
 
@@ -2027,4 +2032,121 @@ function WelcomeImageSection() {
     </div>
   );
 }
+
+// ---------------- Occupancy Settings Tab ----------------
+
+function OccupancySettingsTab() {
+  const { data } = useOccupancySettings();
+  const save = useSaveOccupancySettings();
+  const [enabled, setEnabled] = useState<boolean>(true);
+  const [schedule, setSchedule] = useState<OccupancySchedule>(DEFAULT_SCHEDULE);
+
+  useEffect(() => {
+    if (data) {
+      setEnabled(data.enabled);
+      setSchedule(data.schedule);
+    }
+  }, [data]);
+
+  const updateDay = (d: Weekday, patch: Partial<DaySchedule>) => {
+    setSchedule((s) => ({ ...s, [d]: { ...s[d], ...patch } }));
+  };
+
+  return (
+    <div className="space-y-6 max-w-2xl">
+      <div>
+        <h2 className="text-xl font-bold mb-1">Beläggningsindikator</h2>
+        <p className="text-sm text-muted-foreground">
+          Styr om realtidsbeläggningen ska visas i studentvyn och under vilka tider.
+          Per-lokal kan beläggningen även slås av på respektive lokalkort.
+        </p>
+      </div>
+
+      <div className="rounded-lg border border-border bg-card p-4 space-y-3">
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={enabled}
+            onChange={(e) => setEnabled(e.target.checked)}
+            className="mt-1 h-4 w-4 rounded border-border cursor-pointer accent-[var(--kth-blue)]"
+          />
+          <span>
+            <span className="block text-sm font-medium">
+              Visa beläggning för samtliga lokaler
+            </span>
+            <span className="block text-xs text-muted-foreground mt-0.5">
+              Slå av detta för att dölja beläggningsindikatorn på alla lokalkort samtidigt
+              (t.ex. vid tekniska problem med Countmatters).
+            </span>
+          </span>
+        </label>
+      </div>
+
+      <div className="rounded-lg border border-border bg-card p-4 space-y-3">
+        <div>
+          <h3 className="text-sm font-semibold">Visningstider per veckodag</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Beläggningen visas bara inom angivet intervall. Stäng av dagar då biblioteket
+            är stängt.
+          </p>
+        </div>
+        <div className="space-y-2">
+          {WEEKDAYS.map((d) => {
+            const day = schedule[d];
+            return (
+              <div key={d} className="flex items-center gap-3 flex-wrap">
+                <label className="flex items-center gap-2 w-32 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={day.enabled}
+                    onChange={(e) => updateDay(d, { enabled: e.target.checked })}
+                    className="h-4 w-4 rounded border-border cursor-pointer accent-[var(--kth-blue)]"
+                  />
+                  <span className="text-sm">{WEEKDAY_LABELS_SV[d]}</span>
+                </label>
+                <input
+                  type="time"
+                  value={day.from}
+                  disabled={!day.enabled}
+                  onChange={(e) => updateDay(d, { from: e.target.value })}
+                  className="rounded-md border border-border bg-card px-2 py-1 text-sm disabled:opacity-50"
+                />
+                <span className="text-sm text-muted-foreground">–</span>
+                <input
+                  type="time"
+                  value={day.to}
+                  disabled={!day.enabled}
+                  onChange={(e) => updateDay(d, { to: e.target.value })}
+                  className="rounded-md border border-border bg-card px-2 py-1 text-sm disabled:opacity-50"
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => save.mutate({ enabled, schedule }, {
+            onSuccess: () => toast.success("Sparat"),
+            onError: (e: any) => toast.error(e.message),
+          })}
+          disabled={save.isPending}
+          className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50"
+        >
+          {save.isPending ? "Sparar..." : "Spara"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setSchedule(DEFAULT_SCHEDULE)}
+          className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent"
+        >
+          Återställ till standard
+        </button>
+      </div>
+    </div>
+  );
+}
+
 
