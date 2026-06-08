@@ -17,8 +17,8 @@ function Placeholder({ className }: { className?: string }) {
 }
 
 export function ImageCarousel({
-  images, alt, alts = [], className, onImageClick,
-}: { images: string[]; alt: string; alts?: string[]; className?: string; onImageClick?: (index: number) => void }) {
+  images, alt, alts = [], className, onImageClick, priority = false,
+}: { images: string[]; alt: string; alts?: string[]; className?: string; onImageClick?: (index: number) => void; priority?: boolean }) {
   const [idx, setIdx] = useState(0);
   const [loaded, setLoaded] = useState<Record<number, boolean>>({});
   const list = images.filter(Boolean);
@@ -49,11 +49,9 @@ export function ImageCarousel({
 
   return (
     <div className={cn("relative w-full h-full overflow-hidden bg-muted group", className)}>
-      {/* Skeleton shown until current image loads */}
+      {/* Subtle shimmer skeleton — no icon, so it doesn't flash a fake placeholder */}
       {!isLoaded && (
-        <div className="absolute inset-0 z-0 animate-pulse bg-gradient-to-br from-muted via-muted/70 to-muted flex items-center justify-center">
-          <BookOpen className="h-16 w-16 text-primary/40" aria-hidden="true" />
-        </div>
+        <div className="absolute inset-0 z-0 animate-pulse bg-gradient-to-br from-muted via-muted/60 to-muted" />
       )}
 
       <button
@@ -73,13 +71,17 @@ export function ImageCarousel({
             "w-full h-full object-cover transition-opacity duration-300",
             isLoaded ? "opacity-100" : "opacity-0"
           )}
-          loading="lazy"
+          loading={priority ? "eager" : "lazy"}
+          // @ts-expect-error -- fetchpriority is valid HTML, not yet in React types
+          fetchpriority={priority ? "high" : "auto"}
           decoding="async"
           onLoad={() => setLoaded((prev) => ({ ...prev, [idx]: true }))}
         />
       </button>
 
-      {count > 1 && (
+      {/* All UI overlays appear only after the image is visible, so users never see
+          chrome floating over an empty placeholder. */}
+      {count > 1 && isLoaded && (
         <>
           {/* Gradient overlay for readability */}
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 via-black/30 to-transparent z-10" />

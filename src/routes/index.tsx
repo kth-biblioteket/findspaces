@@ -260,8 +260,8 @@ function SpaceFinder() {
             </div>
           )}
           <div className="space-y-3">
-            {filtered.map((s) => (
-              <SpaceCard key={s.id} space={s} filters={filters} onFiltersChange={setFilters} />
+            {filtered.map((s, i) => (
+              <SpaceCard key={s.id} space={s} filters={filters} onFiltersChange={setFilters} priority={i < 3} />
             ))}
           </div>
         </main>

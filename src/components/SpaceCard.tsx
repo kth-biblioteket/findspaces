@@ -26,12 +26,15 @@ export function SpaceCard({
   layoutOverride,
   filters,
   onFiltersChange,
+  priority = false,
 }: {
   space: Space;
   /** Optional override for live preview in admin. */
   layoutOverride?: CardSectionKey[];
   filters?: Filters;
   onFiltersChange?: (next: Filters) => void;
+  /** Eagerly load the image (use for above-the-fold cards). */
+  priority?: boolean;
 }) {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
@@ -385,6 +388,7 @@ export function SpaceCard({
             images={images}
             alts={space.image_alts ?? []}
             alt={localizedName}
+            priority={priority}
             onImageClick={(i) => {
               setLightboxIndex(i);
               setLightboxOpen(true);
