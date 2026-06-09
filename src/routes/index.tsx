@@ -190,9 +190,9 @@ function SpaceFinder() {
         </div>
 
         <main>
-          <div className="flex items-baseline justify-between mb-4">
-            <h2 className="text-xl font-bold">{t("results.heading")}</h2>
-            <span className="text-sm text-muted-foreground">
+          <div className="flex items-baseline justify-between mb-3">
+            <h2 className="text-lg font-bold">{t("results.heading")}</h2>
+            <span className="text-xs text-muted-foreground">
               {isLoading
                 ? t("results.loading")
                 : hasActiveFilter
