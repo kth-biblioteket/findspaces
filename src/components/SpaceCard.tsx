@@ -46,12 +46,14 @@ export function SpaceCard({
   const { data: layoutFromDb = ["header", "chips", "button_map", "button_booking"] } = useCardLayout();
   const { data: capacityIconUrl } = useCapacityIcon();
   const rawOccupancy = useOccupancy(space.countmatters_sensor_id);
+  const rawGroupRoom = useGroupRoomAvailability(space.booking_room_number);
   const { data: occSettings } = useOccupancySettings();
   const occupancyVisible =
     space.show_occupancy !== false &&
     (occSettings?.enabled ?? true) &&
     isWithinSchedule(occSettings?.schedule ?? DEFAULT_SCHEDULE, new Date());
   const occupancy = occupancyVisible ? rawOccupancy : null;
+  const groupRoom = occupancyVisible ? rawGroupRoom : null;
   const { data: showDescriptionLabel } = useUiText("show_description");
   const { data: hideDescriptionLabel } = useUiText("hide_description");
   const layout = layoutOverride ?? layoutFromDb;
