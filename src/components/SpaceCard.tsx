@@ -165,7 +165,7 @@ export function SpaceCard({
     "bg-primary text-primary-foreground [&_img]:brightness-0 [&_img]:invert";
 
   const renderSection = (key: CardSectionKey, idx: number) => {
-    const spacing = idx === 0 ? "" : "mt-3";
+    const spacing = idx === 0 ? "" : "mt-2 md:mt-3";
     switch (key) {
       case "header":
         return (
@@ -215,7 +215,7 @@ export function SpaceCard({
       case "chips":
         if (intentChips.length === 0 && categoryChips.length === 0) return null;
         return (
-          <div key="chips" className={cn(spacing, "mb-4 flex flex-wrap items-center gap-2")}>
+          <div key="chips" className={cn(spacing, "mb-3 md:mb-4 flex flex-wrap items-center gap-2")}>
             {intentChips.map((c) => {
               const selected = isIntentSelected(c.value);
               const Icon = c.value === "enskilt" ? User : Users;
@@ -355,11 +355,11 @@ export function SpaceCard({
 
   return (
     <article className="bg-card rounded-2xl border border-border overflow-hidden transition-all hover:shadow-md">
-      <div className="flex flex-col md:flex-row items-stretch gap-4">
-        <div className="order-2 md:order-1 flex-1 min-w-0 flex flex-col p-4">
+        <div className="flex flex-col md:flex-row items-stretch gap-3 md:gap-4">
+          <div className="order-2 md:order-1 flex-1 min-w-0 flex flex-col p-3 md:p-4">
           {layout.map((k, i) => renderSection(k, i))}
 
-          <div className="mt-auto pt-3 flex items-center justify-between gap-3 flex-wrap">
+          <div className="mt-auto pt-2 md:pt-3 flex items-center justify-between gap-3 flex-wrap">
             {sanitizedDescription ? (
               <button
                 type="button"
@@ -387,7 +387,7 @@ export function SpaceCard({
           </div>
         </div>
 
-        <div className="order-1 md:order-2 w-full md:w-72 lg:w-80 shrink-0 self-stretch h-56 md:h-auto md:aspect-[4/3] overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-r-2xl">
+        <div className="order-1 md:order-2 w-full md:w-72 lg:w-80 shrink-0 self-stretch h-40 md:h-auto md:aspect-[4/3] overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-r-2xl">
           <ImageCarousel
             images={images}
             alts={space.image_alts ?? []}
@@ -416,7 +416,7 @@ export function SpaceCard({
         )}
       >
         <div className="overflow-hidden">
-          <div className="px-4 pb-5 pt-1 border-t border-border/60">
+          <div className="px-3 pb-4 pt-1 md:px-4 md:pb-5 border-t border-border/60">
             <div
               className="text-sm text-foreground/80 leading-relaxed pt-3 space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
               dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
@@ -459,7 +459,7 @@ function OccupancyBadge({
 }) {
   const { t } = useTranslation();
   return (
-    <div className="flex items-center gap-2 mb-3 mt-1">
+    <div className="flex items-center gap-1.5 md:gap-2 mb-2 md:mb-3 mt-0.5 md:mt-1">
       <Users className="h-4 w-4 text-gray-600" aria-hidden="true" />
       <OccupancyBlocks level={level} />
       <span className="text-sm text-gray-700">
@@ -487,7 +487,7 @@ function GroupRoomBadge({ status }: { status: GroupRoomStatus }) {
       ? "bg-amber-400"
       : "bg-red-500";
   return (
-    <div className="flex items-center gap-2 mb-3 mt-1">
+    <div className="flex items-center gap-1.5 md:gap-2 mb-2 md:mb-3 mt-0.5 md:mt-1">
       <Icon className="h-4 w-4 text-gray-600" aria-hidden="true" />
       <span className={cn("inline-block h-2.5 w-2.5 rounded-full", dotClass)} aria-hidden="true" />
       <span className="text-sm text-gray-700">
