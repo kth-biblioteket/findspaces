@@ -157,29 +157,31 @@ function SpaceFinder() {
                 <SlidersHorizontal className="h-4 w-4" aria-hidden="true" /> {t("filters.open")}
               </button>
             </SheetTrigger>
-            <SheetContent side="bottom" className="h-[85vh] p-0 flex flex-col">
+            <SheetContent side="bottom" className="h-[85vh] p-0 flex flex-col overflow-hidden gap-0">
               <SheetHeader className="px-6 pt-6 pb-2 shrink-0">
                 <SheetTitle>{t("filters.title")}</SheetTitle>
               </SheetHeader>
-              <div className="flex-1 overflow-y-auto px-6 pb-6 pt-4">
-                <FilterPanel filters={filters} onChange={setFilters} />
-              </div>
-              <div className="shrink-0 border-t border-border bg-white p-4 flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setFilters(emptyFilters)}
-                  className="px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
-                >
-                  {t("filters.clear")}
-                </button>
-                <SheetClose asChild>
+              <div className="flex-1 overflow-y-auto min-h-0 flex flex-col">
+                <div className="px-6 pb-6 pt-4">
+                  <FilterPanel filters={filters} onChange={setFilters} />
+                </div>
+                <div className="sticky bottom-0 mt-auto border-t border-border bg-white p-4 flex items-center gap-3">
                   <button
                     type="button"
-                    className="flex-1 rounded-full bg-primary text-primary-foreground px-4 py-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                    onClick={() => setFilters(emptyFilters)}
+                    className="px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                   >
-                    {t("filters.show_results_count", { count: filtered.length })}
+                    {t("filters.clear")}
                   </button>
-                </SheetClose>
+                  <SheetClose asChild>
+                    <button
+                      type="button"
+                      className="flex-1 rounded-full bg-primary text-primary-foreground px-4 py-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                    >
+                      {t("filters.show_results_count", { count: filtered.length })}
+                    </button>
+                  </SheetClose>
+                </div>
               </div>
             </SheetContent>
           </Sheet>
@@ -246,7 +248,7 @@ function SpaceFinder() {
               )}
             </div>
           )}
-          <div className="space-y-3">
+          <div className="space-y-2 md:space-y-3">
             {filtered.map((s, i) => (
               <SpaceCard key={s.id} space={s} filters={filters} onFiltersChange={setFilters} priority={i < 3} />
             ))}
