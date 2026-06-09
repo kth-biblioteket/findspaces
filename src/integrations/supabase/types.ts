@@ -112,6 +112,7 @@ export type Database = {
       }
       spaces: {
         Row: {
+          booking_room_number: number | null
           booking_url: string | null
           capacity: number | null
           category: string | null
@@ -147,6 +148,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          booking_room_number?: number | null
           booking_url?: string | null
           capacity?: number | null
           category?: string | null
@@ -182,6 +184,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          booking_room_number?: number | null
           booking_url?: string | null
           capacity?: number | null
           category?: string | null
