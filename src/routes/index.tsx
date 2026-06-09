@@ -115,28 +115,15 @@ function SpaceFinder() {
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-card border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between">
+          <h1 className="text-sm font-semibold leading-tight">{t("header.title")}</h1>
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg bg-[var(--kth-navy)] flex items-center justify-center">
-              <Library className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-bold leading-tight">{t("header.title")}</h1>
-                <span className="inline-flex items-center rounded-full bg-amber-100 text-amber-900 text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 border border-amber-300">
-                  {t("header.prototype_badge")}
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground">{t("header.subtitle")}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
             <LanguageSwitcher />
             <Link
               to="/admin"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
             >
-              <Settings className="h-4 w-4" />
+              <Settings className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t("header.admin")}</span>
             </Link>
           </div>
