@@ -130,23 +130,25 @@ function SpaceFinder() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 lg:grid lg:grid-cols-[320px_1fr] lg:gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 lg:grid lg:grid-cols-[260px_1fr] lg:gap-6">
         <aside className="hidden lg:block">
-          <div className="sticky top-6 bg-card rounded-2xl border border-border p-6">
-            <div className="flex items-center justify-between mb-4 min-h-[28px]">
+          <div className="sticky top-4 bg-card rounded-xl border border-border flex flex-col max-h-[calc(100vh-2rem)]">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
               <span className="text-sm font-semibold">{t("filters.title")}</span>
               {hasActiveFilter && (
                 <button
                   type="button"
                   onClick={() => setFilters(emptyFilters)}
-                  className="inline-flex items-center gap-1 text-sm font-medium text-[var(--kth-blue)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary rounded"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-[var(--kth-blue)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary rounded"
                 >
-                  <X className="h-4 w-4" aria-hidden="true" />
+                  <X className="h-3.5 w-3.5" aria-hidden="true" />
                   {t("filters.clear_all")}
                 </button>
               )}
             </div>
-            <FilterPanel filters={filters} onChange={setFilters} />
+            <div className="overflow-y-auto px-4 py-4 min-h-0">
+              <FilterPanel filters={filters} onChange={setFilters} />
+            </div>
           </div>
         </aside>
 
@@ -188,9 +190,9 @@ function SpaceFinder() {
         </div>
 
         <main>
-          <div className="flex items-baseline justify-between mb-4">
-            <h2 className="text-xl font-bold">{t("results.heading")}</h2>
-            <span className="text-sm text-muted-foreground">
+          <div className="flex items-baseline justify-between mb-3">
+            <h2 className="text-lg font-bold">{t("results.heading")}</h2>
+            <span className="text-xs text-muted-foreground">
               {isLoading
                 ? t("results.loading")
                 : hasActiveFilter
