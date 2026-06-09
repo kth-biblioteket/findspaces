@@ -291,7 +291,7 @@ export function SpaceCard({
   };
 
   const buttonClass =
-    "inline-flex items-center gap-1.5 rounded-md border border-[var(--kth-blue)] bg-white text-[var(--kth-blue)] px-2.5 py-1 text-xs font-medium hover:bg-[var(--kth-blue)]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary";
+    "inline-flex items-center gap-1.5 rounded-full bg-[var(--kth-blue)] text-white px-4 py-1.5 text-xs font-semibold hover:bg-[var(--kth-blue)]/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary transition-colors";
 
   const renderButton = (key: CardSectionKey) => {
     switch (key) {
