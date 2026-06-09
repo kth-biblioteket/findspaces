@@ -196,6 +196,7 @@ export function SpaceCard({
             {occupancy && (
               <OccupancyBadge level={occupancy.level} status={occupancy.status} />
             )}
+            {groupRoom && <GroupRoomBadge status={groupRoom.status} />}
 
             {localizedNotice && (
               <div
