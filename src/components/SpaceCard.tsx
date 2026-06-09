@@ -165,7 +165,7 @@ export function SpaceCard({
     "bg-primary text-primary-foreground [&_img]:brightness-0 [&_img]:invert";
 
   const renderSection = (key: CardSectionKey, idx: number) => {
-    const spacing = idx === 0 ? "" : "mt-2 md:mt-3";
+    const spacing = idx === 0 ? "" : "mt-2 md:mt-2";
     switch (key) {
       case "header":
         return (
