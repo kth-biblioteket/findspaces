@@ -1506,6 +1506,7 @@ const DUMMY_SPACE: Space = {
   show_capacity_publicly: false,
   show_occupancy: true,
   countmatters_sensor_id: null,
+  booking_room_number: null,
 };
 
 function CardLayoutTab() {
