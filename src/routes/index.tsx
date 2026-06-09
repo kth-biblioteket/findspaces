@@ -130,7 +130,7 @@ function SpaceFinder() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 lg:grid lg:grid-cols-[260px_1fr] lg:gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 lg:grid lg:grid-cols-[320px_1fr] lg:gap-6">
         <aside className="hidden lg:block">
           <div className="sticky top-4 bg-card rounded-xl border border-border flex flex-col max-h-[calc(100vh-2rem)]">
             <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
