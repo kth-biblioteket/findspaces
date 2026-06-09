@@ -69,7 +69,7 @@ export function FilterPanel({
   ];
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-5">
       <div>
         <label className="relative block">
           <span className="sr-only">{t("filters.search_sr")}</span>
