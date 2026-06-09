@@ -459,7 +459,7 @@ function OccupancyBadge({
 }) {
   const { t } = useTranslation();
   return (
-    <div className="flex items-center gap-1.5 md:gap-2 mb-2 md:mb-3 mt-0.5 md:mt-1">
+    <div className="flex items-center gap-1.5 md:gap-2 mb-1.5 md:mb-2 mt-0.5 md:mt-0.5">
       <Users className="h-4 w-4 text-gray-600" aria-hidden="true" />
       <OccupancyBlocks level={level} />
       <span className="text-sm text-gray-700">
