@@ -52,9 +52,9 @@
   --kth-blue: oklch(0.43 0.16 260);   /* #1954a6 */
   --kth-sand: oklch(0.965 0 0);       /* #F5F5F5 */
 
-  --background: oklch(0.965 0 0);                /* light gray/sand */
+  --background: oklch(1 0 0);                    /* white for embedding */
   --foreground: oklch(0 0 0);                    /* black body text */
-  --card: oklch(1 0 0);
+  --card: oklch(0.985 0 0);                      /* subtle off-white for surfaces */
   --card-foreground: oklch(0 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0 0 0);
@@ -68,7 +68,7 @@
   --accent-foreground: oklch(0 0 0);
   --destructive: oklch(0.55 0.22 27);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.9 0.005 260);
+  --border: oklch(0.87 0.005 260);
   --input: oklch(0.92 0.005 260);
   --ring: oklch(0.43 0.16 260);
 
