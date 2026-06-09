@@ -122,9 +122,9 @@ function SpaceFinder() {
             <Link
               to="/admin"
               className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+              aria-label={t("header.admin")}
             >
               <Settings className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">{t("header.admin")}</span>
             </Link>
           </div>
         </div>
