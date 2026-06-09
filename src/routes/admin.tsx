@@ -507,7 +507,7 @@ function AdminPage() {
                         <input
                           value={form.countmatters_sensor_id}
                           onChange={(e) => setForm({ ...form, countmatters_sensor_id: e.target.value })}
-                          placeholder="t.ex. cm-plan3-läsesal-01"
+                          placeholder="t.ex. Newton"
                           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
                         />
                       </Field>
@@ -521,11 +521,11 @@ function AdminPage() {
                         <span>Visa beläggningsindikator på lokalkortet (kan slås av vid tekniska problem utan att radera sensor-ID:t)</span>
                       </label>
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        Fyll i ID:t från Countmatters-mätaren som sitter i lokalen. När det är ifyllt visas
-                        en realtidsindikator (grön/gul/röd) på lokalkortet med aktuell beläggningsgrad.
-                        Lämna tomt för lokaler utan mätare. <br />
-                        <span className="italic">Notera: tills Countmatters-API:t kopplas in visas en
-                        platshållarsiffra som uppdateras varje minut – så vi kan testa utseendet.</span>
+                        Ange <strong>zonnamnet</strong> exakt som det står i Countmatters
+                        (t.ex. <span className="font-mono">Newton</span>, <span className="font-mono">Ångdomen</span>,
+                        {" "}<span className="font-mono">Södra Galleriet</span>). När namnet matchar en zon i
+                        KTH:s realtids-API visas en indikator (grön/gul/röd) baserat på aktuell beläggning
+                        i förhållande till zonens maxantal. Lämna tomt för lokaler utan mätare.
                       </p>
                     </div>
 

@@ -462,9 +462,7 @@ function OccupancyBadge({
         <strong>{t("occupancy.right_now")}:</strong>{" "}
         {t(OCCUPANCY_LABELS[status])}
       </span>
-      <span className="bg-yellow-100 text-yellow-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-        Demo
-      </span>
     </div>
   );
 }
+
