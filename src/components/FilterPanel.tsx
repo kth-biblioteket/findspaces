@@ -69,7 +69,7 @@ export function FilterPanel({
   ];
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6">
       <div>
         <label className="relative block">
           <span className="sr-only">{t("filters.search_sr")}</span>
@@ -78,7 +78,7 @@ export function FilterPanel({
             value={filters.query}
             onChange={(e) => onChange({ ...filters, query: e.target.value })}
             placeholder={t("filters.search_placeholder")}
-            className="w-full rounded-full border border-border bg-card pl-10 pr-4 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+            className="w-full rounded-full border border-border bg-card pl-10 pr-4 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
           />
         </label>
       </div>
