@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import DOMPurify from "dompurify";
-import { ChevronDown, MapPin, Calendar, Info, Users, User, X } from "lucide-react";
+import { ChevronDown, MapPin, Calendar, Info, Users, User, X, DoorOpen, DoorClosed } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ChairIcon } from "./icons/ChairIcon";
 
@@ -10,6 +10,7 @@ import { useFilterOptions } from "@/lib/useFilterOptions";
 import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
 import { useCapacityIcon } from "@/lib/useCapacityIcon";
 import { useOccupancy, type OccupancyStatus } from "@/lib/useOccupancy";
+import { useGroupRoomAvailability, type GroupRoomStatus } from "@/lib/useGroupRoomAvailability";
 import { useOccupancySettings, isWithinSchedule, DEFAULT_SCHEDULE } from "@/lib/useOccupancySettings";
 import { useUiText } from "@/lib/useUiText";
 import { pickLocalized, type Lang } from "@/i18n";
