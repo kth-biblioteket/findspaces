@@ -1,10 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { setResponseHeader } from "@tanstack/react-start/server";
 
-// TODO: Path segments `/1/1/` are hardcoded for now (library 1 / floor 1).
+// TODO: Path segment `/1/` is hardcoded for now (library/area id 1).
 // Move to a per-space field if KTH adds more locations in the future.
 const API_BASE =
-  "https://api.lib.kth.se/bookingsystem/v1/roomsavailability/grouprooms/1/1";
+  "https://api.lib.kth.se/bookingsystem/v1/roomsavailability/grouprooms/1";
 
 export type RoomStatus = "free" | "busy" | "tentative";
 
