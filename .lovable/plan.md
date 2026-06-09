@@ -1,35 +1,60 @@
-## Problem
+## Mål
+Ersätt den slumpade demobeläggningen med riktiga värden från KTH:s API
+`https://apps.lib.kth.se/smartsigntools/api/v1/imas/realtime`, och låt admin-schemat
+(inte API:ets `hours`) styra när indikatorn visas.
 
-I studentvyn är sektionen **"Jag vill arbeta"** hårdkodad i `FilterPanel.tsx` till exakt tre alternativ — **Enskilt**, **Tillsammans**, **I grupprum** — plus en undermeny **Gruppstorlek** (2–4 / 5+) som visas när "I grupprum" är vald.
+## Hur API:t ser ut
+Svaret innehåller en lista `data.zones` där varje zon har:
+- `name` – t.ex. "Newton", "Ångdomen", "Södra Galleriet"
+- `inside` – aktuellt antal personer
+- `threshold` – maxantal (satt i Countmatters)
 
-I adminläget under **Filter**-fliken visas däremot kategorin `intent` ("Jag vill arbeta") som en helt vanlig redigerbar kategori. Databasen innehåller där bara två stale alternativ ("Enskilt", "I grupp") som inte alls används av studentvyn — admin tror alltså att man kan ändra dessa, men ändringar får ingen effekt. Det är detta som inte stämmer.
+Mappning till våra lokaler sker via fältet `countmatters_sensor_id` som
+redan finns på varje lokal i adminläget. Värdet ska vara **zonens namn**
+exakt som det står i API:t (t.ex. `Newton`). Lokaler vars ID inte matchar
+någon zon visar ingen indikator – så när KTH lägger till/tar bort räknare
+räcker det att uppdatera ID:t i adminläget.
 
-I lokal-redigeringsformuläret är detta redan korrekt löst: raden `categories.filter((c) => c.key !== "intent")` döljer kategorin, och en hårdkodad checkbox-grupp med de tre rätta alternativen används istället (admin.tsx rad 443–460). Samma logik saknas i `FiltersTab`.
+## Datakälla (server function)
+Skapa `src/lib/occupancy.functions.ts` med en `createServerFn` `getRealtimeOccupancy()` som:
+1. Hämtar API:t serverside (undviker CORS, kan cacha kort).
+2. Returnerar en map `{ [zoneName]: { inside, threshold } }` + `lastUpdated`.
+3. Vid fel: returnerar `{ zones: {}, error }` så UI:t bara döljer indikatorn.
 
-## Åtgärd
+Sätt `Cache-Control` på server-response (~20 s) för att skona API:t när
+många kort renderas.
 
-**1. `src/routes/admin.tsx` — `FiltersTab`:**
-- Filtrera bort `intent`-kategorin ur listan som mappas i `categories.map(...)` (rad ~787).
-- Lägg in ett litet låst infokort överst som visar:
-  - Titeln "Jag vill arbeta" (systemstyrd)
-  - De tre fasta valen: Enskilt · Tillsammans · I grupprum
-  - Undertexten: Gruppstorlek (2–4, 5+) visas automatiskt när "I grupprum" är vald
-  - Kort förklaring: "Dessa val är inbyggda i studentvyn och kan inte redigeras här. Använd lokal-redigeraren för att markera vilka arbetssätt varje lokal passar för."
-- Drag-and-drop-ordningen (`handleDragEnd`) bör fortfarande fungera för övriga kategorier; `intent` ingår inte i den sorterbara listan.
+## Klient-hook (ersätter dagens placeholder)
+Skriv om `src/lib/useOccupancy.ts` så den:
+- Använder TanStack Query (`queryKey: ["occupancy-realtime"]`,
+  `refetchInterval: 60_000`, `staleTime: 30_000`) som anropar serverfunktionen **en gång** globalt.
+- Exponerar `useOccupancy(sensorId)` som slår upp `sensorId` i den hämtade
+  zon-mappen och räknar ut:
+  - `ratio = inside / threshold` (om `threshold > 0`)
+  - `level`: 1 om `ratio < 0.5`, 2 om `< 0.85`, annars 3
+  - `status`: `free | moderate | busy` enligt level
+- Om zonen saknas, `threshold` är 0, eller API-fel → returnera `null`
+  (kortet visar då ingen indikator).
 
-**2. Ingen DB-städning** av de stale `filter_options`-raderna för `intent` ("Enskilt", "I grupp") — de används inte längre någonstans i koden, så de gör ingen skada. Säg till om du vill att jag rensar dem också.
+## Schema-gating (oförändrad logik, ny placering)
+`SpaceCard` använder redan `isWithinSchedule(occSettings.schedule, ...)`. Den
+behålls — alltså är det adminens veckoschema som styr synlighet, inte
+API:ets `hours`-fält (det ignoreras helt).
 
-## Andra liknande fel som kontrollerats
+## UI-justeringar i `SpaceCard` / `OccupancyBadge`
+- Ta bort "Demo"-pillet eftersom datan nu är skarp.
+- Visa fortfarande textetiketten ("Ledigt/Måttligt/Upptaget").
+- (Valfritt, kan utelämnas) liten "uppdaterad för X min sedan"-tooltip.
 
-- **Lokal-formuläret (admin)**: ✅ redan korrekt, använder hårdkodade tre val.
-- **`lokaltyp`-kategorin**: ✅ innehåller "Grupprum" som studentvyn använder för workMode-matchning.
-- **Gruppstorlek (2–4 / 5+)**: hårdkodad bara i studentvyn, finns inte alls i admin — vilket är rimligt eftersom den är direkt knuten till `capacity`-fältet på lokalen. Ingen åtgärd.
-- **Kortlayout-fliken**: använder `CARD_SECTION_KEYS` (inte filter_categories), så ingen mismatch där.
-- **Texter-fliken**: använder fasta nycklar i `useUiText`, ingen mismatch.
+## Admin
+Uppdatera hjälptexten under sensor-ID-fältet: förklara att värdet är
+**zonnamnet** från Countmatters (t.ex. `Newton`, `Ångdomen`), och att tomt
+fält = ingen indikator visas.
 
-## Tekniska detaljer
+## Filer som ändras / skapas
+- **Ny:** `src/lib/occupancy.functions.ts` (serverfunktion mot KTH-API:t)
+- **Skrivs om:** `src/lib/useOccupancy.ts` (riktiga värden via React Query)
+- **Uppdatera:** `src/components/SpaceCard.tsx` (ta bort Demo-pill)
+- **Uppdatera:** `src/routes/admin.tsx` (hjälptext för sensor-ID)
 
-Filer som ändras:
-- `src/routes/admin.tsx` — `FiltersTab`-komponenten (rad ~746–797).
-
-Inga DB-migrations, inga typändringar, inga ändringar i studentvyn.
+Inga databasändringar och inga nya secrets behövs – API:t är publikt.
