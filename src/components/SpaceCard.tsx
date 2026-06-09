@@ -355,11 +355,11 @@ export function SpaceCard({
 
   return (
     <article className="bg-card rounded-2xl border border-border overflow-hidden transition-all hover:shadow-md">
-        <div className="flex flex-col md:flex-row items-stretch gap-3 md:gap-4">
-          <div className="order-2 md:order-1 flex-1 min-w-0 flex flex-col p-3 md:p-4">
+        <div className="flex flex-col md:flex-row items-stretch gap-3 md:gap-3">
+          <div className="order-2 md:order-1 flex-1 min-w-0 flex flex-col p-3 md:p-3">
           {layout.map((k, i) => renderSection(k, i))}
 
-          <div className="mt-auto pt-2 md:pt-3 flex items-center justify-between gap-3 flex-wrap">
+          <div className="mt-auto pt-2 md:pt-2 flex items-center justify-between gap-3 flex-wrap">
             {sanitizedDescription ? (
               <button
                 type="button"
@@ -387,7 +387,7 @@ export function SpaceCard({
           </div>
         </div>
 
-        <div className="order-1 md:order-2 w-full md:w-72 lg:w-80 shrink-0 self-stretch h-40 md:h-auto md:aspect-[4/3] overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-r-2xl">
+        <div className="order-1 md:order-2 w-full md:w-56 lg:w-64 shrink-0 self-stretch h-40 md:h-auto md:aspect-[4/3] overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-r-2xl">
           <ImageCarousel
             images={images}
             alts={space.image_alts ?? []}
