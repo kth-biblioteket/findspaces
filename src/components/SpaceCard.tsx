@@ -474,12 +474,18 @@ function OccupancyBadge({
 const GROUP_ROOM_LABELS: Record<GroupRoomStatus, string> = {
   free: "group_room.free",
   busy: "group_room.busy",
+  tentative: "group_room.tentative",
 };
 
 function GroupRoomBadge({ status }: { status: GroupRoomStatus }) {
   const { t } = useTranslation();
   const Icon = status === "free" ? DoorOpen : DoorClosed;
-  const dotClass = status === "free" ? "bg-emerald-500" : "bg-red-500";
+  const dotClass =
+    status === "free"
+      ? "bg-emerald-500"
+      : status === "tentative"
+      ? "bg-amber-400"
+      : "bg-red-500";
   return (
     <div className="flex items-center gap-2 mb-3 mt-1">
       <Icon className="h-4 w-4 text-gray-600" aria-hidden="true" />
