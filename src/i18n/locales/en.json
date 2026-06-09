@@ -59,6 +59,7 @@
   "group_room": {
     "right_now": "Right now",
     "free": "Free",
-    "busy": "Booked"
+    "busy": "Booked",
+    "tentative": "Booked – unconfirmed"
   }
 }
