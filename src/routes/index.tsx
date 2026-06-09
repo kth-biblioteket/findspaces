@@ -130,9 +130,9 @@ function SpaceFinder() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 lg:grid lg:grid-cols-[260px_1fr] lg:gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 lg:grid lg:grid-cols-[320px_1fr] lg:gap-6">
         <aside className="hidden lg:block">
-          <div className="sticky top-6 bg-card rounded-2xl border border-border p-4">
+          <div className="sticky top-6 bg-card rounded-2xl border border-border p-4 max-h-[calc(100vh-3rem)] overflow-y-auto">
             <div className="flex items-center justify-between mb-4 min-h-[28px]">
               <span className="text-sm font-semibold">{t("filters.title")}</span>
               {hasActiveFilter && (
