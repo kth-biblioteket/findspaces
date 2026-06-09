@@ -355,11 +355,11 @@ export function SpaceCard({
 
   return (
     <article className="bg-card rounded-2xl border border-border overflow-hidden transition-all hover:shadow-md">
-        <div className="flex flex-col md:flex-row items-stretch gap-3 md:gap-4">
+        <div className="flex flex-col md:flex-row items-stretch gap-3 md:gap-3">
           <div className="order-2 md:order-1 flex-1 min-w-0 flex flex-col p-3 md:p-4">
           {layout.map((k, i) => renderSection(k, i))}
 
-          <div className="mt-auto pt-2 md:pt-3 flex items-center justify-between gap-3 flex-wrap">
+          <div className="mt-auto pt-2 flex items-center justify-between gap-3 flex-wrap">
             {sanitizedDescription ? (
               <button
                 type="button"
@@ -371,7 +371,7 @@ export function SpaceCard({
                 className="inline-flex items-center text-xs text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary rounded"
               >
                 <ChevronDown
-                  className={cn("h-4 w-4 transition-transform", open && "rotate-180")}
+                  className={cn("h-3.5 w-3.5 transition-transform", open && "rotate-180")}
                   aria-hidden="true"
                 />
                 <span className="ml-1">{open ? (hideDescriptionLabel ?? t("card.hide_description")) : (showDescriptionLabel ?? t("card.show_description"))}</span>
@@ -416,9 +416,9 @@ export function SpaceCard({
         )}
       >
         <div className="overflow-hidden">
-          <div className="px-3 pb-4 pt-1 md:px-4 md:pb-5 border-t border-border/60">
+          <div className="px-3 pb-3 pt-1 md:px-4 md:pb-4 border-t border-border/60">
             <div
-              className="text-sm text-foreground/80 leading-relaxed pt-3 space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
+              className="text-xs md:text-sm text-foreground/80 leading-relaxed pt-3 space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
               dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
             />
           </div>
