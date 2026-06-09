@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  Plus, Pencil, Trash2, ArrowLeft, Library, Upload, X, Settings2, GripVertical,
+  Plus, Pencil, Trash2, ArrowLeft, Upload, X, Settings2, GripVertical,
   ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
