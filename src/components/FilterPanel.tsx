@@ -118,32 +118,35 @@ export function FilterPanel({
       </div>
 
 
-      {categories.map((cat) => {
-        if (cat.key === "intent") return null;
-        const opts = byKey[cat.key] ?? [];
+      <div className="grid grid-cols-2 gap-x-4 gap-y-6">
+        {categories.map((cat) => {
+          if (cat.key === "intent") return null;
+          const opts = byKey[cat.key] ?? [];
 
-        if (opts.length === 0) return null;
-        const selected = filters.byCategory[cat.key] ?? [];
-        return cat.style === "list" ? (
-          <ListGroup
-            key={cat.id}
-            cat={cat}
-            options={opts}
-            selected={selected}
-            onToggle={(v) => setSelected(cat.key, toggle(selected, v))}
-            lang={lang}
-          />
-        ) : (
-          <PillGroup
-            key={cat.id}
-            cat={cat}
-            options={opts}
-            selected={selected}
-            onToggle={(v) => setSelected(cat.key, toggle(selected, v))}
-            lang={lang}
-          />
-        );
-      })}
+          if (opts.length === 0) return null;
+          const selected = filters.byCategory[cat.key] ?? [];
+          return cat.style === "list" ? (
+            <div key={cat.id} className="col-span-2">
+              <ListGroup
+                cat={cat}
+                options={opts}
+                selected={selected}
+                onToggle={(v) => setSelected(cat.key, toggle(selected, v))}
+                lang={lang}
+              />
+            </div>
+          ) : (
+            <PillGroup
+              key={cat.id}
+              cat={cat}
+              options={opts}
+              selected={selected}
+              onToggle={(v) => setSelected(cat.key, toggle(selected, v))}
+              lang={lang}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }
