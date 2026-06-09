@@ -48,12 +48,12 @@ export function SpaceCard({
   const rawOccupancy = useOccupancy(space.countmatters_sensor_id);
   const rawGroupRoom = useGroupRoomAvailability(space.booking_room_number);
   const { data: occSettings } = useOccupancySettings();
-  const occupancyVisible =
-    space.show_occupancy !== false &&
+  const settingsActive =
     (occSettings?.enabled ?? true) &&
     isWithinSchedule(occSettings?.schedule ?? DEFAULT_SCHEDULE, new Date());
+  const occupancyVisible = space.show_occupancy !== false && settingsActive;
   const occupancy = occupancyVisible ? rawOccupancy : null;
-  const groupRoom = occupancyVisible ? rawGroupRoom : null;
+  const groupRoom = settingsActive ? rawGroupRoom : null;
   const { data: showDescriptionLabel } = useUiText("show_description");
   const { data: hideDescriptionLabel } = useUiText("hide_description");
   const layout = layoutOverride ?? layoutFromDb;
