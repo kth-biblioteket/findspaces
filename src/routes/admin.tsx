@@ -708,6 +708,28 @@ function AdminPage() {
                           </ul>
                         )}
 
+                        {form.images[0] && (
+                          <div className="rounded-lg border border-border bg-secondary/40 p-3 space-y-2">
+                            <p className="text-xs font-semibold text-foreground">
+                              Förhandsvisning av primär bild (så här beskärs den i lokalkortet)
+                            </p>
+                            <div className="flex flex-wrap gap-4">
+                              <div className="space-y-1">
+                                <p className="text-[11px] text-muted-foreground">Mobil (full bredd, 3:2)</p>
+                                <div className="w-[320px] max-w-full aspect-[3/2] overflow-hidden rounded-md border border-border bg-muted">
+                                  <img src={form.images[0]} alt="" className="w-full h-full object-cover" />
+                                </div>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-[11px] text-muted-foreground">Desktop (sidopanel, 3:2)</p>
+                                <div className="w-64 aspect-[3/2] overflow-hidden rounded-md border border-border bg-muted">
+                                  <img src={form.images[0]} alt="" className="w-full h-full object-cover" />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
                         <div className="flex items-center gap-3 flex-wrap">
                           <label className={cn(
                             "inline-flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2 text-sm cursor-pointer hover:bg-accent",
@@ -725,8 +747,10 @@ function AdminPage() {
                               }}
                             />
                           </label>
-                          <p className="text-xs text-muted-foreground max-w-xs">
-                            Rekommenderad storlek: <strong>1600×1200 px</strong> (4:3-format). JPG eller PNG, max 2 MB.
+                          <p className="text-xs text-muted-foreground max-w-sm">
+                            Rekommenderad storlek: <strong>1500×1000 px</strong> i <strong>3:2-format</strong> (liggande).
+                            Bilden visas i samma format på både mobil och desktop, så placera motivet centrerat
+                            för att undvika beskärning vid kanterna. JPG eller PNG, max 2 MB.
                             Upp till {MAX_IMAGES} bilder per lokal.
                           </p>
                         </div>

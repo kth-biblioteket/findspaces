@@ -387,7 +387,7 @@ export function SpaceCard({
           </div>
         </div>
 
-        <div className="order-1 md:order-2 w-full md:w-56 lg:w-64 shrink-0 self-stretch h-40 md:h-auto md:aspect-[4/3] overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-r-2xl">
+        <div className="order-1 md:order-2 w-full md:w-56 lg:w-64 shrink-0 self-stretch aspect-[3/2] md:aspect-[3/2] md:h-auto overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-r-2xl">
           <ImageCarousel
             images={images}
             alts={space.image_alts ?? []}
