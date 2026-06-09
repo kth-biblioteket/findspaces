@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-import { Languages } from "lucide-react";
 import { SUPPORTED_LANGUAGES, type Lang } from "@/i18n";
 
 export function LanguageSwitcher({ className = "" }: { className?: string }) {
@@ -12,7 +11,6 @@ export function LanguageSwitcher({ className = "" }: { className?: string }) {
       role="group"
       aria-label={t("header.language")}
     >
-      <Languages className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
       {SUPPORTED_LANGUAGES.map((lng) => {
         const active = current === lng;
         return (
