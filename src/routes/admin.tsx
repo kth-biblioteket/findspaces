@@ -378,27 +378,19 @@ function AdminPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-card border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between">
+          <h1 className="text-sm font-semibold leading-tight">Admin — Studieplatser</h1>
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg bg-[var(--kth-navy)] flex items-center justify-center">
-              <Library className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-base sm:text-lg font-bold leading-tight">Admin — Studieplatser</h1>
-              <p className="text-xs text-muted-foreground">Hantera lokaler och filteralternativ</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
             {userEmail && <span className="hidden sm:inline text-xs text-muted-foreground">{userEmail}</span>}
             <button
               type="button"
               onClick={handleLogout}
-              className="text-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+              className="text-xs text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
             >
               Logga ut
             </button>
-            <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-              <ArrowLeft className="h-4 w-4" /> Till studentvy
+            <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="h-3.5 w-3.5" /> Till studentvy
             </Link>
           </div>
         </div>
