@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getGroupRoomAvailability } from "./groupRoomAvailability.functions";
 
-export type GroupRoomStatus = "free" | "busy";
+export type GroupRoomStatus = "free" | "busy" | "tentative";
 
 export type GroupRoomState = {
   status: GroupRoomStatus;
@@ -26,7 +26,7 @@ export function useGroupRoomAvailability(
   const room = data?.rooms?.[String(roomNumber)];
   if (!room || room.disabled) return null;
   return {
-    status: room.available ? "free" : "busy",
+    status: room.status,
     updatedAt: data?.lastUpdated ? new Date(data.lastUpdated) : null,
   };
 }
