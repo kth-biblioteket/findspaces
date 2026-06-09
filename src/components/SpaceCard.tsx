@@ -165,7 +165,7 @@ export function SpaceCard({
     "bg-primary text-primary-foreground [&_img]:brightness-0 [&_img]:invert";
 
   const renderSection = (key: CardSectionKey, idx: number) => {
-    const spacing = idx === 0 ? "" : "mt-2 md:mt-3";
+    const spacing = idx === 0 ? "" : "mt-2";
     switch (key) {
       case "header":
         return (
@@ -198,10 +198,10 @@ export function SpaceCard({
             )}
             {groupRoom && <GroupRoomBadge status={groupRoom.status} />}
 
-            {localizedNotice && (
+          {localizedNotice && (
               <div
                 role="status"
-                className="mt-3 mb-1 flex items-start gap-2 bg-amber-100 text-amber-900 border border-amber-200 rounded-md px-3 py-2 text-sm"
+                className="mt-2 mb-1 flex items-start gap-2 bg-amber-100 text-amber-900 border border-amber-200 rounded-md px-3 py-2 text-sm"
               >
                 <Info className="h-4 w-4 mt-0.5 shrink-0" aria-hidden="true" />
                 <span className="whitespace-pre-line">
@@ -212,10 +212,10 @@ export function SpaceCard({
             )}
           </div>
         );
-      case "chips":
+        case "chips":
         if (intentChips.length === 0 && categoryChips.length === 0) return null;
         return (
-          <div key="chips" className={cn(spacing, "mb-3 md:mb-4 flex flex-wrap items-center gap-2")}>
+          <div key="chips" className={cn(spacing, "mb-2 md:mb-3 flex flex-wrap items-center gap-2")}>
             {intentChips.map((c) => {
               const selected = isIntentSelected(c.value);
               const Icon = c.value === "enskilt" ? User : Users;
@@ -355,11 +355,11 @@ export function SpaceCard({
 
   return (
     <article className="bg-card rounded-2xl border border-border overflow-hidden transition-all hover:shadow-md">
-        <div className="flex flex-col md:flex-row items-stretch gap-3 md:gap-4">
+        <div className="flex flex-col md:flex-row items-stretch gap-3 md:gap-3">
           <div className="order-2 md:order-1 flex-1 min-w-0 flex flex-col p-3 md:p-4">
           {layout.map((k, i) => renderSection(k, i))}
 
-          <div className="mt-auto pt-2 md:pt-3 flex items-center justify-between gap-3 flex-wrap">
+          <div className="mt-auto pt-2 flex items-center justify-between gap-3 flex-wrap">
             {sanitizedDescription ? (
               <button
                 type="button"
@@ -371,7 +371,7 @@ export function SpaceCard({
                 className="inline-flex items-center text-xs text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary rounded"
               >
                 <ChevronDown
-                  className={cn("h-4 w-4 transition-transform", open && "rotate-180")}
+                  className={cn("h-3.5 w-3.5 transition-transform", open && "rotate-180")}
                   aria-hidden="true"
                 />
                 <span className="ml-1">{open ? (hideDescriptionLabel ?? t("card.hide_description")) : (showDescriptionLabel ?? t("card.show_description"))}</span>
@@ -416,9 +416,9 @@ export function SpaceCard({
         )}
       >
         <div className="overflow-hidden">
-          <div className="px-3 pb-4 pt-1 md:px-4 md:pb-5 border-t border-border/60">
+          <div className="px-3 pb-3 pt-1 md:px-4 md:pb-4 border-t border-border/60">
             <div
-              className="text-sm text-foreground/80 leading-relaxed pt-3 space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
+              className="text-xs md:text-sm text-foreground/80 leading-relaxed pt-3 space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
               dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
             />
           </div>
@@ -459,8 +459,8 @@ function OccupancyBadge({
 }) {
   const { t } = useTranslation();
   return (
-    <div className="flex items-center gap-1.5 md:gap-2 mb-2 md:mb-3 mt-0.5 md:mt-1">
-      <Users className="h-4 w-4 text-gray-600" aria-hidden="true" />
+    <div className="flex items-center gap-1.5 mb-2 mt-0.5">
+      <Users className="h-3.5 w-3.5 text-gray-600" aria-hidden="true" />
       <OccupancyBlocks level={level} />
       <span className="text-sm text-gray-700">
         <strong>{t("occupancy.right_now")}:</strong>{" "}
@@ -487,8 +487,8 @@ function GroupRoomBadge({ status }: { status: GroupRoomStatus }) {
       ? "bg-amber-400"
       : "bg-red-500";
   return (
-    <div className="flex items-center gap-1.5 md:gap-2 mb-2 md:mb-3 mt-0.5 md:mt-1">
-      <Icon className="h-4 w-4 text-gray-600" aria-hidden="true" />
+    <div className="flex items-center gap-1.5 mb-2 mt-0.5">
+      <Icon className="h-3.5 w-3.5 text-gray-600" aria-hidden="true" />
       <span className={cn("inline-block h-2.5 w-2.5 rounded-full", dotClass)} aria-hidden="true" />
       <span className="text-sm text-gray-700">
         <strong>{t("group_room.right_now")}:</strong>{" "}

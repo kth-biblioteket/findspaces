@@ -69,7 +69,7 @@ export function FilterPanel({
   ];
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6">
       <div>
         <label className="relative block">
           <span className="sr-only">{t("filters.search_sr")}</span>
@@ -78,19 +78,19 @@ export function FilterPanel({
             value={filters.query}
             onChange={(e) => onChange({ ...filters, query: e.target.value })}
             placeholder={t("filters.search_placeholder")}
-            className="w-full rounded-full border border-border bg-card pl-10 pr-4 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+            className="w-full rounded-full border border-border bg-card pl-10 pr-4 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
           />
         </label>
       </div>
 
       <div>
-        <h3 className="text-sm font-semibold mb-3">{intentTitle}</h3>
+        <h3 className="text-sm font-semibold mb-2">{intentTitle}</h3>
         <div className="flex flex-wrap gap-2">
           {intentTabs.map(({ key, label, Icon }) => (
             <PillToggle
               key={key}
               label={label}
-              icon={<Icon className="h-4 w-4" />}
+              icon={<Icon className="h-3.5 w-3.5" />}
               selected={filters.workMode === key}
               onClick={() => setWorkMode(key)}
             />
@@ -159,8 +159,8 @@ function ListGroup({
 }) {
   return (
     <div>
-      <h3 className="text-sm font-semibold mb-3">{pickLocalized(cat, "title", lang)}</h3>
-      <ul className="space-y-1">
+      <h3 className="text-sm font-semibold mb-2">{pickLocalized(cat, "title", lang)}</h3>
+      <ul className="space-y-0.5">
         {options.map((opt) => {
           const isSelected = selected.includes(opt.label);
           const display = pickLocalized(opt, "label", lang);
@@ -171,7 +171,7 @@ function ListGroup({
                 onClick={() => onToggle(opt.label)}
                 aria-pressed={isSelected}
                 className={cn(
-                  "w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors inline-flex items-center gap-2",
+                  "w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors inline-flex items-center gap-2",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary",
                   isSelected
                     ? "bg-primary text-primary-foreground [&_img]:brightness-0 [&_img]:invert"
@@ -181,13 +181,13 @@ function ListGroup({
                 <span className="inline-flex h-4 w-4 items-center justify-center shrink-0">
                   <Check
                     className={cn(
-                      "h-4 w-4",
+                      "h-3.5 w-3.5",
                       isSelected ? "opacity-100" : "opacity-25"
                     )}
                   />
                 </span>
 
-                <OptionIcon option={opt} className="h-4 w-4" />
+                <OptionIcon option={opt} className="h-3.5 w-3.5" />
                 <span>{display}</span>
               </button>
             </li>
@@ -209,13 +209,13 @@ function PillGroup({
 }) {
   return (
     <div>
-      <h3 className="text-sm font-semibold mb-3">{pickLocalized(cat, "title", lang)}</h3>
+      <h3 className="text-sm font-semibold mb-2">{pickLocalized(cat, "title", lang)}</h3>
       <div className="flex flex-wrap gap-2">
         {options.map((o) => (
           <PillToggle
             key={o.id}
             label={pickLocalized(o, "label", lang)}
-            icon={<OptionIcon option={o} className="h-4 w-4" />}
+            icon={<OptionIcon option={o} className="h-3.5 w-3.5" />}
             selected={selected.includes(o.label)}
             onClick={() => onToggle(o.label)}
           />
