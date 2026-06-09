@@ -165,7 +165,7 @@ export function SpaceCard({
     "bg-primary text-primary-foreground [&_img]:brightness-0 [&_img]:invert";
 
   const renderSection = (key: CardSectionKey, idx: number) => {
-    const spacing = idx === 0 ? "" : "mt-2 md:mt-3";
+    const spacing = idx === 0 ? "" : "mt-2";
     switch (key) {
       case "header":
         return (
@@ -198,10 +198,10 @@ export function SpaceCard({
             )}
             {groupRoom && <GroupRoomBadge status={groupRoom.status} />}
 
-            {localizedNotice && (
+          {localizedNotice && (
               <div
                 role="status"
-                className="mt-3 mb-1 flex items-start gap-2 bg-amber-100 text-amber-900 border border-amber-200 rounded-md px-3 py-2 text-sm"
+                className="mt-2 mb-1 flex items-start gap-2 bg-amber-100 text-amber-900 border border-amber-200 rounded-md px-3 py-2 text-sm"
               >
                 <Info className="h-4 w-4 mt-0.5 shrink-0" aria-hidden="true" />
                 <span className="whitespace-pre-line">
@@ -212,10 +212,10 @@ export function SpaceCard({
             )}
           </div>
         );
-      case "chips":
+        case "chips":
         if (intentChips.length === 0 && categoryChips.length === 0) return null;
         return (
-          <div key="chips" className={cn(spacing, "mb-3 md:mb-4 flex flex-wrap items-center gap-2")}>
+          <div key="chips" className={cn(spacing, "mb-2 md:mb-3 flex flex-wrap items-center gap-2")}>
             {intentChips.map((c) => {
               const selected = isIntentSelected(c.value);
               const Icon = c.value === "enskilt" ? User : Users;
