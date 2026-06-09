@@ -6,8 +6,10 @@ import { setResponseHeader } from "@tanstack/react-start/server";
 const API_BASE =
   "https://api.lib.kth.se/bookingsystem/v1/roomsavailability/grouprooms/1/1";
 
+export type RoomStatus = "free" | "busy" | "tentative";
+
 export type RoomAvailability = {
-  available: boolean;
+  status: RoomStatus;
   disabled: boolean;
 };
 
@@ -16,6 +18,14 @@ export type GroupRoomAvailability = {
   lastUpdated: string | null;
   error?: string;
 };
+
+function normalizeStatus(raw: unknown, availability: unknown): RoomStatus {
+  const s = typeof raw === "string" ? raw.toLowerCase() : "";
+  if (s === "tentative" || s === "booked") return "tentative";
+  if (s === "confirmed") return "busy";
+  if (s === "free") return "free";
+  return availability ? "free" : "busy";
+}
 
 export const getGroupRoomAvailability = createServerFn({ method: "GET" }).handler(
   async (): Promise<GroupRoomAvailability> => {
@@ -31,12 +41,13 @@ export const getGroupRoomAvailability = createServerFn({ method: "GET" }).handle
         room_number?: string | number;
         disabled?: number;
         availability?: boolean;
+        status?: string;
       }>;
       const rooms: Record<string, RoomAvailability> = {};
       for (const r of json ?? []) {
         if (r?.room_number == null) continue;
         rooms[String(r.room_number)] = {
-          available: Boolean(r.availability),
+          status: normalizeStatus(r.status, r.availability),
           disabled: r.disabled === 1,
         };
       }
