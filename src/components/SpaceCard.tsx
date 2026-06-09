@@ -470,3 +470,24 @@ function OccupancyBadge({
   );
 }
 
+
+const GROUP_ROOM_LABELS: Record<GroupRoomStatus, string> = {
+  free: "group_room.free",
+  busy: "group_room.busy",
+};
+
+function GroupRoomBadge({ status }: { status: GroupRoomStatus }) {
+  const { t } = useTranslation();
+  const Icon = status === "free" ? DoorOpen : DoorClosed;
+  const dotClass = status === "free" ? "bg-emerald-500" : "bg-red-500";
+  return (
+    <div className="flex items-center gap-2 mb-3 mt-1">
+      <Icon className="h-4 w-4 text-gray-600" aria-hidden="true" />
+      <span className={cn("inline-block h-2.5 w-2.5 rounded-full", dotClass)} aria-hidden="true" />
+      <span className="text-sm text-gray-700">
+        <strong>{t("group_room.right_now")}:</strong>{" "}
+        {t(GROUP_ROOM_LABELS[status])}
+      </span>
+    </div>
+  );
+}
