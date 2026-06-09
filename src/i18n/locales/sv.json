@@ -59,6 +59,7 @@
   "group_room": {
     "right_now": "Just nu",
     "free": "Ledigt",
-    "busy": "Upptaget"
+    "busy": "Upptaget",
+    "tentative": "Bokat – ej bekräftat"
   }
 }
