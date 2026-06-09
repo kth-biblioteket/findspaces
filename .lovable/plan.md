@@ -1,60 +1,84 @@
-## Mål
-Ersätt den slumpade demobeläggningen med riktiga värden från KTH:s API
-`https://apps.lib.kth.se/smartsigntools/api/v1/imas/realtime`, och låt admin-schemat
-(inte API:ets `hours`) styra när indikatorn visas.
+# Mål
+Visa "Ledigt nu / Upptaget nu" på grupprumskort baserat på
+`https://api.lib.kth.se/bookingsystem/v1/roomsavailability/grouprooms/1/1/{timestamp}`.
+Statusen ska se ut och bete sig som realtidsbeläggningen (samma plats i
+kortheadern, samma schemastyrning från admin).
 
-## Hur API:t ser ut
-Svaret innehåller en lista `data.zones` där varje zon har:
-- `name` – t.ex. "Newton", "Ångdomen", "Södra Galleriet"
-- `inside` – aktuellt antal personer
-- `threshold` – maxantal (satt i Countmatters)
+## API i korthet
+Returnerar en lista av rum:
+```json
+{ "room_number": "4", "room_name": "4", "disabled": 0,
+  "availability": true, "status": "free" }
+```
+- `availability: true` → ledigt nu
+- `availability: false` (status `confirmed`/`tentative`) → upptaget
+- `disabled: 1` → ingen indikator (rummet är avstängt)
 
-Mappning till våra lokaler sker via fältet `countmatters_sensor_id` som
-redan finns på varje lokal i adminläget. Värdet ska vara **zonens namn**
-exakt som det står i API:t (t.ex. `Newton`). Lokaler vars ID inte matchar
-någon zon visar ingen indikator – så när KTH lägger till/tar bort räknare
-räcker det att uppdatera ID:t i adminläget.
+URL:ens `/1/1/` hårdkodas just nu. Lämnas som konstant i serverfunktionen
+med en TODO-kommentar så det är lätt att byta till per-lokal-fält senare.
 
-## Datakälla (server function)
-Skapa `src/lib/occupancy.functions.ts` med en `createServerFn` `getRealtimeOccupancy()` som:
-1. Hämtar API:t serverside (undviker CORS, kan cacha kort).
-2. Returnerar en map `{ [zoneName]: { inside, threshold } }` + `lastUpdated`.
-3. Vid fel: returnerar `{ zones: {}, error }` så UI:t bara döljer indikatorn.
+## Databas
+Migration: lägg till kolumn på `spaces`:
+- `booking_room_number int null` – om satt slås rummet upp mot API:t
+  (room_number som sträng). Tomt = ingen indikator.
 
-Sätt `Cache-Control` på server-response (~20 s) för att skona API:t när
-många kort renderas.
+Ingen ändring av RLS/grants behövs (kolumn på befintlig tabell).
 
-## Klient-hook (ersätter dagens placeholder)
-Skriv om `src/lib/useOccupancy.ts` så den:
-- Använder TanStack Query (`queryKey: ["occupancy-realtime"]`,
-  `refetchInterval: 60_000`, `staleTime: 30_000`) som anropar serverfunktionen **en gång** globalt.
-- Exponerar `useOccupancy(sensorId)` som slår upp `sensorId` i den hämtade
-  zon-mappen och räknar ut:
-  - `ratio = inside / threshold` (om `threshold > 0`)
-  - `level`: 1 om `ratio < 0.5`, 2 om `< 0.85`, annars 3
-  - `status`: `free | moderate | busy` enligt level
-- Om zonen saknas, `threshold` är 0, eller API-fel → returnera `null`
-  (kortet visar då ingen indikator).
+Uppdatera `src/lib/spaces.ts` så fältet följer med, och adminformuläret
+(`src/routes/admin.tsx`) får ett nytt fält i grupprumsavsnittet med
+hjälptext: "Rumsnummer i bokningssystemet (1–21). Tomt = ingen
+status visas."
 
-## Schema-gating (oförändrad logik, ny placering)
-`SpaceCard` använder redan `isWithinSchedule(occSettings.schedule, ...)`. Den
-behålls — alltså är det adminens veckoschema som styr synlighet, inte
-API:ets `hours`-fält (det ignoreras helt).
+## Server function
+Skapa `src/lib/groupRoomAvailability.functions.ts` med
+`getGroupRoomAvailability()`:
+1. Hämtar `…/grouprooms/1/1/{Math.floor(Date.now()/1000)}` serverside.
+2. Returnerar `{ rooms: Record<string, { available: boolean; disabled: boolean }>, lastUpdated, error? }`
+   där nyckeln är `room_number`.
+3. `Cache-Control: public, max-age=20` (samma som occupancy).
+4. Fel → `{ rooms: {}, error }` så UI tyst döljer indikatorn.
 
-## UI-justeringar i `SpaceCard` / `OccupancyBadge`
-- Ta bort "Demo"-pillet eftersom datan nu är skarp.
-- Visa fortfarande textetiketten ("Ledigt/Måttligt/Upptaget").
-- (Valfritt, kan utelämnas) liten "uppdaterad för X min sedan"-tooltip.
+## Klient-hook
+Ny `src/lib/useGroupRoomAvailability.ts`:
+- TanStack Query, `queryKey: ["group-room-availability"]`,
+  `refetchInterval: 60_000`, `staleTime: 30_000` – en global fetch.
+- Exporterar `useGroupRoomAvailability(roomNumber)` som returnerar
+  `{ status: "free" | "busy" } | null`. `null` om:
+  - inget `roomNumber` är satt,
+  - rummet saknas i svaret,
+  - `disabled === 1`,
+  - API-fel.
 
-## Admin
-Uppdatera hjälptexten under sensor-ID-fältet: förklara att värdet är
-**zonnamnet** från Countmatters (t.ex. `Newton`, `Ångdomen`), och att tomt
-fält = ingen indikator visas.
+## Schema-gating
+Återanvänd `useOccupancySettings` + `isWithinSchedule` exakt som för
+realtidsbeläggningen – samma schema styr när badgen visas, så
+ingen ny admin-vy behövs.
 
-## Filer som ändras / skapas
-- **Ny:** `src/lib/occupancy.functions.ts` (serverfunktion mot KTH-API:t)
-- **Skrivs om:** `src/lib/useOccupancy.ts` (riktiga värden via React Query)
-- **Uppdatera:** `src/components/SpaceCard.tsx` (ta bort Demo-pill)
-- **Uppdatera:** `src/routes/admin.tsx` (hjälptext för sensor-ID)
+## UI i `SpaceCard`
+I header-blocket, direkt under (eller istället för) `OccupancyBadge`:
+- Om `booking_room_number` är satt och hooken returnerar status:
+  rendera en `GroupRoomBadge` med samma typografi/ikon som
+  `OccupancyBadge`:
+  - ikon: `DoorOpen` (lucide),
+  - text: **"Just nu:"** + `t("group_room.free" | "group_room.busy")`,
+  - färgindikator (liten prick eller block) grön/röd.
+- Visas bara om `occupancyVisible` (samma schema-villkor).
+- Påverkar inte realtidsbeläggningen – bägge kan visas samtidigt om
+  ett grupprum mot förmodan också har sensor.
 
-Inga databasändringar och inga nya secrets behövs – API:t är publikt.
+## i18n
+Lägg till nycklar i `src/i18n/locales/sv.json` och `en.json`:
+- `group_room.free`: "Ledigt nu" / "Free now"
+- `group_room.busy`: "Upptaget" / "Booked"
+- `group_room.right_now`: "Just nu" / "Right now"
+
+## Filer som skapas/ändras
+- **Migration:** lägg till `spaces.booking_room_number`
+- **Skapas:** `src/lib/groupRoomAvailability.functions.ts`
+- **Skapas:** `src/lib/useGroupRoomAvailability.ts`
+- **Uppdateras:** `src/lib/spaces.ts` (typ + select)
+- **Uppdateras:** `src/components/SpaceCard.tsx` (ny badge)
+- **Uppdateras:** `src/routes/admin.tsx` (nytt fält + hjälptext)
+- **Uppdateras:** `src/i18n/locales/{sv,en}.json`
+
+Inga nya secrets, ingen ändring av RLS, inga edge functions.

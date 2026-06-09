@@ -55,5 +55,10 @@
     "free": "Plenty of space",
     "moderate": "Moderately busy",
     "busy": "Very busy"
+  },
+  "group_room": {
+    "right_now": "Right now",
+    "free": "Free",
+    "busy": "Booked"
   }
 }

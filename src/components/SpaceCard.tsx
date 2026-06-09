@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import DOMPurify from "dompurify";
-import { ChevronDown, MapPin, Calendar, Info, Users, User, X } from "lucide-react";
+import { ChevronDown, MapPin, Calendar, Info, Users, User, X, DoorOpen, DoorClosed } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ChairIcon } from "./icons/ChairIcon";
 
@@ -10,6 +10,7 @@ import { useFilterOptions } from "@/lib/useFilterOptions";
 import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
 import { useCapacityIcon } from "@/lib/useCapacityIcon";
 import { useOccupancy, type OccupancyStatus } from "@/lib/useOccupancy";
+import { useGroupRoomAvailability, type GroupRoomStatus } from "@/lib/useGroupRoomAvailability";
 import { useOccupancySettings, isWithinSchedule, DEFAULT_SCHEDULE } from "@/lib/useOccupancySettings";
 import { useUiText } from "@/lib/useUiText";
 import { pickLocalized, type Lang } from "@/i18n";
@@ -45,12 +46,14 @@ export function SpaceCard({
   const { data: layoutFromDb = ["header", "chips", "button_map", "button_booking"] } = useCardLayout();
   const { data: capacityIconUrl } = useCapacityIcon();
   const rawOccupancy = useOccupancy(space.countmatters_sensor_id);
+  const rawGroupRoom = useGroupRoomAvailability(space.booking_room_number);
   const { data: occSettings } = useOccupancySettings();
   const occupancyVisible =
     space.show_occupancy !== false &&
     (occSettings?.enabled ?? true) &&
     isWithinSchedule(occSettings?.schedule ?? DEFAULT_SCHEDULE, new Date());
   const occupancy = occupancyVisible ? rawOccupancy : null;
+  const groupRoom = occupancyVisible ? rawGroupRoom : null;
   const { data: showDescriptionLabel } = useUiText("show_description");
   const { data: hideDescriptionLabel } = useUiText("hide_description");
   const layout = layoutOverride ?? layoutFromDb;
@@ -193,6 +196,7 @@ export function SpaceCard({
             {occupancy && (
               <OccupancyBadge level={occupancy.level} status={occupancy.status} />
             )}
+            {groupRoom && <GroupRoomBadge status={groupRoom.status} />}
 
             {localizedNotice && (
               <div
@@ -466,3 +470,24 @@ function OccupancyBadge({
   );
 }
 
+
+const GROUP_ROOM_LABELS: Record<GroupRoomStatus, string> = {
+  free: "group_room.free",
+  busy: "group_room.busy",
+};
+
+function GroupRoomBadge({ status }: { status: GroupRoomStatus }) {
+  const { t } = useTranslation();
+  const Icon = status === "free" ? DoorOpen : DoorClosed;
+  const dotClass = status === "free" ? "bg-emerald-500" : "bg-red-500";
+  return (
+    <div className="flex items-center gap-2 mb-3 mt-1">
+      <Icon className="h-4 w-4 text-gray-600" aria-hidden="true" />
+      <span className={cn("inline-block h-2.5 w-2.5 rounded-full", dotClass)} aria-hidden="true" />
+      <span className="text-sm text-gray-700">
+        <strong>{t("group_room.right_now")}:</strong>{" "}
+        {t(GROUP_ROOM_LABELS[status])}
+      </span>
+    </div>
+  );
+}

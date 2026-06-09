@@ -72,6 +72,7 @@ type FormState = {
   show_capacity_publicly: boolean;
   show_occupancy: boolean;
   countmatters_sensor_id: string;
+  booking_room_number: string;
   intent: string[];
   noise: string[];
   equipment: string[];
@@ -98,6 +99,7 @@ const emptyForm: FormState = {
   show_capacity_publicly: false,
   show_occupancy: true,
   countmatters_sensor_id: "",
+  booking_room_number: "",
   intent: [], noise: [], equipment: [], facilities: [], lokaltyp: [],
   tags: {},
   images: [], image_alts: [], map_url: "", booking_url: "", group_booking_url: "", group_booking_url_en: "",
@@ -127,6 +129,7 @@ function spaceToForm(s: Space): FormState {
     show_capacity_publicly: s.show_capacity_publicly ?? false,
     show_occupancy: s.show_occupancy ?? true,
     countmatters_sensor_id: s.countmatters_sensor_id ?? "",
+    booking_room_number: s.booking_room_number != null ? String(s.booking_room_number) : "",
     intent: s.intent ?? [], noise: s.noise ?? [],
     equipment: s.equipment ?? [], facilities: s.facilities ?? [],
     lokaltyp: s.lokaltyp ?? [],
@@ -266,6 +269,9 @@ function AdminPage() {
         show_capacity_publicly: f.show_capacity_publicly,
         show_occupancy: f.show_occupancy,
         countmatters_sensor_id: f.countmatters_sensor_id.trim() || null,
+        booking_room_number: f.booking_room_number.trim()
+          ? Number.parseInt(f.booking_room_number, 10) || null
+          : null,
         intent: f.intent, noise: f.noise,
         equipment: f.equipment,
         facilities: f.facilities, lokaltyp: f.lokaltyp,
@@ -526,6 +532,24 @@ function AdminPage() {
                         {" "}<span className="font-mono">Södra Galleriet</span>). När namnet matchar en zon i
                         KTH:s realtids-API visas en indikator (grön/gul/röd) baserat på aktuell beläggning
                         i förhållande till zonens maxantal. Lämna tomt för lokaler utan mätare.
+                      </p>
+                    </div>
+
+                    <div className="rounded-lg border border-dashed border-border bg-muted/30 p-3 space-y-2">
+                      <Field label="Bokningsrumsnummer (för grupprum)">
+                        <input
+                          value={form.booking_room_number}
+                          onChange={(e) => setForm({ ...form, booking_room_number: e.target.value.replace(/[^0-9]/g, "") })}
+                          inputMode="numeric"
+                          placeholder="t.ex. 4"
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
+                        />
+                      </Field>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        Rumsnummer (1–21) i KTH:s bokningssystem. När det matchar visas
+                        en indikator på kortet om grupprummet är <strong>ledigt</strong>
+                        {" "}eller <strong>upptaget</strong> just nu. Lämna tomt för
+                        lokaler som inte är grupprum eller saknar bokningsstatus.
                       </p>
                     </div>
 
@@ -1506,6 +1530,7 @@ const DUMMY_SPACE: Space = {
   show_capacity_publicly: false,
   show_occupancy: true,
   countmatters_sensor_id: null,
+  booking_room_number: null,
 };
 
 function CardLayoutTab() {

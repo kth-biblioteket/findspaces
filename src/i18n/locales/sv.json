@@ -55,5 +55,10 @@
     "free": "Gott om plats",
     "moderate": "Halvfullt",
     "busy": "Mycket folk"
+  },
+  "group_room": {
+    "right_now": "Just nu",
+    "free": "Ledigt",
+    "busy": "Upptaget"
   }
 }
