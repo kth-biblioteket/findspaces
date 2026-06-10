@@ -260,3 +260,82 @@ function SpaceFinder() {
     </div>
   );
 }
+
+function MobileFilterSheet({
+  filters,
+  onApply,
+  spaces,
+  categories,
+  availability,
+}: {
+  filters: Filters;
+  onApply: (f: Filters) => void;
+  spaces: Space[];
+  categories: ReturnType<typeof useFilterCategories>["data"] extends infer T ? T : never;
+  availability: { rooms: Record<string, { status: string; disabled?: boolean }> } | undefined;
+}) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState<Filters>(filters);
+
+  useEffect(() => {
+    if (open) setDraft(filters);
+  }, [open, filters]);
+
+  const draftCount = useMemo(() => {
+    const cats = categories ?? [];
+    const base = spaces.filter((s) => matchesSpace(s, draft, cats));
+    if (draft.workMode === "grupprum" && draft.freeOnly) {
+      const rooms = availability?.rooms ?? {};
+      return base.filter((s) => {
+        const num = s.booking_room_number;
+        if (num == null) return false;
+        const r = rooms[String(num)];
+        return r && !r.disabled && r.status === "free";
+      }).length;
+    }
+    return base.length;
+  }, [spaces, draft, categories, availability]);
+
+  const apply = () => {
+    onApply(draft);
+    setOpen(false);
+  };
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <button className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2.5 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary">
+          <SlidersHorizontal className="h-4 w-4" aria-hidden="true" /> {t("filters.open")}
+        </button>
+      </SheetTrigger>
+      <SheetContent side="bottom" className="h-[85vh] p-0 flex flex-col overflow-hidden gap-0">
+        <SheetHeader className="px-6 pt-6 pb-2 shrink-0">
+          <SheetTitle>{t("filters.title")}</SheetTitle>
+        </SheetHeader>
+        <div className="flex-1 overflow-y-auto min-h-0 flex flex-col">
+          <div className="px-6 pb-6 pt-4">
+            <FilterPanel filters={draft} onChange={setDraft} />
+          </div>
+          <div className="sticky bottom-0 mt-auto border-t border-border bg-white p-4 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setDraft(emptyFilters)}
+              className="px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+            >
+              {t("filters.clear")}
+            </button>
+            <button
+              type="button"
+              onClick={apply}
+              className="flex-1 rounded-full bg-primary text-primary-foreground px-4 py-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+            >
+              {t("filters.show_results_count", { count: draftCount })}
+            </button>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
