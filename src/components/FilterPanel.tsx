@@ -108,22 +108,34 @@ export function FilterPanel({
 
 
         {filters.workMode === "grupprum" && (
-          <div className="mt-3">
-            <p className="text-xs text-muted-foreground mb-2">{t("filters.group_size_label")}</p>
-            <div className="flex flex-wrap gap-2">
-              <PillToggle
-                label={t("filters.group_size_2_4")}
-                selected={filters.groupSize === "2-4"}
-                onClick={() => setGroupSize("2-4")}
-              />
-              <PillToggle
-                label={t("filters.group_size_5plus")}
-                selected={filters.groupSize === "5+"}
-                onClick={() => setGroupSize("5+")}
-              />
+          <div className="mt-3 space-y-3">
+            <div>
+              <p className="text-xs text-muted-foreground mb-2">{t("filters.group_size_label")}</p>
+              <div className="flex flex-wrap gap-2">
+                <PillToggle
+                  label={t("filters.group_size_2_4")}
+                  selected={filters.groupSize === "2-4"}
+                  onClick={() => setGroupSize("2-4")}
+                />
+                <PillToggle
+                  label={t("filters.group_size_5plus")}
+                  selected={filters.groupSize === "5+"}
+                  onClick={() => setGroupSize("5+")}
+                />
+              </div>
             </div>
+            <label className="flex items-center gap-2 text-sm font-medium cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={filters.freeOnly}
+                onChange={(e) => setFreeOnly(e.target.checked)}
+                className="h-4 w-4 rounded border-border accent-[var(--kth-blue)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+              />
+              <span>{t("filters.free_only")}</span>
+            </label>
           </div>
         )}
+
       </div>
 
 
