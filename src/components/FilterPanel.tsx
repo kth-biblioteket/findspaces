@@ -51,6 +51,7 @@ export function FilterPanel({
       ...filters,
       workMode: next,
       groupSize: next === "grupprum" ? filters.groupSize : null,
+      freeOnly: next === "grupprum" ? filters.freeOnly : false,
     });
   };
 
@@ -60,6 +61,11 @@ export function FilterPanel({
       groupSize: filters.groupSize === size ? null : size,
     });
   };
+
+  const setFreeOnly = (v: boolean) => {
+    onChange({ ...filters, freeOnly: v });
+  };
+
 
   // Intent section is hard-coded in the student view, so the title should
   // always come from the translation file (not the DB).
