@@ -15,6 +15,7 @@ export type Filters = {
   query: string;
   workMode: WorkMode;
   groupSize: GroupSize;
+  freeOnly: boolean;
   byCategory: Record<string, string[]>;
 };
 
@@ -22,8 +23,10 @@ export const emptyFilters: Filters = {
   query: "",
   workMode: null,
   groupSize: null,
+  freeOnly: false,
   byCategory: {},
 };
+
 
 function toggle(arr: string[], v: string) {
   return arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
