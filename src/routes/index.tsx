@@ -14,12 +14,15 @@ import { useUiText, formatSuggestTemplate } from "@/lib/useUiText";
 import { matchesSpace } from "@/lib/filterMatch";
 import { useNarrowestFilter } from "@/lib/useNarrowestFilter";
 import { useFilterOptions } from "@/lib/useFilterOptions";
+import { getGroupRoomAvailability } from "@/lib/groupRoomAvailability.functions";
+
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 
 type SearchParams = {
   q: string;
   mode?: "enskilt" | "tillsammans" | "grupprum";
   size?: "2-4" | "5+";
+  free?: boolean;
   cats: Record<string, string[]>;
 };
 
@@ -32,13 +35,14 @@ function validateSearch(input: Record<string, unknown>): SearchParams {
       : undefined;
   const sizeRaw = input.size;
   const size = sizeRaw === "2-4" || sizeRaw === "5+" ? sizeRaw : undefined;
+  const free = input.free === true || input.free === "1" || input.free === 1 ? true : undefined;
   const cats: Record<string, string[]> = {};
   if (input.cats && typeof input.cats === "object" && !Array.isArray(input.cats)) {
     for (const [k, v] of Object.entries(input.cats as Record<string, unknown>)) {
       if (Array.isArray(v)) cats[k] = v.filter((x): x is string => typeof x === "string");
     }
   }
-  return { q, mode, size, cats };
+  return { q, mode, size, free, cats };
 }
 
 export const Route = createFileRoute("/")({
@@ -52,11 +56,12 @@ export const Route = createFileRoute("/")({
   component: SpaceFinder,
 });
 
-function searchToFilters(s: { q: string; mode?: "enskilt" | "tillsammans" | "grupprum"; size?: "2-4" | "5+"; cats: Record<string, string[]> }): Filters {
+function searchToFilters(s: SearchParams): Filters {
   return {
     query: s.q ?? "",
     workMode: s.mode ?? null,
     groupSize: s.mode === "grupprum" ? (s.size ?? null) : null,
+    freeOnly: s.mode === "grupprum" ? Boolean(s.free) : false,
     byCategory: s.cats ?? {},
   };
 }
@@ -70,9 +75,11 @@ function filtersToSearch(f: Filters) {
     q: f.query.trim() ? f.query : undefined,
     mode: f.workMode ?? undefined,
     size: f.workMode === "grupprum" && f.groupSize ? f.groupSize : undefined,
+    free: f.workMode === "grupprum" && f.freeOnly ? true : undefined,
     cats: Object.keys(cats).length > 0 ? cats : undefined,
   };
 }
+
 
 function SpaceFinder() {
   const { t, i18n } = useTranslation();
@@ -104,10 +111,29 @@ function SpaceFinder() {
     filters.workMode !== null ||
     Object.values(filters.byCategory).some((arr) => arr.length > 0);
 
-  const filtered = useMemo(
-    () => spaces.filter((s) => matchesSpace(s, filters, categories)),
-    [spaces, filters, categories]
-  );
+  const { data: availability } = useQuery({
+    queryKey: ["group-room-availability"],
+    queryFn: () => getGroupRoomAvailability(),
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
+    enabled: filters.workMode === "grupprum" && filters.freeOnly,
+  });
+
+  const filtered = useMemo(() => {
+    const base = spaces.filter((s) => matchesSpace(s, filters, categories));
+    if (filters.workMode === "grupprum" && filters.freeOnly) {
+      const rooms = availability?.rooms ?? {};
+      return base.filter((s) => {
+        const num = s.booking_room_number;
+        if (num == null) return false;
+        const r = rooms[String(num)];
+        return r && !r.disabled && r.status === "free";
+      });
+    }
+    return base;
+  }, [spaces, filters, categories, availability]);
+
 
   const { data: filterOptions = [] } = useFilterOptions();
   const narrowest = useNarrowestFilter(spaces, filters, categories, filterOptions);

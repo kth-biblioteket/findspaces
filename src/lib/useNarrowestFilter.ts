@@ -46,7 +46,7 @@ export function useNarrowestFilter(
       dimensions.push({
         id: "workMode",
         label: labels[filters.workMode],
-        remove: (f) => ({ ...f, workMode: null, groupSize: null }),
+        remove: (f) => ({ ...f, workMode: null, groupSize: null, freeOnly: false }),
       });
     }
     if (filters.groupSize) {
@@ -56,6 +56,14 @@ export function useNarrowestFilter(
         remove: (f) => ({ ...f, groupSize: null }),
       });
     }
+    if (filters.freeOnly) {
+      dimensions.push({
+        id: "freeOnly",
+        label: t("filters.free_only"),
+        remove: (f) => ({ ...f, freeOnly: false }),
+      });
+    }
+
     for (const cat of categories) {
       const vals = filters.byCategory[cat.key] ?? [];
       if (vals.length === 0) continue;

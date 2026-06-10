@@ -44,7 +44,7 @@ export function ActiveFilterChips({
     chips.push({
       key: "workMode",
       label: workModeLabel[filters.workMode],
-      onRemove: () => onChange({ ...filters, workMode: null, groupSize: null }),
+      onRemove: () => onChange({ ...filters, workMode: null, groupSize: null, freeOnly: false }),
     });
   }
 
@@ -55,6 +55,15 @@ export function ActiveFilterChips({
       onRemove: () => onChange({ ...filters, groupSize: null }),
     });
   }
+
+  if (filters.freeOnly) {
+    chips.push({
+      key: "freeOnly",
+      label: t("filters.free_only"),
+      onRemove: () => onChange({ ...filters, freeOnly: false }),
+    });
+  }
+
 
   for (const [catKey, values] of Object.entries(filters.byCategory)) {
     if (!values || values.length === 0) continue;
