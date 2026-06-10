@@ -16,7 +16,8 @@ import { useNarrowestFilter } from "@/lib/useNarrowestFilter";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { getGroupRoomAvailability } from "@/lib/groupRoomAvailability.functions";
 
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import type { FilterCategoryRow } from "@/lib/spaces";
 
 type SearchParams = {
   q: string;
