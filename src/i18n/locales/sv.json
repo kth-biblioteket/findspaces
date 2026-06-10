@@ -50,7 +50,9 @@
     "button_map": "Visa på karta",
     "button_group_booking": "Boka grupprum",
     "button_booking": "Se bokningsschema",
+    "book_now": "Boka nu",
     "opens_new_tab_sr": "(öppnas i en ny flik)"
+
   },
   "occupancy": {
     "right_now": "Just nu",
