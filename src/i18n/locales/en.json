@@ -21,8 +21,10 @@
     "intent_grupprum": "In a group room",
     "group_size_label": "Group size",
     "group_size_2_4": "2–4 people",
-    "group_size_5plus": "5+ people"
+    "group_size_5plus": "5+ people",
+    "free_only": "Show only free right now"
   },
+
   "results": {
     "heading": "Study spaces",
     "loading": "Loading...",
