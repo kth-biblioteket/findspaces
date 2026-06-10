@@ -272,7 +272,7 @@ function MobileFilterSheet({
   filters: Filters;
   onApply: (f: Filters) => void;
   spaces: Space[];
-  categories: ReturnType<typeof useFilterCategories>["data"] extends infer T ? T : never;
+  categories: FilterCategoryRow[];
   availability: { rooms: Record<string, { status: string; disabled?: boolean }> } | undefined;
 }) {
   const { t } = useTranslation();
