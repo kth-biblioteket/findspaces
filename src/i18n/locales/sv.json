@@ -21,8 +21,10 @@
     "intent_grupprum": "I grupprum",
     "group_size_label": "Gruppstorlek",
     "group_size_2_4": "2–4 pers",
-    "group_size_5plus": "5+ pers"
+    "group_size_5plus": "5+ pers",
+    "free_only": "Visa bara lediga just nu"
   },
+
   "results": {
     "heading": "Studieplatser",
     "loading": "Laddar...",
