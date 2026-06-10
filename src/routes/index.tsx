@@ -111,10 +111,29 @@ function SpaceFinder() {
     filters.workMode !== null ||
     Object.values(filters.byCategory).some((arr) => arr.length > 0);
 
-  const filtered = useMemo(
-    () => spaces.filter((s) => matchesSpace(s, filters, categories)),
-    [spaces, filters, categories]
-  );
+  const { data: availability } = useQuery({
+    queryKey: ["group-room-availability"],
+    queryFn: () => getGroupRoomAvailability(),
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
+    enabled: filters.workMode === "grupprum" && filters.freeOnly,
+  });
+
+  const filtered = useMemo(() => {
+    const base = spaces.filter((s) => matchesSpace(s, filters, categories));
+    if (filters.workMode === "grupprum" && filters.freeOnly) {
+      const rooms = availability?.rooms ?? {};
+      return base.filter((s) => {
+        const num = s.booking_room_number;
+        if (num == null) return false;
+        const r = rooms[String(num)];
+        return r && !r.disabled && r.status === "free";
+      });
+    }
+    return base;
+  }, [spaces, filters, categories, availability]);
+
 
   const { data: filterOptions = [] } = useFilterOptions();
   const narrowest = useNarrowestFilter(spaces, filters, categories, filterOptions);
