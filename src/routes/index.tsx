@@ -14,6 +14,8 @@ import { useUiText, formatSuggestTemplate } from "@/lib/useUiText";
 import { matchesSpace } from "@/lib/filterMatch";
 import { useNarrowestFilter } from "@/lib/useNarrowestFilter";
 import { useFilterOptions } from "@/lib/useFilterOptions";
+import { getGroupRoomAvailability } from "@/lib/groupRoomAvailability.functions";
+
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 
 type SearchParams = {
