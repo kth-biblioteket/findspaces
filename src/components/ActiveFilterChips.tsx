@@ -56,6 +56,15 @@ export function ActiveFilterChips({
     });
   }
 
+  if (filters.freeOnly) {
+    chips.push({
+      key: "freeOnly",
+      label: t("filters.free_only"),
+      onRemove: () => onChange({ ...filters, freeOnly: false }),
+    });
+  }
+
+
   for (const [catKey, values] of Object.entries(filters.byCategory)) {
     if (!values || values.length === 0) continue;
     for (const v of values) {
