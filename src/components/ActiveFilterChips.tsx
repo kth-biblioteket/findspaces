@@ -44,7 +44,7 @@ export function ActiveFilterChips({
     chips.push({
       key: "workMode",
       label: workModeLabel[filters.workMode],
-      onRemove: () => onChange({ ...filters, workMode: null, groupSize: null }),
+      onRemove: () => onChange({ ...filters, workMode: null, groupSize: null, freeOnly: false }),
     });
   }
 
