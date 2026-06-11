@@ -413,7 +413,7 @@ export function SpaceCard({
         <div className="order-1 md:order-2 w-full md:w-56 lg:w-64 shrink-0 self-stretch aspect-[3/2] md:aspect-[3/2] md:h-auto overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-r-2xl">
           <ImageCarousel
             images={images}
-            alts={space.image_alts ?? []}
+            alts={localizedAlts}
             alt={localizedName}
             priority={priority}
             onImageClick={(i) => {
@@ -426,7 +426,7 @@ export function SpaceCard({
 
       <ImageLightbox
         images={images}
-        alts={space.image_alts ?? []}
+        alts={localizedAlts}
         initialIndex={lightboxIndex}
         open={lightboxOpen}
         onClose={() => setLightboxOpen(false)}
