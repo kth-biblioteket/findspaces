@@ -671,9 +671,14 @@ function AdminPage() {
                           type="url"
                           value={form.group_booking_url}
                           onChange={(e) => setForm({ ...form, group_booking_url: e.target.value })}
-                          placeholder="https://... (svensk bokningssida)"
+                          placeholder="https://apps.lib.kth.se/mrbsgrupprum/day.php?area=1"
                           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                         />
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Permanent länk till bokningssidan för grupprummet (visas alltid på kortet). Exempel:
+                          <br />
+                          <code className="break-all">https://apps.lib.kth.se/mrbsgrupprum/day.php?area=1</code>
+                        </p>
                       </Field>
                       <Field label="Link to book group room – EN (group_booking_url_en)">
                         <input
