@@ -112,6 +112,8 @@ export type Database = {
       }
       spaces: {
         Row: {
+          book_now_url: string | null
+          book_now_url_en: string | null
           booking_room_number: number | null
           booking_url: string | null
           capacity: number | null
@@ -148,6 +150,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          book_now_url?: string | null
+          book_now_url_en?: string | null
           booking_room_number?: number | null
           booking_url?: string | null
           capacity?: number | null
@@ -184,6 +188,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          book_now_url?: string | null
+          book_now_url_en?: string | null
           booking_room_number?: number | null
           booking_url?: string | null
           capacity?: number | null

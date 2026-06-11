@@ -85,6 +85,8 @@ type FormState = {
   booking_url: string;
   group_booking_url: string;
   group_booking_url_en: string;
+  book_now_url: string;
+  book_now_url_en: string;
   notice: string;
   notice_en: string;
   sort_order: number;
@@ -102,7 +104,7 @@ const emptyForm: FormState = {
   booking_room_number: "",
   intent: [], noise: [], equipment: [], facilities: [], lokaltyp: [],
   tags: {},
-  images: [], image_alts: [], map_url: "", booking_url: "", group_booking_url: "", group_booking_url_en: "",
+  images: [], image_alts: [], map_url: "", booking_url: "", group_booking_url: "", group_booking_url_en: "", book_now_url: "", book_now_url_en: "",
   notice: "", notice_en: "",
   sort_order: 999,
 };
@@ -138,6 +140,8 @@ function spaceToForm(s: Space): FormState {
     map_url: s.map_url ?? "", booking_url: s.booking_url ?? "",
     group_booking_url: s.group_booking_url ?? "",
     group_booking_url_en: s.group_booking_url_en ?? "",
+    book_now_url: s.book_now_url ?? "",
+    book_now_url_en: s.book_now_url_en ?? "",
     notice: s.notice ?? "",
     notice_en: s.notice_en ?? "",
     sort_order: s.sort_order,
@@ -283,6 +287,8 @@ function AdminPage() {
         booking_url: f.booking_url.trim() || null,
         group_booking_url: f.group_booking_url.trim() || null,
         group_booking_url_en: f.group_booking_url_en.trim() || null,
+        book_now_url: f.book_now_url.trim() || null,
+        book_now_url_en: f.book_now_url_en.trim() || null,
         notice: f.notice.trim() || null,
         notice_en: f.notice_en.trim() || null,
 
@@ -656,6 +662,33 @@ function AdminPage() {
                           type="url"
                           value={form.group_booking_url_en}
                           onChange={(e) => setForm({ ...form, group_booking_url_en: e.target.value })}
+                          placeholder="https://... (lämna tomt för att använda svenska som fallback)"
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        />
+                      </Field>
+                      <Field label='Länk till "Boka nu" (ledigt grupprum) – SV (book_now_url)'>
+                        <input
+                          type="text"
+                          value={form.book_now_url}
+                          onChange={(e) => setForm({ ...form, book_now_url: e.target.value })}
+                          placeholder="https://apps.lib.kth.se/mrbsgrupprum/edit_entry.php?area=1&room={room}&hour={hour}&minute=0&year={year}&month={month}&day={day}"
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        />
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Mall som används när "Boka nu"-knappen visas (grupprum ledigt just nu). Platshållare:
+                          <code className="ml-1">{"{room}"}</code>,
+                          <code className="ml-1">{"{year}"}</code>,
+                          <code className="ml-1">{"{month}"}</code>,
+                          <code className="ml-1">{"{day}"}</code>,
+                          <code className="ml-1">{"{hour}"}</code>,
+                          <code className="ml-1">{"{minute}"}</code>. Ersätts automatiskt med rumsnummer och aktuell tid.
+                        </p>
+                      </Field>
+                      <Field label='Link to "Book now" (free group room) – EN (book_now_url_en)'>
+                        <input
+                          type="text"
+                          value={form.book_now_url_en}
+                          onChange={(e) => setForm({ ...form, book_now_url_en: e.target.value })}
                           placeholder="https://... (lämna tomt för att använda svenska som fallback)"
                           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                         />
@@ -1532,6 +1565,8 @@ const DUMMY_SPACE: Space = {
   booking_url: "#",
   group_booking_url: "#",
   group_booking_url_en: null,
+  book_now_url: null,
+  book_now_url_en: null,
   sort_order: 0,
   floor: "Plan 3",
   located_in: "Biblioteket",
