@@ -77,6 +77,23 @@ export function SpaceCard({
   const localizedGroupBookingUrl =
     pickLocalized(space, "group_booking_url", lang) || space.group_booking_url || "";
 
+  const bookNowUrl = useMemo(() => {
+    const template =
+      (lang === "en" && space.book_now_url_en?.trim())
+        ? space.book_now_url_en
+        : space.book_now_url ?? "";
+    if (!template) return "";
+    if (template.includes("{room}") && space.booking_room_number == null) return "";
+    const now = new Date();
+    return template
+      .replaceAll("{room}", space.booking_room_number != null ? String(space.booking_room_number) : "")
+      .replaceAll("{year}", String(now.getFullYear()))
+      .replaceAll("{month}", String(now.getMonth() + 1))
+      .replaceAll("{day}", String(now.getDate()))
+      .replaceAll("{hour}", String(now.getHours()))
+      .replaceAll("{minute}", "0");
+  }, [lang, space.book_now_url, space.book_now_url_en, space.booking_room_number, groupRoom?.status]);
+
   const sanitizedDescription = useMemo(() => {
     if (!localizedDescription) return "";
     const clean = DOMPurify.sanitize(localizedDescription, {
