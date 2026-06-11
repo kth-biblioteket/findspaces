@@ -1579,6 +1579,7 @@ const DUMMY_SPACE: Space = {
   image_url: null,
   images: [],
   image_alts: [],
+  image_alts_en: [],
   map_url: "#",
   booking_url: "#",
   group_booking_url: "#",
