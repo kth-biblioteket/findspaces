@@ -81,6 +81,7 @@ type FormState = {
   tags: Record<string, string[]>;
   images: string[];
   image_alts: string[];
+  image_alts_en: string[];
   map_url: string;
   booking_url: string;
   group_booking_url: string;
@@ -104,7 +105,7 @@ const emptyForm: FormState = {
   booking_room_number: "",
   intent: [], noise: [], equipment: [], facilities: [], lokaltyp: [],
   tags: {},
-  images: [], image_alts: [], map_url: "", booking_url: "", group_booking_url: "", group_booking_url_en: "", book_now_url: "", book_now_url_en: "",
+  images: [], image_alts: [], image_alts_en: [], map_url: "", booking_url: "", group_booking_url: "", group_booking_url_en: "", book_now_url: "", book_now_url_en: "",
   notice: "", notice_en: "",
   sort_order: 999,
 };
@@ -117,6 +118,8 @@ function spaceToForm(s: Space): FormState {
       : s.image_url ? [s.image_url] : [];
   const image_alts = (s.image_alts ?? []).slice(0, images.length);
   while (image_alts.length < images.length) image_alts.push("");
+  const image_alts_en = (s.image_alts_en ?? []).slice(0, images.length);
+  while (image_alts_en.length < images.length) image_alts_en.push("");
   return {
     id: s.id,
     name: s.name,
@@ -136,7 +139,7 @@ function spaceToForm(s: Space): FormState {
     equipment: s.equipment ?? [], facilities: s.facilities ?? [],
     lokaltyp: s.lokaltyp ?? [],
     tags: (s.tags ?? {}) as Record<string, string[]>,
-    images, image_alts,
+    images, image_alts, image_alts_en,
     map_url: s.map_url ?? "", booking_url: s.booking_url ?? "",
     group_booking_url: s.group_booking_url ?? "",
     group_booking_url_en: s.group_booking_url_en ?? "",
@@ -282,6 +285,7 @@ function AdminPage() {
         tags: f.tags,
         images: f.images,
         image_alts: f.image_alts,
+        image_alts_en: f.image_alts_en,
         image_url: f.images[0] ?? null,
         map_url: f.map_url.trim() || null,
         booking_url: f.booking_url.trim() || null,
@@ -335,6 +339,7 @@ function AdminPage() {
       ...f,
       images: [...f.images, data.publicUrl],
       image_alts: [...f.image_alts, ""],
+      image_alts_en: [...f.image_alts_en, ""],
     }));
     toast.success("Bild uppladdad");
   };
@@ -345,10 +350,13 @@ function AdminPage() {
       if (j < 0 || j >= f.images.length) return f;
       const imgs = [...f.images];
       const alts = [...f.image_alts];
+      const altsEn = [...f.image_alts_en];
       while (alts.length < imgs.length) alts.push("");
+      while (altsEn.length < imgs.length) altsEn.push("");
       [imgs[i], imgs[j]] = [imgs[j], imgs[i]];
       [alts[i], alts[j]] = [alts[j], alts[i]];
-      return { ...f, images: imgs, image_alts: alts };
+      [altsEn[i], altsEn[j]] = [altsEn[j], altsEn[i]];
+      return { ...f, images: imgs, image_alts: alts, image_alts_en: altsEn };
     });
   };
 
@@ -357,6 +365,7 @@ function AdminPage() {
       ...f,
       images: f.images.filter((_, idx) => idx !== i),
       image_alts: f.image_alts.filter((_, idx) => idx !== i),
+      image_alts_en: f.image_alts_en.filter((_, idx) => idx !== i),
     }));
   };
 
@@ -366,6 +375,15 @@ function AdminPage() {
       while (alts.length < f.images.length) alts.push("");
       alts[i] = value;
       return { ...f, image_alts: alts };
+    });
+  };
+
+  const setAltEn = (i: number, value: string) => {
+    setForm((f) => {
+      const alts = [...f.image_alts_en];
+      while (alts.length < f.images.length) alts.push("");
+      alts[i] = value;
+      return { ...f, image_alts_en: alts };
     });
   };
 
