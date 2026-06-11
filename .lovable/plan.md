@@ -1,68 +1,58 @@
-## Mål
+## Vad vi gör
 
-1. När ett grupprum har status **Ledigt** ska användaren kunna boka direkt från statusraden ("Just nu: Ledigt").
-2. När man valt arbetsläget **I grupprum** ska man kunna filtrera fram **bara lediga rum just nu**.
+Idag används samma fält (`group_booking_url` / `_en`) för både den permanenta "Boka grupprum"-knappen och den tillfälliga "Boka nu"-knappen som visas när grupprummet är ledigt. Vi separerar dessa till två oberoende länkfält och låter "Boka nu" stödja platshållare som ersätts dynamiskt med rumsnummer och aktuell tid.
 
-## Min rekommendation kring knappdesignen
+## Ändringar
 
-Idag finns "Boka grupprum"-knappen längst ned på kortet (fyllt blå pill). Om vi lägger till ytterligare en blå pill bredvid statusraden blir det visuellt rörigt — två identiska knappar som leder till samma URL.
+### 1. Databas (migration)
+Lägg till två kolumner på `public.spaces`:
+- `book_now_url` text
+- `book_now_url_en` text
 
-**Rekommendation:** byt utseende på den nya knappen så att den blir en tydlig *handlings-CTA i kontext* och inte konkurrerar med den befintliga.
+(Inga nya policies/grants behövs – täcks av befintliga policies på `spaces`.)
 
-- Inline-knapp till höger om "Just nu: Ledigt", t.ex. **"Boka nu →"**
-  - Stil: kompakt pill, grön accent (matchar den gröna pricken som redan signalerar ledigt), liten storlek (`text-xs`, `py-1`, `px-3`), pil-ikon istället för dörr/kalender.
-  - Endast synlig när `groupRoom.status === "free"` (och bokningslänk finns).
-- Den befintliga "Boka grupprum"-knappen längst ned **behålls oförändrad** — den fungerar alltid (även när rummet är upptaget, för att boka annan tid) och är den generella ingången.
+### 2. Typer
+- `src/lib/spaces.ts`: lägg till `book_now_url` och `book_now_url_en` i `Space`-typen.
+- `src/integrations/supabase/types.ts` regenereras automatiskt efter migrationen.
 
-Resultat: statusraden får en omedelbar genväg när det är meningsfullt; bottenknappen förblir den stabila, alltid-tillgängliga åtgärden. Olika färg + placering + ordval ("Boka nu" vs "Boka grupprum") gör att det inte uppfattas som dubblerat.
+### 3. Adminformulär (`src/routes/admin.tsx`)
+Lägg till två nya fält precis under befintliga group_booking_url-fälten:
+- "Länk till Boka nu (ledigt grupprum) – SV (book_now_url)"
+- "Link to Book now (free group room) – EN (book_now_url_en)"
 
-## Filter för "lediga just nu"
+Med hjälptext som förklarar platshållarna:
+`{room}`, `{year}`, `{month}`, `{day}`, `{hour}`, `{minute}`
 
-Ja, det är en bra idé och passar väl in i flödet: när användaren valt **I grupprum** dyker ett extra val upp (på samma sätt som gruppstorlek gör idag).
+Exempelplaceholder:
+`https://apps.lib.kth.se/mrbsgrupprum/edit_entry.php?area=1&room={room}&hour={hour}&minute=0&year={year}&month={month}&day={day}`
 
-- Plats: i `FilterPanel`, direkt under gruppstorlek, endast synligt när `workMode === "grupprum"`.
-- UI: en enkel toggle/kryssruta: **"Visa bara lediga just nu"**.
-- Beteende: filtrerar bort grupprum vars live-status inte är `free` (alltså `busy` och `tentative` döljs). Rum utan känd status (disabled eller saknar `booking_room_number`) döljs också när toggeln är på.
-- URL-state: nytt sökparametervärde `free=1` som bara används när `mode=grupprum`.
-- Persistens: avmarkeras automatiskt om användaren byter bort från grupprum-läget (samma mönster som `groupSize`).
+Spara värdena i samma `upsert` som övriga fält i `save`-flödet.
 
-Eftersom datat redan hämtas via `useGroupRoomAvailability` (cache i React Query, uppdateras varje minut) får filtret samma färska data som badgen — inga extra anrop.
+### 4. Kortet (`src/components/SpaceCard.tsx`)
+- Behåll `localizedGroupBookingUrl` som idag för den permanenta "Boka grupprum"-knappen (button_group_booking).
+- Beräkna en ny `bookNowUrl`:
+  1. Välj rätt mall: `book_now_url_en` om språket är `en` och fältet är ifyllt, annars `book_now_url`.
+  2. Om mallen är tom → ingen "Boka nu"-knapp visas (även när grupprum är ledigt).
+  3. Annars ersätt platshållare:
+     - `{room}` → `space.booking_room_number`
+     - `{year}` → `now.getFullYear()`
+     - `{month}` → `now.getMonth() + 1` (utan zero-pad)
+     - `{day}` → `now.getDate()`
+     - `{hour}` → `now.getHours()` (aktuell timme)
+     - `{minute}` → `0`
+- Skicka denna URL till `GroupRoomBadge` istället för `localizedGroupBookingUrl`.
+
+### 5. Översättningar
+Inga nya nycklar krävs – "Boka nu"/"Book now" finns redan (`card.book_now`).
 
 ## Tekniska detaljer
 
-**SpaceCard.tsx**
-- I `GroupRoomBadge`, lägg till en valfri `bookingUrl`-prop.
-- När `status === "free"` och url finns: rendera inline-länk `Boka nu →` (grön outline-pill, t.ex. `border-emerald-600 text-emerald-700 hover:bg-emerald-50 rounded-full px-3 py-1 text-xs font-semibold`).
-- I `renderSection` ("header") skickar vi `localizedGroupBookingUrl` (eller `space.booking_url` om det är det som används för grupprum — kontrolleras vid implementation) till `GroupRoomBadge`.
+- Tidsberäkning sker på klient (i `SpaceCard`) vid render. Det räcker eftersom knappen ändå bara visas när grupprummet är ledigt enligt schemat – ingen risk för stale SSR-länk eftersom URL:en byggs i komponenten.
+- `booking_room_number` finns redan; om det saknas men mallen är ifylld byts `{room}` mot tom sträng. Vi visar då ändå knappen (admin har valt att göra så) – alternativt kan vi gömma knappen om `{room}` används men nummer saknas. Standardval: dölj knappen om mallen innehåller `{room}` men `booking_room_number` är null.
+- Den permanenta "Boka grupprum"-knappen (`button_group_booking`) påverkas inte och fortsätter att använda `group_booking_url` / `_en` rakt av.
 
-**Filters / URL**
-- `Filters`-typen i `FilterPanel.tsx`: lägg till `freeOnly: boolean`.
-- `emptyFilters`: `freeOnly: false`.
-- `validateSearch` + `filtersToSearch` + `searchToFilters` i `routes/index.tsx`: hantera `free` (boolean) bara när `mode === "grupprum"`; nollställs annars.
-- `FilterPanel`: rendera en checkbox/toggle under gruppstorleks-sektionen när `workMode === "grupprum"`.
+## Vad som INTE ändras
 
-**Filtrering**
-- `matchesSpace` i `lib/filterMatch.ts` får ingen ny logik för `freeOnly` (den har inte tillgång till live-data).
-- Istället filtreras `filtered`-listan i `routes/index.tsx` i ett extra steg: när `filters.freeOnly && filters.workMode === "grupprum"`, hämta availability via samma query och behåll bara rum där `rooms[String(space.booking_room_number)]?.status === "free"` och `disabled !== true`.
-- Detta gör att laddningstillstånd hanteras pent: medan availability laddar visar vi alla matchande rum (eller en liten "uppdaterar…"-indikator — avgörs i implementation).
-
-**ActiveFilterChips**
-- Lägg till en chip "Lediga just nu" som kan tas bort, för konsekvens med övriga filter.
-
-**i18n**
-- Nya nycklar (sv/en):
-  - `card.book_now` ("Boka nu" / "Book now")
-  - `filters.free_only` ("Lediga just nu" / "Free right now")
-  - `chips.free_only` (för chip-label)
-
-## Vad som inte ändras
-
-- Layout-systemet (`useCardLayout`) och "Boka grupprum"-bottenknappen — orörda.
-- Backend, edge functions, datakällor — orörda.
-- Övriga filterkategorier och övrig kortlayout — orörda.
-
-## Frågor till dig innan jag bygger
-
-1. Knappens text: **"Boka nu"** eller hellre **"Boka detta rum"** / **"Boka direkt"**?
-2. Filter-toggeln: vill du ha den som en **kryssruta** (matchar nuvarande filterstil) eller en **pill-toggle** likt arbetsläges-valen?
-3. Ska filtret kallas **"Lediga just nu"** eller **"Bara lediga rum"**?
+- Befintliga `group_booking_url` / `group_booking_url_en` behålls oförändrade och fortsätter driva den permanenta "Boka grupprum"-knappen.
+- Tidsfönster/schema för när grupprumsstatus visas är samma som idag.
+- Inga ändringar i `useGroupRoomAvailability` eller serverfunktioner.
