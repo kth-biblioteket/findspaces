@@ -216,7 +216,7 @@ export function SpaceCard({
             {groupRoom && (
               <GroupRoomBadge
                 status={groupRoom.status}
-                bookingUrl={localizedGroupBookingUrl || null}
+                bookingUrl={bookNowUrl || null}
               />
             )}
 
