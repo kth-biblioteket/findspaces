@@ -81,6 +81,7 @@ type FormState = {
   tags: Record<string, string[]>;
   images: string[];
   image_alts: string[];
+  image_alts_en: string[];
   map_url: string;
   booking_url: string;
   group_booking_url: string;
@@ -104,7 +105,7 @@ const emptyForm: FormState = {
   booking_room_number: "",
   intent: [], noise: [], equipment: [], facilities: [], lokaltyp: [],
   tags: {},
-  images: [], image_alts: [], map_url: "", booking_url: "", group_booking_url: "", group_booking_url_en: "", book_now_url: "", book_now_url_en: "",
+  images: [], image_alts: [], image_alts_en: [], map_url: "", booking_url: "", group_booking_url: "", group_booking_url_en: "", book_now_url: "", book_now_url_en: "",
   notice: "", notice_en: "",
   sort_order: 999,
 };
@@ -117,6 +118,8 @@ function spaceToForm(s: Space): FormState {
       : s.image_url ? [s.image_url] : [];
   const image_alts = (s.image_alts ?? []).slice(0, images.length);
   while (image_alts.length < images.length) image_alts.push("");
+  const image_alts_en = (s.image_alts_en ?? []).slice(0, images.length);
+  while (image_alts_en.length < images.length) image_alts_en.push("");
   return {
     id: s.id,
     name: s.name,
@@ -136,7 +139,7 @@ function spaceToForm(s: Space): FormState {
     equipment: s.equipment ?? [], facilities: s.facilities ?? [],
     lokaltyp: s.lokaltyp ?? [],
     tags: (s.tags ?? {}) as Record<string, string[]>,
-    images, image_alts,
+    images, image_alts, image_alts_en,
     map_url: s.map_url ?? "", booking_url: s.booking_url ?? "",
     group_booking_url: s.group_booking_url ?? "",
     group_booking_url_en: s.group_booking_url_en ?? "",
@@ -282,6 +285,7 @@ function AdminPage() {
         tags: f.tags,
         images: f.images,
         image_alts: f.image_alts,
+        image_alts_en: f.image_alts_en,
         image_url: f.images[0] ?? null,
         map_url: f.map_url.trim() || null,
         booking_url: f.booking_url.trim() || null,
@@ -335,6 +339,7 @@ function AdminPage() {
       ...f,
       images: [...f.images, data.publicUrl],
       image_alts: [...f.image_alts, ""],
+      image_alts_en: [...f.image_alts_en, ""],
     }));
     toast.success("Bild uppladdad");
   };
@@ -345,10 +350,13 @@ function AdminPage() {
       if (j < 0 || j >= f.images.length) return f;
       const imgs = [...f.images];
       const alts = [...f.image_alts];
+      const altsEn = [...f.image_alts_en];
       while (alts.length < imgs.length) alts.push("");
+      while (altsEn.length < imgs.length) altsEn.push("");
       [imgs[i], imgs[j]] = [imgs[j], imgs[i]];
       [alts[i], alts[j]] = [alts[j], alts[i]];
-      return { ...f, images: imgs, image_alts: alts };
+      [altsEn[i], altsEn[j]] = [altsEn[j], altsEn[i]];
+      return { ...f, images: imgs, image_alts: alts, image_alts_en: altsEn };
     });
   };
 
@@ -357,6 +365,7 @@ function AdminPage() {
       ...f,
       images: f.images.filter((_, idx) => idx !== i),
       image_alts: f.image_alts.filter((_, idx) => idx !== i),
+      image_alts_en: f.image_alts_en.filter((_, idx) => idx !== i),
     }));
   };
 
@@ -366,6 +375,15 @@ function AdminPage() {
       while (alts.length < f.images.length) alts.push("");
       alts[i] = value;
       return { ...f, image_alts: alts };
+    });
+  };
+
+  const setAltEn = (i: number, value: string) => {
+    setForm((f) => {
+      const alts = [...f.image_alts_en];
+      while (alts.length < f.images.length) alts.push("");
+      alts[i] = value;
+      return { ...f, image_alts_en: alts };
     });
   };
 
@@ -653,9 +671,14 @@ function AdminPage() {
                           type="url"
                           value={form.group_booking_url}
                           onChange={(e) => setForm({ ...form, group_booking_url: e.target.value })}
-                          placeholder="https://... (svensk bokningssida)"
+                          placeholder="https://apps.lib.kth.se/mrbsgrupprum/day.php?area=1"
                           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                         />
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Permanent länk till bokningssidan för grupprummet (visas alltid på kortet). Exempel:
+                          <br />
+                          <code className="break-all">https://apps.lib.kth.se/mrbsgrupprum/day.php?area=1</code>
+                        </p>
                       </Field>
                       <Field label="Link to book group room – EN (group_booking_url_en)">
                         <input
@@ -713,7 +736,13 @@ function AdminPage() {
                                   <input
                                     value={form.image_alts[i] ?? ""}
                                     onChange={(e) => setAlt(i, e.target.value)}
-                                    placeholder="Alt-text (beskriv bilden för skärmläsare)"
+                                    placeholder="Alt-text SV (beskriv bilden för skärmläsare)"
+                                    className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs"
+                                  />
+                                  <input
+                                    value={form.image_alts_en[i] ?? ""}
+                                    onChange={(e) => setAltEn(i, e.target.value)}
+                                    placeholder="Alt text EN (describe the image for screen readers – leave blank to fall back to Swedish)"
                                     className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs"
                                   />
                                   <div className="flex items-center gap-1">
@@ -771,7 +800,7 @@ function AdminPage() {
                             <Upload className="h-4 w-4" />
                             <span>Ladda upp bild</span>
                             <input
-                              type="file" accept="image/*" className="hidden"
+                              type="file" accept="image/webp,.webp" className="hidden"
                               disabled={form.images.length >= MAX_IMAGES}
                               onChange={(e) => {
                                 const file = e.target.files?.[0];
@@ -781,10 +810,11 @@ function AdminPage() {
                             />
                           </label>
                           <p className="text-xs text-muted-foreground max-w-sm">
-                            Rekommenderad storlek: <strong>1500×1000 px</strong> i <strong>3:2-format</strong> (liggande).
+                            <strong>Format:</strong> WebP (.webp). <strong>Storlek:</strong> 1200×800 px
+                            i <strong>3:2-format</strong> (liggande). <strong>Max filstorlek:</strong> 150 kB.
                             Bilden visas i samma format på både mobil och desktop, så placera motivet centrerat
-                            för att undvika beskärning vid kanterna. JPG eller PNG, max 2 MB.
-                            Upp till {MAX_IMAGES} bilder per lokal.
+                            för att undvika beskärning vid kanterna. Upp till {MAX_IMAGES} bilder per lokal.
+                            Konvertera JPG/PNG till WebP med t.ex. <a href="https://squoosh.app" target="_blank" rel="noopener noreferrer" className="underline">squoosh.app</a> innan uppladdning.
                           </p>
                         </div>
                       </div>
@@ -1561,6 +1591,7 @@ const DUMMY_SPACE: Space = {
   image_url: null,
   images: [],
   image_alts: [],
+  image_alts_en: [],
   map_url: "#",
   booking_url: "#",
   group_booking_url: "#",

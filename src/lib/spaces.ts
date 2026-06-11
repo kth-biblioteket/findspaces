@@ -16,6 +16,7 @@ export type Space = {
   image_url: string | null;
   images: string[];
   image_alts: string[];
+  image_alts_en: string[];
   map_url: string | null;
   booking_url: string | null;
   group_booking_url: string | null;

@@ -94,6 +94,16 @@ export function SpaceCard({
       .replaceAll("{minute}", "0");
   }, [lang, space.book_now_url, space.book_now_url_en, space.booking_room_number, groupRoom?.status]);
 
+  const localizedAlts = useMemo(() => {
+    const sv = space.image_alts ?? [];
+    const en = space.image_alts_en ?? [];
+    if (lang !== "en") return sv;
+    return sv.map((s, i) => {
+      const e = en[i];
+      return e && e.trim().length > 0 ? e : s;
+    });
+  }, [lang, space.image_alts, space.image_alts_en]);
+
   const sanitizedDescription = useMemo(() => {
     if (!localizedDescription) return "";
     const clean = DOMPurify.sanitize(localizedDescription, {
@@ -413,7 +423,7 @@ export function SpaceCard({
         <div className="order-1 md:order-2 w-full md:w-56 lg:w-64 shrink-0 self-stretch aspect-[3/2] md:aspect-[3/2] md:h-auto overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-r-2xl">
           <ImageCarousel
             images={images}
-            alts={space.image_alts ?? []}
+            alts={localizedAlts}
             alt={localizedName}
             priority={priority}
             onImageClick={(i) => {
@@ -426,7 +436,7 @@ export function SpaceCard({
 
       <ImageLightbox
         images={images}
-        alts={space.image_alts ?? []}
+        alts={localizedAlts}
         initialIndex={lightboxIndex}
         open={lightboxOpen}
         onClose={() => setLightboxOpen(false)}
