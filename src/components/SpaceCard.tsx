@@ -94,6 +94,16 @@ export function SpaceCard({
       .replaceAll("{minute}", "0");
   }, [lang, space.book_now_url, space.book_now_url_en, space.booking_room_number, groupRoom?.status]);
 
+  const localizedAlts = useMemo(() => {
+    const sv = space.image_alts ?? [];
+    const en = space.image_alts_en ?? [];
+    if (lang !== "en") return sv;
+    return sv.map((s, i) => {
+      const e = en[i];
+      return e && e.trim().length > 0 ? e : s;
+    });
+  }, [lang, space.image_alts, space.image_alts_en]);
+
   const sanitizedDescription = useMemo(() => {
     if (!localizedDescription) return "";
     const clean = DOMPurify.sanitize(localizedDescription, {
