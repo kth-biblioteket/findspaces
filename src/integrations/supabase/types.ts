@@ -131,6 +131,7 @@ export type Database = {
           group_booking_url_en: string | null
           id: string
           image_alts: string[]
+          image_alts_en: string[]
           image_url: string | null
           images: string[]
           intent: string[]
@@ -169,6 +170,7 @@ export type Database = {
           group_booking_url_en?: string | null
           id?: string
           image_alts?: string[]
+          image_alts_en?: string[]
           image_url?: string | null
           images?: string[]
           intent?: string[]
@@ -207,6 +209,7 @@ export type Database = {
           group_booking_url_en?: string | null
           id?: string
           image_alts?: string[]
+          image_alts_en?: string[]
           image_url?: string | null
           images?: string[]
           intent?: string[]
