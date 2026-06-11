@@ -736,7 +736,13 @@ function AdminPage() {
                                   <input
                                     value={form.image_alts[i] ?? ""}
                                     onChange={(e) => setAlt(i, e.target.value)}
-                                    placeholder="Alt-text (beskriv bilden för skärmläsare)"
+                                    placeholder="Alt-text SV (beskriv bilden för skärmläsare)"
+                                    className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs"
+                                  />
+                                  <input
+                                    value={form.image_alts_en[i] ?? ""}
+                                    onChange={(e) => setAltEn(i, e.target.value)}
+                                    placeholder="Alt text EN (describe the image for screen readers – leave blank to fall back to Swedish)"
                                     className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs"
                                   />
                                   <div className="flex items-center gap-1">
@@ -794,7 +800,7 @@ function AdminPage() {
                             <Upload className="h-4 w-4" />
                             <span>Ladda upp bild</span>
                             <input
-                              type="file" accept="image/*" className="hidden"
+                              type="file" accept="image/webp,.webp" className="hidden"
                               disabled={form.images.length >= MAX_IMAGES}
                               onChange={(e) => {
                                 const file = e.target.files?.[0];
@@ -804,10 +810,11 @@ function AdminPage() {
                             />
                           </label>
                           <p className="text-xs text-muted-foreground max-w-sm">
-                            Rekommenderad storlek: <strong>1500×1000 px</strong> i <strong>3:2-format</strong> (liggande).
+                            <strong>Format:</strong> WebP (.webp). <strong>Storlek:</strong> 1200×800 px
+                            i <strong>3:2-format</strong> (liggande). <strong>Max filstorlek:</strong> 150 kB.
                             Bilden visas i samma format på både mobil och desktop, så placera motivet centrerat
-                            för att undvika beskärning vid kanterna. JPG eller PNG, max 2 MB.
-                            Upp till {MAX_IMAGES} bilder per lokal.
+                            för att undvika beskärning vid kanterna. Upp till {MAX_IMAGES} bilder per lokal.
+                            Konvertera JPG/PNG till WebP med t.ex. <a href="https://squoosh.app" target="_blank" rel="noopener noreferrer" className="underline">squoosh.app</a> innan uppladdning.
                           </p>
                         </div>
                       </div>
