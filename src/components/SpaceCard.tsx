@@ -72,6 +72,7 @@ export function SpaceCard({
   const localizedName = pickLocalized(space, "name", lang);
   const localizedDescription = pickLocalized(space, "description", lang);
   const localizedNotice = pickLocalized(space, "notice", lang);
+  const localizedInfo = pickLocalized(space, "info", lang);
   const localizedFloor = pickLocalized(space, "floor", lang);
   const localizedLocatedIn = pickLocalized(space, "located_in", lang);
   const localizedGroupBookingUrl =
