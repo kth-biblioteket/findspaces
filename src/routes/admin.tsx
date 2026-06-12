@@ -634,7 +634,7 @@ function AdminPage() {
                       />
                     </Field>
 
-                    <Field label="Tillfällig information (SV)">
+                    <Field label="Tillfällig notis (SV)">
                       <textarea
                         rows={2}
                         value={form.notice}
@@ -642,12 +642,37 @@ function AdminPage() {
                         placeholder="Lämna tomt om ingen notis ska visas"
                         className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                       />
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Använd för tillfälliga eller akuta meddelanden (t.ex. stängt idag). Visas med amber-färgad markering.
+                      </p>
                     </Field>
                     <Field label="Temporary notice (EN)">
                       <textarea
                         rows={2}
                         value={form.notice_en}
                         onChange={(e) => setForm({ ...form, notice_en: e.target.value })}
+                        placeholder="Leave empty to fall back to Swedish"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                      />
+                    </Field>
+
+                    <Field label="Information (SV)">
+                      <textarea
+                        rows={2}
+                        value={form.info}
+                        onChange={(e) => setForm({ ...form, info: e.target.value })}
+                        placeholder='T.ex. "Möblerna är tillfälliga och byts ut under hösten."'
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                      />
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Neutral information som alltid visas på kortet. Använd för "bra att veta"-info som inte är akut.
+                      </p>
+                    </Field>
+                    <Field label="Information (EN)">
+                      <textarea
+                        rows={2}
+                        value={form.info_en}
+                        onChange={(e) => setForm({ ...form, info_en: e.target.value })}
                         placeholder="Leave empty to fall back to Swedish"
                         className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                       />
