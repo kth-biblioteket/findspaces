@@ -150,6 +150,8 @@ function spaceToForm(s: Space): FormState {
     book_now_url_en: s.book_now_url_en ?? "",
     notice: s.notice ?? "",
     notice_en: s.notice_en ?? "",
+    info: s.info ?? "",
+    info_en: s.info_en ?? "",
     sort_order: s.sort_order,
   };
 }
