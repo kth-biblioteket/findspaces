@@ -90,6 +90,8 @@ type FormState = {
   book_now_url_en: string;
   notice: string;
   notice_en: string;
+  info: string;
+  info_en: string;
   sort_order: number;
 };
 
