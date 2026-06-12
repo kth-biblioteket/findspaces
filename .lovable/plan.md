@@ -1,58 +1,60 @@
-## Vad vi gör
+## Mål
 
-Idag används samma fält (`group_booking_url` / `_en`) för både den permanenta "Boka grupprum"-knappen och den tillfälliga "Boka nu"-knappen som visas när grupprummet är ledigt. Vi separerar dessa till två oberoende länkfält och låter "Boka nu" stödja platshållare som ersätts dynamiskt med rumsnummer och aktuell tid.
+1. Ge den tillfälliga notisrutan ett mer proffsigt, designintegrerat utseende — mjuk amber med vänsterkant-accent istället för gul "varnings"-block.
+2. Lägga till ett nytt fält "Information" (sv + en) för lugn, icke-akut info som visas direkt på kortet, neutralt stilsatt, placerat under chips och ovanför knapparna.
 
 ## Ändringar
 
-### 1. Databas (migration)
-Lägg till två kolumner på `public.spaces`:
-- `book_now_url` text
-- `book_now_url_en` text
+### 1. Databas
+Ny migration som lägger till två kolumner på `public.spaces`:
+- `info_sv text`
+- `info_en text`
 
-(Inga nya policies/grants behövs – täcks av befintliga policies på `spaces`.)
+Befintliga rader får `NULL` (visas inte). Inga RLS-ändringar behövs — befintliga policies täcker nya kolumner.
 
-### 2. Typer
-- `src/lib/spaces.ts`: lägg till `book_now_url` och `book_now_url_en` i `Space`-typen.
-- `src/integrations/supabase/types.ts` regenereras automatiskt efter migrationen.
+### 2. Typer & datalager
+- `src/integrations/supabase/types.ts`: lägg till `info_sv`, `info_en` på `spaces`.
+- `src/lib/spaces.ts`: lägg till fälten i `Space`-typen och i select-listan.
 
-### 3. Adminformulär (`src/routes/admin.tsx`)
-Lägg till två nya fält precis under befintliga group_booking_url-fälten:
-- "Länk till Boka nu (ledigt grupprum) – SV (book_now_url)"
-- "Link to Book now (free group room) – EN (book_now_url_en)"
+### 3. SpaceCard — notisrutans nya design
+Ersätt nuvarande `bg-amber-100 / border-amber-200 / text-amber-900`-blocket med en lugnare variant:
 
-Med hjälptext som förklarar platshållarna:
-`{room}`, `{year}`, `{month}`, `{day}`, `{hour}`, `{minute}`
+- Bakgrund: mycket ljus amber (≈ `#FEFBF3` / `amber-50/60`)
+- Vänsterkant: 3 px solid amber-500 (KTH-vänlig accentkant)
+- Tunn ram i amber-200/60 runt resten
+- Text i `foreground` (inte amber-900) för bättre läsbarhet
+- Mindre ikon, samma `Info`-ikon men i amber-600
+- Lite mer rundade hörn (`rounded-lg`) och tightare padding
 
-Exempelplaceholder:
-`https://apps.lib.kth.se/mrbsgrupprum/edit_entry.php?area=1&room={room}&hour={hour}&minute=0&year={year}&month={month}&day={day}`
+Resultatet: syns tydligt som "notera detta" utan att skrika gult.
 
-Spara värdena i samma `upsert` som övriga fält i `save`-flödet.
+### 4. SpaceCard — nytt neutralt info-fält
+- Lägg till `localizedInfo = pickLocalized(space, "info", lang)` (med fallback sv→en på samma sätt som övriga fält).
+- Rendera som ny sektion `info` i kortets layout, placerad **under chips, ovanför knapparna**.
+- Stil: neutral, ingen färgad bakgrund. Liten `Info`-ikon i `muted-foreground`, text i `text-sm text-foreground/80`, tunn separator-känsla (ev. `border-l border-border pl-3`). Tydligt skild från den amberfärgade notisen så användaren förstår att det är "bra att veta", inte "obs".
 
-### 4. Kortet (`src/components/SpaceCard.tsx`)
-- Behåll `localizedGroupBookingUrl` som idag för den permanenta "Boka grupprum"-knappen (button_group_booking).
-- Beräkna en ny `bookNowUrl`:
-  1. Välj rätt mall: `book_now_url_en` om språket är `en` och fältet är ifyllt, annars `book_now_url`.
-  2. Om mallen är tom → ingen "Boka nu"-knapp visas (även när grupprum är ledigt).
-  3. Annars ersätt platshållare:
-     - `{room}` → `space.booking_room_number`
-     - `{year}` → `now.getFullYear()`
-     - `{month}` → `now.getMonth() + 1` (utan zero-pad)
-     - `{day}` → `now.getDate()`
-     - `{hour}` → `now.getHours()` (aktuell timme)
-     - `{minute}` → `0`
-- Skicka denna URL till `GroupRoomBadge` istället för `localizedGroupBookingUrl`.
+### 5. Adminläget (`src/routes/admin.tsx`)
+Lägg till två nya textareas per lokal under befintliga notis-fälten:
+- "Information (svenska)" — placeholder ex: *"Möblerna är tillfälliga och byts ut under hösten."*
+- "Information (engelska)"
+- Hjälptext som förklarar skillnaden mot Notis: *"Neutral information som alltid visas på kortet. Använd Notis för tillfälliga/akuta meddelanden."*
 
-### 5. Översättningar
-Inga nya nycklar krävs – "Boka nu"/"Book now" finns redan (`card.book_now`).
+Spara med övriga fält i samma update-flöde.
+
+### 6. i18n
+Inga nya översättningsnycklar krävs för själva texten (kommer från databasen). Eventuell `card.info_sr` för skärmläsare läggs till i `sv.json`/`en.json` om vi vill ha en dold rubrik.
 
 ## Tekniska detaljer
 
-- Tidsberäkning sker på klient (i `SpaceCard`) vid render. Det räcker eftersom knappen ändå bara visas när grupprummet är ledigt enligt schemat – ingen risk för stale SSR-länk eftersom URL:en byggs i komponenten.
-- `booking_room_number` finns redan; om det saknas men mallen är ifylld byts `{room}` mot tom sträng. Vi visar då ändå knappen (admin har valt att göra så) – alternativt kan vi gömma knappen om `{room}` används men nummer saknas. Standardval: dölj knappen om mallen innehåller `{room}` men `booking_room_number` är null.
-- Den permanenta "Boka grupprum"-knappen (`button_group_booking`) påverkas inte och fortsätter att använda `group_booking_url` / `_en` rakt av.
+- Layout-systemet (`useCardLayout`) styr idag sektionsordningen via `CardSectionKey`. Det nya info-blocket renderas inom kortets befintliga flöde direkt före `mt-auto`-rad med knappar — det behöver alltså **inte** bli en ny `CardSectionKey` om vi vill hålla det enkelt. Alternativt: lägg till `"info"` som ny key så admins kan flytta det. Förslag: håll det enkelt först, lägg in som fast position (under chips, ovanför knappraden).
+- Fallback-logik för info_en följer samma mönster som alt-texter: tom EN → visa SV.
+- Migration följer projektets GRANT-konvention (inga nya tabeller, bara `ALTER TABLE` — inga nya grants behövs).
 
-## Vad som INTE ändras
+## Filer som ändras
 
-- Befintliga `group_booking_url` / `group_booking_url_en` behålls oförändrade och fortsätter driva den permanenta "Boka grupprum"-knappen.
-- Tidsfönster/schema för när grupprumsstatus visas är samma som idag.
-- Inga ändringar i `useGroupRoomAvailability` eller serverfunktioner.
+- ny: `supabase/migrations/<timestamp>_add_info_fields.sql`
+- `src/integrations/supabase/types.ts`
+- `src/lib/spaces.ts`
+- `src/components/SpaceCard.tsx` (ny notisstil + nytt info-block)
+- `src/routes/admin.tsx` (två nya textareas + hjälptext)
+- ev. `src/i18n/locales/sv.json` + `en.json` (sr-only label)

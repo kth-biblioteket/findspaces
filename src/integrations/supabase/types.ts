@@ -134,6 +134,8 @@ export type Database = {
           image_alts_en: string[]
           image_url: string | null
           images: string[]
+          info_en: string | null
+          info_sv: string | null
           intent: string[]
           located_in: string | null
           located_in_en: string | null
@@ -173,6 +175,8 @@ export type Database = {
           image_alts_en?: string[]
           image_url?: string | null
           images?: string[]
+          info_en?: string | null
+          info_sv?: string | null
           intent?: string[]
           located_in?: string | null
           located_in_en?: string | null
@@ -212,6 +216,8 @@ export type Database = {
           image_alts_en?: string[]
           image_url?: string | null
           images?: string[]
+          info_en?: string | null
+          info_sv?: string | null
           intent?: string[]
           located_in?: string | null
           located_in_en?: string | null
