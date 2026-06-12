@@ -109,6 +109,7 @@ const emptyForm: FormState = {
   tags: {},
   images: [], image_alts: [], image_alts_en: [], map_url: "", booking_url: "", group_booking_url: "", group_booking_url_en: "", book_now_url: "", book_now_url_en: "",
   notice: "", notice_en: "",
+  info: "", info_en: "",
   sort_order: 999,
 };
 
