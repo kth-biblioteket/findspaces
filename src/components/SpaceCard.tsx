@@ -235,7 +235,7 @@ export function SpaceCard({
             {localizedNotice && (
               <div
                 role="status"
-                className="mt-2 mb-1 flex items-start gap-2 bg-amber-100 text-amber-900 border border-amber-200 rounded-md px-3 py-1.5 text-sm"
+                className="mt-2 mb-1 flex items-start gap-2 bg-amber-50/70 text-foreground border border-amber-200/60 border-l-[3px] border-l-amber-500 rounded-lg px-3 py-2 text-sm"
               >
                 <Info className="h-4 w-4 mt-0.5 shrink-0" aria-hidden="true" />
                 <span className="whitespace-pre-line">
