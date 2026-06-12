@@ -1609,6 +1609,8 @@ const DUMMY_SPACE: Space = {
   floor_en: null,
   located_in_en: null,
   notice_en: null,
+  info: null,
+  info_en: null,
   show_capacity_publicly: false,
   show_occupancy: true,
   countmatters_sensor_id: null,
