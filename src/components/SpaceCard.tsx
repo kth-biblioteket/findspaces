@@ -72,6 +72,7 @@ export function SpaceCard({
   const localizedName = pickLocalized(space, "name", lang);
   const localizedDescription = pickLocalized(space, "description", lang);
   const localizedNotice = pickLocalized(space, "notice", lang);
+  const localizedInfo = pickLocalized(space, "info", lang);
   const localizedFloor = pickLocalized(space, "floor", lang);
   const localizedLocatedIn = pickLocalized(space, "located_in", lang);
   const localizedGroupBookingUrl =
@@ -234,9 +235,9 @@ export function SpaceCard({
             {localizedNotice && (
               <div
                 role="status"
-                className="mt-2 mb-1 flex items-start gap-2 bg-amber-100 text-amber-900 border border-amber-200 rounded-md px-3 py-1.5 text-sm"
+                className="mt-2 mb-1 flex items-start gap-2 bg-amber-50/70 text-foreground border border-amber-200/60 border-l-[3px] border-l-amber-500 rounded-lg px-3 py-2 text-sm"
               >
-                <Info className="h-4 w-4 mt-0.5 shrink-0" aria-hidden="true" />
+                <Info className="h-4 w-4 mt-0.5 shrink-0 text-amber-600" aria-hidden="true" />
                 <span className="whitespace-pre-line">
                   <span className="sr-only">{t("card.notice_sr")} </span>
                   {localizedNotice}
@@ -391,6 +392,13 @@ export function SpaceCard({
         <div className="flex flex-col md:flex-row items-stretch gap-3 md:gap-3">
           <div className="order-2 md:order-1 flex-1 min-w-0 flex flex-col p-3 md:p-3">
           {layout.map((k, i) => renderSection(k, i))}
+
+          {localizedInfo && (
+            <div className="mt-2 mb-1 flex items-start gap-2 border-l-2 border-border/80 pl-3 text-sm text-foreground/80">
+              <Info className="h-3.5 w-3.5 mt-0.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <span className="whitespace-pre-line">{localizedInfo}</span>
+            </div>
+          )}
 
           <div className="mt-auto pt-2 md:pt-2 flex items-center justify-between gap-3 flex-wrap">
             {sanitizedDescription ? (

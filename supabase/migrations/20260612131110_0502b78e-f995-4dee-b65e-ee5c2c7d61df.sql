@@ -1,0 +1,1 @@
+ALTER TABLE public.spaces RENAME COLUMN info_sv TO info;

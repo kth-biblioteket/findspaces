@@ -90,6 +90,8 @@ type FormState = {
   book_now_url_en: string;
   notice: string;
   notice_en: string;
+  info: string;
+  info_en: string;
   sort_order: number;
 };
 
@@ -107,6 +109,7 @@ const emptyForm: FormState = {
   tags: {},
   images: [], image_alts: [], image_alts_en: [], map_url: "", booking_url: "", group_booking_url: "", group_booking_url_en: "", book_now_url: "", book_now_url_en: "",
   notice: "", notice_en: "",
+  info: "", info_en: "",
   sort_order: 999,
 };
 
@@ -147,6 +150,8 @@ function spaceToForm(s: Space): FormState {
     book_now_url_en: s.book_now_url_en ?? "",
     notice: s.notice ?? "",
     notice_en: s.notice_en ?? "",
+    info: s.info ?? "",
+    info_en: s.info_en ?? "",
     sort_order: s.sort_order,
   };
 }
@@ -295,6 +300,8 @@ function AdminPage() {
         book_now_url_en: f.book_now_url_en.trim() || null,
         notice: f.notice.trim() || null,
         notice_en: f.notice_en.trim() || null,
+        info: f.info.trim() || null,
+        info_en: f.info_en.trim() || null,
 
       };
 
@@ -627,7 +634,7 @@ function AdminPage() {
                       />
                     </Field>
 
-                    <Field label="Tillfällig information (SV)">
+                    <Field label="Tillfällig notis (SV)">
                       <textarea
                         rows={2}
                         value={form.notice}
@@ -635,12 +642,37 @@ function AdminPage() {
                         placeholder="Lämna tomt om ingen notis ska visas"
                         className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                       />
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Använd för tillfälliga eller akuta meddelanden (t.ex. stängt idag). Visas med amber-färgad markering.
+                      </p>
                     </Field>
                     <Field label="Temporary notice (EN)">
                       <textarea
                         rows={2}
                         value={form.notice_en}
                         onChange={(e) => setForm({ ...form, notice_en: e.target.value })}
+                        placeholder="Leave empty to fall back to Swedish"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                      />
+                    </Field>
+
+                    <Field label="Information (SV)">
+                      <textarea
+                        rows={2}
+                        value={form.info}
+                        onChange={(e) => setForm({ ...form, info: e.target.value })}
+                        placeholder='T.ex. "Möblerna är tillfälliga och byts ut under hösten."'
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                      />
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Neutral information som alltid visas på kortet. Använd för "bra att veta"-info som inte är akut.
+                      </p>
+                    </Field>
+                    <Field label="Information (EN)">
+                      <textarea
+                        rows={2}
+                        value={form.info_en}
+                        onChange={(e) => setForm({ ...form, info_en: e.target.value })}
                         placeholder="Leave empty to fall back to Swedish"
                         className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                       />
@@ -1609,6 +1641,8 @@ const DUMMY_SPACE: Space = {
   floor_en: null,
   located_in_en: null,
   notice_en: null,
+  info: null,
+  info_en: null,
   show_capacity_publicly: false,
   show_occupancy: true,
   countmatters_sensor_id: null,
