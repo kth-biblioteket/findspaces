@@ -300,6 +300,8 @@ function AdminPage() {
         book_now_url_en: f.book_now_url_en.trim() || null,
         notice: f.notice.trim() || null,
         notice_en: f.notice_en.trim() || null,
+        info: f.info.trim() || null,
+        info_en: f.info_en.trim() || null,
 
       };
 
