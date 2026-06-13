@@ -235,9 +235,9 @@ export function SpaceCard({
             {localizedNotice && (
               <div
                 role="status"
-                className="mt-2 mb-1 flex items-start gap-2 bg-amber-50/70 text-foreground border border-amber-200/60 border-l-[3px] border-l-amber-500 rounded-lg px-3 py-2 text-sm"
+                className="mt-2 mb-1 flex items-start gap-2 bg-secondary/40 text-foreground border border-border/60 rounded-lg px-3 py-2 text-sm"
               >
-                <Info className="h-4 w-4 mt-0.5 shrink-0 text-amber-600" aria-hidden="true" />
+                <Info className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" aria-hidden="true" />
                 <span className="whitespace-pre-line">
                   <span className="sr-only">{t("card.notice_sr")} </span>
                   {localizedNotice}
@@ -394,7 +394,7 @@ export function SpaceCard({
           {layout.map((k, i) => renderSection(k, i))}
 
           {localizedInfo && (
-            <div className="mt-2 mb-1 flex items-start gap-2 border-l-2 border-border/80 pl-3 text-sm text-foreground/80">
+            <div className="mt-2 mb-1 flex items-start gap-2 text-sm text-foreground/80">
               <Info className="h-3.5 w-3.5 mt-0.5 shrink-0 text-muted-foreground" aria-hidden="true" />
               <span className="whitespace-pre-line">{localizedInfo}</span>
             </div>
