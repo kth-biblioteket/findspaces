@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import DOMPurify from "dompurify";
-import { ChevronDown, MapPin, Calendar, Info, Users, User, X, DoorOpen, DoorClosed } from "lucide-react";
+import { ChevronDown, MapPin, Calendar, Info, Users, User, X, DoorOpen, DoorClosed, AlertTriangle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ChairIcon } from "./icons/ChairIcon";
 
