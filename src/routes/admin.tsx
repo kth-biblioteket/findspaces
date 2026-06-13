@@ -629,7 +629,7 @@ function AdminPage() {
                           />
                         </Field>
 
-                        <Field label="Tillfällig viktig information (SV)">
+                        <Field label="Tillfällig viktig information (gul ruta) (SV)">
                           <textarea
                             rows={2}
                             value={form.notice}
@@ -641,7 +641,7 @@ function AdminPage() {
                             Använd för tillfälliga eller akuta meddelanden (t.ex. stängt idag). Visas med amber-färgad markering.
                           </p>
                         </Field>
-                        <Field label="Tillfällig viktig information (EN)">
+                        <Field label="Tillfällig viktig information (gul ruta) (EN)">
                           <textarea
                             rows={2}
                             value={form.notice_en}
@@ -651,7 +651,7 @@ function AdminPage() {
                           />
                         </Field>
 
-                        <Field label="Tillfällig neutral information (gul ruta) (SV)">
+                        <Field label="Tillfällig neutral information (SV)">
                           <textarea
                             rows={2}
                             value={form.info}
@@ -663,7 +663,7 @@ function AdminPage() {
                             Neutral information som alltid visas på kortet i en gul ruta. Använd för "bra att veta"-info som inte är akut.
                           </p>
                         </Field>
-                        <Field label="Tillfällig neutral information (gul ruta) (EN)">
+                        <Field label="Tillfällig neutral information (EN)">
                           <textarea
                             rows={2}
                             value={form.info_en}
