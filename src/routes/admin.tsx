@@ -783,8 +783,12 @@ function AdminPage() {
                     </details>
 
 
-                    <Field label={`Bilder (max ${MAX_IMAGES}, första är primär)`}>
-                      <div className="space-y-3">
+                    <details className="rounded-lg border border-border bg-muted/30 group">
+                      <summary className="cursor-pointer select-none px-3 py-2 text-sm font-semibold flex items-center justify-between hover:bg-accent/50 rounded-lg">
+                        <span>Bilder & alt-texter (max {MAX_IMAGES}, första är primär)</span>
+                        <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+                      </summary>
+                      <div className="p-3 pt-2 space-y-3 border-t border-border">
                         {form.images.length > 0 && (
                           <ul className="space-y-3">
                             {form.images.map((url, i) => (
@@ -835,7 +839,6 @@ function AdminPage() {
                           </ul>
                         )}
 
-
                         <div className="flex items-center gap-3 flex-wrap">
                           <label className={cn(
                             "inline-flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2 text-sm cursor-pointer hover:bg-accent",
@@ -862,7 +865,7 @@ function AdminPage() {
                           </p>
                         </div>
                       </div>
-                    </Field>
+                    </details>
 
                     {categories.filter((c) => c.key !== "intent").map((cat) => (
                       <DynamicCategoryField
