@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus, Pencil, Trash2, ArrowLeft, Upload, X, Settings2, GripVertical,
-  ChevronLeft, ChevronRight,
+  ChevronLeft, ChevronRight, ChevronDown,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -558,23 +558,6 @@ function AdminPage() {
                       </p>
                     </div>
 
-                    <div className="rounded-lg border border-dashed border-border bg-muted/30 p-3 space-y-2">
-                      <Field label="Bokningsrumsnummer (för grupprum)">
-                        <input
-                          value={form.booking_room_number}
-                          onChange={(e) => setForm({ ...form, booking_room_number: e.target.value.replace(/[^0-9]/g, "") })}
-                          inputMode="numeric"
-                          placeholder="t.ex. 4"
-                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
-                        />
-                      </Field>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        Rumsnummer (1–21) i KTH:s bokningssystem. När det matchar visas
-                        en indikator på kortet om grupprummet är <strong>ledigt</strong>
-                        {" "}eller <strong>upptaget</strong> just nu. Lämna tomt för
-                        lokaler som inte är grupprum eller saknar bokningsstatus.
-                      </p>
-                    </div>
 
                     <Field label="Arbetssätt (vilka val i ”Jag vill arbeta” som lokalen passar)">
                       <div className="flex flex-wrap gap-2">
@@ -698,57 +681,82 @@ function AdminPage() {
                           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                         />
                       </Field>
-                      <Field label="Länk till boka grupprum – SV (group_booking_url)">
-                        <input
-                          type="url"
-                          value={form.group_booking_url}
-                          onChange={(e) => setForm({ ...form, group_booking_url: e.target.value })}
-                          placeholder="https://apps.lib.kth.se/mrbsgrupprum/day.php?area=1"
-                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                        />
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          Permanent länk till bokningssidan för grupprummet (visas alltid på kortet). Exempel:
-                          <br />
-                          <code className="break-all">https://apps.lib.kth.se/mrbsgrupprum/day.php?area=1</code>
-                        </p>
-                      </Field>
-                      <Field label="Link to book group room – EN (group_booking_url_en)">
-                        <input
-                          type="url"
-                          value={form.group_booking_url_en}
-                          onChange={(e) => setForm({ ...form, group_booking_url_en: e.target.value })}
-                          placeholder="https://... (lämna tomt för att använda svenska som fallback)"
-                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                        />
-                      </Field>
-                      <Field label='Länk till "Boka nu" (ledigt grupprum) – SV (book_now_url)'>
-                        <input
-                          type="text"
-                          value={form.book_now_url}
-                          onChange={(e) => setForm({ ...form, book_now_url: e.target.value })}
-                          placeholder="https://apps.lib.kth.se/mrbsgrupprum/edit_entry.php?area=1&room={room}&hour={hour}&minute=0&year={year}&month={month}&day={day}"
-                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                        />
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          Mall som används när "Boka nu"-knappen visas (grupprum ledigt just nu). Platshållare:
-                          <code className="ml-1">{"{room}"}</code>,
-                          <code className="ml-1">{"{year}"}</code>,
-                          <code className="ml-1">{"{month}"}</code>,
-                          <code className="ml-1">{"{day}"}</code>,
-                          <code className="ml-1">{"{hour}"}</code>,
-                          <code className="ml-1">{"{minute}"}</code>. Ersätts automatiskt med rumsnummer och aktuell tid.
-                        </p>
-                      </Field>
-                      <Field label='Link to "Book now" (free group room) – EN (book_now_url_en)'>
-                        <input
-                          type="text"
-                          value={form.book_now_url_en}
-                          onChange={(e) => setForm({ ...form, book_now_url_en: e.target.value })}
-                          placeholder="https://... (lämna tomt för att använda svenska som fallback)"
-                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                        />
-                      </Field>
                     </div>
+
+                    <details className="rounded-lg border border-border bg-muted/30 group">
+                      <summary className="cursor-pointer select-none px-3 py-2 text-sm font-semibold flex items-center justify-between hover:bg-accent/50 rounded-lg">
+                        <span>Grupprum – inställningar och länkar</span>
+                        <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+                      </summary>
+                      <div className="p-3 pt-2 space-y-4 border-t border-border">
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          Fyll i dessa fält endast för lokaler av typen grupprum. Lämna tomt för övriga lokaler.
+                        </p>
+                        <Field label="Bokningsrumsnummer (för grupprum)">
+                          <input
+                            value={form.booking_room_number}
+                            onChange={(e) => setForm({ ...form, booking_room_number: e.target.value.replace(/[^0-9]/g, "") })}
+                            inputMode="numeric"
+                            placeholder="t.ex. 4"
+                            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
+                          />
+                          <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                            Rumsnummer (1–21) i KTH:s bokningssystem. När det matchar visas en indikator på kortet om grupprummet är <strong>ledigt</strong> eller <strong>upptaget</strong> just nu.
+                          </p>
+                        </Field>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <Field label="Länk till boka grupprum – SV (group_booking_url)">
+                            <input
+                              type="url"
+                              value={form.group_booking_url}
+                              onChange={(e) => setForm({ ...form, group_booking_url: e.target.value })}
+                              placeholder="https://apps.lib.kth.se/mrbsgrupprum/day.php?area=1"
+                              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                            />
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              Permanent länk till bokningssidan (visas alltid på kortet).
+                            </p>
+                          </Field>
+                          <Field label="Link to book group room – EN (group_booking_url_en)">
+                            <input
+                              type="url"
+                              value={form.group_booking_url_en}
+                              onChange={(e) => setForm({ ...form, group_booking_url_en: e.target.value })}
+                              placeholder="https://... (lämna tomt för att använda svenska som fallback)"
+                              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                            />
+                          </Field>
+                          <Field label='Länk till "Boka nu" (ledigt grupprum) – SV (book_now_url)'>
+                            <input
+                              type="text"
+                              value={form.book_now_url}
+                              onChange={(e) => setForm({ ...form, book_now_url: e.target.value })}
+                              placeholder="https://apps.lib.kth.se/mrbsgrupprum/edit_entry.php?area=1&room={room}&hour={hour}&minute=0&year={year}&month={month}&day={day}"
+                              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                            />
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              Mall som används när "Boka nu"-knappen visas. Platshållare:
+                              <code className="ml-1">{"{room}"}</code>,
+                              <code className="ml-1">{"{year}"}</code>,
+                              <code className="ml-1">{"{month}"}</code>,
+                              <code className="ml-1">{"{day}"}</code>,
+                              <code className="ml-1">{"{hour}"}</code>,
+                              <code className="ml-1">{"{minute}"}</code>.
+                            </p>
+                          </Field>
+                          <Field label='Link to "Book now" (free group room) – EN (book_now_url_en)'>
+                            <input
+                              type="text"
+                              value={form.book_now_url_en}
+                              onChange={(e) => setForm({ ...form, book_now_url_en: e.target.value })}
+                              placeholder="https://... (lämna tomt för att använda svenska som fallback)"
+                              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                            />
+                          </Field>
+                        </div>
+                      </div>
+                    </details>
+
 
                     <Field label={`Bilder (max ${MAX_IMAGES}, första är primär)`}>
                       <div className="space-y-3">
@@ -802,27 +810,6 @@ function AdminPage() {
                           </ul>
                         )}
 
-                        {form.images[0] && (
-                          <div className="rounded-lg border border-border bg-secondary/40 p-3 space-y-2">
-                            <p className="text-xs font-semibold text-foreground">
-                              Förhandsvisning av primär bild (så här beskärs den i lokalkortet)
-                            </p>
-                            <div className="flex flex-wrap gap-4">
-                              <div className="space-y-1">
-                                <p className="text-[11px] text-muted-foreground">Mobil (full bredd, 3:2)</p>
-                                <div className="w-[320px] max-w-full aspect-[3/2] overflow-hidden rounded-md border border-border bg-muted">
-                                  <img src={form.images[0]} alt="" className="w-full h-full object-cover" />
-                                </div>
-                              </div>
-                              <div className="space-y-1">
-                                <p className="text-[11px] text-muted-foreground">Desktop (sidopanel, 3:2)</p>
-                                <div className="w-64 aspect-[3/2] overflow-hidden rounded-md border border-border bg-muted">
-                                  <img src={form.images[0]} alt="" className="w-full h-full object-cover" />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        )}
 
                         <div className="flex items-center gap-3 flex-wrap">
                           <label className={cn(
