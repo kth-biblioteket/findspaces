@@ -558,23 +558,6 @@ function AdminPage() {
                       </p>
                     </div>
 
-                    <div className="rounded-lg border border-dashed border-border bg-muted/30 p-3 space-y-2">
-                      <Field label="Bokningsrumsnummer (för grupprum)">
-                        <input
-                          value={form.booking_room_number}
-                          onChange={(e) => setForm({ ...form, booking_room_number: e.target.value.replace(/[^0-9]/g, "") })}
-                          inputMode="numeric"
-                          placeholder="t.ex. 4"
-                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
-                        />
-                      </Field>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        Rumsnummer (1–21) i KTH:s bokningssystem. När det matchar visas
-                        en indikator på kortet om grupprummet är <strong>ledigt</strong>
-                        {" "}eller <strong>upptaget</strong> just nu. Lämna tomt för
-                        lokaler som inte är grupprum eller saknar bokningsstatus.
-                      </p>
-                    </div>
 
                     <Field label="Arbetssätt (vilka val i ”Jag vill arbeta” som lokalen passar)">
                       <div className="flex flex-wrap gap-2">
