@@ -676,26 +676,37 @@ function AdminPage() {
                     </details>
 
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Field label="Länk till karta (map_url)">
-                        <input
-                          type="url"
-                          value={form.map_url}
-                          onChange={(e) => setForm({ ...form, map_url: e.target.value })}
-                          placeholder="https://..."
-                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                        />
-                      </Field>
-                      <Field label="Länk till bokningsschema (booking_url)">
-                        <input
-                          type="url"
-                          value={form.booking_url}
-                          onChange={(e) => setForm({ ...form, booking_url: e.target.value })}
-                          placeholder="https://..."
-                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                        />
-                      </Field>
-                    </div>
+                    <details className="rounded-lg border border-border bg-muted/30 group">
+                      <summary className="cursor-pointer select-none px-3 py-2 text-sm font-semibold flex items-center justify-between hover:bg-accent/50 rounded-lg">
+                        <span>Länkar (karta och bokning)</span>
+                        <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+                      </summary>
+                      <div className="p-3 pt-2 space-y-4 border-t border-border">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <Field label="Länk till karta (map_url)">
+                            <input
+                              type="url"
+                              value={form.map_url}
+                              onChange={(e) => setForm({ ...form, map_url: e.target.value })}
+                              placeholder="https://..."
+                              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                            />
+                          </Field>
+                          <Field label="Länk till bokningsschema för övningssalar (booking_url)">
+                            <input
+                              type="url"
+                              value={form.booking_url}
+                              onChange={(e) => setForm({ ...form, booking_url: e.target.value })}
+                              placeholder="https://..."
+                              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                            />
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              Används för övningssalar. För grupprum, se nedan.
+                            </p>
+                          </Field>
+                        </div>
+                      </div>
+                    </details>
 
                     <details className="rounded-lg border border-border bg-muted/30 group">
                       <summary className="cursor-pointer select-none px-3 py-2 text-sm font-semibold flex items-center justify-between hover:bg-accent/50 rounded-lg">
