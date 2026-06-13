@@ -531,32 +531,38 @@ function AdminPage() {
                       <span>Visa antal platser publikt på lokalkortet</span>
                     </label>
 
-                    <div className="rounded-lg border border-dashed border-border bg-muted/30 p-3 space-y-2">
-                      <Field label="Countmatters sensor-ID (realtidsbeläggning)">
-                        <input
-                          value={form.countmatters_sensor_id}
-                          onChange={(e) => setForm({ ...form, countmatters_sensor_id: e.target.value })}
-                          placeholder="t.ex. Newton"
-                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
-                        />
-                      </Field>
-                      <label className="flex items-start gap-2 text-sm cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={form.show_occupancy}
-                          onChange={(e) => setForm({ ...form, show_occupancy: e.target.checked })}
-                          className="mt-0.5 h-4 w-4 rounded border-border cursor-pointer accent-[var(--kth-blue)]"
-                        />
-                        <span>Visa beläggningsindikator på lokalkortet (kan slås av vid tekniska problem utan att radera sensor-ID:t)</span>
-                      </label>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        Ange <strong>zonnamnet</strong> exakt som det står i Countmatters
-                        (t.ex. <span className="font-mono">Newton</span>, <span className="font-mono">Ångdomen</span>,
-                        {" "}<span className="font-mono">Södra Galleriet</span>). När namnet matchar en zon i
-                        KTH:s realtids-API visas en indikator (grön/gul/röd) baserat på aktuell beläggning
-                        i förhållande till zonens maxantal. Lämna tomt för lokaler utan mätare.
-                      </p>
-                    </div>
+                    <details className="rounded-lg border border-border bg-muted/30 group">
+                      <summary className="cursor-pointer select-none px-3 py-2 text-sm font-semibold flex items-center justify-between hover:bg-accent/50 rounded-lg">
+                        <span>Realtidsdata (beläggning)</span>
+                        <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+                      </summary>
+                      <div className="p-3 pt-2 space-y-2 border-t border-border">
+                        <Field label="Countmatters sensor-ID (realtidsbeläggning)">
+                          <input
+                            value={form.countmatters_sensor_id}
+                            onChange={(e) => setForm({ ...form, countmatters_sensor_id: e.target.value })}
+                            placeholder="t.ex. Newton"
+                            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
+                          />
+                        </Field>
+                        <label className="flex items-start gap-2 text-sm cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={form.show_occupancy}
+                            onChange={(e) => setForm({ ...form, show_occupancy: e.target.checked })}
+                            className="mt-0.5 h-4 w-4 rounded border-border cursor-pointer accent-[var(--kth-blue)]"
+                          />
+                          <span>Visa beläggningsindikator på lokalkortet (kan slås av vid tekniska problem utan att radera sensor-ID:t)</span>
+                        </label>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          Ange <strong>zonnamnet</strong> exakt som det står i Countmatters
+                          (t.ex. <span className="font-mono">Newton</span>, <span className="font-mono">Ångdomen</span>,
+                          {" "}<span className="font-mono">Södra Galleriet</span>). När namnet matchar en zon i
+                          KTH:s realtids-API visas en indikator (grön/gul/röd) baserat på aktuell beläggning
+                          i förhållande till zonens maxantal. Lämna tomt för lokaler utan mätare.
+                        </p>
+                      </div>
+                    </details>
 
 
                     <Field label="Arbetssätt (vilka val i ”Jag vill arbeta” som lokalen passar)">
