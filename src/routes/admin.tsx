@@ -531,32 +531,38 @@ function AdminPage() {
                       <span>Visa antal platser publikt på lokalkortet</span>
                     </label>
 
-                    <div className="rounded-lg border border-dashed border-border bg-muted/30 p-3 space-y-2">
-                      <Field label="Countmatters sensor-ID (realtidsbeläggning)">
-                        <input
-                          value={form.countmatters_sensor_id}
-                          onChange={(e) => setForm({ ...form, countmatters_sensor_id: e.target.value })}
-                          placeholder="t.ex. Newton"
-                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
-                        />
-                      </Field>
-                      <label className="flex items-start gap-2 text-sm cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={form.show_occupancy}
-                          onChange={(e) => setForm({ ...form, show_occupancy: e.target.checked })}
-                          className="mt-0.5 h-4 w-4 rounded border-border cursor-pointer accent-[var(--kth-blue)]"
-                        />
-                        <span>Visa beläggningsindikator på lokalkortet (kan slås av vid tekniska problem utan att radera sensor-ID:t)</span>
-                      </label>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        Ange <strong>zonnamnet</strong> exakt som det står i Countmatters
-                        (t.ex. <span className="font-mono">Newton</span>, <span className="font-mono">Ångdomen</span>,
-                        {" "}<span className="font-mono">Södra Galleriet</span>). När namnet matchar en zon i
-                        KTH:s realtids-API visas en indikator (grön/gul/röd) baserat på aktuell beläggning
-                        i förhållande till zonens maxantal. Lämna tomt för lokaler utan mätare.
-                      </p>
-                    </div>
+                    <details className="rounded-lg border border-border bg-muted/30 group">
+                      <summary className="cursor-pointer select-none px-3 py-2 text-sm font-semibold flex items-center justify-between hover:bg-accent/50 rounded-lg">
+                        <span>Realtidsdata (beläggning)</span>
+                        <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+                      </summary>
+                      <div className="p-3 pt-2 space-y-2 border-t border-border">
+                        <Field label="Countmatters sensor-ID (realtidsbeläggning)">
+                          <input
+                            value={form.countmatters_sensor_id}
+                            onChange={(e) => setForm({ ...form, countmatters_sensor_id: e.target.value })}
+                            placeholder="t.ex. Newton"
+                            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
+                          />
+                        </Field>
+                        <label className="flex items-start gap-2 text-sm cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={form.show_occupancy}
+                            onChange={(e) => setForm({ ...form, show_occupancy: e.target.checked })}
+                            className="mt-0.5 h-4 w-4 rounded border-border cursor-pointer accent-[var(--kth-blue)]"
+                          />
+                          <span>Visa beläggningsindikator på lokalkortet (kan slås av vid tekniska problem utan att radera sensor-ID:t)</span>
+                        </label>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          Ange <strong>zonnamnet</strong> exakt som det står i Countmatters
+                          (t.ex. <span className="font-mono">Newton</span>, <span className="font-mono">Ångdomen</span>,
+                          {" "}<span className="font-mono">Södra Galleriet</span>). När namnet matchar en zon i
+                          KTH:s realtids-API visas en indikator (grön/gul/röd) baserat på aktuell beläggning
+                          i förhållande till zonens maxantal. Lämna tomt för lokaler utan mätare.
+                        </p>
+                      </div>
+                    </details>
 
 
                     <Field label="Arbetssätt (vilka val i ”Jag vill arbeta” som lokalen passar)">
@@ -592,96 +598,115 @@ function AdminPage() {
                     </Field>
 
 
-                    <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground leading-relaxed">
-                      <strong className="text-foreground">Tips:</strong> Du kan använda HTML i beskrivningstexten för att lägga in länkar och enkel formatering. Exempel:
-                      <code className="block mt-1 bg-card border border-border rounded px-2 py-1 text-[11px] font-mono whitespace-pre-wrap break-all">
-                        Läs mer på &lt;a href="https://kth.se" target="_blank" rel="noopener"&gt;kth.se&lt;/a&gt;.
-                      </code>
-                      Tillåtna taggar: <code>&lt;a&gt;</code>, <code>&lt;b&gt;</code>, <code>&lt;strong&gt;</code>, <code>&lt;i&gt;</code>, <code>&lt;em&gt;</code>, <code>&lt;br&gt;</code>, <code>&lt;p&gt;</code>, <code>&lt;ul&gt;</code>, <code>&lt;ol&gt;</code>, <code>&lt;li&gt;</code>. Länkar öppnas i ny flik automatiskt.
-                    </div>
-                    <Field label="Beskrivning (SV)">
-                      <textarea
-                        rows={4}
-                        value={form.description}
-                        onChange={(e) => setForm({ ...form, description: e.target.value })}
-                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
-                      />
-                    </Field>
-                    <Field label="Description (EN)">
-                      <textarea
-                        rows={4}
-                        value={form.description_en}
-                        onChange={(e) => setForm({ ...form, description_en: e.target.value })}
-                        placeholder="Lämna tomt för att använda svenska som fallback"
-                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
-                      />
-                    </Field>
+                    <details className="rounded-lg border border-border bg-muted/30 group">
+                      <summary className="cursor-pointer select-none px-3 py-2 text-sm font-semibold flex items-center justify-between hover:bg-accent/50 rounded-lg">
+                        <span>Texter (beskrivning och meddelanden)</span>
+                        <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+                      </summary>
+                      <div className="p-3 pt-2 space-y-4 border-t border-border">
+                        <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground leading-relaxed">
+                          <strong className="text-foreground">Tips:</strong> Du kan använda HTML i beskrivningstexten för att lägga in länkar och enkel formatering. Exempel:
+                          <code className="block mt-1 bg-card border border-border rounded px-2 py-1 text-[11px] font-mono whitespace-pre-wrap break-all">
+                            Läs mer på &lt;a href="https://kth.se" target="_blank" rel="noopener"&gt;kth.se&lt;/a&gt;.
+                          </code>
+                          Tillåtna taggar: <code>&lt;a&gt;</code>, <code>&lt;b&gt;</code>, <code>&lt;strong&gt;</code>, <code>&lt;i&gt;</code>, <code>&lt;em&gt;</code>, <code>&lt;br&gt;</code>, <code>&lt;p&gt;</code>, <code>&lt;ul&gt;</code>, <code>&lt;ol&gt;</code>, <code>&lt;li&gt;</code>. Länkar öppnas i ny flik automatiskt.
+                        </div>
+                        <Field label="Beskrivning (SV)">
+                          <textarea
+                            rows={4}
+                            value={form.description}
+                            onChange={(e) => setForm({ ...form, description: e.target.value })}
+                            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
+                          />
+                        </Field>
+                        <Field label="Description (EN)">
+                          <textarea
+                            rows={4}
+                            value={form.description_en}
+                            onChange={(e) => setForm({ ...form, description_en: e.target.value })}
+                            placeholder="Lämna tomt för att använda svenska som fallback"
+                            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
+                          />
+                        </Field>
 
-                    <Field label="Tillfällig notis (SV)">
-                      <textarea
-                        rows={2}
-                        value={form.notice}
-                        onChange={(e) => setForm({ ...form, notice: e.target.value })}
-                        placeholder="Lämna tomt om ingen notis ska visas"
-                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                      />
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Använd för tillfälliga eller akuta meddelanden (t.ex. stängt idag). Visas med amber-färgad markering.
-                      </p>
-                    </Field>
-                    <Field label="Temporary notice (EN)">
-                      <textarea
-                        rows={2}
-                        value={form.notice_en}
-                        onChange={(e) => setForm({ ...form, notice_en: e.target.value })}
-                        placeholder="Leave empty to fall back to Swedish"
-                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                      />
-                    </Field>
+                        <Field label="Tillfällig viktig information (SV)">
+                          <textarea
+                            rows={2}
+                            value={form.notice}
+                            onChange={(e) => setForm({ ...form, notice: e.target.value })}
+                            placeholder="Lämna tomt om ingen notis ska visas"
+                            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                          />
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            Använd för tillfälliga eller akuta meddelanden (t.ex. stängt idag). Visas med amber-färgad markering.
+                          </p>
+                        </Field>
+                        <Field label="Tillfällig viktig information (EN)">
+                          <textarea
+                            rows={2}
+                            value={form.notice_en}
+                            onChange={(e) => setForm({ ...form, notice_en: e.target.value })}
+                            placeholder="Leave empty to fall back to Swedish"
+                            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                          />
+                        </Field>
 
-                    <Field label="Information (SV)">
-                      <textarea
-                        rows={2}
-                        value={form.info}
-                        onChange={(e) => setForm({ ...form, info: e.target.value })}
-                        placeholder='T.ex. "Möblerna är tillfälliga och byts ut under hösten."'
-                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                      />
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Neutral information som alltid visas på kortet. Använd för "bra att veta"-info som inte är akut.
-                      </p>
-                    </Field>
-                    <Field label="Information (EN)">
-                      <textarea
-                        rows={2}
-                        value={form.info_en}
-                        onChange={(e) => setForm({ ...form, info_en: e.target.value })}
-                        placeholder="Leave empty to fall back to Swedish"
-                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                      />
-                    </Field>
+                        <Field label="Tillfällig neutral information (gul ruta) (SV)">
+                          <textarea
+                            rows={2}
+                            value={form.info}
+                            onChange={(e) => setForm({ ...form, info: e.target.value })}
+                            placeholder='T.ex. "Möblerna är tillfälliga och byts ut under hösten."'
+                            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                          />
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            Neutral information som alltid visas på kortet i en gul ruta. Använd för "bra att veta"-info som inte är akut.
+                          </p>
+                        </Field>
+                        <Field label="Tillfällig neutral information (gul ruta) (EN)">
+                          <textarea
+                            rows={2}
+                            value={form.info_en}
+                            onChange={(e) => setForm({ ...form, info_en: e.target.value })}
+                            placeholder="Leave empty to fall back to Swedish"
+                            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                          />
+                        </Field>
+                      </div>
+                    </details>
 
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Field label="Länk till karta (map_url)">
-                        <input
-                          type="url"
-                          value={form.map_url}
-                          onChange={(e) => setForm({ ...form, map_url: e.target.value })}
-                          placeholder="https://..."
-                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                        />
-                      </Field>
-                      <Field label="Länk till bokningsschema (booking_url)">
-                        <input
-                          type="url"
-                          value={form.booking_url}
-                          onChange={(e) => setForm({ ...form, booking_url: e.target.value })}
-                          placeholder="https://..."
-                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
-                        />
-                      </Field>
-                    </div>
+                    <details className="rounded-lg border border-border bg-muted/30 group">
+                      <summary className="cursor-pointer select-none px-3 py-2 text-sm font-semibold flex items-center justify-between hover:bg-accent/50 rounded-lg">
+                        <span>Länkar (karta och bokning)</span>
+                        <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+                      </summary>
+                      <div className="p-3 pt-2 space-y-4 border-t border-border">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <Field label="Länk till karta (map_url)">
+                            <input
+                              type="url"
+                              value={form.map_url}
+                              onChange={(e) => setForm({ ...form, map_url: e.target.value })}
+                              placeholder="https://..."
+                              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                            />
+                          </Field>
+                          <Field label="Länk till bokningsschema för övningssalar (booking_url)">
+                            <input
+                              type="url"
+                              value={form.booking_url}
+                              onChange={(e) => setForm({ ...form, booking_url: e.target.value })}
+                              placeholder="https://..."
+                              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                            />
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              Används för övningssalar. För grupprum, se nedan.
+                            </p>
+                          </Field>
+                        </div>
+                      </div>
+                    </details>
 
                     <details className="rounded-lg border border-border bg-muted/30 group">
                       <summary className="cursor-pointer select-none px-3 py-2 text-sm font-semibold flex items-center justify-between hover:bg-accent/50 rounded-lg">
@@ -758,8 +783,12 @@ function AdminPage() {
                     </details>
 
 
-                    <Field label={`Bilder (max ${MAX_IMAGES}, första är primär)`}>
-                      <div className="space-y-3">
+                    <details className="rounded-lg border border-border bg-muted/30 group">
+                      <summary className="cursor-pointer select-none px-3 py-2 text-sm font-semibold flex items-center justify-between hover:bg-accent/50 rounded-lg">
+                        <span>Bilder & alt-texter (max {MAX_IMAGES}, första är primär)</span>
+                        <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+                      </summary>
+                      <div className="p-3 pt-2 space-y-3 border-t border-border">
                         {form.images.length > 0 && (
                           <ul className="space-y-3">
                             {form.images.map((url, i) => (
@@ -810,7 +839,6 @@ function AdminPage() {
                           </ul>
                         )}
 
-
                         <div className="flex items-center gap-3 flex-wrap">
                           <label className={cn(
                             "inline-flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2 text-sm cursor-pointer hover:bg-accent",
@@ -837,7 +865,7 @@ function AdminPage() {
                           </p>
                         </div>
                       </div>
-                    </Field>
+                    </details>
 
                     {categories.filter((c) => c.key !== "intent").map((cat) => (
                       <DynamicCategoryField
