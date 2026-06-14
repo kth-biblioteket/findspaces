@@ -416,7 +416,11 @@ export function SpaceCard({
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setOpen((o) => !o);
+                  setOpen((o) => {
+                    const next = !o;
+                    if (next) track("card_expand", { space_id: space.id, name: space.name });
+                    return next;
+                  });
                 }}
                 aria-expanded={open}
                 className="inline-flex items-center text-xs text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary rounded"
