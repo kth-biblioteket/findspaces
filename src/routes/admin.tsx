@@ -947,6 +947,10 @@ function AdminPage() {
           <TabsContent value="occupancy">
             <OccupancySettingsTab />
           </TabsContent>
+
+          <TabsContent value="analytics">
+            <AnalyticsTab />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
