@@ -338,7 +338,10 @@ export function SpaceCard({
             href={space.map_url}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              track("map_link_click", { space_id: space.id, name: space.name });
+            }}
             className={buttonClass}
           >
             <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
