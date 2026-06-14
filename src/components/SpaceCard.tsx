@@ -18,6 +18,7 @@ import { OptionIcon } from "./OptionIcon";
 import { ImageCarousel } from "./ImageCarousel";
 import { ImageLightbox } from "./ImageLightbox";
 import { cn } from "@/lib/utils";
+import { track } from "@/lib/analytics";
 import { type Filters } from "./FilterPanel";
 
 type IntentValue = "enskilt" | "tillsammans";
