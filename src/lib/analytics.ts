@@ -38,7 +38,7 @@ export function track(
   // Fire and forget - never block UI or surface errors
   void supabase
     .from("analytics_events")
-    .insert({ event_type: event, payload, session_id, path })
+    .insert({ event_type: event, payload: payload as never, session_id, path })
     .then(({ error }) => {
       if (error) console.debug("[analytics] insert failed", error.message);
     });
