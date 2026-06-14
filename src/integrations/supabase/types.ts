@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: number
+          path: string | null
+          payload: Json
+          session_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: number
+          path?: string | null
+          payload?: Json
+          session_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: number
+          path?: string | null
+          payload?: Json
+          session_id?: string | null
+        }
+        Relationships: []
+      }
       app_settings: {
         Row: {
           key: string

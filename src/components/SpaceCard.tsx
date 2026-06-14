@@ -18,6 +18,7 @@ import { OptionIcon } from "./OptionIcon";
 import { ImageCarousel } from "./ImageCarousel";
 import { ImageLightbox } from "./ImageLightbox";
 import { cn } from "@/lib/utils";
+import { track } from "@/lib/analytics";
 import { type Filters } from "./FilterPanel";
 
 type IntentValue = "enskilt" | "tillsammans";
@@ -337,7 +338,10 @@ export function SpaceCard({
             href={space.map_url}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              track("map_link_click", { space_id: space.id, name: space.name });
+            }}
             className={buttonClass}
           >
             <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
@@ -353,7 +357,10 @@ export function SpaceCard({
             href={localizedGroupBookingUrl}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              track("booking_link_click", { space_id: space.id, name: space.name, kind: "group_booking" });
+            }}
             className={buttonClass}
           >
             <Users className="h-3.5 w-3.5" aria-hidden="true" />
@@ -369,7 +376,10 @@ export function SpaceCard({
             href={space.booking_url}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              track("booking_link_click", { space_id: space.id, name: space.name, kind: "booking" });
+            }}
             className={buttonClass}
           >
             <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
@@ -406,7 +416,11 @@ export function SpaceCard({
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setOpen((o) => !o);
+                  setOpen((o) => {
+                    const next = !o;
+                    if (next) track("card_expand", { space_id: space.id, name: space.name });
+                    return next;
+                  });
                 }}
                 aria-expanded={open}
                 className="inline-flex items-center text-xs text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary rounded"

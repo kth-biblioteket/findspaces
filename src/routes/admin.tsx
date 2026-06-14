@@ -37,6 +37,7 @@ import {
   type OccupancySchedule, type DaySchedule, type Weekday,
 } from "@/lib/useOccupancySettings";
 import { ChairIcon } from "@/components/icons/ChairIcon";
+import { AnalyticsTab } from "@/components/AnalyticsTab";
 
 
 import { toast } from "sonner";
@@ -436,6 +437,7 @@ function AdminPage() {
             <TabsTrigger value="layout">Kortlayout</TabsTrigger>
             <TabsTrigger value="landing">Texter</TabsTrigger>
             <TabsTrigger value="occupancy">Beläggning</TabsTrigger>
+            <TabsTrigger value="analytics">Statistik</TabsTrigger>
           </TabsList>
 
 
@@ -944,6 +946,10 @@ function AdminPage() {
 
           <TabsContent value="occupancy">
             <OccupancySettingsTab />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <AnalyticsTab />
           </TabsContent>
         </Tabs>
       </div>
