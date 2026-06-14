@@ -357,7 +357,10 @@ export function SpaceCard({
             href={localizedGroupBookingUrl}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              track("booking_link_click", { space_id: space.id, name: space.name, kind: "group_booking" });
+            }}
             className={buttonClass}
           >
             <Users className="h-3.5 w-3.5" aria-hidden="true" />
