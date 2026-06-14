@@ -37,6 +37,7 @@ import {
   type OccupancySchedule, type DaySchedule, type Weekday,
 } from "@/lib/useOccupancySettings";
 import { ChairIcon } from "@/components/icons/ChairIcon";
+import { AnalyticsTab } from "@/components/AnalyticsTab";
 
 
 import { toast } from "sonner";
