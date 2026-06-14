@@ -140,6 +140,35 @@ function SpaceFinder() {
   const { data: filterOptions = [] } = useFilterOptions();
   const narrowest = useNarrowestFilter(spaces, filters, categories, filterOptions);
 
+  usePageView("home");
+
+  useDebouncedTrack(
+    "filter_change",
+    filters,
+    (f) => ({
+      query: f.query.trim() || undefined,
+      workMode: f.workMode ?? undefined,
+      groupSize: f.groupSize ?? undefined,
+      freeOnly: f.freeOnly || undefined,
+      categories: Object.fromEntries(
+        Object.entries(f.byCategory).filter(([, v]) => v.length > 0),
+      ),
+    }),
+  );
+
+  useEffect(() => {
+    if (!isLoading && hasActiveFilter && filtered.length === 0) {
+      track("empty_results", {
+        query: filters.query.trim() || undefined,
+        workMode: filters.workMode ?? undefined,
+        categories: Object.fromEntries(
+          Object.entries(filters.byCategory).filter(([, v]) => v.length > 0),
+        ),
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading, hasActiveFilter, filtered.length]);
+
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-card border-b border-border">
