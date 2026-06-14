@@ -376,7 +376,10 @@ export function SpaceCard({
             href={space.booking_url}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              track("booking_link_click", { space_id: space.id, name: space.name, kind: "booking" });
+            }}
             className={buttonClass}
           >
             <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
