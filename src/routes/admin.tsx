@@ -437,6 +437,7 @@ function AdminPage() {
             <TabsTrigger value="layout">Kortlayout</TabsTrigger>
             <TabsTrigger value="landing">Texter</TabsTrigger>
             <TabsTrigger value="occupancy">Beläggning</TabsTrigger>
+            <TabsTrigger value="analytics">Statistik</TabsTrigger>
           </TabsList>
 
 
