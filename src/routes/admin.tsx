@@ -364,6 +364,75 @@ function AdminPage() {
     },
   });
 
+  const toggleSelected = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+  const clearSelection = () => setSelectedIds(new Set());
+  const selectAll = () => setSelectedIds(new Set(spaces.map((s) => s.id)));
+
+  const applyBulk = async () => {
+    if (selectedIds.size === 0) return;
+    const meta = BULK_ACTIONS.find((a) => a.value === bulkAction);
+    if (!meta) return;
+    const val = bulkValue.trim();
+    if (meta.needsValue && !val) {
+      toast.error("Ange ett värde");
+      return;
+    }
+    if (!confirm(`Tillämpa "${meta.label}" på ${selectedIds.size} lokal(er)?`)) return;
+
+    setBulkBusy(true);
+    try {
+      const ids = Array.from(selectedIds);
+      const selectedSpaces = spaces.filter((s) => ids.includes(s.id));
+
+      const simple: Record<string, any> | null = (() => {
+        switch (bulkAction) {
+          case "set_floor": return { floor: val };
+          case "set_notice": return { notice: val };
+          case "clear_notice": return { notice: null };
+          case "set_info": return { info: val };
+          case "clear_info": return { info: null };
+          case "show_occupancy_on": return { show_occupancy: true };
+          case "show_occupancy_off": return { show_occupancy: false };
+          case "show_capacity_on": return { show_capacity_publicly: true };
+          case "show_capacity_off": return { show_capacity_publicly: false };
+          default: return null;
+        }
+      })();
+
+      if (simple) {
+        const { error } = await supabase.from("spaces").update(simple).in("id", ids);
+        if (error) throw error;
+      } else if (bulkAction === "add_lokaltyp" || bulkAction === "remove_lokaltyp") {
+        await Promise.all(
+          selectedSpaces.map((s) => {
+            const cur = Array.isArray(s.lokaltyp) ? s.lokaltyp : [];
+            const next = bulkAction === "add_lokaltyp"
+              ? (cur.includes(val) ? cur : [...cur, val])
+              : cur.filter((x) => x !== val);
+            return supabase.from("spaces").update({ lokaltyp: next }).eq("id", s.id);
+          })
+        );
+      }
+
+      toast.success(`Uppdaterade ${ids.length} lokal(er)`);
+      setBulkValue("");
+      clearSelection();
+      qc.invalidateQueries({ queryKey: ["spaces"] });
+    } catch (e: any) {
+      toast.error(e.message ?? "Fel vid bulk-uppdatering");
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
+
+
   const handleUploadImage = async (file: File) => {
     if (form.images.length >= MAX_IMAGES) {
       toast.error(`Max ${MAX_IMAGES} bilder.`);
