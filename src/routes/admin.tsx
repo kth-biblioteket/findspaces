@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus, Pencil, Trash2, ArrowLeft, Upload, X, Settings2, GripVertical,
-  ChevronLeft, ChevronRight, ChevronDown,
+  ChevronDown,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -58,6 +58,33 @@ export const Route = createFileRoute("/admin")({
 });
 
 const MAX_IMAGES = 5;
+
+type BulkAction =
+  | "set_floor"
+  | "set_notice"
+  | "clear_notice"
+  | "set_info"
+  | "clear_info"
+  | "add_lokaltyp"
+  | "remove_lokaltyp"
+  | "show_occupancy_on"
+  | "show_occupancy_off"
+  | "show_capacity_on"
+  | "show_capacity_off";
+
+const BULK_ACTIONS: { value: BulkAction; label: string; needsValue: boolean; placeholder?: string }[] = [
+  { value: "set_floor", label: "Sätt våningsplan", needsValue: true, placeholder: "t.ex. Plan 3" },
+  { value: "set_notice", label: "Sätt notis (gul ruta)", needsValue: true, placeholder: "Kort notistext" },
+  { value: "clear_notice", label: "Rensa notis (gul ruta)", needsValue: false },
+  { value: "set_info", label: "Sätt info (neutral ruta)", needsValue: true, placeholder: "Kort infotext" },
+  { value: "clear_info", label: "Rensa info (neutral ruta)", needsValue: false },
+  { value: "add_lokaltyp", label: "Lägg till lokaltyp", needsValue: true, placeholder: "t.ex. Grupprum" },
+  { value: "remove_lokaltyp", label: "Ta bort lokaltyp", needsValue: true, placeholder: "t.ex. Grupprum" },
+  { value: "show_occupancy_on", label: "Visa beläggning: PÅ", needsValue: false },
+  { value: "show_occupancy_off", label: "Visa beläggning: AV", needsValue: false },
+  { value: "show_capacity_on", label: "Visa kapacitet publikt: PÅ", needsValue: false },
+  { value: "show_capacity_off", label: "Visa kapacitet publikt: AV", needsValue: false },
+];
 
 type FormState = {
   id?: string;
@@ -193,6 +220,10 @@ function AdminPage() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkAction, setBulkAction] = useState<BulkAction>("set_floor");
+  const [bulkValue, setBulkValue] = useState("");
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -333,6 +364,75 @@ function AdminPage() {
     },
   });
 
+  const toggleSelected = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+  const clearSelection = () => setSelectedIds(new Set());
+  const selectAll = () => setSelectedIds(new Set(spaces.map((s) => s.id)));
+
+  const applyBulk = async () => {
+    if (selectedIds.size === 0) return;
+    const meta = BULK_ACTIONS.find((a) => a.value === bulkAction);
+    if (!meta) return;
+    const val = bulkValue.trim();
+    if (meta.needsValue && !val) {
+      toast.error("Ange ett värde");
+      return;
+    }
+    if (!confirm(`Tillämpa "${meta.label}" på ${selectedIds.size} lokal(er)?`)) return;
+
+    setBulkBusy(true);
+    try {
+      const ids = Array.from(selectedIds);
+      const selectedSpaces = spaces.filter((s) => ids.includes(s.id));
+
+      const simple: Record<string, any> | null = (() => {
+        switch (bulkAction) {
+          case "set_floor": return { floor: val };
+          case "set_notice": return { notice: val };
+          case "clear_notice": return { notice: null };
+          case "set_info": return { info: val };
+          case "clear_info": return { info: null };
+          case "show_occupancy_on": return { show_occupancy: true };
+          case "show_occupancy_off": return { show_occupancy: false };
+          case "show_capacity_on": return { show_capacity_publicly: true };
+          case "show_capacity_off": return { show_capacity_publicly: false };
+          default: return null;
+        }
+      })();
+
+      if (simple) {
+        const { error } = await supabase.from("spaces").update(simple as any).in("id", ids);
+        if (error) throw error;
+      } else if (bulkAction === "add_lokaltyp" || bulkAction === "remove_lokaltyp") {
+        await Promise.all(
+          selectedSpaces.map((s) => {
+            const cur = Array.isArray(s.lokaltyp) ? s.lokaltyp : [];
+            const next = bulkAction === "add_lokaltyp"
+              ? (cur.includes(val) ? cur : [...cur, val])
+              : cur.filter((x) => x !== val);
+            return supabase.from("spaces").update({ lokaltyp: next }).eq("id", s.id);
+          })
+        );
+      }
+
+      toast.success(`Uppdaterade ${ids.length} lokal(er)`);
+      setBulkValue("");
+      clearSelection();
+      qc.invalidateQueries({ queryKey: ["spaces"] });
+    } catch (e: any) {
+      toast.error(e.message ?? "Fel vid bulk-uppdatering");
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
+
+
   const handleUploadImage = async (file: File) => {
     if (form.images.length >= MAX_IMAGES) {
       toast.error(`Max ${MAX_IMAGES} bilder.`);
@@ -352,20 +452,29 @@ function AdminPage() {
     toast.success("Bild uppladdad");
   };
 
-  const moveImage = (i: number, delta: number) => {
+  const reorderImagesByIndex = (oldIdx: number, newIdx: number) => {
     setForm((f) => {
-      const j = i + delta;
-      if (j < 0 || j >= f.images.length) return f;
-      const imgs = [...f.images];
+      if (oldIdx < 0 || newIdx < 0 || oldIdx >= f.images.length || newIdx >= f.images.length) return f;
       const alts = [...f.image_alts];
       const altsEn = [...f.image_alts_en];
-      while (alts.length < imgs.length) alts.push("");
-      while (altsEn.length < imgs.length) altsEn.push("");
-      [imgs[i], imgs[j]] = [imgs[j], imgs[i]];
-      [alts[i], alts[j]] = [alts[j], alts[i]];
-      [altsEn[i], altsEn[j]] = [altsEn[j], altsEn[i]];
-      return { ...f, images: imgs, image_alts: alts, image_alts_en: altsEn };
+      while (alts.length < f.images.length) alts.push("");
+      while (altsEn.length < f.images.length) altsEn.push("");
+      return {
+        ...f,
+        images: arrayMove(f.images, oldIdx, newIdx),
+        image_alts: arrayMove(alts, oldIdx, newIdx),
+        image_alts_en: arrayMove(altsEn, oldIdx, newIdx),
+      };
     });
+  };
+
+  const handleImagesDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const ids = form.images.map((u, i) => `${i}::${u}`);
+    const oldIdx = ids.indexOf(String(active.id));
+    const newIdx = ids.indexOf(String(over.id));
+    reorderImagesByIndex(oldIdx, newIdx);
   };
 
   const removeImage = (i: number) => {
@@ -792,53 +901,28 @@ function AdminPage() {
                       </summary>
                       <div className="p-3 pt-2 space-y-3 border-t border-border">
                         {form.images.length > 0 && (
-                          <ul className="space-y-3">
-                            {form.images.map((url, i) => (
-                              <li key={url + i} className="flex gap-3 items-start rounded-lg border border-border p-2">
-                                <div className="relative shrink-0">
-                                  <img src={url} alt="" className="h-20 w-28 object-cover border border-border" />
-                                  {i === 0 && (
-                                    <span className="absolute top-1 left-1 text-[10px] font-semibold bg-primary text-primary-foreground rounded px-1.5 py-0.5">
-                                      Primär
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="flex-1 min-w-0 space-y-2">
-                                  <input
-                                    value={form.image_alts[i] ?? ""}
-                                    onChange={(e) => setAlt(i, e.target.value)}
-                                    placeholder="Alt-text SV (beskriv bilden för skärmläsare)"
-                                    className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs"
+                          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleImagesDragEnd}>
+                            <SortableContext
+                              items={form.images.map((u, i) => `${i}::${u}`)}
+                              strategy={verticalListSortingStrategy}
+                            >
+                              <ul className="space-y-3">
+                                {form.images.map((url, i) => (
+                                  <SortableImageRow
+                                    key={`${i}::${url}`}
+                                    id={`${i}::${url}`}
+                                    url={url}
+                                    index={i}
+                                    altSv={form.image_alts[i] ?? ""}
+                                    altEn={form.image_alts_en[i] ?? ""}
+                                    onAltSv={(v) => setAlt(i, v)}
+                                    onAltEn={(v) => setAltEn(i, v)}
+                                    onRemove={() => removeImage(i)}
                                   />
-                                  <input
-                                    value={form.image_alts_en[i] ?? ""}
-                                    onChange={(e) => setAltEn(i, e.target.value)}
-                                    placeholder="Alt text EN (describe the image for screen readers – leave blank to fall back to Swedish)"
-                                    className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs"
-                                  />
-                                  <div className="flex items-center gap-1">
-                                    <button
-                                      type="button" onClick={() => moveImage(i, -1)}
-                                      disabled={i === 0}
-                                      className="h-7 w-7 rounded bg-secondary text-foreground flex items-center justify-center disabled:opacity-30"
-                                      aria-label="Flytta upp"
-                                    ><ChevronLeft className="h-3.5 w-3.5" /></button>
-                                    <button
-                                      type="button" onClick={() => moveImage(i, 1)}
-                                      disabled={i === form.images.length - 1}
-                                      className="h-7 w-7 rounded bg-secondary text-foreground flex items-center justify-center disabled:opacity-30"
-                                      aria-label="Flytta ner"
-                                    ><ChevronRight className="h-3.5 w-3.5" /></button>
-                                    <button
-                                      type="button" onClick={() => removeImage(i)}
-                                      className="h-7 w-7 rounded bg-destructive/10 text-destructive flex items-center justify-center ml-auto"
-                                      aria-label="Ta bort"
-                                    ><X className="h-3.5 w-3.5" /></button>
-                                  </div>
-                                </div>
-                              </li>
-                            ))}
-                          </ul>
+                                ))}
+                              </ul>
+                            </SortableContext>
+                          </DndContext>
                         )}
 
                         <div className="flex items-center gap-3 flex-wrap">
@@ -896,6 +980,43 @@ function AdminPage() {
               </Dialog>
             </div>
 
+            {selectedIds.size > 0 && (
+              <div className="bg-accent/40 border border-border rounded-xl p-3 flex flex-wrap items-center gap-2">
+                <span className="text-sm font-medium">
+                  {selectedIds.size} markerad{selectedIds.size === 1 ? "" : "e"}
+                </span>
+                <button
+                  type="button"
+                  onClick={clearSelection}
+                  className="text-xs text-muted-foreground hover:text-foreground underline"
+                >Avmarkera</button>
+                <div className="flex-1" />
+                <select
+                  value={bulkAction}
+                  onChange={(e) => { setBulkAction(e.target.value as BulkAction); setBulkValue(""); }}
+                  className="rounded-lg border border-border bg-card px-2 py-1.5 text-sm"
+                >
+                  {BULK_ACTIONS.map((a) => (
+                    <option key={a.value} value={a.value}>{a.label}</option>
+                  ))}
+                </select>
+                {BULK_ACTIONS.find((a) => a.value === bulkAction)?.needsValue && (
+                  <input
+                    value={bulkValue}
+                    onChange={(e) => setBulkValue(e.target.value)}
+                    placeholder={BULK_ACTIONS.find((a) => a.value === bulkAction)?.placeholder ?? ""}
+                    className="rounded-lg border border-border bg-card px-2 py-1.5 text-sm min-w-[12rem]"
+                  />
+                )}
+                <button
+                  type="button"
+                  disabled={bulkBusy}
+                  onClick={applyBulk}
+                  className="rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-sm font-medium disabled:opacity-50"
+                >{bulkBusy ? "Uppdaterar..." : "Tillämpa"}</button>
+              </div>
+            )}
+
             <div className="bg-card rounded-2xl border border-border overflow-hidden">
               {isLoading ? (
                 <div className="p-8 text-center text-muted-foreground">Laddar...</div>
@@ -904,6 +1025,17 @@ function AdminPage() {
                   <table className="w-full text-sm">
                     <thead className="bg-secondary/50">
                       <tr className="text-left">
+                        <th className="px-2 py-3 w-8">
+                          <input
+                            type="checkbox"
+                            aria-label="Markera alla"
+                            checked={spaces.length > 0 && selectedIds.size === spaces.length}
+                            ref={(el) => {
+                              if (el) el.indeterminate = selectedIds.size > 0 && selectedIds.size < spaces.length;
+                            }}
+                            onChange={(e) => { if (e.target.checked) selectAll(); else clearSelection(); }}
+                          />
+                        </th>
                         <th className="px-2 py-3 w-8"></th>
                         <th className="px-4 py-3 font-semibold">Namn</th>
                         <th className="px-4 py-3 font-semibold hidden md:table-cell">Våning</th>
@@ -918,6 +1050,8 @@ function AdminPage() {
                           <SortableSpaceRow
                             key={s.id}
                             space={s}
+                            selected={selectedIds.has(s.id)}
+                            onToggleSelected={() => toggleSelected(s.id)}
                             onEdit={() => openEdit(s)}
                             onDelete={() => { if (confirm(`Ta bort "${s.name}"?`)) del.mutate(s.id); }}
                           />
@@ -1557,8 +1691,14 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function SortableSpaceRow({
-  space, onEdit, onDelete,
-}: { space: Space; onEdit: () => void; onDelete: () => void }) {
+  space, selected, onToggleSelected, onEdit, onDelete,
+}: {
+  space: Space;
+  selected: boolean;
+  onToggleSelected: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: space.id });
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -1566,7 +1706,15 @@ function SortableSpaceRow({
     opacity: isDragging ? 0.5 : 1,
   };
   return (
-    <tr ref={setNodeRef} style={style} className="border-t border-border bg-card">
+    <tr ref={setNodeRef} style={style} className={cn("border-t border-border", selected ? "bg-accent/40" : "bg-card")}>
+      <td className="px-2 py-3">
+        <input
+          type="checkbox"
+          aria-label={`Markera ${space.name}`}
+          checked={selected}
+          onChange={onToggleSelected}
+        />
+      </td>
       <td className="px-2 py-3 text-muted-foreground">
         <button
           {...attributes} {...listeners}
@@ -1592,6 +1740,63 @@ function SortableSpaceRow({
     </tr>
   );
 }
+
+function SortableImageRow({
+  id, url, index, altSv, altEn, onAltSv, onAltEn, onRemove,
+}: {
+  id: string; url: string; index: number;
+  altSv: string; altEn: string;
+  onAltSv: (v: string) => void; onAltEn: (v: string) => void; onRemove: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+  return (
+    <li ref={setNodeRef} style={style} className="flex gap-3 items-start rounded-lg border border-border p-2 bg-card">
+      <button
+        type="button"
+        {...attributes} {...listeners}
+        className="p-1 self-center text-muted-foreground rounded hover:bg-accent cursor-grab active:cursor-grabbing touch-none"
+        title="Dra för att flytta"
+        aria-label="Dra för att flytta"
+      ><GripVertical className="h-4 w-4" /></button>
+      <div className="relative shrink-0">
+        <img src={url} alt="" className="h-20 w-28 object-cover border border-border" />
+        {index === 0 && (
+          <span className="absolute top-1 left-1 text-[10px] font-semibold bg-primary text-primary-foreground rounded px-1.5 py-0.5">
+            Primär
+          </span>
+        )}
+      </div>
+      <div className="flex-1 min-w-0 space-y-2">
+        <input
+          value={altSv}
+          onChange={(e) => onAltSv(e.target.value)}
+          placeholder="Alt-text SV (beskriv bilden för skärmläsare)"
+          className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs"
+        />
+        <input
+          value={altEn}
+          onChange={(e) => onAltEn(e.target.value)}
+          placeholder="Alt text EN (describe the image for screen readers – leave blank to fall back to Swedish)"
+          className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs"
+        />
+        <div className="flex items-center justify-end">
+          <button
+            type="button" onClick={onRemove}
+            className="h-7 w-7 rounded bg-destructive/10 text-destructive flex items-center justify-center"
+            aria-label="Ta bort"
+          ><X className="h-3.5 w-3.5" /></button>
+        </div>
+      </div>
+    </li>
+  );
+}
+
+
 
 function SortableFilterOptionRow({
   option, onEdit, onDelete,
