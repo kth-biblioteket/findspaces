@@ -1630,6 +1630,9 @@ function SortableImageRow({
       </div>
     </li>
   );
+}
+
+
 
 function SortableFilterOptionRow({
   option, onEdit, onDelete,
