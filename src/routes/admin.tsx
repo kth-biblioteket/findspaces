@@ -801,53 +801,28 @@ function AdminPage() {
                       </summary>
                       <div className="p-3 pt-2 space-y-3 border-t border-border">
                         {form.images.length > 0 && (
-                          <ul className="space-y-3">
-                            {form.images.map((url, i) => (
-                              <li key={url + i} className="flex gap-3 items-start rounded-lg border border-border p-2">
-                                <div className="relative shrink-0">
-                                  <img src={url} alt="" className="h-20 w-28 object-cover border border-border" />
-                                  {i === 0 && (
-                                    <span className="absolute top-1 left-1 text-[10px] font-semibold bg-primary text-primary-foreground rounded px-1.5 py-0.5">
-                                      Primär
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="flex-1 min-w-0 space-y-2">
-                                  <input
-                                    value={form.image_alts[i] ?? ""}
-                                    onChange={(e) => setAlt(i, e.target.value)}
-                                    placeholder="Alt-text SV (beskriv bilden för skärmläsare)"
-                                    className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs"
+                          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleImagesDragEnd}>
+                            <SortableContext
+                              items={form.images.map((u, i) => `${i}::${u}`)}
+                              strategy={verticalListSortingStrategy}
+                            >
+                              <ul className="space-y-3">
+                                {form.images.map((url, i) => (
+                                  <SortableImageRow
+                                    key={`${i}::${url}`}
+                                    id={`${i}::${url}`}
+                                    url={url}
+                                    index={i}
+                                    altSv={form.image_alts[i] ?? ""}
+                                    altEn={form.image_alts_en[i] ?? ""}
+                                    onAltSv={(v) => setAlt(i, v)}
+                                    onAltEn={(v) => setAltEn(i, v)}
+                                    onRemove={() => removeImage(i)}
                                   />
-                                  <input
-                                    value={form.image_alts_en[i] ?? ""}
-                                    onChange={(e) => setAltEn(i, e.target.value)}
-                                    placeholder="Alt text EN (describe the image for screen readers – leave blank to fall back to Swedish)"
-                                    className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs"
-                                  />
-                                  <div className="flex items-center gap-1">
-                                    <button
-                                      type="button" onClick={() => moveImage(i, -1)}
-                                      disabled={i === 0}
-                                      className="h-7 w-7 rounded bg-secondary text-foreground flex items-center justify-center disabled:opacity-30"
-                                      aria-label="Flytta upp"
-                                    ><ChevronLeft className="h-3.5 w-3.5" /></button>
-                                    <button
-                                      type="button" onClick={() => moveImage(i, 1)}
-                                      disabled={i === form.images.length - 1}
-                                      className="h-7 w-7 rounded bg-secondary text-foreground flex items-center justify-center disabled:opacity-30"
-                                      aria-label="Flytta ner"
-                                    ><ChevronRight className="h-3.5 w-3.5" /></button>
-                                    <button
-                                      type="button" onClick={() => removeImage(i)}
-                                      className="h-7 w-7 rounded bg-destructive/10 text-destructive flex items-center justify-center ml-auto"
-                                      aria-label="Ta bort"
-                                    ><X className="h-3.5 w-3.5" /></button>
-                                  </div>
-                                </div>
-                              </li>
-                            ))}
-                          </ul>
+                                ))}
+                              </ul>
+                            </SortableContext>
+                          </DndContext>
                         )}
 
                         <div className="flex items-center gap-3 flex-wrap">
