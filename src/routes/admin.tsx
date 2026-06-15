@@ -980,6 +980,43 @@ function AdminPage() {
               </Dialog>
             </div>
 
+            {selectedIds.size > 0 && (
+              <div className="bg-accent/40 border border-border rounded-xl p-3 flex flex-wrap items-center gap-2">
+                <span className="text-sm font-medium">
+                  {selectedIds.size} markerad{selectedIds.size === 1 ? "" : "e"}
+                </span>
+                <button
+                  type="button"
+                  onClick={clearSelection}
+                  className="text-xs text-muted-foreground hover:text-foreground underline"
+                >Avmarkera</button>
+                <div className="flex-1" />
+                <select
+                  value={bulkAction}
+                  onChange={(e) => { setBulkAction(e.target.value as BulkAction); setBulkValue(""); }}
+                  className="rounded-lg border border-border bg-card px-2 py-1.5 text-sm"
+                >
+                  {BULK_ACTIONS.map((a) => (
+                    <option key={a.value} value={a.value}>{a.label}</option>
+                  ))}
+                </select>
+                {BULK_ACTIONS.find((a) => a.value === bulkAction)?.needsValue && (
+                  <input
+                    value={bulkValue}
+                    onChange={(e) => setBulkValue(e.target.value)}
+                    placeholder={BULK_ACTIONS.find((a) => a.value === bulkAction)?.placeholder ?? ""}
+                    className="rounded-lg border border-border bg-card px-2 py-1.5 text-sm min-w-[12rem]"
+                  />
+                )}
+                <button
+                  type="button"
+                  disabled={bulkBusy}
+                  onClick={applyBulk}
+                  className="rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-sm font-medium disabled:opacity-50"
+                >{bulkBusy ? "Uppdaterar..." : "Tillämpa"}</button>
+              </div>
+            )}
+
             <div className="bg-card rounded-2xl border border-border overflow-hidden">
               {isLoading ? (
                 <div className="p-8 text-center text-muted-foreground">Laddar...</div>
@@ -988,6 +1025,17 @@ function AdminPage() {
                   <table className="w-full text-sm">
                     <thead className="bg-secondary/50">
                       <tr className="text-left">
+                        <th className="px-2 py-3 w-8">
+                          <input
+                            type="checkbox"
+                            aria-label="Markera alla"
+                            checked={spaces.length > 0 && selectedIds.size === spaces.length}
+                            ref={(el) => {
+                              if (el) el.indeterminate = selectedIds.size > 0 && selectedIds.size < spaces.length;
+                            }}
+                            onChange={(e) => { if (e.target.checked) selectAll(); else clearSelection(); }}
+                          />
+                        </th>
                         <th className="px-2 py-3 w-8"></th>
                         <th className="px-4 py-3 font-semibold">Namn</th>
                         <th className="px-4 py-3 font-semibold hidden md:table-cell">Våning</th>
@@ -1002,6 +1050,8 @@ function AdminPage() {
                           <SortableSpaceRow
                             key={s.id}
                             space={s}
+                            selected={selectedIds.has(s.id)}
+                            onToggleSelected={() => toggleSelected(s.id)}
                             onEdit={() => openEdit(s)}
                             onDelete={() => { if (confirm(`Ta bort "${s.name}"?`)) del.mutate(s.id); }}
                           />
