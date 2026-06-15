@@ -406,7 +406,7 @@ function AdminPage() {
       })();
 
       if (simple) {
-        const { error } = await supabase.from("spaces").update(simple).in("id", ids);
+        const { error } = await supabase.from("spaces").update(simple as any).in("id", ids);
         if (error) throw error;
       } else if (bulkAction === "add_lokaltyp" || bulkAction === "remove_lokaltyp") {
         await Promise.all(
