@@ -1577,6 +1577,60 @@ function SortableSpaceRow({
   );
 }
 
+function SortableImageRow({
+  id, url, index, altSv, altEn, onAltSv, onAltEn, onRemove,
+}: {
+  id: string; url: string; index: number;
+  altSv: string; altEn: string;
+  onAltSv: (v: string) => void; onAltEn: (v: string) => void; onRemove: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+  return (
+    <li ref={setNodeRef} style={style} className="flex gap-3 items-start rounded-lg border border-border p-2 bg-card">
+      <button
+        type="button"
+        {...attributes} {...listeners}
+        className="p-1 self-center text-muted-foreground rounded hover:bg-accent cursor-grab active:cursor-grabbing touch-none"
+        title="Dra för att flytta"
+        aria-label="Dra för att flytta"
+      ><GripVertical className="h-4 w-4" /></button>
+      <div className="relative shrink-0">
+        <img src={url} alt="" className="h-20 w-28 object-cover border border-border" />
+        {index === 0 && (
+          <span className="absolute top-1 left-1 text-[10px] font-semibold bg-primary text-primary-foreground rounded px-1.5 py-0.5">
+            Primär
+          </span>
+        )}
+      </div>
+      <div className="flex-1 min-w-0 space-y-2">
+        <input
+          value={altSv}
+          onChange={(e) => onAltSv(e.target.value)}
+          placeholder="Alt-text SV (beskriv bilden för skärmläsare)"
+          className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs"
+        />
+        <input
+          value={altEn}
+          onChange={(e) => onAltEn(e.target.value)}
+          placeholder="Alt text EN (describe the image for screen readers – leave blank to fall back to Swedish)"
+          className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs"
+        />
+        <div className="flex items-center justify-end">
+          <button
+            type="button" onClick={onRemove}
+            className="h-7 w-7 rounded bg-destructive/10 text-destructive flex items-center justify-center"
+            aria-label="Ta bort"
+          ><X className="h-3.5 w-3.5" /></button>
+        </div>
+      </div>
+    </li>
+  );
+
 function SortableFilterOptionRow({
   option, onEdit, onDelete,
 }: { option: FilterOption; onEdit: () => void; onDelete: () => void }) {
