@@ -193,6 +193,10 @@ function AdminPage() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkAction, setBulkAction] = useState<BulkAction>("set_floor");
+  const [bulkValue, setBulkValue] = useState("");
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   useEffect(() => {
     let mounted = true;
