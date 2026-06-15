@@ -59,6 +59,33 @@ export const Route = createFileRoute("/admin")({
 
 const MAX_IMAGES = 5;
 
+type BulkAction =
+  | "set_floor"
+  | "set_notice"
+  | "clear_notice"
+  | "set_info"
+  | "clear_info"
+  | "add_lokaltyp"
+  | "remove_lokaltyp"
+  | "show_occupancy_on"
+  | "show_occupancy_off"
+  | "show_capacity_on"
+  | "show_capacity_off";
+
+const BULK_ACTIONS: { value: BulkAction; label: string; needsValue: boolean; placeholder?: string }[] = [
+  { value: "set_floor", label: "Sätt våningsplan", needsValue: true, placeholder: "t.ex. Plan 3" },
+  { value: "set_notice", label: "Sätt notis (gul ruta)", needsValue: true, placeholder: "Kort notistext" },
+  { value: "clear_notice", label: "Rensa notis (gul ruta)", needsValue: false },
+  { value: "set_info", label: "Sätt info (neutral ruta)", needsValue: true, placeholder: "Kort infotext" },
+  { value: "clear_info", label: "Rensa info (neutral ruta)", needsValue: false },
+  { value: "add_lokaltyp", label: "Lägg till lokaltyp", needsValue: true, placeholder: "t.ex. Grupprum" },
+  { value: "remove_lokaltyp", label: "Ta bort lokaltyp", needsValue: true, placeholder: "t.ex. Grupprum" },
+  { value: "show_occupancy_on", label: "Visa beläggning: PÅ", needsValue: false },
+  { value: "show_occupancy_off", label: "Visa beläggning: AV", needsValue: false },
+  { value: "show_capacity_on", label: "Visa kapacitet publikt: PÅ", needsValue: false },
+  { value: "show_capacity_off", label: "Visa kapacitet publikt: AV", needsValue: false },
+];
+
 type FormState = {
   id?: string;
   name: string;
