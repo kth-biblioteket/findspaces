@@ -352,20 +352,29 @@ function AdminPage() {
     toast.success("Bild uppladdad");
   };
 
-  const moveImage = (i: number, delta: number) => {
+  const reorderImagesByIndex = (oldIdx: number, newIdx: number) => {
     setForm((f) => {
-      const j = i + delta;
-      if (j < 0 || j >= f.images.length) return f;
-      const imgs = [...f.images];
+      if (oldIdx < 0 || newIdx < 0 || oldIdx >= f.images.length || newIdx >= f.images.length) return f;
       const alts = [...f.image_alts];
       const altsEn = [...f.image_alts_en];
-      while (alts.length < imgs.length) alts.push("");
-      while (altsEn.length < imgs.length) altsEn.push("");
-      [imgs[i], imgs[j]] = [imgs[j], imgs[i]];
-      [alts[i], alts[j]] = [alts[j], alts[i]];
-      [altsEn[i], altsEn[j]] = [altsEn[j], altsEn[i]];
-      return { ...f, images: imgs, image_alts: alts, image_alts_en: altsEn };
+      while (alts.length < f.images.length) alts.push("");
+      while (altsEn.length < f.images.length) altsEn.push("");
+      return {
+        ...f,
+        images: arrayMove(f.images, oldIdx, newIdx),
+        image_alts: arrayMove(alts, oldIdx, newIdx),
+        image_alts_en: arrayMove(altsEn, oldIdx, newIdx),
+      };
     });
+  };
+
+  const handleImagesDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const ids = form.images.map((u, i) => `${i}::${u}`);
+    const oldIdx = ids.indexOf(String(active.id));
+    const newIdx = ids.indexOf(String(over.id));
+    reorderImagesByIndex(oldIdx, newIdx);
   };
 
   const removeImage = (i: number) => {
