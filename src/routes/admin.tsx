@@ -1691,8 +1691,14 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function SortableSpaceRow({
-  space, onEdit, onDelete,
-}: { space: Space; onEdit: () => void; onDelete: () => void }) {
+  space, selected, onToggleSelected, onEdit, onDelete,
+}: {
+  space: Space;
+  selected: boolean;
+  onToggleSelected: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: space.id });
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -1700,7 +1706,15 @@ function SortableSpaceRow({
     opacity: isDragging ? 0.5 : 1,
   };
   return (
-    <tr ref={setNodeRef} style={style} className="border-t border-border bg-card">
+    <tr ref={setNodeRef} style={style} className={cn("border-t border-border", selected ? "bg-accent/40" : "bg-card")}>
+      <td className="px-2 py-3">
+        <input
+          type="checkbox"
+          aria-label={`Markera ${space.name}`}
+          checked={selected}
+          onChange={onToggleSelected}
+        />
+      </td>
       <td className="px-2 py-3 text-muted-foreground">
         <button
           {...attributes} {...listeners}
