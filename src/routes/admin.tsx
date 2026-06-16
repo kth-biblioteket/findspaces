@@ -384,6 +384,8 @@ function AdminPage() {
   const clearSelection = () => setSelectedIds(new Set());
   const selectAll = () => setSelectedIds(new Set(spaces.map((s) => s.id)));
 
+  const [bulkCategory, setBulkCategory] = useState<string>("lokaltyp");
+
   const applyBulk = async () => {
     if (selectedIds.size === 0) return;
     const meta = BULK_ACTIONS.find((a) => a.value === bulkAction);
@@ -403,10 +405,15 @@ function AdminPage() {
       const simple: Record<string, any> | null = (() => {
         switch (bulkAction) {
           case "set_floor": return { floor: val };
+          case "set_floor_en": return { floor_en: val };
           case "set_notice": return { notice: val };
           case "clear_notice": return { notice: null };
+          case "set_notice_en": return { notice_en: val };
+          case "clear_notice_en": return { notice_en: null };
           case "set_info": return { info: val };
           case "clear_info": return { info: null };
+          case "set_info_en": return { info_en: val };
+          case "clear_info_en": return { info_en: null };
           case "show_occupancy_on": return { show_occupancy: true };
           case "show_occupancy_off": return { show_occupancy: false };
           case "show_capacity_on": return { show_capacity_publicly: true };
@@ -418,14 +425,35 @@ function AdminPage() {
       if (simple) {
         const { error } = await supabase.from("spaces").update(simple as any).in("id", ids);
         if (error) throw error;
-      } else if (bulkAction === "add_lokaltyp" || bulkAction === "remove_lokaltyp") {
+      } else if (bulkAction === "add_filter" || bulkAction === "remove_filter") {
+        const cat = bulkCategory;
+        if (cat === "vaningsplan") {
+          throw new Error("Använd 'Sätt våningsplan' för plan");
+        }
+        // Map category key to spaces column (or tags JSON)
+        const colMap: Record<string, string> = {
+          intent: "intent", noise: "noise", equipment: "equipment",
+          facility: "facilities", lokaltyp: "lokaltyp",
+        };
+        const col = colMap[cat];
         await Promise.all(
           selectedSpaces.map((s) => {
-            const cur = Array.isArray(s.lokaltyp) ? s.lokaltyp : [];
-            const next = bulkAction === "add_lokaltyp"
-              ? (cur.includes(val) ? cur : [...cur, val])
-              : cur.filter((x) => x !== val);
-            return supabase.from("spaces").update({ lokaltyp: next }).eq("id", s.id);
+            if (col) {
+              const cur = Array.isArray((s as any)[col]) ? ((s as any)[col] as string[]) : [];
+              const next = bulkAction === "add_filter"
+                ? (cur.includes(val) ? cur : [...cur, val])
+                : cur.filter((x) => x !== val);
+              return supabase.from("spaces").update({ [col]: next } as any).eq("id", s.id);
+            } else {
+              const tags = (s.tags && typeof s.tags === "object" && !Array.isArray(s.tags))
+                ? { ...(s.tags as Record<string, string[]>) } : {};
+              const cur = Array.isArray(tags[cat]) ? tags[cat] : [];
+              const next = bulkAction === "add_filter"
+                ? (cur.includes(val) ? cur : [...cur, val])
+                : cur.filter((x) => x !== val);
+              if (next.length === 0) delete tags[cat]; else tags[cat] = next;
+              return supabase.from("spaces").update({ tags: tags as any }).eq("id", s.id);
+            }
           })
         );
       }
