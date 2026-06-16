@@ -1038,7 +1038,31 @@ function AdminPage() {
                     <option key={a.value} value={a.value}>{a.label}</option>
                   ))}
                 </select>
-                {BULK_ACTIONS.find((a) => a.value === bulkAction)?.needsValue && (
+                {(bulkAction === "add_filter" || bulkAction === "remove_filter") ? (
+                  <>
+                    <select
+                      value={bulkCategory}
+                      onChange={(e) => { setBulkCategory(e.target.value); setBulkValue(""); }}
+                      className="rounded-lg border border-border bg-card px-2 py-1.5 text-sm"
+                    >
+                      {categories
+                        .filter((c) => c.key !== "vaningsplan")
+                        .map((c) => (
+                          <option key={c.id} value={c.key}>{c.title}</option>
+                        ))}
+                    </select>
+                    <select
+                      value={bulkValue}
+                      onChange={(e) => setBulkValue(e.target.value)}
+                      className="rounded-lg border border-border bg-card px-2 py-1.5 text-sm min-w-[10rem]"
+                    >
+                      <option value="">— välj värde —</option>
+                      {(byKey[bulkCategory] ?? []).map((o) => (
+                        <option key={o.id} value={o.label}>{o.label}</option>
+                      ))}
+                    </select>
+                  </>
+                ) : BULK_ACTIONS.find((a) => a.value === bulkAction)?.needsValue && (
                   <input
                     value={bulkValue}
                     onChange={(e) => setBulkValue(e.target.value)}
