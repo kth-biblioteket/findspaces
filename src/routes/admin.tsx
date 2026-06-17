@@ -1817,7 +1817,12 @@ function SortableSpaceRow({
       </td>
       <td className="px-4 py-3 font-medium">{space.name}</td>
       <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
-        <code className="text-xs bg-secondary px-1.5 py-0.5 rounded">{space.id}</code>
+        {space.slug ? (
+          <code className="text-xs bg-secondary px-1.5 py-0.5 rounded font-mono">{space.slug}</code>
+        ) : (
+          <span className="text-xs italic">— (ingen slug)</span>
+        )}
+
       </td>
       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.floor ?? "—"}</td>
       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.lokaltyp?.join(", ") || "—"}</td>
