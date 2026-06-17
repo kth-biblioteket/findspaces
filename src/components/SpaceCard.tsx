@@ -32,6 +32,7 @@ export function SpaceCard({
   priority = false,
   spaces,
   highlightId,
+  highlightTick,
   onSpaceLink,
 }: {
   space: Space;
@@ -43,6 +44,7 @@ export function SpaceCard({
   priority?: boolean;
   spaces?: Space[];
   highlightId?: string;
+  highlightTick?: number;
   onSpaceLink?: (id: string) => void;
 }) {
   const { t, i18n } = useTranslation();
