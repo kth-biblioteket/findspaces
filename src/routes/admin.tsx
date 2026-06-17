@@ -504,12 +504,14 @@ function AdminPage() {
     const { error } = await supabase.storage.from("space-images").upload(path, file);
     if (error) { toast.error(error.message); return; }
     const { data } = supabase.storage.from("space-images").getPublicUrl(path);
+    const nowIso = new Date().toISOString();
     setForm((f) => ({
       ...f,
       images: [...f.images, data.publicUrl],
       image_alts: [...f.image_alts, ""],
       image_alts_en: [...f.image_alts_en, ""],
     }));
+    setImageDates((prev) => ({ ...prev, [data.publicUrl]: nowIso }));
     toast.success("Bild uppladdad");
   };
 
