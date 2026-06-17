@@ -70,7 +70,7 @@ function searchToFilters(s: SearchParams): Filters {
   };
 }
 
-function filtersToSearch(f: Filters) {
+function filtersToSearch(f: Filters, highlight?: string) {
   const cats: Record<string, string[]> = {};
   for (const [k, v] of Object.entries(f.byCategory)) {
     if (v && v.length > 0) cats[k] = v;
@@ -80,6 +80,7 @@ function filtersToSearch(f: Filters) {
     mode: f.workMode ?? undefined,
     size: f.workMode === "grupprum" && f.groupSize ? f.groupSize : undefined,
     free: f.workMode === "grupprum" && f.freeOnly ? true : undefined,
+    highlight,
     cats: Object.keys(cats).length > 0 ? cats : undefined,
   };
 }
