@@ -26,7 +26,7 @@ export function parseSpaceLinks(
     }
     const rawId = match[1].trim();
     const customText = match[2]?.trim();
-    const target = map.get(rawId);
+    const target = resolve(rawId);
     const label = customText || (target ? pickLocalized(target, "name", lang) : rawId);
 
     out.push(
