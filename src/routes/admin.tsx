@@ -165,6 +165,7 @@ function spaceToForm(s: Space): FormState {
   while (image_alts_en.length < images.length) image_alts_en.push("");
   return {
     id: s.id,
+    slug: s.slug ?? "",
     name: s.name,
     name_en: s.name_en ?? "",
     description: s.description,
