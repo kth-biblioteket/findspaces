@@ -127,6 +127,21 @@ export function SpaceCard({
     });
   }, [lang, space.image_alts, space.image_alts_en]);
 
+  const handleSpaceLink = (id: string) => {
+    track("space_link_click", { source_id: space.id, target_id: id });
+    onSpaceLink?.(id);
+  };
+
+  const linkedNotice = useMemo(() => {
+    if (!localizedNotice || !spaces || !onSpaceLink) return localizedNotice;
+    return parseSpaceLinks(localizedNotice, spaces, lang, handleSpaceLink);
+  }, [localizedNotice, spaces, lang, onSpaceLink]);
+
+  const linkedInfo = useMemo(() => {
+    if (!localizedInfo || !spaces || !onSpaceLink) return localizedInfo;
+    return parseSpaceLinks(localizedInfo, spaces, lang, handleSpaceLink);
+  }, [localizedInfo, spaces, lang, onSpaceLink]);
+
   const sanitizedDescription = useMemo(() => {
     if (!localizedDescription) return "";
     const clean = DOMPurify.sanitize(localizedDescription, {
