@@ -94,7 +94,11 @@ function SpaceFinder() {
   const filters = useMemo(() => searchToFilters(search), [search]);
 
   const setFilters = (next: Filters) => {
-    navigate({ search: filtersToSearch(next) as never, replace: true });
+    navigate({ search: filtersToSearch(next, search.highlight) as never, replace: true });
+  };
+
+  const handleSpaceLink = (id: string) => {
+    navigate({ search: (prev) => ({ ...prev, highlight: id }) as never, replace: true });
   };
 
   const { data: spaces = [], isLoading } = useQuery({
