@@ -263,6 +263,23 @@ function AdminPage() {
     navigate({ to: "/login" });
   };
 
+  const fetchImageDates = useCallback(async (imageUrls: string[]) => {
+    try {
+      const { data: files, error } = await supabase.storage.from("space-images").list("");
+      if (error || !files) return;
+      const byName = new Map(files.map((f) => [f.name, f.created_at]));
+      const next: Record<string, string | null> = {};
+      for (const url of imageUrls) {
+        const name = url.split("/").pop()?.split("?")[0] ?? "";
+        next[url] = byName.get(name) ?? null;
+      }
+      setImageDates(next);
+    } catch {
+      // tyst fallbacks — visar bara inget datum
+    }
+  }, []);
+
+
 
   const { data: spaces = [], isLoading } = useQuery({
     queryKey: ["spaces"],
