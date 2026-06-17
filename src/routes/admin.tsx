@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus, Pencil, Trash2, ArrowLeft, Upload, X, Settings2, GripVertical,
@@ -233,6 +234,7 @@ function AdminPage() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
+  const [imageDates, setImageDates] = useState<Record<string, string | null>>({});
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkAction, setBulkAction] = useState<BulkAction>("set_floor");
   const [bulkValue, setBulkValue] = useState("");
@@ -260,6 +262,23 @@ function AdminPage() {
     await supabase.auth.signOut();
     navigate({ to: "/login" });
   };
+
+  const fetchImageDates = useCallback(async (imageUrls: string[]) => {
+    try {
+      const { data: files, error } = await supabase.storage.from("space-images").list("");
+      if (error || !files) return;
+      const byName = new Map(files.map((f) => [f.name, f.created_at]));
+      const next: Record<string, string | null> = {};
+      for (const url of imageUrls) {
+        const name = url.split("/").pop()?.split("?")[0] ?? "";
+        next[url] = byName.get(name) ?? null;
+      }
+      setImageDates(next);
+    } catch {
+      // tyst fallbacks — visar bara inget datum
+    }
+  }, []);
+
 
 
   const { data: spaces = [], isLoading } = useQuery({
@@ -485,12 +504,14 @@ function AdminPage() {
     const { error } = await supabase.storage.from("space-images").upload(path, file);
     if (error) { toast.error(error.message); return; }
     const { data } = supabase.storage.from("space-images").getPublicUrl(path);
+    const nowIso = new Date().toISOString();
     setForm((f) => ({
       ...f,
       images: [...f.images, data.publicUrl],
       image_alts: [...f.image_alts, ""],
       image_alts_en: [...f.image_alts_en, ""],
     }));
+    setImageDates((prev) => ({ ...prev, [data.publicUrl]: nowIso }));
     toast.success("Bild uppladdad");
   };
 
@@ -547,8 +568,20 @@ function AdminPage() {
   };
 
 
-  const openEdit = (s: Space) => { setForm(spaceToForm(s)); setOpen(true); };
-  const openNew = () => { setForm(emptyForm); setOpen(true); };
+  const openEdit = (s: Space) => {
+    const f = spaceToForm(s);
+    setForm(f);
+    setImageDates({});
+    setOpen(true);
+    fetchImageDates(f.images);
+  };
+  const openNew = () => { setForm(emptyForm); setImageDates({}); setOpen(true); };
+
+  useEffect(() => {
+    if (open && form.images.length > 0) {
+      fetchImageDates(form.images);
+    }
+  }, [open, form.images.length, fetchImageDates]);
 
   if (!authChecked) {
     return (
@@ -982,6 +1015,7 @@ function AdminPage() {
                                     index={i}
                                     altSv={form.image_alts[i] ?? ""}
                                     altEn={form.image_alts_en[i] ?? ""}
+                                    uploadedAt={imageDates[url]}
                                     onAltSv={(v) => setAlt(i, v)}
                                     onAltEn={(v) => setAltEn(i, v)}
                                     onRemove={() => removeImage(i)}
@@ -1842,10 +1876,10 @@ function SortableSpaceRow({
 }
 
 function SortableImageRow({
-  id, url, index, altSv, altEn, onAltSv, onAltEn, onRemove,
+  id, url, index, altSv, altEn, uploadedAt, onAltSv, onAltEn, onRemove,
 }: {
   id: string; url: string; index: number;
-  altSv: string; altEn: string;
+  altSv: string; altEn: string; uploadedAt?: string | null;
   onAltSv: (v: string) => void; onAltEn: (v: string) => void; onRemove: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
@@ -1854,6 +1888,9 @@ function SortableImageRow({
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
+  const dateLabel = uploadedAt
+    ? new Date(uploadedAt).toLocaleDateString("sv-SE", { year: "numeric", month: "short", day: "numeric" })
+    : null;
   return (
     <li ref={setNodeRef} style={style} className="flex gap-3 items-start rounded-lg border border-border p-2 bg-card">
       <button
@@ -1884,7 +1921,12 @@ function SortableImageRow({
           placeholder="Alt text EN (describe the image for screen readers – leave blank to fall back to Swedish)"
           className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs"
         />
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-between">
+          {dateLabel ? (
+            <span className="text-[10px] text-muted-foreground">Uppladdad: {dateLabel}</span>
+          ) : (
+            <span />
+          )}
           <button
             type="button" onClick={onRemove}
             className="h-7 w-7 rounded bg-destructive/10 text-destructive flex items-center justify-center"
