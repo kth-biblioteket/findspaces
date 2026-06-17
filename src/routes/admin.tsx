@@ -566,8 +566,14 @@ function AdminPage() {
   };
 
 
-  const openEdit = (s: Space) => { setForm(spaceToForm(s)); setOpen(true); };
-  const openNew = () => { setForm(emptyForm); setOpen(true); };
+  const openEdit = (s: Space) => {
+    const f = spaceToForm(s);
+    setForm(f);
+    setImageDates({});
+    setOpen(true);
+    fetchImageDates(f.images);
+  };
+  const openNew = () => { setForm(emptyForm); setImageDates({}); setOpen(true); };
 
   if (!authChecked) {
     return (
