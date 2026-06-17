@@ -835,7 +835,7 @@ function AdminPage() {
                             className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                           />
                           <p className="mt-1 text-xs text-muted-foreground">
-                            Neutral information som alltid visas på kortet. Använd syntaxen <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[lokal-id|valfri text]]</code> för att länka till ett annat kort (t.ex. <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[{form.id || "exempel-id"}|Maxwell]]</code>).
+                            Neutral information som alltid visas på kortet. Använd syntaxen <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[slug|valfri text]]</code> för att länka till ett annat kort (t.ex. <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[{form.slug || "maxwell"}|Maxwell]]</code>).
                           </p>
                         </Field>
                         <Field label="Tillfällig neutral information (EN)">
