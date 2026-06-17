@@ -603,6 +603,12 @@ function AdminPage() {
                 <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>{form.id ? "Redigera lokal" : "Ny lokal"}</DialogTitle>
+                    {form.id && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Lokal-id: <code className="bg-secondary px-1 py-0.5 rounded text-xs">{form.id}</code>
+                        <span className="ml-1">(används för interna länkar mellan kort, t.ex. <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[{form.id}]]</code>)</span>
+                      </p>
+                    )}
                   </DialogHeader>
 
                   <div className="space-y-5 py-2">
@@ -787,7 +793,7 @@ function AdminPage() {
                             className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                           />
                           <p className="mt-1 text-xs text-muted-foreground">
-                            Använd för tillfälliga eller akuta meddelanden (t.ex. stängt idag). Visas med amber-färgad markering.
+                            Använd för tillfälliga eller akuta meddelanden (t.ex. stängt idag). Visas med amber-färgad markering. Du kan länka till annat kort med <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[lokal-id|valfri text]]</code>.
                           </p>
                         </Field>
                         <Field label="Tillfällig viktig information (gul ruta) (EN)">
@@ -809,7 +815,7 @@ function AdminPage() {
                             className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                           />
                           <p className="mt-1 text-xs text-muted-foreground">
-                            Neutral information som alltid visas på kortet i en gul ruta. Använd för "bra att veta"-info som inte är akut.
+                            Neutral information som alltid visas på kortet. Använd syntaxen <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[lokal-id|valfri text]]</code> för att länka till ett annat kort (t.ex. <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[{form.id || "exempel-id"}|Maxwell]]</code>).
                           </p>
                         </Field>
                         <Field label="Tillfällig neutral information (EN)">
@@ -820,6 +826,9 @@ function AdminPage() {
                             placeholder="Leave empty to fall back to Swedish"
                             className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                           />
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            English info. Use <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[space-id|optional text]]</code> for internal links.
+                          </p>
                         </Field>
                       </div>
                     </details>
@@ -1100,6 +1109,7 @@ function AdminPage() {
                         </th>
                         <th className="px-2 py-3 w-8"></th>
                         <th className="px-4 py-3 font-semibold">Namn</th>
+                        <th className="px-4 py-3 font-semibold hidden lg:table-cell">ID</th>
                         <th className="px-4 py-3 font-semibold hidden md:table-cell">Våning</th>
                         <th className="px-4 py-3 font-semibold hidden md:table-cell">Lokaltyp</th>
                         <th className="px-4 py-3 font-semibold hidden md:table-cell">Ljudnivå</th>
@@ -1786,6 +1796,9 @@ function SortableSpaceRow({
         ><GripVertical className="h-4 w-4" /></button>
       </td>
       <td className="px-4 py-3 font-medium">{space.name}</td>
+      <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
+        <code className="text-xs bg-secondary px-1.5 py-0.5 rounded">{space.id}</code>
+      </td>
       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.floor ?? "—"}</td>
       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.lokaltyp?.join(", ") || "—"}</td>
       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.noise}</td>

@@ -26,7 +26,8 @@ export type AnalyticsEvent =
   | "card_expand"
   | "booking_link_click"
   | "map_link_click"
-  | "empty_results";
+  | "empty_results"
+  | "space_link_click";
 
 export function track(
   event: AnalyticsEvent,

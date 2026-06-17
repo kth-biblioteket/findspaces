@@ -1,9 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import DOMPurify from "dompurify";
 import { ChevronDown, MapPin, Calendar, Info, Users, User, X, DoorOpen, DoorClosed, AlertTriangle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ChairIcon } from "./icons/ChairIcon";
-
 
 import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
@@ -20,6 +19,8 @@ import { ImageLightbox } from "./ImageLightbox";
 import { cn } from "@/lib/utils";
 import { track } from "@/lib/analytics";
 import { type Filters } from "./FilterPanel";
+import { parseSpaceLinks } from "@/lib/spaceLinks";
+
 
 type IntentValue = "enskilt" | "tillsammans";
 
@@ -29,6 +30,9 @@ export function SpaceCard({
   filters,
   onFiltersChange,
   priority = false,
+  spaces,
+  highlightId,
+  onSpaceLink,
 }: {
   space: Space;
   /** Optional override for live preview in admin. */
@@ -37,12 +41,16 @@ export function SpaceCard({
   onFiltersChange?: (next: Filters) => void;
   /** Eagerly load the image (use for above-the-fold cards). */
   priority?: boolean;
+  spaces?: Space[];
+  highlightId?: string;
+  onSpaceLink?: (id: string) => void;
 }) {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
   const [open, setOpen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [highlighted, setHighlighted] = useState(false);
   const { data: options = [] } = useFilterOptions();
   const { data: layoutFromDb = ["header", "chips", "button_map", "button_booking"] } = useCardLayout();
   const { data: capacityIconUrl } = useCapacityIcon();
@@ -58,6 +66,19 @@ export function SpaceCard({
   const { data: showDescriptionLabel } = useUiText("show_description");
   const { data: hideDescriptionLabel } = useUiText("hide_description");
   const layout = layoutOverride ?? layoutFromDb;
+
+  useEffect(() => {
+    if (highlightId && highlightId === space.id) {
+      setOpen(true);
+      setHighlighted(true);
+      const el = document.getElementById(`space-${space.id}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      const timer = setTimeout(() => setHighlighted(false), 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightId, space.id]);
 
   const interactive = Boolean(filters && onFiltersChange);
 
@@ -105,6 +126,24 @@ export function SpaceCard({
       return e && e.trim().length > 0 ? e : s;
     });
   }, [lang, space.image_alts, space.image_alts_en]);
+
+  const handleSpaceLink = useCallback(
+    (id: string) => {
+      track("space_link_click", { source_id: space.id, target_id: id });
+      onSpaceLink?.(id);
+    },
+    [space.id, onSpaceLink],
+  );
+
+  const linkedNotice = useMemo(() => {
+    if (!localizedNotice || !spaces || !onSpaceLink) return localizedNotice;
+    return parseSpaceLinks(localizedNotice, spaces, lang, handleSpaceLink);
+  }, [localizedNotice, spaces, lang, handleSpaceLink]);
+
+  const linkedInfo = useMemo(() => {
+    if (!localizedInfo || !spaces || !onSpaceLink) return localizedInfo;
+    return parseSpaceLinks(localizedInfo, spaces, lang, handleSpaceLink);
+  }, [localizedInfo, spaces, lang, handleSpaceLink]);
 
   const sanitizedDescription = useMemo(() => {
     if (!localizedDescription) return "";
@@ -233,7 +272,7 @@ export function SpaceCard({
             )}
 
 
-            {localizedNotice && (
+            {linkedNotice && (
               <div
                 role="status"
                 className="mt-2 mb-1 flex items-start gap-2 bg-[#FFF0B0] text-foreground rounded-lg px-3 py-2 text-sm"
@@ -241,7 +280,7 @@ export function SpaceCard({
                 <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-orange-500" aria-hidden="true" />
                 <span className="whitespace-pre-line">
                   <span className="sr-only">{t("card.notice_sr")} </span>
-                  {localizedNotice}
+                  {linkedNotice}
                 </span>
               </div>
             )}
@@ -398,15 +437,21 @@ export function SpaceCard({
   const renderedButtons = buttonKeys.map(renderButton).filter(Boolean);
 
   return (
-    <article className="bg-card rounded-2xl border border-border overflow-hidden transition-all hover:shadow-md">
+    <article
+      id={`space-${space.id}`}
+      className={cn(
+        "bg-card rounded-2xl border border-border overflow-hidden transition-all hover:shadow-md",
+        highlighted && "space-highlight",
+      )}
+    >
         <div className="flex flex-col md:flex-row items-stretch gap-3 md:gap-3">
           <div className="order-2 md:order-1 flex-1 min-w-0 flex flex-col p-3 md:p-3">
           {layout.map((k, i) => renderSection(k, i))}
 
-          {localizedInfo && (
+          {linkedInfo && (
             <div className="mt-2 mb-1 flex items-start gap-2 text-sm text-foreground/80">
               <Info className="h-3.5 w-3.5 mt-0.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-              <span className="whitespace-pre-line">{localizedInfo}</span>
+              <span className="whitespace-pre-line">{linkedInfo}</span>
             </div>
           )}
 
