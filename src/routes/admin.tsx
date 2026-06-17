@@ -609,13 +609,29 @@ function AdminPage() {
                     <DialogTitle>{form.id ? "Redigera lokal" : "Ny lokal"}</DialogTitle>
                     {form.id && (
                       <p className="text-xs text-muted-foreground mt-1">
-                        Lokal-id: <code className="bg-secondary px-1 py-0.5 rounded text-xs">{form.id}</code>
-                        <span className="ml-1">(används för interna länkar mellan kort, t.ex. <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[{form.id}]]</code>)</span>
+                        Tekniskt ID: <code className="bg-secondary px-1 py-0.5 rounded text-xs">{form.id}</code>
                       </p>
                     )}
                   </DialogHeader>
 
                   <div className="space-y-5 py-2">
+                    <Field label="Kort-ID / slug (valfritt)">
+                      <input
+                        value={form.slug}
+                        onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-") })}
+                        placeholder="t.ex. maxwell eller norra-arkaden"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                        Kort, läsbart ID som används i interna länkar och delbara URL:er. Endast små bokstäver, siffror och bindestreck. Lämna tomt om du inte vill ha en slug — då används det tekniska ID:t.
+                        {form.slug && (
+                          <>
+                            {" "}Exempel på länksyntax: <code className="bg-secondary px-1 py-0.5 rounded">[[{form.slug}|valfri text]]</code>
+                            {" · "}Direktlänk: <code className="bg-secondary px-1 py-0.5 rounded">?highlight={form.slug}</code>
+                          </>
+                        )}
+                      </p>
+                    </Field>
                     <Field label="Namn (SV)">
                       <input
                         value={form.name}
