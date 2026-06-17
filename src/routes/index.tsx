@@ -25,6 +25,7 @@ type SearchParams = {
   mode?: "enskilt" | "tillsammans" | "grupprum";
   size?: "2-4" | "5+";
   free?: boolean;
+  highlight?: string;
   cats: Record<string, string[]>;
 };
 
@@ -38,13 +39,14 @@ function validateSearch(input: Record<string, unknown>): SearchParams {
   const sizeRaw = input.size;
   const size = sizeRaw === "2-4" || sizeRaw === "5+" ? sizeRaw : undefined;
   const free = input.free === true || input.free === "1" || input.free === 1 ? true : undefined;
+  const highlight = typeof input.highlight === "string" ? input.highlight : undefined;
   const cats: Record<string, string[]> = {};
   if (input.cats && typeof input.cats === "object" && !Array.isArray(input.cats)) {
     for (const [k, v] of Object.entries(input.cats as Record<string, unknown>)) {
       if (Array.isArray(v)) cats[k] = v.filter((x): x is string => typeof x === "string");
     }
   }
-  return { q, mode, size, free, cats };
+  return { q, mode, size, free, highlight, cats };
 }
 
 export const Route = createFileRoute("/")({
