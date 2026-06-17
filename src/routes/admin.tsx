@@ -1796,6 +1796,9 @@ function SortableSpaceRow({
         ><GripVertical className="h-4 w-4" /></button>
       </td>
       <td className="px-4 py-3 font-medium">{space.name}</td>
+      <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
+        <code className="text-xs bg-secondary px-1.5 py-0.5 rounded">{space.id}</code>
+      </td>
       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.floor ?? "—"}</td>
       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.lokaltyp?.join(", ") || "—"}</td>
       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.noise}</td>
