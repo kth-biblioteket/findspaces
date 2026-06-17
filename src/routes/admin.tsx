@@ -575,6 +575,12 @@ function AdminPage() {
   };
   const openNew = () => { setForm(emptyForm); setImageDates({}); setOpen(true); };
 
+  useEffect(() => {
+    if (open && form.images.length > 0) {
+      fetchImageDates(form.images);
+    }
+  }, [open, form.images.length, fetchImageDates]);
+
   if (!authChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center text-sm text-muted-foreground">
