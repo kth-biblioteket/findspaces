@@ -269,7 +269,7 @@ export function SpaceCard({
             )}
 
 
-            {localizedNotice && (
+            {linkedNotice && (
               <div
                 role="status"
                 className="mt-2 mb-1 flex items-start gap-2 bg-[#FFF0B0] text-foreground rounded-lg px-3 py-2 text-sm"
@@ -277,7 +277,7 @@ export function SpaceCard({
                 <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-orange-500" aria-hidden="true" />
                 <span className="whitespace-pre-line">
                   <span className="sr-only">{t("card.notice_sr")} </span>
-                  {localizedNotice}
+                  {linkedNotice}
                 </span>
               </div>
             )}
