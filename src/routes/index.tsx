@@ -97,7 +97,10 @@ function SpaceFinder() {
     navigate({ search: filtersToSearch(next, search.highlight) as never, replace: true });
   };
 
+  const [highlightTick, setHighlightTick] = useState(0);
+
   const handleSpaceLink = (id: string) => {
+    setHighlightTick((t) => t + 1);
     navigate({ search: (prev: SearchParams) => ({ ...prev, highlight: id }) as never, replace: true });
   };
 
