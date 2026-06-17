@@ -1013,6 +1013,7 @@ function AdminPage() {
                                     index={i}
                                     altSv={form.image_alts[i] ?? ""}
                                     altEn={form.image_alts_en[i] ?? ""}
+                                    uploadedAt={imageDates[url]}
                                     onAltSv={(v) => setAlt(i, v)}
                                     onAltEn={(v) => setAltEn(i, v)}
                                     onRemove={() => removeImage(i)}
