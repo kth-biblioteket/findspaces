@@ -32,6 +32,7 @@ export function SpaceCard({
   priority = false,
   spaces,
   highlightId,
+  highlightTick,
   onSpaceLink,
 }: {
   space: Space;
@@ -43,6 +44,7 @@ export function SpaceCard({
   priority?: boolean;
   spaces?: Space[];
   highlightId?: string;
+  highlightTick?: number;
   onSpaceLink?: (id: string) => void;
 }) {
   const { t, i18n } = useTranslation();
@@ -78,7 +80,7 @@ export function SpaceCard({
       const timer = setTimeout(() => setHighlighted(false), 2500);
       return () => clearTimeout(timer);
     }
-  }, [highlightId, space.id]);
+  }, [highlightId, highlightTick, space.id]);
 
   const interactive = Boolean(filters && onFiltersChange);
 

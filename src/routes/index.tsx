@@ -97,7 +97,10 @@ function SpaceFinder() {
     navigate({ search: filtersToSearch(next, search.highlight) as never, replace: true });
   };
 
+  const [highlightTick, setHighlightTick] = useState(0);
+
   const handleSpaceLink = (id: string) => {
+    setHighlightTick((t) => t + 1);
     navigate({ search: (prev: SearchParams) => ({ ...prev, highlight: id }) as never, replace: true });
   };
 
@@ -290,7 +293,7 @@ function SpaceFinder() {
           )}
           <div className="space-y-2 md:space-y-2">
             {filtered.map((s, i) => (
-              <SpaceCard key={s.id} space={s} filters={filters} onFiltersChange={setFilters} onSpaceLink={handleSpaceLink} highlightId={search.highlight} spaces={spaces} priority={i < 3} />
+              <SpaceCard key={s.id} space={s} filters={filters} onFiltersChange={setFilters} onSpaceLink={handleSpaceLink} highlightId={search.highlight} highlightTick={highlightTick} spaces={spaces} priority={i < 3} />
             ))}
           </div>
         </main>
