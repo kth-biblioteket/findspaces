@@ -1873,10 +1873,10 @@ function SortableSpaceRow({
 }
 
 function SortableImageRow({
-  id, url, index, altSv, altEn, onAltSv, onAltEn, onRemove,
+  id, url, index, altSv, altEn, uploadedAt, onAltSv, onAltEn, onRemove,
 }: {
   id: string; url: string; index: number;
-  altSv: string; altEn: string;
+  altSv: string; altEn: string; uploadedAt?: string | null;
   onAltSv: (v: string) => void; onAltEn: (v: string) => void; onRemove: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
@@ -1885,6 +1885,9 @@ function SortableImageRow({
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
+  const dateLabel = uploadedAt
+    ? new Date(uploadedAt).toLocaleDateString("sv-SE", { year: "numeric", month: "short", day: "numeric" })
+    : null;
   return (
     <li ref={setNodeRef} style={style} className="flex gap-3 items-start rounded-lg border border-border p-2 bg-card">
       <button
@@ -1915,7 +1918,12 @@ function SortableImageRow({
           placeholder="Alt text EN (describe the image for screen readers – leave blank to fall back to Swedish)"
           className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs"
         />
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-between">
+          {dateLabel ? (
+            <span className="text-[10px] text-muted-foreground">Uppladdad: {dateLabel}</span>
+          ) : (
+            <span />
+          )}
           <button
             type="button" onClick={onRemove}
             className="h-7 w-7 rounded bg-destructive/10 text-destructive flex items-center justify-center"
