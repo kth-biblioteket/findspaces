@@ -100,3 +100,13 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+@keyframes space-highlight-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(25, 84, 166, 0.6); }
+  50% { box-shadow: 0 0 0 6px rgba(25, 84, 166, 0.15); }
+  100% { box-shadow: 0 0 0 0 rgba(25, 84, 166, 0); }
+}
+
+.space-highlight {
+  animation: space-highlight-pulse 1.5s ease-out;
+}
