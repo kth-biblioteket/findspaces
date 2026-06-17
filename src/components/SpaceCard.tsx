@@ -1,9 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import DOMPurify from "dompurify";
 import { ChevronDown, MapPin, Calendar, Info, Users, User, X, DoorOpen, DoorClosed, AlertTriangle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ChairIcon } from "./icons/ChairIcon";
-
 
 import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
@@ -20,6 +19,8 @@ import { ImageLightbox } from "./ImageLightbox";
 import { cn } from "@/lib/utils";
 import { track } from "@/lib/analytics";
 import { type Filters } from "./FilterPanel";
+import { parseSpaceLinks } from "@/lib/spaceLinks";
+
 
 type IntentValue = "enskilt" | "tillsammans";
 
