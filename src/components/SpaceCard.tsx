@@ -434,7 +434,13 @@ export function SpaceCard({
   const renderedButtons = buttonKeys.map(renderButton).filter(Boolean);
 
   return (
-    <article className="bg-card rounded-2xl border border-border overflow-hidden transition-all hover:shadow-md">
+    <article
+      id={`space-${space.id}`}
+      className={cn(
+        "bg-card rounded-2xl border border-border overflow-hidden transition-all hover:shadow-md",
+        highlighted && "space-highlight",
+      )}
+    >
         <div className="flex flex-col md:flex-row items-stretch gap-3 md:gap-3">
           <div className="order-2 md:order-1 flex-1 min-w-0 flex flex-col p-3 md:p-3">
           {layout.map((k, i) => renderSection(k, i))}
