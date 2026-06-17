@@ -603,6 +603,12 @@ function AdminPage() {
                 <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>{form.id ? "Redigera lokal" : "Ny lokal"}</DialogTitle>
+                    {form.id && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Lokal-id: <code className="bg-secondary px-1 py-0.5 rounded text-xs">{form.id}</code>
+                        <span className="ml-1">(används för interna länkar mellan kort, t.ex. <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[{form.id}]]</code>)</span>
+                      </p>
+                    )}
                   </DialogHeader>
 
                   <div className="space-y-5 py-2">
