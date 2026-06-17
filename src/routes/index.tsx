@@ -98,7 +98,7 @@ function SpaceFinder() {
   };
 
   const handleSpaceLink = (id: string) => {
-    navigate({ search: (prev) => ({ ...prev, highlight: id }) as never, replace: true });
+    navigate({ search: (prev: SearchParams) => ({ ...prev, highlight: id }) as never, replace: true });
   };
 
   const { data: spaces = [], isLoading } = useQuery({
