@@ -101,7 +101,13 @@ function SpaceFinder() {
 
   const handleSpaceLink = (id: string) => {
     setHighlightTick((t) => t + 1);
-    navigate({ search: (prev: SearchParams) => ({ ...prev, highlight: id }) as never, replace: true });
+    const target = spaces.find((s) => s.id === id || s.slug === id);
+    const visible = target ? filtered.some((s) => s.id === target.id) : false;
+    if (target && !visible) {
+      navigate({ search: { q: "", highlight: id, cats: {} } as never, replace: true });
+    } else {
+      navigate({ search: (prev: SearchParams) => ({ ...prev, highlight: id }) as never, replace: true });
+    }
   };
 
   const { data: spaces = [], isLoading } = useQuery({
