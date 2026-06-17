@@ -30,6 +30,9 @@ export function SpaceCard({
   filters,
   onFiltersChange,
   priority = false,
+  spaces,
+  highlightId,
+  onSpaceLink,
 }: {
   space: Space;
   /** Optional override for live preview in admin. */
@@ -38,6 +41,9 @@ export function SpaceCard({
   onFiltersChange?: (next: Filters) => void;
   /** Eagerly load the image (use for above-the-fold cards). */
   priority?: boolean;
+  spaces?: Space[];
+  highlightId?: string;
+  onSpaceLink?: (id: string) => void;
 }) {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
