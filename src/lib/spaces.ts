@@ -3,6 +3,7 @@ import type { LucideIcon } from "lucide-react";
 
 export type Space = {
   id: string;
+  slug: string | null;
   name: string;
   name_en: string | null;
   category: string;
