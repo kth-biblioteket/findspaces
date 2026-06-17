@@ -1912,6 +1912,7 @@ function SortableFilterOptionRow({
 
 const DUMMY_SPACE: Space = {
   id: "dummy",
+  slug: null,
   name: "Exempel-lokal",
   category: "",
   description:
