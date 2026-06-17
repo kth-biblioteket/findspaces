@@ -50,6 +50,7 @@ export function SpaceCard({
   const [open, setOpen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [highlighted, setHighlighted] = useState(false);
   const { data: options = [] } = useFilterOptions();
   const { data: layoutFromDb = ["header", "chips", "button_map", "button_booking"] } = useCardLayout();
   const { data: capacityIconUrl } = useCapacityIcon();
@@ -65,6 +66,19 @@ export function SpaceCard({
   const { data: showDescriptionLabel } = useUiText("show_description");
   const { data: hideDescriptionLabel } = useUiText("hide_description");
   const layout = layoutOverride ?? layoutFromDb;
+
+  useEffect(() => {
+    if (highlightId && highlightId === space.id) {
+      setOpen(true);
+      setHighlighted(true);
+      const el = document.getElementById(`space-${space.id}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      const timer = setTimeout(() => setHighlighted(false), 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightId, space.id]);
 
   const interactive = Boolean(filters && onFiltersChange);
 
