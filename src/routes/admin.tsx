@@ -314,6 +314,7 @@ function AdminPage() {
     mutationFn: async (f: FormState) => {
       const capNum = f.capacity.trim() ? parseInt(f.capacity, 10) : NaN;
       const payload: any = {
+        slug: f.slug.trim() ? f.slug.trim().toLowerCase() : null,
         name: f.name,
         name_en: f.name_en.trim() || null,
         description: f.description,
