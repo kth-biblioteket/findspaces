@@ -70,7 +70,7 @@ export function SpaceCard({
   const layout = layoutOverride ?? layoutFromDb;
 
   useEffect(() => {
-    if (highlightId && highlightId === space.id) {
+    if (highlightId && (highlightId === space.id || highlightId === space.slug)) {
       setOpen(true);
       setHighlighted(true);
       const el = document.getElementById(`space-${space.id}`);
@@ -80,7 +80,7 @@ export function SpaceCard({
       const timer = setTimeout(() => setHighlighted(false), 2500);
       return () => clearTimeout(timer);
     }
-  }, [highlightId, highlightTick, space.id]);
+  }, [highlightId, highlightTick, space.id, space.slug]);
 
   const interactive = Boolean(filters && onFiltersChange);
 

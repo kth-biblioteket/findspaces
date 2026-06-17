@@ -98,6 +98,7 @@ const BULK_ACTIONS: { value: BulkAction; label: string; needsValue: boolean; pla
 
 type FormState = {
   id?: string;
+  slug: string;
   name: string;
   name_en: string;
   description: string;
@@ -134,6 +135,7 @@ type FormState = {
 };
 
 const emptyForm: FormState = {
+  slug: "",
   name: "", name_en: "",
   description: "", description_en: "",
   floor: "", floor_en: "",
@@ -163,6 +165,7 @@ function spaceToForm(s: Space): FormState {
   while (image_alts_en.length < images.length) image_alts_en.push("");
   return {
     id: s.id,
+    slug: s.slug ?? "",
     name: s.name,
     name_en: s.name_en ?? "",
     description: s.description,
@@ -311,6 +314,7 @@ function AdminPage() {
     mutationFn: async (f: FormState) => {
       const capNum = f.capacity.trim() ? parseInt(f.capacity, 10) : NaN;
       const payload: any = {
+        slug: f.slug.trim() ? f.slug.trim().toLowerCase() : null,
         name: f.name,
         name_en: f.name_en.trim() || null,
         description: f.description,
@@ -605,13 +609,29 @@ function AdminPage() {
                     <DialogTitle>{form.id ? "Redigera lokal" : "Ny lokal"}</DialogTitle>
                     {form.id && (
                       <p className="text-xs text-muted-foreground mt-1">
-                        Lokal-id: <code className="bg-secondary px-1 py-0.5 rounded text-xs">{form.id}</code>
-                        <span className="ml-1">(används för interna länkar mellan kort, t.ex. <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[{form.id}]]</code>)</span>
+                        Tekniskt ID: <code className="bg-secondary px-1 py-0.5 rounded text-xs">{form.id}</code>
                       </p>
                     )}
                   </DialogHeader>
 
                   <div className="space-y-5 py-2">
+                    <Field label="Kort-ID / slug (valfritt)">
+                      <input
+                        value={form.slug}
+                        onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-") })}
+                        placeholder="t.ex. maxwell eller norra-arkaden"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                        Kort, läsbart ID som används i interna länkar och delbara URL:er. Endast små bokstäver, siffror och bindestreck. Lämna tomt om du inte vill ha en slug — då används det tekniska ID:t.
+                        {form.slug && (
+                          <>
+                            {" "}Exempel på länksyntax: <code className="bg-secondary px-1 py-0.5 rounded">[[{form.slug}|valfri text]]</code>
+                            {" · "}Direktlänk: <code className="bg-secondary px-1 py-0.5 rounded">?highlight={form.slug}</code>
+                          </>
+                        )}
+                      </p>
+                    </Field>
                     <Field label="Namn (SV)">
                       <input
                         value={form.name}
@@ -793,7 +813,7 @@ function AdminPage() {
                             className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                           />
                           <p className="mt-1 text-xs text-muted-foreground">
-                            Använd för tillfälliga eller akuta meddelanden (t.ex. stängt idag). Visas med amber-färgad markering. Du kan länka till annat kort med <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[lokal-id|valfri text]]</code>.
+                            Använd för tillfälliga eller akuta meddelanden (t.ex. stängt idag). Visas med amber-färgad markering. Du kan länka till annat kort med <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[slug|valfri text]]</code>.
                           </p>
                         </Field>
                         <Field label="Tillfällig viktig information (gul ruta) (EN)">
@@ -815,7 +835,7 @@ function AdminPage() {
                             className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                           />
                           <p className="mt-1 text-xs text-muted-foreground">
-                            Neutral information som alltid visas på kortet. Använd syntaxen <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[lokal-id|valfri text]]</code> för att länka till ett annat kort (t.ex. <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[{form.id || "exempel-id"}|Maxwell]]</code>).
+                            Neutral information som alltid visas på kortet. Använd syntaxen <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[slug|valfri text]]</code> för att länka till ett annat kort (t.ex. <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[{form.slug || "maxwell"}|Maxwell]]</code>).
                           </p>
                         </Field>
                         <Field label="Tillfällig neutral information (EN)">
@@ -1109,7 +1129,7 @@ function AdminPage() {
                         </th>
                         <th className="px-2 py-3 w-8"></th>
                         <th className="px-4 py-3 font-semibold">Namn</th>
-                        <th className="px-4 py-3 font-semibold hidden lg:table-cell">ID</th>
+                        <th className="px-4 py-3 font-semibold hidden lg:table-cell">Slug</th>
                         <th className="px-4 py-3 font-semibold hidden md:table-cell">Våning</th>
                         <th className="px-4 py-3 font-semibold hidden md:table-cell">Lokaltyp</th>
                         <th className="px-4 py-3 font-semibold hidden md:table-cell">Ljudnivå</th>
@@ -1797,7 +1817,12 @@ function SortableSpaceRow({
       </td>
       <td className="px-4 py-3 font-medium">{space.name}</td>
       <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
-        <code className="text-xs bg-secondary px-1.5 py-0.5 rounded">{space.id}</code>
+        {space.slug ? (
+          <code className="text-xs bg-secondary px-1.5 py-0.5 rounded font-mono">{space.slug}</code>
+        ) : (
+          <span className="text-xs italic">— (ingen slug)</span>
+        )}
+
       </td>
       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.floor ?? "—"}</td>
       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.lokaltyp?.join(", ") || "—"}</td>
@@ -1912,6 +1937,7 @@ function SortableFilterOptionRow({
 
 const DUMMY_SPACE: Space = {
   id: "dummy",
+  slug: null,
   name: "Exempel-lokal",
   category: "",
   description:
