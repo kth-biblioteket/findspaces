@@ -135,6 +135,7 @@ type FormState = {
 };
 
 const emptyForm: FormState = {
+  slug: "",
   name: "", name_en: "",
   description: "", description_en: "",
   floor: "", floor_en: "",
