@@ -297,6 +297,7 @@ function SpaceFinder() {
                   </button>
                 </>
               )}
+              </div>
             </div>
           )}
           <div className="space-y-2 md:space-y-2">
