@@ -186,15 +186,15 @@ function SpaceFinder() {
   }, [isLoading, hasActiveFilter, filtered.length]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="bg-card border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between">
-          <h1 className="text-sm font-semibold leading-tight">{t("header.title")}</h1>
-          <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-[var(--kth-sand)]">
+      <header className="bg-[var(--kth-navy)] text-white border-b-2 border-[var(--kth-blue)]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between">
+          <h1 className="text-base font-semibold leading-tight text-white">{t("header.title")}</h1>
+          <div className="flex items-center gap-3 [&_*]:text-white">
             <LanguageSwitcher />
             <Link
               to="/admin"
-              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+              className="inline-flex items-center gap-1.5 text-xs text-white/80 hover:text-white"
               aria-label={t("header.admin")}
             >
               <Settings className="h-3.5 w-3.5" />
