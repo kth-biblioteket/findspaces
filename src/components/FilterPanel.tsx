@@ -93,7 +93,7 @@ export function FilterPanel({
       </div>
 
       <div>
-        <h3 className="text-sm font-semibold mb-3 text-[var(--kth-navy)]">{intentTitle}</h3>
+        <h3 className="text-sm font-semibold mb-3">{intentTitle}</h3>
         <div className="flex flex-wrap gap-2">
           {intentTabs.map(({ key, label, Icon }) => (
             <PillToggle
@@ -180,7 +180,7 @@ function ListGroup({
 }) {
   return (
     <div>
-      <h3 className="text-sm font-semibold mb-3 text-[var(--kth-navy)]">{pickLocalized(cat, "title", lang)}</h3>
+      <h3 className="text-sm font-semibold mb-3">{pickLocalized(cat, "title", lang)}</h3>
       <ul className="space-y-1">
         {options.map((opt) => {
           const isSelected = selected.includes(opt.label);
@@ -230,7 +230,7 @@ function PillGroup({
 }) {
   return (
     <div>
-      <h3 className="text-sm font-semibold mb-3 text-[var(--kth-navy)]">{pickLocalized(cat, "title", lang)}</h3>
+      <h3 className="text-sm font-semibold mb-3">{pickLocalized(cat, "title", lang)}</h3>
       <div className="flex flex-wrap gap-2">
         {options.map((o) => (
           <PillToggle

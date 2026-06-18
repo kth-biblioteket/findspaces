@@ -1,59 +1,60 @@
 ## Mål
-Justera typografi, färger, knappar och små layoutdetaljer i studentvyn så att den känns som en del av kth.se — utan att röra layout, komponentstruktur eller funktionalitet.
 
-## KTH-referenser (från kth.se/biblioteket)
-- **Färger:** djup navy `#000061` (header/rubriker), KTH-blå `#1954a6` (knappar/länkar), varm sand `#F5F5F5` (sektionsbakgrund), vit kortyta. Dessa finns redan som tokens (`--kth-navy`, `--kth-blue`, `--kth-sand`) — vi använder dem mer konsekvent.
-- **Form:** raka/lätt rundade hörn (kth.se använder mestadels raka kanter och *pill-formade* primärknappar).
-- **Typografi:** KTH använder Figtree (redan satt). Rubriker tunga och navy, brödtext svart.
-- **Knappar:** fyllda blå pill-knappar med vit text; sekundära som outline i KTH-blå.
-- **Info-/notisbanner:** mjuk gul/sand bakgrund med info-ikon till vänster (samma mönster som "sommaröppettider"-notisen på kth.se).
+1. Ge den tillfälliga notisrutan ett mer proffsigt, designintegrerat utseende — mjuk amber med vänsterkant-accent istället för gul "varnings"-block.
+2. Lägga till ett nytt fält "Information" (sv + en) för lugn, icke-akut info som visas direkt på kortet, neutralt stilsatt, placerat under chips och ovanför knapparna.
 
-## Ändringar (endast presentation, inga funktionsändringar)
+## Ändringar
 
-### 1. Header (`src/routes/index.tsx`)
-- Byt header-bakgrund från `bg-card` till **KTH navy** (`--kth-navy`) med vit text — samma intryck som det blå bandet på kth.se.
-- Rubriken `header.title` i vit, lite större (`text-base font-semibold`).
-- Språkväljare och admin-kugghjul i vit/transparent-vit hover.
-- Tunn ljus underkant istället för border.
+### 1. Databas
+Ny migration som lägger till två kolumner på `public.spaces`:
+- `info_sv text`
+- `info_en text`
 
-### 2. Sidbakgrund
-- Byt sidans `bg-background` (vit) till **KTH sand** (`--kth-sand`) så att vita kort/filterpanel "lyfter" — samma kontrast som kth.se mellan sand-sektioner och vita innehållskort.
+Befintliga rader får `NULL` (visas inte). Inga RLS-ändringar behövs — befintliga policies täcker nya kolumner.
 
-### 3. Filterpanel (aside + mobile sheet)
-- Rubriken "Filter" i KTH-navy, något större.
-- "Rensa alla" som tydlig länk i KTH-blå med understreck-on-hover (redan nära — finjustera).
-- Sektionsrubriker inom panelen i navy, versaler-tracking eller fet kapitel-stil för att matcha kth.se:s sidopanel-mönster.
+### 2. Typer & datalager
+- `src/integrations/supabase/types.ts`: lägg till `info_sv`, `info_en` på `spaces`.
+- `src/lib/spaces.ts`: lägg till fälten i `Space`-typen och i select-listan.
 
-### 4. Knappar (genomgående)
-- Primärknappar (mobile "Visa filter", "Visa N resultat", "Rensa alla filter", "Ta bort filter"): redan pill — säkerställ KTH-blå (`--primary` → `--kth-blue`) och lite tyngre vikt (`font-semibold`).
-- Outline-knappar i KTH-blå ram + KTH-blå text.
+### 3. SpaceCard — notisrutans nya design
+Ersätt nuvarande `bg-amber-100 / border-amber-200 / text-amber-900`-blocket med en lugnare variant:
 
-### 5. Lokalkort (`src/components/SpaceCard.tsx`) — lätt polish
-- Korttitel i **KTH-navy** istället för default foreground.
-- Tunnare border (`border-border`) men något skarpare skugga (`shadow-sm` → samma men med navy/blå tint) för att efterlikna kth.se:s lätt upphöjda informationskort.
-- Chips/badges: byt nuvarande accent till blek KTH-blå bakgrund (`color-mix(in oklab, var(--kth-blue) 10%, white)`) med navy text. Aktiva chips fylld KTH-blå.
-- "Visa beskrivning"-knapp i KTH-blå länkstil.
-- Highlight-pulsen behåller nuvarande KTH-blå färg (redan korrekt).
+- Bakgrund: mycket ljus amber (≈ `#FEFBF3` / `amber-50/60`)
+- Vänsterkant: 3 px solid amber-500 (KTH-vänlig accentkant)
+- Tunn ram i amber-200/60 runt resten
+- Text i `foreground` (inte amber-900) för bättre läsbarhet
+- Mindre ikon, samma `Info`-ikon men i amber-600
+- Lite mer rundade hörn (`rounded-lg`) och tightare padding
 
-### 6. Tomt-läge ("inga resultat")
-- Byt panelens stil till samma mönster som kth.se:s notisbanner: sand/krämfärgad bakgrund, info-ikon till vänster, navy rubrik. Knapparna förblir pill (primär fylld KTH-blå, sekundär outline KTH-blå).
+Resultatet: syns tydligt som "notera detta" utan att skrika gult.
 
-### 7. Active filter chips (`ActiveFilterChips`)
-- Fylld KTH-blå med vit text + vit X — matchar kth.se:s "valda filter"-stil.
+### 4. SpaceCard — nytt neutralt info-fält
+- Lägg till `localizedInfo = pickLocalized(space, "info", lang)` (med fallback sv→en på samma sätt som övriga fält).
+- Rendera som ny sektion `info` i kortets layout, placerad **under chips, ovanför knapparna**.
+- Stil: neutral, ingen färgad bakgrund. Liten `Info`-ikon i `muted-foreground`, text i `text-sm text-foreground/80`, tunn separator-känsla (ev. `border-l border-border pl-3`). Tydligt skild från den amberfärgade notisen så användaren förstår att det är "bra att veta", inte "obs".
 
-### 8. Mindre detaljer
-- Räknaren ("X av Y lokaler") i navy/muted istället för grå.
-- H2 "Resultat" i navy och lite tyngre.
-- Fokusringar: behåll `--ring` (redan KTH-blå).
+### 5. Adminläget (`src/routes/admin.tsx`)
+Lägg till två nya textareas per lokal under befintliga notis-fälten:
+- "Information (svenska)" — placeholder ex: *"Möblerna är tillfälliga och byts ut under hösten."*
+- "Information (engelska)"
+- Hjälptext som förklarar skillnaden mot Notis: *"Neutral information som alltid visas på kortet. Använd Notis för tillfälliga/akuta meddelanden."*
+
+Spara med övriga fält i samma update-flöde.
+
+### 6. i18n
+Inga nya översättningsnycklar krävs för själva texten (kommer från databasen). Eventuell `card.info_sr` för skärmläsare läggs till i `sv.json`/`en.json` om vi vill ha en dold rubrik.
 
 ## Tekniska detaljer
-- Allt sker via Tailwind-klasser i `src/routes/index.tsx`, `src/components/SpaceCard.tsx`, `src/components/ActiveFilterChips.tsx` och `src/components/FilterPanel.tsx`.
-- Inga nya tokens behövs — använder befintliga `--kth-navy`, `--kth-blue`, `--kth-sand` från `src/styles.css`.
-- Inga ändringar i admin, datalager, server functions eller filtreringslogik.
-- Inga nya beroenden, inga nya filer.
 
-## Inte med i denna omgång (kan göras senare om önskat)
-- Omarbetade lokalkort (ny bildhantering, status-chips, ny layouthierarki).
-- Hero/intro-sektion.
-- Ny ikonstil eller egna illustrationer.
-- Större layoutförändringar i filterpanelen.
+- Layout-systemet (`useCardLayout`) styr idag sektionsordningen via `CardSectionKey`. Det nya info-blocket renderas inom kortets befintliga flöde direkt före `mt-auto`-rad med knappar — det behöver alltså **inte** bli en ny `CardSectionKey` om vi vill hålla det enkelt. Alternativt: lägg till `"info"` som ny key så admins kan flytta det. Förslag: håll det enkelt först, lägg in som fast position (under chips, ovanför knappraden).
+- Fallback-logik för info_en följer samma mönster som alt-texter: tom EN → visa SV.
+- Migration följer projektets GRANT-konvention (inga nya tabeller, bara `ALTER TABLE` — inga nya grants behövs).
+
+## Filer som ändras
+
+- ny: `supabase/migrations/<timestamp>_add_info_fields.sql`
+- `src/integrations/supabase/types.ts`
+- `src/lib/spaces.ts`
+- `src/components/SpaceCard.tsx` (ny notisstil + nytt info-block)
+- `src/routes/admin.tsx` (två nya textareas + hjälptext)
+- ev. `src/i18n/locales/sv.json` + `en.json` (sr-only label)
