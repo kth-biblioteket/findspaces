@@ -297,7 +297,7 @@ function SpaceFinder() {
               )}
             </div>
           )}
-          <div className="space-y-2 md:space-y-2">
+          <div className="space-y-3 md:space-y-3">
             {filtered.map((s, i) => (
               <SpaceCard key={s.id} space={s} filters={filters} onFiltersChange={setFilters} onSpaceLink={handleSpaceLink} highlightId={search.highlight} highlightTick={highlightTick} spaces={spaces} priority={i < 3} />
             ))}
