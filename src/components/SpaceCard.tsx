@@ -219,11 +219,13 @@ export function SpaceCard({
     });
   };
 
-  const metaParts = [
-    localizedFloor,
+  const floorPart = localizedFloor;
+  const otherMetaParts = [
     localizedLocatedIn,
     ...(space.lokaltyp ?? []).map((l) => localizeChip("lokaltyp", l)),
   ].filter((s): s is string => Boolean(s && s.length > 0));
+
+  const hasMeta = Boolean(floorPart) || otherMetaParts.length > 0;
 
   const showCapacity =
     space.show_capacity_publicly && (space.capacity ?? 0) > 0;
