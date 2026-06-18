@@ -207,7 +207,7 @@ function SpaceFinder() {
         <aside className="hidden lg:block">
           <div className="sticky top-4 bg-card rounded-xl border border-border flex flex-col max-h-[calc(100vh-2rem)]">
             <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
-              <span className="text-sm font-semibold">{t("filters.title")}</span>
+              <span className="text-sm font-semibold text-[var(--kth-navy)] uppercase tracking-wide">{t("filters.title")}</span>
               {hasActiveFilter && (
                 <button
                   type="button"
