@@ -247,22 +247,22 @@ export function SpaceCard({
                 {localizedName}
               </h3>
             </div>
-            {hasMeta && (
-              <p className="mt-1.5 text-sm text-foreground leading-snug flex items-center gap-1">
-                {floorPart && (
-                  <span className="inline-flex items-center gap-1 text-black font-medium">
-                    <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
-                    {floorPart}
-                  </span>
-                )}
-                {floorPart && otherMetaParts.length > 0 && (
-                  <span className="text-foreground/40 mx-0.5" aria-hidden="true">|</span>
-                )}
-                {otherMetaParts.length > 0 && (
-                  <span>{otherMetaParts.join(" • ")}</span>
-                )}
-              </p>
-            )}
+              {hasMeta && (
+                <div className="mt-1.5 flex flex-col md:flex-row md:items-center gap-0.5 md:gap-1 text-sm text-foreground leading-snug">
+                  {floorPart && (
+                    <span className="inline-flex items-center gap-1 text-black font-medium">
+                      <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                      {floorPart}
+                    </span>
+                  )}
+                  {floorPart && otherMetaParts.length > 0 && (
+                    <span className="hidden md:inline text-foreground/40 mx-0.5" aria-hidden="true">|</span>
+                  )}
+                  {otherMetaParts.length > 0 && (
+                    <span>{otherMetaParts.join(" • ")}</span>
+                  )}
+                </div>
+              )}
             {showCapacity && (
               <p className="mt-0.5 inline-flex items-center gap-1.5 text-sm leading-snug text-foreground">
                 {capacityIconUrl ? (
