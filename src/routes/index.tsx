@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { SlidersHorizontal, Settings, X } from "lucide-react";
+import { SlidersHorizontal, Settings, X, Info } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { type Space } from "@/lib/spaces";
 import { useFilterCategories } from "@/lib/useFilterCategories";
