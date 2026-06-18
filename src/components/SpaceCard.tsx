@@ -241,7 +241,7 @@ export function SpaceCard({
         return (
           <div key="header" className={cn(spacing)}>
             <div className="text-left">
-              <h3 className="text-base md:text-lg font-semibold leading-tight">
+              <h3 className="text-base md:text-lg font-semibold leading-tight text-[var(--kth-navy)]">
                 {localizedName}
               </h3>
             </div>
