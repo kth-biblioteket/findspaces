@@ -250,7 +250,7 @@ export function SpaceCard({
             {hasMeta && (
               <p className="mt-0.5 text-sm text-foreground leading-snug flex items-center gap-1">
                 {floorPart && (
-                  <span className="inline-flex items-center gap-1 text-[var(--kth-blue)] font-medium">
+                  <span className="inline-flex items-center gap-1 text-black font-medium">
                     <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
                     {floorPart}
                   </span>
