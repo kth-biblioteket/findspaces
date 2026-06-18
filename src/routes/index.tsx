@@ -238,8 +238,8 @@ function SpaceFinder() {
 
         <main>
           <div className="flex items-baseline justify-between mb-3">
-            <h2 className="text-lg font-bold">{t("results.heading")}</h2>
-            <span className="text-xs text-muted-foreground">
+            <h2 className="text-lg font-bold text-[var(--kth-navy)]">{t("results.heading")}</h2>
+            <span className="text-xs text-[var(--kth-navy)]/70 font-medium">
               {isLoading
                 ? t("results.loading")
                 : hasActiveFilter
@@ -251,8 +251,10 @@ function SpaceFinder() {
           <ActiveFilterChips filters={filters} onChange={setFilters} />
 
           {!isLoading && filtered.length === 0 && (
-            <div className="bg-card rounded-2xl border border-border p-8 text-left">
-              <p className="text-base font-semibold text-foreground mb-2 whitespace-pre-line">
+            <div className="bg-[#FFF8E1] border border-[#F5E0A0] rounded-2xl p-6 text-left flex items-start gap-3">
+              <Info className="h-5 w-5 mt-0.5 shrink-0 text-[var(--kth-navy)]" aria-hidden="true" />
+              <div className="flex-1">
+              <p className="text-base font-semibold text-[var(--kth-navy)] mb-2 whitespace-pre-line">
                 {emptyTitle}
               </p>
               {narrowest && narrowest.wouldMatch > 0 ? (
