@@ -248,7 +248,7 @@ export function SpaceCard({
               </h3>
             </div>
             {hasMeta && (
-              <p className="mt-0.5 text-sm text-foreground leading-snug flex items-center gap-1">
+              <p className="mt-1.5 text-sm text-foreground leading-snug flex items-center gap-1">
                 {floorPart && (
                   <span className="inline-flex items-center gap-1 text-black font-medium">
                     <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
@@ -459,7 +459,7 @@ export function SpaceCard({
         highlighted && "space-highlight",
       )}
     >
-        <div className="flex flex-col md:flex-row items-stretch gap-3 md:gap-3">
+        <div className="flex flex-col md:flex-row items-stretch gap-0 md:gap-3">
           <div className="order-2 md:order-1 flex-1 min-w-0 flex flex-col p-3 md:p-3">
           {layout.map((k, i) => renderSection(k, i))}
 
