@@ -241,7 +241,7 @@ export function SpaceCard({
         return (
           <div key="header" className={cn(spacing)}>
             <div className="text-left">
-              <h3 className="text-xl md:text-2xl font-bold leading-tight text-[var(--kth-navy)]">
+              <h3 className="text-base md:text-lg font-semibold leading-tight">
                 {localizedName}
               </h3>
             </div>
@@ -442,7 +442,7 @@ export function SpaceCard({
     <article
       id={`space-${space.id}`}
       className={cn(
-        "bg-card rounded-2xl border border-border overflow-hidden transition-all hover:shadow-lg",
+        "bg-card rounded-2xl border border-border overflow-hidden transition-all hover:shadow-md",
         highlighted && "space-highlight",
       )}
     >
@@ -489,7 +489,7 @@ export function SpaceCard({
           </div>
         </div>
 
-        <div className="order-1 md:order-2 w-full md:w-56 lg:w-64 shrink-0 self-stretch aspect-[3/2] md:aspect-auto md:h-full overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-r-2xl">
+        <div className="order-1 md:order-2 w-full md:w-56 lg:w-64 shrink-0 self-stretch aspect-[3/2] md:aspect-[3/2] md:h-auto overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-r-2xl">
           <ImageCarousel
             images={images}
             alts={localizedAlts}
