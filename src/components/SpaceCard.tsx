@@ -219,11 +219,13 @@ export function SpaceCard({
     });
   };
 
-  const metaParts = [
-    localizedFloor,
+  const floorPart = localizedFloor;
+  const otherMetaParts = [
     localizedLocatedIn,
     ...(space.lokaltyp ?? []).map((l) => localizeChip("lokaltyp", l)),
   ].filter((s): s is string => Boolean(s && s.length > 0));
+
+  const hasMeta = Boolean(floorPart) || otherMetaParts.length > 0;
 
   const showCapacity =
     space.show_capacity_publicly && (space.capacity ?? 0) > 0;
@@ -241,13 +243,24 @@ export function SpaceCard({
         return (
           <div key="header" className={cn(spacing)}>
             <div className="text-left">
-              <h3 className="text-base md:text-lg font-semibold leading-tight">
+              <h3 className="text-lg md:text-xl font-semibold leading-tight">
                 {localizedName}
               </h3>
             </div>
-            {metaParts.length > 0 && (
-              <p className="mt-0.5 text-sm text-muted-foreground leading-snug">
-                {metaParts.join(" • ")}
+            {hasMeta && (
+              <p className="mt-0.5 text-sm text-foreground leading-snug flex items-center gap-1">
+                {floorPart && (
+                  <span className="inline-flex items-center gap-1 text-[var(--kth-blue)] font-medium">
+                    <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+                    {floorPart}
+                  </span>
+                )}
+                {floorPart && otherMetaParts.length > 0 && (
+                  <span className="text-foreground/40 mx-0.5" aria-hidden="true">|</span>
+                )}
+                {otherMetaParts.length > 0 && (
+                  <span>{otherMetaParts.join(" • ")}</span>
+                )}
               </p>
             )}
             {showCapacity && (
@@ -562,9 +575,9 @@ function OccupancyBadge({
   const { t } = useTranslation();
   return (
     <div className="flex items-center gap-1.5 md:gap-2 mb-1.5 md:mb-2 mt-0.5 md:mt-0.5">
-      <Users className="h-4 w-4 text-gray-600" aria-hidden="true" />
+      <Users className="h-4 w-4 text-black" aria-hidden="true" />
       <OccupancyBlocks level={level} />
-      <span className="text-sm text-gray-700">
+      <span className="text-sm text-black">
         <strong>{t("occupancy.right_now")}:</strong>{" "}
         {t(OCCUPANCY_LABELS[status])}
       </span>
@@ -596,9 +609,9 @@ function GroupRoomBadge({
       : "bg-red-500";
   return (
     <div className="flex items-center gap-1.5 md:gap-2 mb-1.5 md:mb-2 mt-0.5 md:mt-0.5 flex-wrap">
-      <Icon className="h-4 w-4 text-gray-600" aria-hidden="true" />
+      <Icon className="h-4 w-4 text-black" aria-hidden="true" />
       <span className={cn("inline-block h-2.5 w-2.5 rounded-full", dotClass)} aria-hidden="true" />
-      <span className="text-sm text-gray-700">
+      <span className="text-sm text-black">
         <strong>{t("group_room.right_now")}:</strong>{" "}
         {t(GROUP_ROOM_LABELS[status])}
       </span>
