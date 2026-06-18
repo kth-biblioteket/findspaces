@@ -247,9 +247,20 @@ export function SpaceCard({
                 {localizedName}
               </h3>
             </div>
-            {metaParts.length > 0 && (
-              <p className="mt-0.5 text-sm text-muted-foreground leading-snug">
-                {metaParts.join(" • ")}
+            {hasMeta && (
+              <p className="mt-0.5 text-sm text-foreground leading-snug flex items-center gap-1">
+                {floorPart && (
+                  <span className="inline-flex items-center gap-1 text-[var(--kth-blue)] font-medium">
+                    <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+                    {floorPart}
+                  </span>
+                )}
+                {floorPart && otherMetaParts.length > 0 && (
+                  <span className="text-foreground/40 mx-0.5" aria-hidden="true">|</span>
+                )}
+                {otherMetaParts.length > 0 && (
+                  <span>{otherMetaParts.join(" • ")}</span>
+                )}
               </p>
             )}
             {showCapacity && (
