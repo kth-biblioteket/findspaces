@@ -139,7 +139,7 @@ function RootComponent() {
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground focus:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        Hoppa till innehållet
+        {i18n.t("a11y.skip_to_content")}
       </a>
       <Outlet />
       <ToasterMount />
