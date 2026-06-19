@@ -65,5 +65,21 @@
     "free": "Ledigt",
     "busy": "Upptaget",
     "tentative": "Bokat – ej bekräftat"
+  },
+  "gallery": {
+    "label": "Bildgalleri",
+    "open_full": "Öppna bild i full storlek",
+    "prev": "Föregående bild",
+    "next": "Nästa bild",
+    "close": "Stäng bildgalleri",
+    "go_to": "Gå till bild {{n}}",
+    "image_number": "Bild {{n}}"
+  },
+  "languages": {
+    "sv": "Svenska",
+    "en": "Engelska"
+  },
+  "a11y": {
+    "skip_to_content": "Hoppa till innehållet"
   }
 }
