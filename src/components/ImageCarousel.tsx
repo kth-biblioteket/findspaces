@@ -87,7 +87,7 @@ export function ImageCarousel({
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 via-black/30 to-transparent z-10" />
 
           {/* Image counter (top-right) */}
-          <div className="absolute top-2 right-2 z-20 px-2 py-0.5 rounded-full bg-black/60 text-white text-[11px] font-medium tabular-nums shadow-sm backdrop-blur-sm">
+          <div className="absolute top-2 right-2 z-20 px-2 py-0.5 rounded-full bg-black/60 text-white text-[11px] font-medium tabular-nums shadow-sm backdrop-blur-sm font-sans">
             {idx + 1} / {count}
           </div>
 

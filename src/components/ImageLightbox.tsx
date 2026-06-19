@@ -88,7 +88,7 @@ export function ImageLightbox({
 
       {/* Image counter */}
       {count > 1 && (
-        <div className="absolute top-4 left-4 z-10 rounded-full bg-black/50 text-white px-3 py-1 text-sm font-medium">
+        <div className="absolute top-4 left-4 z-10 rounded-full bg-black/50 text-white px-3 py-1 text-sm font-medium font-sans">
           {idx + 1} / {count}
         </div>
       )}
