@@ -17,8 +17,8 @@ export function ChairIcon({
       strokeLinejoin="round"
       {...props}
     >
-      {/* Backrest */}
-      <path d="M8 11.5 C8 6, 9.5 3.5, 12 3.5 C14.5 3.5, 16 6, 16 11.5" />
+      {/* Backrest — concave sides, rounded top */}
+      <path d="M8 11.5 C11 8, 11.5 3.5, 12 3.5 C12.5 3.5, 13 8, 16 11.5" />
       {/* Seat */}
       <path d="M5.5 12.5h13" />
       {/* Front legs */}
@@ -30,3 +30,4 @@ export function ChairIcon({
     </svg>
   );
 }
+
