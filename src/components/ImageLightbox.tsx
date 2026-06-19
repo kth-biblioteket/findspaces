@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { X, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -15,10 +16,15 @@ export function ImageLightbox({
   open: boolean;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const [idx, setIdx] = useState(initialIndex);
   const [imgLoaded, setImgLoaded] = useState(false);
   const list = images.filter(Boolean);
   const count = list.length;
+
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     setImgLoaded(false);
@@ -37,12 +43,19 @@ export function ImageLightbox({
     if (open) {
       setIdx(initialIndex);
       document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
+      previouslyFocusedRef.current = (document.activeElement as HTMLElement) ?? null;
+      // Move focus into the dialog on the next tick so the close button exists.
+      const id = window.setTimeout(() => {
+        closeBtnRef.current?.focus();
+      }, 0);
+      return () => {
+        window.clearTimeout(id);
+        document.body.style.overflow = "";
+        // Restore focus to the trigger when the dialog closes.
+        previouslyFocusedRef.current?.focus?.();
+      };
     }
-    return () => {
-      document.body.style.overflow = "";
-    };
+    document.body.style.overflow = "";
   }, [open, initialIndex]);
 
   const go = useCallback(
@@ -55,9 +68,31 @@ export function ImageLightbox({
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
       if (e.key === "ArrowLeft") go(-1);
       if (e.key === "ArrowRight") go(1);
+      if (e.key === "Tab") {
+        // Basic focus trap — keep focus within the dialog.
+        const root = dialogRef.current;
+        if (!root) return;
+        const focusable = root.querySelectorAll<HTMLElement>(
+          'button, [href], input, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const active = document.activeElement as HTMLElement | null;
+        if (e.shiftKey && active === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && active === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
@@ -67,23 +102,25 @@ export function ImageLightbox({
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
-      aria-label="Bildgalleri"
+      aria-label={t("gallery.label")}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
       onClick={onClose}
     >
       {/* Close button */}
       <button
+        ref={closeBtnRef}
         type="button"
         onClick={(e) => {
           e.stopPropagation();
           onClose();
         }}
-        aria-label="Stäng bildgalleri"
-        className="absolute top-4 right-4 z-10 h-10 w-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-colors"
+        aria-label={t("gallery.close")}
+        className="absolute top-4 right-4 z-10 h-11 w-11 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
       >
-        <X className="h-5 w-5" />
+        <X className="h-5 w-5" aria-hidden="true" />
       </button>
 
       {/* Image counter */}
@@ -104,7 +141,7 @@ export function ImageLightbox({
         <img
           key={list[idx]}
           src={list[idx]}
-          alt={alts[idx]?.trim() || `Bild ${idx + 1}`}
+          alt={alts[idx]?.trim() || t("gallery.image_number", { n: idx + 1 })}
           onLoad={() => setImgLoaded(true)}
           className={cn(
             "max-w-full max-h-[85vh] object-contain transition-opacity duration-200",
@@ -122,10 +159,10 @@ export function ImageLightbox({
               e.stopPropagation();
               go(-1);
             }}
-            aria-label="Föregående bild"
-            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 h-10 w-10 md:h-12 md:w-12 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-colors"
+            aria-label={t("gallery.prev")}
+            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 h-11 w-11 md:h-12 md:w-12 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
-            <ChevronLeft className="h-5 w-5 md:h-6 md:w-6" />
+            <ChevronLeft className="h-5 w-5 md:h-6 md:w-6" aria-hidden="true" />
           </button>
           <button
             type="button"
@@ -133,10 +170,10 @@ export function ImageLightbox({
               e.stopPropagation();
               go(1);
             }}
-            aria-label="Nästa bild"
-            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 h-10 w-10 md:h-12 md:w-12 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-colors"
+            aria-label={t("gallery.next")}
+            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 h-11 w-11 md:h-12 md:w-12 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
-            <ChevronRight className="h-5 w-5 md:h-6 md:w-6" />
+            <ChevronRight className="h-5 w-5 md:h-6 md:w-6" aria-hidden="true" />
           </button>
 
           {/* Dots */}
@@ -149,9 +186,10 @@ export function ImageLightbox({
                   e.stopPropagation();
                   setIdx(i);
                 }}
-                aria-label={`Gå till bild ${i + 1}`}
+                aria-label={t("gallery.go_to", { n: i + 1 })}
+                aria-current={i === idx ? "true" : undefined}
                 className={cn(
-                  "h-2 rounded-full transition-all",
+                  "h-2 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
                   i === idx ? "w-6 bg-white" : "w-2 bg-white/50 hover:bg-white/70"
                 )}
               />
