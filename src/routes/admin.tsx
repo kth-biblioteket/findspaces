@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useId, isValidElement, cloneElement, Children, type ReactElement } from "react";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -585,14 +585,14 @@ function AdminPage() {
 
   if (!authChecked) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-sm text-muted-foreground">
+      <div className="min-h-dvh flex items-center justify-center text-sm text-muted-foreground">
         Laddar...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-dvh bg-background">
       <header className="bg-card border-b border-border">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between">
           <h1 className="text-sm font-semibold leading-tight">Admin — Studieplatser</h1>
@@ -613,7 +613,7 @@ function AdminPage() {
       </header>
 
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+      <main id="main" tabIndex={-1} className="max-w-6xl mx-auto px-4 sm:px-6 py-6 focus-visible:outline-none">
         <Tabs defaultValue="spaces" className="w-full">
           <TabsList className="mb-6">
             <TabsTrigger value="spaces">Lokaler</TabsTrigger>
@@ -1212,7 +1212,7 @@ function AdminPage() {
             <AnalyticsTab />
           </TabsContent>
         </Tabs>
-      </div>
+      </main>
     </div>
   );
 }
