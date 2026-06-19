@@ -54,7 +54,7 @@ export function SpaceCard({
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [highlighted, setHighlighted] = useState(false);
   const { data: options = [] } = useFilterOptions();
-  const { data: layoutFromDb = ["header", "chips", "button_map", "button_booking"] } = useCardLayout();
+  const { data: layoutFromDb = ["header", "notice", "info", "chips", "button_map", "button_group_booking", "button_booking"] } = useCardLayout();
   const { data: capacityIconUrl } = useCapacityIcon();
   const rawOccupancy = useOccupancy(space.countmatters_sensor_id);
   const rawGroupRoom = useGroupRoomAvailability(space.booking_room_number);
