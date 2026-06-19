@@ -12,20 +12,23 @@ export function ChairIcon({
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={2}
+      strokeWidth={1.6}
       strokeLinecap="round"
       strokeLinejoin="round"
       {...props}
     >
-      {/* Backrest */}
-      <path d="M7 4v10" />
-      <path d="M17 4v10" />
-      <path d="M7 7h10" />
+      {/* Backrest - slightly rounded top */}
+      <path d="M8 4v8" />
+      <path d="M16 4v8" />
+      <path d="M8 4h8" />
       {/* Seat */}
-      <path d="M5 14h14" />
+      <path d="M6 12h12" />
       {/* Legs */}
-      <path d="M7 14v6" />
-      <path d="M17 14v6" />
+      <path d="M8 12v8" />
+      <path d="M16 12v8" />
+      {/* Seat edge detail for depth */}
+      <path d="M6 12v2" />
+      <path d="M18 12v2" />
     </svg>
   );
 }
