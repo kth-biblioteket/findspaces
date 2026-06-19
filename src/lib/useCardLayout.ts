@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const CARD_SECTION_KEYS = [
   "header",
+  "notice",
+  "info",
   "chips",
   "button_map",
   "button_group_booking",
@@ -11,7 +13,9 @@ export const CARD_SECTION_KEYS = [
 export type CardSectionKey = typeof CARD_SECTION_KEYS[number];
 
 export const CARD_SECTION_LABELS: Record<CardSectionKey, string> = {
-  header: "Rubrik (namn, våning, lokaltyp)",
+  header: "Rubrik (namn, våning, lokaltyp, kapacitet, beläggning)",
+  notice: "Varningsruta (gul, med utropstecken)",
+  info: "Informationsruta (med i-symbol)",
   chips: "Ikon-chips (ljudnivå, utrustning, faciliteter)",
   button_map: "Knapp: Visa på karta",
   button_group_booking: "Knapp: Boka grupprum",
@@ -20,6 +24,8 @@ export const CARD_SECTION_LABELS: Record<CardSectionKey, string> = {
 
 const DEFAULT_ORDER: CardSectionKey[] = [
   "header",
+  "notice",
+  "info",
   "chips",
   "button_map",
   "button_group_booking",

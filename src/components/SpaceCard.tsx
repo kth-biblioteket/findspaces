@@ -54,7 +54,7 @@ export function SpaceCard({
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [highlighted, setHighlighted] = useState(false);
   const { data: options = [] } = useFilterOptions();
-  const { data: layoutFromDb = ["header", "chips", "button_map", "button_booking"] } = useCardLayout();
+  const { data: layoutFromDb = ["header", "notice", "info", "chips", "button_map", "button_group_booking", "button_booking"] } = useCardLayout();
   const { data: capacityIconUrl } = useCapacityIcon();
   const rawOccupancy = useOccupancy(space.countmatters_sensor_id);
   const rawGroupRoom = useGroupRoomAvailability(space.booking_room_number);
@@ -287,18 +287,29 @@ export function SpaceCard({
             )}
 
 
-            {linkedNotice && (
-              <div
-                role="status"
-                className="mt-2 mb-1 flex items-start gap-2 bg-[hsl(48_100%_85%)] text-foreground rounded-lg px-3 py-2 text-sm"
-              >
-                <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-orange-500" aria-hidden="true" />
-                <span className="whitespace-pre-line">
-                  <span className="sr-only">{t("card.notice_sr")} </span>
-                  {linkedNotice}
-                </span>
-              </div>
-            )}
+          </div>
+        );
+      case "notice":
+        if (!linkedNotice) return null;
+        return (
+          <div
+            key="notice"
+            role="status"
+            className={cn(spacing, "flex items-start gap-2 bg-[hsl(48_100%_85%)] text-foreground rounded-lg px-3 py-2 text-sm")}
+          >
+            <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-orange-500" aria-hidden="true" />
+            <span className="whitespace-pre-line">
+              <span className="sr-only">{t("card.notice_sr")} </span>
+              {linkedNotice}
+            </span>
+          </div>
+        );
+      case "info":
+        if (!linkedInfo) return null;
+        return (
+          <div key="info" className={cn(spacing, "flex items-start gap-2 text-sm text-foreground/80")}>
+            <Info className="h-3.5 w-3.5 mt-0.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+            <span className="whitespace-pre-line">{linkedInfo}</span>
           </div>
         );
       case "chips":
@@ -464,12 +475,7 @@ export function SpaceCard({
           <div className="order-2 md:order-1 flex-1 min-w-0 flex flex-col p-3 md:p-3">
           {layout.map((k, i) => renderSection(k, i))}
 
-          {linkedInfo && (
-            <div className="mt-2 mb-1 flex items-start gap-2 text-sm text-foreground/80">
-              <Info className="h-3.5 w-3.5 mt-0.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-              <span className="whitespace-pre-line">{linkedInfo}</span>
-            </div>
-          )}
+
 
           <div className="mt-auto pt-2 md:pt-2 flex items-center justify-between gap-3 flex-wrap">
             {sanitizedDescription ? (
