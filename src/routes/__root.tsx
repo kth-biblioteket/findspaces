@@ -7,6 +7,8 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { useEffect } from "react";
+import i18n from "@/i18n";
 
 import appCss from "../styles.css?url";
 import ToasterMount from "@/components/ToasterMount";
@@ -14,10 +16,10 @@ import "@/i18n";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-dvh items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
+        <p className="text-7xl font-bold text-foreground" aria-hidden="true">404</p>
+        <h1 className="mt-4 text-xl font-semibold text-foreground">Page not found</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           The page you're looking for doesn't exist or has been moved.
         </p>
@@ -39,7 +41,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-dvh items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
           This page didn't load
@@ -100,7 +102,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="sv">
       <head>
         <HeadContent />
       </head>
@@ -115,8 +117,30 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  // Keep <html lang> in sync with the active language so screen readers
+  // pronounce content correctly when the user switches language.
+  useEffect(() => {
+    const apply = (lng: string) => {
+      if (typeof document !== "undefined") {
+        document.documentElement.lang = lng;
+      }
+    };
+    apply(i18n.resolvedLanguage ?? "sv");
+    i18n.on("languageChanged", apply);
+    return () => {
+      i18n.off("languageChanged", apply);
+    };
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
+      {/* Skip-to-content link — visible on focus for keyboard users */}
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground focus:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        Hoppa till innehållet
+      </a>
       <Outlet />
       <ToasterMount />
     </QueryClientProvider>
