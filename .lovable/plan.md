@@ -1,60 +1,72 @@
-## Mål
+## Tillgänglighetsgenomgång (WCAG 2.1 AA / Digg-riktlinjer)
 
-1. Ge den tillfälliga notisrutan ett mer proffsigt, designintegrerat utseende — mjuk amber med vänsterkant-accent istället för gul "varnings"-block.
-2. Lägga till ett nytt fält "Information" (sv + en) för lugn, icke-akut info som visas direkt på kortet, neutralt stilsatt, placerat under chips och ovanför knapparna.
+Jag har gått igenom hela appen (publik vy, adminläge, kortkomponent, filterpanel, bildkarusell, lightbox, språkväxling, m.m.). Här är resultatet med förslag till åtgärder, indelat i tre nivåer. Du väljer hur långt vi går.
 
-## Ändringar
+---
 
-### 1. Databas
-Ny migration som lägger till två kolumner på `public.spaces`:
-- `info_sv text`
-- `info_en text`
+### 🔴 Kritiskt (WCAG A – bör fixas)
 
-Befintliga rader får `NULL` (visas inte). Inga RLS-ändringar behövs — befintliga policies täcker nya kolumner.
+1. **Språkattribut är hårdkodat `lang="en"`** trots att standardspråket är svenska (`__root.tsx`). Skärmläsare uttalar då allt på engelska.
+   → Sätt `lang="sv"` som default och uppdatera dynamiskt när användaren byter språk.
 
-### 2. Typer & datalager
-- `src/integrations/supabase/types.ts`: lägg till `info_sv`, `info_en` på `spaces`.
-- `src/lib/spaces.ts`: lägg till fälten i `Space`-typen och i select-listan.
+2. **Adminformuläret saknar kopplade etiketter** (`Field`-komponenten lägger `<label>` som syskon utan `htmlFor`/`id`). Drabbar ~25 inputfält (namn, våning, kapacitet, URL:er m.m.).
+   → Bygg `Field` så att den genererar `id` och kopplar `label htmlFor`.
 
-### 3. SpaceCard — notisrutans nya design
-Ersätt nuvarande `bg-amber-100 / border-amber-200 / text-amber-900`-blocket med en lugnare variant:
+3. **Adminsidan saknar `<main>`-landmärke** → ingen "hoppa till innehåll" fungerar.
+   → Wrappa adminlayouten i `<main>`.
 
-- Bakgrund: mycket ljus amber (≈ `#FEFBF3` / `amber-50/60`)
-- Vänsterkant: 3 px solid amber-500 (KTH-vänlig accentkant)
-- Tunn ram i amber-200/60 runt resten
-- Text i `foreground` (inte amber-900) för bättre läsbarhet
-- Mindre ikon, samma `Info`-ikon men i amber-600
-- Lite mer rundade hörn (`rounded-lg`) och tightare padding
+4. **Bild-lightboxen hanterar inte fokus** – fokus flyttas inte in, fångas inte, och tab kan hamna bakom overlayen.
+   → Flytta fokus till stängknappen vid öppning, fånga fokus inom dialogen, återställ vid stängning. Alternativt byt till shadcn `Dialog` (Radix sköter detta).
 
-Resultatet: syns tydligt som "notera detta" utan att skrika gult.
+5. **Bulk-action-fälten i admin saknar etiketter** (tre `<select>` + textfält utan label/aria-label).
+   → Lägg till `<label>` eller `aria-label`.
 
-### 4. SpaceCard — nytt neutralt info-fält
-- Lägg till `localizedInfo = pickLocalized(space, "info", lang)` (med fallback sv→en på samma sätt som övriga fält).
-- Rendera som ny sektion `info` i kortets layout, placerad **under chips, ovanför knapparna**.
-- Stil: neutral, ingen färgad bakgrund. Liten `Info`-ikon i `muted-foreground`, text i `text-sm text-foreground/80`, tunn separator-känsla (ev. `border-l border-border pl-3`). Tydligt skild från den amberfärgade notisen så användaren förstår att det är "bra att veta", inte "obs".
+6. **Alt-textfälten för bilder i admin saknar label** – endast placeholder används.
+   → Lägg till riktiga `<label>` per fält.
 
-### 5. Adminläget (`src/routes/admin.tsx`)
-Lägg till två nya textareas per lokal under befintliga notis-fälten:
-- "Information (svenska)" — placeholder ex: *"Möblerna är tillfälliga och byts ut under hösten."*
-- "Information (engelska)"
-- Hjälptext som förklarar skillnaden mot Notis: *"Neutral information som alltid visas på kortet. Använd Notis för tillfälliga/akuta meddelanden."*
+7. **Ingen "Hoppa till innehåll"-länk** på någon sida.
+   → Lägg till en `sr-only`-länk i `__root.tsx` som blir synlig vid fokus.
 
-Spara med övriga fält i samma update-flöde.
+---
 
-### 6. i18n
-Inga nya översättningsnycklar krävs för själva texten (kommer från databasen). Eventuell `card.info_sr` för skärmläsare läggs till i `sv.json`/`en.json` om vi vill ha en dold rubrik.
+### 🟡 Mellan (WCAG AA – tydliga förbättringar)
 
-## Tekniska detaljer
+8. **Ikonknappar i admin använder `title` istället för `aria-label`** (redigera/ta bort/dra-handtag). `title` läses inte upp tillförlitligt.
+9. **`DynamicCategoryField`-togglar saknar `aria-pressed`** så hjälpmedel inte kan avgöra valt läge.
+10. **Hopfälld beskrivning på lokalkortet göms inte för skärmläsare** när den är kollapsad → använd `inert`/`hidden`. Lägg även `aria-controls`/`aria-expanded` på knappen.
+11. **`<article>`-korten saknar tillgängligt namn** (`aria-labelledby` pekande på `<h3>`). Lägg också korten i en `<ul>` så antal annonseras.
+12. **Hårdkodade färger** (`text-black`, `bg-[#FFF0B0]`, `bg-[#1954a6]`, `bg-gray-200`, `bg-white`) bryter designsystemet och kan ge dålig kontrast / brytas i mörkt läge. Byt mot semantiska tokens (`text-foreground`, `bg-card`, `bg-primary`, `bg-muted`).
+13. **`min-h-screen` → `min-h-dvh`** i `__root.tsx`, `index.tsx`, `admin.tsx` för korrekt höjd på mobil med dynamisk webbläsarchrome.
+14. **Karusell/lightbox-aria-labels är hårdkodade svenska** – flytta till i18n så engelska användare får engelska etiketter.
+15. **Filterpanelen `<aside>` saknar `aria-label`** ("Filter").
+16. **Karusellens punktindikatorer** – byt `aria-current={bool}` mot `aria-pressed` (eller använd `aria-current="true"` som sträng).
+17. **Tap targets under 44×44 px** på admin-ikonknappar (`p-2` ger 32×32, drag-handles 24×24). Öka till `min-h-11 min-w-11` åtminstone på primära mobila ytor.
+18. **`LanguageSwitcher`** visar bara "sv"/"en" – lägg till `<span className="sr-only">Svenska/English</span>` och `aria-label`.
+19. **Settings-ikonlänken** till admin – sätt `aria-hidden="true"` på `<Settings>`-ikonen så texten inte dubbleras.
 
-- Layout-systemet (`useCardLayout`) styr idag sektionsordningen via `CardSectionKey`. Det nya info-blocket renderas inom kortets befintliga flöde direkt före `mt-auto`-rad med knappar — det behöver alltså **inte** bli en ny `CardSectionKey` om vi vill hålla det enkelt. Alternativt: lägg till `"info"` som ny key så admins kan flytta det. Förslag: håll det enkelt först, lägg in som fast position (under chips, ovanför knappraden).
-- Fallback-logik för info_en följer samma mönster som alt-texter: tom EN → visa SV.
-- Migration följer projektets GRANT-konvention (inga nya tabeller, bara `ALTER TABLE` — inga nya grants behövs).
+---
 
-## Filer som ändras
+### 🔵 Småförbättringar (informativt)
 
-- ny: `supabase/migrations/<timestamp>_add_info_fields.sql`
-- `src/integrations/supabase/types.ts`
-- `src/lib/spaces.ts`
-- `src/components/SpaceCard.tsx` (ny notisstil + nytt info-block)
-- `src/routes/admin.tsx` (två nya textareas + hjälptext)
-- ev. `src/i18n/locales/sv.json` + `en.json` (sr-only label)
+20. **`<h1>` i headern är liten logotyp-text**; det stora sökresultatet är `<h2>`. Överväg att lyfta sidans rubrik till ett mer beskrivande `<h1>` (t.ex. "Hitta studieplats") och låta loggan vara vanlig text.
+21. **404-sidan** – gör "Page not found" till `<h1>` istället för "404".
+22. **Beskrivningens länkar** öppnas i ny flik utan "öppnas i nytt fönster"-annonsering. Lägg till `sr-only` markering i sanitizern.
+23. **Icke-interaktiva chips** använder `title` som enda label – lägg in synlig text (redan finns) och ta bort onödigt `title`.
+
+---
+
+### Förslag på upplägg
+
+Jag föreslår att vi i denna planimplementation gör **steg 1–7 (kritiskt)** + **steg 8–13, 17, 18 (de viktigaste AA-bristerna)**. Resten (14–16, 19–23) kan tas i en uppföljande omgång om du vill, eller ingå direkt. Säg till om du vill:
+
+- **A.** Bara kritiska (1–7)
+- **B.** Kritiska + viktiga AA (rekommenderas – 1–13, 17, 18)
+- **C.** Allt ovan (1–23)
+
+### Tekniska detaljer
+
+- `Field`-fix: generera `useId()` i `Field`, klona `children` med `id`, eller exponera `htmlFor`+`id` per anrop.
+- Lightbox: behåll nuvarande implementation men lägg till `useEffect` som flyttar fokus + `onKeyDown` Tab-loop, eller byt till `@/components/ui/dialog`.
+- Skip-länk: i `__root.tsx` lägg `<a href="#main" className="sr-only focus:not-sr-only …">Hoppa till innehåll</a>` och `id="main"` på `<main>` i index.tsx/admin.tsx.
+- Lang-uppdatering: lyssna på `i18n.on('languageChanged', l => document.documentElement.lang = l)` i `__root.tsx`.
+- Tokens: ersätt `text-black` med `text-foreground`, `bg-white` med `bg-background`, hex-färger med semantiska klasser (eller lägg till nya tokens i `src/styles.css` om designen kräver dem).
