@@ -17,14 +17,16 @@ export function ChairIcon({
       strokeLinejoin="round"
       {...props}
     >
-      {/* Backrest */}
-      <path d="M6 10V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v5" />
-      {/* Seat */}
-      <path d="M5 10v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" />
-      {/* Legs */}
-      <path d="M7 15v4" />
-      <path d="M17 15v4" />
+      {/* Backrest — tall rounded rectangle */}
+      <path d="M8 11V6a2.5 2.5 0 0 1 2.5-2.5h3A2.5 2.5 0 0 1 16 6v5" />
+      {/* Seat — horizontal bar with rounded ends */}
+      <path d="M6 11.5h12a1.5 1.5 0 0 1 0 3H6a1.5 1.5 0 0 1 0-3z" />
+      {/* Front legs */}
+      <path d="M8 14.5v6" />
+      <path d="M16 14.5v6" />
+      {/* Back legs (slightly visible behind) */}
+      <path d="M10 14.5v5" />
+      <path d="M14 14.5v5" />
     </svg>
   );
 }
-
