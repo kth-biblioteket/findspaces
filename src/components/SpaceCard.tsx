@@ -243,14 +243,14 @@ export function SpaceCard({
         return (
           <div key="header" className={cn(spacing)}>
             <div className="text-left">
-              <h3 className="text-lg md:text-xl font-semibold leading-tight">
+              <h3 id={`space-${space.id}-title`} className="text-lg md:text-xl font-semibold leading-tight">
                 {localizedName}
               </h3>
             </div>
               {hasMeta && (
                 <div className="mt-1.5 flex flex-col md:flex-row md:items-center gap-0.5 md:gap-1 text-sm text-foreground leading-snug">
                   {floorPart && (
-                    <span className="inline-flex items-center gap-1 text-black font-medium">
+                    <span className="inline-flex items-center gap-1 text-foreground font-medium">
                       <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                       {floorPart}
                     </span>
@@ -290,7 +290,7 @@ export function SpaceCard({
             {linkedNotice && (
               <div
                 role="status"
-                className="mt-2 mb-1 flex items-start gap-2 bg-[#FFF0B0] text-foreground rounded-lg px-3 py-2 text-sm"
+                className="mt-2 mb-1 flex items-start gap-2 bg-[hsl(48_100%_85%)] text-foreground rounded-lg px-3 py-2 text-sm"
               >
                 <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-orange-500" aria-hidden="true" />
                 <span className="whitespace-pre-line">
@@ -454,6 +454,7 @@ export function SpaceCard({
   return (
     <article
       id={`space-${space.id}`}
+      aria-labelledby={`space-${space.id}-title`}
       className={cn(
         "bg-card rounded-2xl border border-border overflow-hidden transition-all hover:shadow-md",
         highlighted && "space-highlight",
@@ -483,6 +484,7 @@ export function SpaceCard({
                   });
                 }}
                 aria-expanded={open}
+                aria-controls={`space-${space.id}-description`}
                 className="inline-flex items-center text-xs text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary rounded"
               >
                 <ChevronDown
@@ -525,6 +527,10 @@ export function SpaceCard({
       />
 
       <div
+        id={`space-${space.id}-description`}
+        // @ts-expect-error inert is a valid HTML attribute (React 19) but typings lag
+        inert={!open ? "" : undefined}
+        aria-hidden={!open}
         className={cn(
           "grid transition-all duration-300 ease-out",
           open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
@@ -557,7 +563,7 @@ function OccupancyBlocks({ level }: { level: 1 | 2 | 3 }) {
           key={i}
           className={cn(
             "w-5 h-2 rounded-sm",
-            i <= level ? "bg-[#1954a6]" : "bg-gray-200"
+            i <= level ? "bg-[var(--kth-blue)]" : "bg-muted"
           )}
         />
       ))}
@@ -575,9 +581,9 @@ function OccupancyBadge({
   const { t } = useTranslation();
   return (
     <div className="flex items-center gap-1.5 md:gap-2 mb-1.5 md:mb-2 mt-0.5 md:mt-0.5">
-      <Users className="h-4 w-4 text-black" aria-hidden="true" />
+      <Users className="h-4 w-4 text-foreground" aria-hidden="true" />
       <OccupancyBlocks level={level} />
-      <span className="text-sm text-black">
+      <span className="text-sm text-foreground">
         <strong>{t("occupancy.right_now")}:</strong>{" "}
         {t(OCCUPANCY_LABELS[status])}
       </span>
@@ -609,9 +615,9 @@ function GroupRoomBadge({
       : "bg-red-500";
   return (
     <div className="flex items-center gap-1.5 md:gap-2 mb-1.5 md:mb-2 mt-0.5 md:mt-0.5 flex-wrap">
-      <Icon className="h-4 w-4 text-black" aria-hidden="true" />
+      <Icon className="h-4 w-4 text-foreground" aria-hidden="true" />
       <span className={cn("inline-block h-2.5 w-2.5 rounded-full", dotClass)} aria-hidden="true" />
-      <span className="text-sm text-black">
+      <span className="text-sm text-foreground">
         <strong>{t("group_room.right_now")}:</strong>{" "}
         {t(GROUP_ROOM_LABELS[status])}
       </span>

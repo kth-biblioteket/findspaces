@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useId, isValidElement, cloneElement, Children, type ReactElement } from "react";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -585,14 +585,14 @@ function AdminPage() {
 
   if (!authChecked) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-sm text-muted-foreground">
+      <div className="min-h-dvh flex items-center justify-center text-sm text-muted-foreground">
         Laddar...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-dvh bg-background">
       <header className="bg-card border-b border-border">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between">
           <h1 className="text-sm font-semibold leading-tight">Admin — Studieplatser</h1>
@@ -613,7 +613,7 @@ function AdminPage() {
       </header>
 
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+      <main id="main" tabIndex={-1} className="max-w-6xl mx-auto px-4 sm:px-6 py-6 focus-visible:outline-none">
         <Tabs defaultValue="spaces" className="w-full">
           <TabsList className="mb-6">
             <TabsTrigger value="spaces">Lokaler</TabsTrigger>
@@ -1095,6 +1095,7 @@ function AdminPage() {
                 <select
                   value={bulkAction}
                   onChange={(e) => { setBulkAction(e.target.value as BulkAction); setBulkValue(""); }}
+                  aria-label="Bulk-åtgärd"
                   className="rounded-lg border border-border bg-card px-2 py-1.5 text-sm"
                 >
                   {BULK_ACTIONS.map((a) => (
@@ -1106,6 +1107,7 @@ function AdminPage() {
                     <select
                       value={bulkCategory}
                       onChange={(e) => { setBulkCategory(e.target.value); setBulkValue(""); }}
+                      aria-label="Filterkategori"
                       className="rounded-lg border border-border bg-card px-2 py-1.5 text-sm"
                     >
                       {categories
@@ -1117,6 +1119,7 @@ function AdminPage() {
                     <select
                       value={bulkValue}
                       onChange={(e) => setBulkValue(e.target.value)}
+                      aria-label="Värde"
                       className="rounded-lg border border-border bg-card px-2 py-1.5 text-sm min-w-[10rem]"
                     >
                       <option value="">— välj värde —</option>
@@ -1130,6 +1133,7 @@ function AdminPage() {
                     value={bulkValue}
                     onChange={(e) => setBulkValue(e.target.value)}
                     placeholder={BULK_ACTIONS.find((a) => a.value === bulkAction)?.placeholder ?? ""}
+                    aria-label={BULK_ACTIONS.find((a) => a.value === bulkAction)?.placeholder ?? "Värde"}
                     className="rounded-lg border border-border bg-card px-2 py-1.5 text-sm min-w-[12rem]"
                   />
                 )}
@@ -1212,7 +1216,7 @@ function AdminPage() {
             <AnalyticsTab />
           </TabsContent>
         </Tabs>
-      </div>
+      </main>
     </div>
   );
 }
@@ -1231,20 +1235,24 @@ function DynamicCategoryField({
     return (
       <Field label={cat.title}>
         <div className="flex gap-2 flex-wrap">
-          {options.map((o) => (
-            <button
-              key={o.id} type="button"
-              onClick={() => onChange(values[0] === o.label ? [] : [o.label])}
-              className={cn(
-                "inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm border",
-                values[0] === o.label
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-secondary border-transparent"
-              )}
-            >
-              <OptionIcon option={o} className="h-4 w-4" /> {o.label}
-            </button>
-          ))}
+          {options.map((o) => {
+            const active = values[0] === o.label;
+            return (
+              <button
+                key={o.id} type="button"
+                onClick={() => onChange(active ? [] : [o.label])}
+                aria-pressed={active}
+                className={cn(
+                  "inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  active
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-secondary border-transparent"
+                )}
+              >
+                <OptionIcon option={o} className="h-4 w-4" /> {o.label}
+              </button>
+            );
+          })}
         </div>
       </Field>
     );
@@ -1256,20 +1264,24 @@ function DynamicCategoryField({
   return (
     <Field label={cat.title}>
       <div className="flex flex-wrap gap-2">
-        {options.map((o) => (
-          <button
-            key={o.id} type="button" onClick={() => toggle(o.label)}
-            className={cn(
-              "inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm border",
-              values.includes(o.label)
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-secondary border-transparent"
-            )}
-          >
-            <OptionIcon option={o} className="h-4 w-4" />
-            {o.label}
-          </button>
-        ))}
+        {options.map((o) => {
+          const active = values.includes(o.label);
+          return (
+            <button
+              key={o.id} type="button" onClick={() => toggle(o.label)}
+              aria-pressed={active}
+              className={cn(
+                "inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                active
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-secondary border-transparent"
+              )}
+            >
+              <OptionIcon option={o} className="h-4 w-4" />
+              {o.label}
+            </button>
+          );
+        })}
       </div>
     </Field>
   );
@@ -1808,9 +1820,29 @@ function FilterOptionDialog({
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  const id = useId();
+  const arr = Children.toArray(children);
+  const onlyChild = arr.length === 1 ? arr[0] : null;
+  const isFormControl =
+    isValidElement(onlyChild) &&
+    typeof onlyChild.type === "string" &&
+    ["input", "textarea", "select"].includes(onlyChild.type);
+
+  if (isFormControl) {
+    const child = onlyChild as ReactElement<{ id?: string }>;
+    return (
+      <div>
+        <label htmlFor={id} className="block text-sm font-medium mb-1.5">{label}</label>
+        {cloneElement(child, { id: child.props.id ?? id })}
+      </div>
+    );
+  }
+
+  // Group of controls — associate with an accessible name via role=group.
+  const labelId = `${id}-label`;
   return (
-    <div>
-      <label className="block text-sm font-medium mb-1.5">{label}</label>
+    <div role="group" aria-labelledby={labelId}>
+      <span id={labelId} className="block text-sm font-medium mb-1.5">{label}</span>
       {children}
     </div>
   );
@@ -1844,10 +1876,10 @@ function SortableSpaceRow({
       <td className="px-2 py-3 text-muted-foreground">
         <button
           {...attributes} {...listeners}
-          className="p-1 rounded hover:bg-accent cursor-grab active:cursor-grabbing touch-none"
-          title="Dra för att flytta"
-          aria-label="Dra för att flytta"
-        ><GripVertical className="h-4 w-4" /></button>
+          type="button"
+          className="min-h-11 min-w-11 inline-flex items-center justify-center rounded hover:bg-accent cursor-grab active:cursor-grabbing touch-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label={`Dra för att flytta ${space.name}`}
+        ><GripVertical className="h-4 w-4" aria-hidden="true" /></button>
       </td>
       <td className="px-4 py-3 font-medium">{space.name}</td>
       <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
@@ -1863,11 +1895,21 @@ function SortableSpaceRow({
       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.noise}</td>
       <td className="px-4 py-3 text-right">
         <div className="inline-flex gap-1">
-          <button onClick={onEdit} className="p-2 rounded-md hover:bg-accent" title="Redigera">
-            <Pencil className="h-4 w-4" />
+          <button
+            type="button"
+            onClick={onEdit}
+            className="min-h-11 min-w-11 inline-flex items-center justify-center rounded-md hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label={`Redigera ${space.name}`}
+          >
+            <Pencil className="h-4 w-4" aria-hidden="true" />
           </button>
-          <button onClick={onDelete} className="p-2 rounded-md hover:bg-destructive/10 text-destructive" title="Ta bort">
-            <Trash2 className="h-4 w-4" />
+          <button
+            type="button"
+            onClick={onDelete}
+            className="min-h-11 min-w-11 inline-flex items-center justify-center rounded-md hover:bg-destructive/10 text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label={`Ta bort ${space.name}`}
+          >
+            <Trash2 className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
       </td>
@@ -1891,15 +1933,16 @@ function SortableImageRow({
   const dateLabel = uploadedAt
     ? new Date(uploadedAt).toLocaleDateString("sv-SE", { year: "numeric", month: "short", day: "numeric" })
     : null;
+  const altSvId = useId();
+  const altEnId = useId();
   return (
     <li ref={setNodeRef} style={style} className="flex gap-3 items-start rounded-lg border border-border p-2 bg-card">
       <button
         type="button"
         {...attributes} {...listeners}
-        className="p-1 self-center text-muted-foreground rounded hover:bg-accent cursor-grab active:cursor-grabbing touch-none"
-        title="Dra för att flytta"
-        aria-label="Dra för att flytta"
-      ><GripVertical className="h-4 w-4" /></button>
+        className="min-h-11 min-w-11 inline-flex items-center justify-center self-center text-muted-foreground rounded hover:bg-accent cursor-grab active:cursor-grabbing touch-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        aria-label={`Dra för att flytta bild ${index + 1}`}
+      ><GripVertical className="h-4 w-4" aria-hidden="true" /></button>
       <div className="relative shrink-0">
         <img src={url} alt="" className="h-20 w-28 object-cover border border-border" />
         {index === 0 && (
@@ -1909,18 +1952,26 @@ function SortableImageRow({
         )}
       </div>
       <div className="flex-1 min-w-0 space-y-2">
-        <input
-          value={altSv}
-          onChange={(e) => onAltSv(e.target.value)}
-          placeholder="Alt-text SV (beskriv bilden för skärmläsare)"
-          className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs"
-        />
-        <input
-          value={altEn}
-          onChange={(e) => onAltEn(e.target.value)}
-          placeholder="Alt text EN (describe the image for screen readers – leave blank to fall back to Swedish)"
-          className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs"
-        />
+        <div>
+          <label htmlFor={altSvId} className="sr-only">Alt-text på svenska för bild {index + 1}</label>
+          <input
+            id={altSvId}
+            value={altSv}
+            onChange={(e) => onAltSv(e.target.value)}
+            placeholder="Alt-text SV (beskriv bilden för skärmläsare)"
+            className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs"
+          />
+        </div>
+        <div>
+          <label htmlFor={altEnId} className="sr-only">Alt text in English for image {index + 1}</label>
+          <input
+            id={altEnId}
+            value={altEn}
+            onChange={(e) => onAltEn(e.target.value)}
+            placeholder="Alt text EN (describe the image for screen readers – leave blank to fall back to Swedish)"
+            className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs"
+          />
+        </div>
         <div className="flex items-center justify-between">
           {dateLabel ? (
             <span className="text-[10px] text-muted-foreground">Uppladdad: {dateLabel}</span>
@@ -1929,9 +1980,9 @@ function SortableImageRow({
           )}
           <button
             type="button" onClick={onRemove}
-            className="h-7 w-7 rounded bg-destructive/10 text-destructive flex items-center justify-center"
-            aria-label="Ta bort"
-          ><X className="h-3.5 w-3.5" /></button>
+            className="min-h-11 min-w-11 rounded bg-destructive/10 text-destructive inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label={`Ta bort bild ${index + 1}`}
+          ><X className="h-3.5 w-3.5" aria-hidden="true" /></button>
         </div>
       </div>
     </li>
@@ -1954,21 +2005,31 @@ function SortableFilterOptionRow({
       <div className="flex items-center gap-2 min-w-0">
         <button
           {...attributes} {...listeners}
-          className="p-1 text-muted-foreground rounded hover:bg-accent cursor-grab active:cursor-grabbing touch-none"
-          title="Dra för att flytta"
-          aria-label="Dra för att flytta"
-        ><GripVertical className="h-4 w-4" /></button>
+          type="button"
+          className="min-h-11 min-w-11 inline-flex items-center justify-center text-muted-foreground rounded hover:bg-accent cursor-grab active:cursor-grabbing touch-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label={`Dra för att flytta ${option.label}`}
+        ><GripVertical className="h-4 w-4" aria-hidden="true" /></button>
         <span className="h-7 w-7 rounded-md bg-secondary flex items-center justify-center shrink-0">
           <OptionIcon option={option} className="h-4 w-4" />
         </span>
         <span className="text-sm truncate">{option.label}</span>
       </div>
       <div className="inline-flex gap-1">
-        <button onClick={onEdit} className="p-1.5 rounded-md hover:bg-accent" title="Redigera">
-          <Pencil className="h-3.5 w-3.5" />
+        <button
+          type="button"
+          onClick={onEdit}
+          className="min-h-11 min-w-11 inline-flex items-center justify-center rounded-md hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label={`Redigera ${option.label}`}
+        >
+          <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
         </button>
-        <button onClick={onDelete} className="p-1.5 rounded-md hover:bg-destructive/10 text-destructive" title="Ta bort">
-          <Trash2 className="h-3.5 w-3.5" />
+        <button
+          type="button"
+          onClick={onDelete}
+          className="min-h-11 min-w-11 inline-flex items-center justify-center rounded-md hover:bg-destructive/10 text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label={`Ta bort ${option.label}`}
+        >
+          <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
         </button>
       </div>
     </li>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +20,7 @@ function Placeholder({ className }: { className?: string }) {
 export function ImageCarousel({
   images, alt, alts = [], className, onImageClick, priority = false,
 }: { images: string[]; alt: string; alts?: string[]; className?: string; onImageClick?: (index: number) => void; priority?: boolean }) {
+  const { t } = useTranslation();
   const [idx, setIdx] = useState(0);
   const [loaded, setLoaded] = useState<Record<number, boolean>>({});
   const list = images.filter(Boolean);
@@ -56,12 +58,12 @@ export function ImageCarousel({
 
       <button
         type="button"
-        className="relative z-[1] w-full h-full p-0 m-0 border-0 bg-transparent cursor-pointer"
+        className="relative z-[1] w-full h-full p-0 m-0 border-0 bg-transparent cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         onClick={(e) => {
           e.stopPropagation();
           onImageClick?.(idx);
         }}
-        aria-label="Öppna bild i full storlek"
+        aria-label={t("gallery.open_full")}
       >
         <img
           key={list[idx]}
@@ -94,18 +96,18 @@ export function ImageCarousel({
           <button
             type="button"
             onClick={(e) => go(-1, e)}
-            aria-label="Föregående bild"
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 h-8 w-8 rounded-full bg-white/90 hover:bg-white text-[var(--kth-navy)] shadow-md flex items-center justify-center transition-all"
+            aria-label={t("gallery.prev")}
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 h-8 w-8 rounded-full bg-white/90 hover:bg-white text-[var(--kth-navy)] shadow-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
+            <ChevronLeft className="h-5 w-5" strokeWidth={2.5} aria-hidden="true" />
           </button>
           <button
             type="button"
             onClick={(e) => go(1, e)}
-            aria-label="Nästa bild"
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 h-8 w-8 rounded-full bg-white/90 hover:bg-white text-[var(--kth-navy)] shadow-md flex items-center justify-center transition-all"
+            aria-label={t("gallery.next")}
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 h-8 w-8 rounded-full bg-white/90 hover:bg-white text-[var(--kth-navy)] shadow-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <ChevronRight className="h-5 w-5" strokeWidth={2.5} />
+            <ChevronRight className="h-5 w-5" strokeWidth={2.5} aria-hidden="true" />
           </button>
 
           {/* Pagination dots in a pill */}
@@ -115,10 +117,10 @@ export function ImageCarousel({
                 key={i}
                 type="button"
                 onClick={(e) => { e.stopPropagation(); setIdx(i); }}
-                aria-label={`Bild ${i + 1}`}
-                aria-current={i === idx}
+                aria-label={t("gallery.go_to", { n: i + 1 })}
+                aria-current={i === idx ? "true" : undefined}
                 className={cn(
-                  "h-2 rounded-full transition-all",
+                  "h-2 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
                   i === idx ? "w-5 bg-white" : "w-2 bg-white/55 hover:bg-white/80"
                 )}
               />

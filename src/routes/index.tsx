@@ -186,7 +186,7 @@ function SpaceFinder() {
   }, [isLoading, hasActiveFilter, filtered.length]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-dvh bg-background">
       <header className="bg-card border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between">
           <h1 className="text-sm font-semibold leading-tight">{t("header.title")}</h1>
@@ -197,14 +197,14 @@ function SpaceFinder() {
               className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
               aria-label={t("header.admin")}
             >
-              <Settings className="h-3.5 w-3.5" />
+              <Settings className="h-3.5 w-3.5" aria-hidden="true" />
             </Link>
           </div>
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 lg:grid lg:grid-cols-[320px_1fr] lg:gap-6">
-        <aside className="hidden lg:block">
+        <aside className="hidden lg:block" aria-label={t("filters.title")}>
           <div className="sticky top-4 bg-card rounded-xl border border-border flex flex-col max-h-[calc(100vh-2rem)]">
             <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
               <span className="text-sm font-semibold">{t("filters.title")}</span>
@@ -236,7 +236,7 @@ function SpaceFinder() {
         </div>
 
 
-        <main>
+        <main id="main" tabIndex={-1} className="focus-visible:outline-none">
           <div className="flex items-baseline justify-between mb-3">
             <h2 className="text-lg font-bold">{t("results.heading")}</h2>
             <span className="text-xs text-muted-foreground">
@@ -364,7 +364,7 @@ function MobileFilterSheet({
           <div className="px-6 pb-6 pt-4">
             <FilterPanel filters={draft} onChange={setDraft} />
           </div>
-          <div className="sticky bottom-0 mt-auto border-t border-border bg-white p-4 flex items-center gap-3">
+          <div className="sticky bottom-0 mt-auto border-t border-border bg-card p-4 flex items-center gap-3">
             <button
               type="button"
               onClick={() => setDraft(emptyFilters)}

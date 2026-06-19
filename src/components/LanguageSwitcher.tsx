@@ -13,12 +13,15 @@ export function LanguageSwitcher({ className = "" }: { className?: string }) {
     >
       {SUPPORTED_LANGUAGES.map((lng) => {
         const active = current === lng;
+        const fullName = t(`languages.${lng}`);
         return (
           <button
             key={lng}
             type="button"
             onClick={() => i18n.changeLanguage(lng)}
             aria-pressed={active}
+            aria-label={fullName}
+            lang={lng}
             className={
               "px-2 py-1 rounded-md font-semibold uppercase tracking-wide focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " +
               (active
@@ -26,7 +29,8 @@ export function LanguageSwitcher({ className = "" }: { className?: string }) {
                 : "text-muted-foreground hover:text-foreground")
             }
           >
-            {lng}
+            <span aria-hidden="true">{lng}</span>
+            <span className="sr-only">{fullName}</span>
           </button>
         );
       })}

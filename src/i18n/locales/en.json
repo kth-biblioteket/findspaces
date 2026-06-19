@@ -65,5 +65,21 @@
     "free": "Free",
     "busy": "Booked",
     "tentative": "Booked – unconfirmed"
+  },
+  "gallery": {
+    "label": "Image gallery",
+    "open_full": "Open image full size",
+    "prev": "Previous image",
+    "next": "Next image",
+    "close": "Close image gallery",
+    "go_to": "Go to image {{n}}",
+    "image_number": "Image {{n}}"
+  },
+  "languages": {
+    "sv": "Swedish",
+    "en": "English"
+  },
+  "a11y": {
+    "skip_to_content": "Skip to content"
   }
 }
