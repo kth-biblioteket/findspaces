@@ -475,12 +475,7 @@ export function SpaceCard({
           <div className="order-2 md:order-1 flex-1 min-w-0 flex flex-col p-3 md:p-3">
           {layout.map((k, i) => renderSection(k, i))}
 
-          {linkedInfo && (
-            <div className="mt-2 mb-1 flex items-start gap-2 text-sm text-foreground/80">
-              <Info className="h-3.5 w-3.5 mt-0.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-              <span className="whitespace-pre-line">{linkedInfo}</span>
-            </div>
-          )}
+
 
           <div className="mt-auto pt-2 md:pt-2 flex items-center justify-between gap-3 flex-wrap">
             {sanitizedDescription ? (
