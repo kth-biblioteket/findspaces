@@ -272,7 +272,7 @@ export function SpaceCard({
                 )}
                 <span>
                   <span className="sr-only">{t("card.capacity_sr")} </span>
-                  <span className="font-semibold">{space.capacity}</span> {t("card.capacity_seats")}
+                  {space.capacity} {t("card.capacity_seats")}
                 </span>
               </p>
             )}
