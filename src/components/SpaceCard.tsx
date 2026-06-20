@@ -247,7 +247,7 @@ export function SpaceCard({
                 {localizedName}
               </h3>
             </div>
-            {(hasMeta || showCapacity) && (
+            {hasMeta && (
               <div className="mt-1.5 flex flex-col md:flex-row md:items-baseline gap-0.5 md:gap-1 text-sm text-foreground leading-snug">
                 {floorPart && (
                   <span className="inline-flex items-center gap-1 text-foreground font-medium">
@@ -261,19 +261,16 @@ export function SpaceCard({
                 {otherMetaParts.length > 0 && (
                   <span>{otherMetaParts.join(" • ")}</span>
                 )}
-                {hasMeta && showCapacity && (
-                  <span className="hidden md:inline text-foreground/40 mx-0.5" aria-hidden="true">|</span>
-                )}
-                {showCapacity && (
-                  <span className="inline-flex items-end gap-1.5 text-sm text-foreground">
-                    <ChairIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                    <span>
-                      <span className="sr-only">{t("card.capacity_sr")} </span>
-                      {space.capacity} {t("card.capacity_seats")}
-                    </span>
-                  </span>
-                )}
               </div>
+            )}
+            {showCapacity && (
+              <p className="mt-1 inline-flex items-end gap-1.5 text-sm text-foreground">
+                <ChairIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                <span>
+                  <span className="sr-only">{t("card.capacity_sr")} </span>
+                  {space.capacity} {t("card.capacity_seats")}
+                </span>
+              </p>
             )}
             {occupancy && (
               <OccupancyBadge level={occupancy.level} status={occupancy.status} />
