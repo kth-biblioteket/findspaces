@@ -247,34 +247,33 @@ export function SpaceCard({
                 {localizedName}
               </h3>
             </div>
-              {hasMeta && (
-                <div className="mt-1.5 flex flex-col md:flex-row md:items-center gap-0.5 md:gap-1 text-sm text-foreground leading-snug">
-                  {floorPart && (
-                    <span className="inline-flex items-center gap-1 text-foreground font-medium">
-                      <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                      {floorPart}
-                    </span>
-                  )}
-                  {floorPart && otherMetaParts.length > 0 && (
-                    <span className="hidden md:inline text-foreground/40 mx-0.5" aria-hidden="true">|</span>
-                  )}
-                  {otherMetaParts.length > 0 && (
-                    <span>{otherMetaParts.join(" • ")}</span>
-                  )}
-                </div>
-              )}
-            {showCapacity && (
-              <p className="mt-0.5 inline-flex items-center gap-1.5 text-sm leading-snug text-foreground">
-                {capacityIconUrl ? (
-                  <img src={capacityIconUrl} alt="" className="h-4 w-4 object-contain" />
-                ) : (
-                  <ChairIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            {(hasMeta || showCapacity) && (
+              <div className="mt-1.5 flex flex-col md:flex-row md:items-baseline gap-0.5 md:gap-1 text-sm text-foreground leading-snug">
+                {floorPart && (
+                  <span className="inline-flex items-center gap-1 text-foreground font-medium">
+                    <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                    {floorPart}
+                  </span>
                 )}
-                <span>
-                  <span className="sr-only">{t("card.capacity_sr")} </span>
-                  {space.capacity} {t("card.capacity_seats")}
-                </span>
-              </p>
+                {floorPart && otherMetaParts.length > 0 && (
+                  <span className="hidden md:inline text-foreground/40 mx-0.5" aria-hidden="true">|</span>
+                )}
+                {otherMetaParts.length > 0 && (
+                  <span>{otherMetaParts.join(" • ")}</span>
+                )}
+                {hasMeta && showCapacity && (
+                  <span className="hidden md:inline text-foreground/40 mx-0.5" aria-hidden="true">|</span>
+                )}
+                {showCapacity && (
+                  <span className="inline-flex items-end gap-1.5 text-sm text-foreground">
+                    <ChairIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                    <span>
+                      <span className="sr-only">{t("card.capacity_sr")} </span>
+                      {space.capacity} {t("card.capacity_seats")}
+                    </span>
+                  </span>
+                )}
+              </div>
             )}
             {occupancy && (
               <OccupancyBadge level={occupancy.level} status={occupancy.status} />
