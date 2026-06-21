@@ -22,11 +22,11 @@ export function ChairIcon({
       {/* Seat */}
       <path d="M5.5 12.5h13" />
       {/* Front legs */}
-      <path d="M6.5 13.5v8" />
-      <path d="M17.5 13.5v8" />
+      <path d="M6.5 13.5v9" />
+      <path d="M17.5 13.5v9" />
       {/* Back legs */}
-      <path d="M10 13.5v5" />
-      <path d="M14 13.5v5" />
+      <path d="M10 13.5v6" />
+      <path d="M14 13.5v6" />
     </svg>
   );
 }

@@ -266,7 +266,7 @@ export function SpaceCard({
             {showCapacity && (
               <p className="mt-1 inline-flex items-end gap-1.5 text-sm text-foreground">
                 <ChairIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                <span>
+                <span className="leading-none">
                   <span className="sr-only">{t("card.capacity_sr")} </span>
                   {space.capacity} {t("card.capacity_seats")}
                 </span>
