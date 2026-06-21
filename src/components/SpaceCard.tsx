@@ -267,7 +267,9 @@ export function SpaceCard({
             )}
             {showCapacity && (
               <p className="mt-1 inline-flex items-end gap-1.5 text-sm text-foreground">
-                <ChairIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                <span className="inline-flex w-4 justify-center">
+                  <ChairIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                </span>
                 <span className="leading-none">
                   <span className="sr-only">{t("card.capacity_sr")} </span>
                   {space.capacity} {t("card.capacity_seats")}
@@ -293,7 +295,7 @@ export function SpaceCard({
           <div
             key="notice"
             role="status"
-            className={cn(spacing, "flex items-start gap-2 bg-[hsl(48_100%_85%)] text-foreground rounded-lg px-3 py-2 text-sm")}
+            className={cn(spacing, "flex items-start gap-1.5 bg-[hsl(48_100%_85%)] text-foreground rounded-lg px-3 py-2 text-sm")}
           >
             <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-orange-500" aria-hidden="true" />
             <span className="whitespace-pre-line">
@@ -305,7 +307,7 @@ export function SpaceCard({
       case "info":
         if (!linkedInfo) return null;
         return (
-          <div key="info" className={cn(spacing, "flex items-start gap-2 text-sm text-foreground/80")}>
+          <div key="info" className={cn(spacing, "flex items-start gap-1.5 text-sm text-foreground/80")}>
             <Info className="h-3.5 w-3.5 mt-0.5 shrink-0 text-muted-foreground" aria-hidden="true" />
             <span className="whitespace-pre-line">{linkedInfo}</span>
           </div>
