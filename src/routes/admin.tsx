@@ -39,6 +39,8 @@ import {
 } from "@/lib/useOccupancySettings";
 import { ChairIcon } from "@/components/icons/ChairIcon";
 import { AnalyticsTab } from "@/components/AnalyticsTab";
+import { Switch } from "@/components/ui/switch";
+import { useAnnouncementAdmin, useSaveAnnouncement } from "@/lib/useAnnouncement";
 
 
 import { toast } from "sonner";
@@ -2289,9 +2291,70 @@ function LandingMessageTab() {
 
   return (
     <div className="space-y-6 max-w-4xl">
+      <AnnouncementSection />
       {uiKeys.map((k) => (
         <UiTextEditor key={k} uiKey={k} />
       ))}
+    </div>
+  );
+}
+
+function AnnouncementSection() {
+  const { data, isLoading } = useAnnouncementAdmin();
+  const save = useSaveAnnouncement();
+  const [sv, setSv] = useState("");
+  const [en, setEn] = useState("");
+
+  useEffect(() => {
+    if (data) {
+      setSv(data.sv);
+      setEn(data.en);
+    }
+  }, [data]);
+
+  const enabled = data?.enabled ?? false;
+
+  return (
+    <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-bold">Driftmeddelande på startsidan</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Visas som en banner högst upp på startsidan, direkt under sidhuvudet.
+            Använd t.ex. för att informera om renovering eller större ändringar.
+            Besökare kan stänga bannern, men den dyker upp igen om du redigerar texten.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-sm font-medium">{enabled ? "På" : "Av"}</span>
+          <Switch
+            checked={enabled}
+            disabled={isLoading || save.isPending}
+            onCheckedChange={(v) =>
+              save.mutate(
+                { enabled: v },
+                { onSuccess: () => toast.success(v ? "Meddelande aktiverat" : "Meddelande avstängt") },
+              )
+            }
+            aria-label="Visa driftmeddelande"
+          />
+        </div>
+      </div>
+      <LangPairEditor
+        labelSv="Meddelande"
+        labelEn="Message"
+        rows={3}
+        valueSv={sv}
+        valueEn={en}
+        isPending={save.isPending}
+        isLoading={isLoading}
+        onSaveSv={(v) =>
+          save.mutate({ sv: v }, { onSuccess: () => toast.success("Sparat (SV)") })
+        }
+        onSaveEn={(v) =>
+          save.mutate({ en: v }, { onSuccess: () => toast.success("Sparat (EN)") })
+        }
+      />
     </div>
   );
 }
