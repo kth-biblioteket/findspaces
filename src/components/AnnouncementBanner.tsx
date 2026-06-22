@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { X, Megaphone } from "lucide-react";
+import { X, Info } from "lucide-react";
 import { useAnnouncement } from "@/lib/useAnnouncement";
 
 const STORAGE_KEY = "announcement_dismissed_hash";
@@ -36,11 +36,10 @@ export function AnnouncementBanner() {
     <div
       role="status"
       aria-live="polite"
-      className="bg-primary text-primary-foreground border-b border-border"
-      style={{ backgroundColor: "var(--kth-blue)" }}
+      className="bg-muted text-foreground border-b border-border"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-start gap-3">
-        <Megaphone className="h-4 w-4 mt-0.5 shrink-0" aria-hidden="true" />
+        <Info className="h-4 w-4 mt-0.5 shrink-0" aria-hidden="true" />
         <p className="flex-1 text-sm leading-snug whitespace-pre-line">
           {data.message}
         </p>
@@ -48,7 +47,7 @@ export function AnnouncementBanner() {
           type="button"
           onClick={handleDismiss}
           aria-label={t("announcement.dismiss")}
-          className="shrink-0 -m-1 p-1 rounded hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          className="shrink-0 -m-1 p-1 rounded hover:bg-black/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
         >
           <X className="h-4 w-4" aria-hidden="true" />
         </button>
