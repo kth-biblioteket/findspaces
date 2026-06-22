@@ -6,6 +6,9 @@
     "admin": "Admin",
     "language": "Language"
   },
+  "announcement": {
+    "dismiss": "Dismiss announcement"
+  },
   "filters": {
     "title": "Filters",
     "open": "Filters",
