@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { X, Megaphone } from "lucide-react";
+import { X, Info } from "lucide-react";
 import { useAnnouncement } from "@/lib/useAnnouncement";
 
 const STORAGE_KEY = "announcement_dismissed_hash";
