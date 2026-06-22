@@ -18,6 +18,7 @@ import { getGroupRoomAvailability } from "@/lib/groupRoomAvailability.functions"
 import { track, usePageView, useDebouncedTrack } from "@/lib/analytics";
 
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import type { FilterCategoryRow } from "@/lib/spaces";
 
 type SearchParams = {
@@ -202,6 +203,10 @@ function SpaceFinder() {
           </div>
         </div>
       </header>
+
+      <AnnouncementBanner />
+
+
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 lg:grid lg:grid-cols-[320px_1fr] lg:gap-6">
         <aside className="hidden lg:block" aria-label={t("filters.title")}>

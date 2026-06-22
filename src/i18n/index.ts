@@ -23,7 +23,9 @@ if (!i18n.isInitialized) {
       supportedLngs: SUPPORTED_LANGUAGES as unknown as string[],
       interpolation: { escapeValue: false },
       detection: {
-        order: ["localStorage", "navigator", "htmlTag"],
+        // Only honor an explicit saved choice. First-time visitors
+        // always get the Swedish fallback regardless of browser locale.
+        order: ["localStorage"],
         caches: ["localStorage"],
         lookupLocalStorage: "lang",
       },

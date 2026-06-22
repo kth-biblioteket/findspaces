@@ -6,6 +6,9 @@
     "admin": "Admin",
     "language": "Språk"
   },
+  "announcement": {
+    "dismiss": "Stäng meddelande"
+  },
   "filters": {
     "title": "Filter",
     "open": "Filter",
