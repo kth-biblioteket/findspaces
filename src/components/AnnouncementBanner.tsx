@@ -36,7 +36,8 @@ export function AnnouncementBanner() {
     <div
       role="status"
       aria-live="polite"
-      className="bg-[var(--kth-blue,theme(colors.primary.DEFAULT))] text-primary-foreground border-b border-border"
+      className="bg-primary text-primary-foreground border-b border-border"
+      style={{ backgroundColor: "var(--kth-blue)" }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-start gap-3">
         <Megaphone className="h-4 w-4 mt-0.5 shrink-0" aria-hidden="true" />
