@@ -268,7 +268,11 @@ export function SpaceCard({
             {showCapacity && (
               <p className="mt-1 inline-flex items-end gap-1.5 text-sm text-foreground">
                 <span className="inline-flex w-4 justify-center">
-                  <ChairIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                  {capacityIconUrl ? (
+                    <img src={capacityIconUrl} alt="" className="h-4 w-4 object-contain" />
+                  ) : (
+                    <ChairIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                  )}
                 </span>
                 <span className="leading-none">
                   <span className="sr-only">{t("card.capacity_sr")} </span>
