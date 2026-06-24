@@ -1,42 +1,44 @@
 ## Mål
-Göra statistikfliken i adminläget mer användbar genom flexibel periodval, export och några extra insikter.
+Bygga vidare på statistikfliken i adminläget med fyra nya insikter, utan att röra övrig logik på sidan.
 
-## 1. Välj period med start- och slutdatum
-- Behåll snabbvalen (24h, 7d, 30d) men lägg till "Anpassad period".
-- Två datumväljare (shadcn `Calendar` i `Popover`, svensk lokalisering) för från/till.
-- Slutdatum inkluderar hela dagen (t.o.m. 23:59:59).
-- Validering: från ≤ till, max t.ex. 365 dagar för att undvika tunga queries.
-- Visa vald period tydligt ovanför graferna ("1 jun – 23 jun 2026").
+## 1. Jämför med föregående period
+- Räkna ut en lika lång period direkt före vald period (t.ex. valt 7d → föregående 7d).
+- Hämta data för båga perioderna i samma query-omgång (två parallella queries, samma tabell).
+- Visa varje KPI-kort med en liten delta-rad under siffran: "+12,4% jmf föregående period" (grön upp, röd ner, grå vid 0/±2%).
+- Vid avsaknad av data i föregående period: visa "—".
 
-## 2. Exportera till Excel
-- Knapp "Exportera till Excel" bredvid periodväljaren.
-- Genererar en `.xlsx` med flera flikar:
-  - **Sammanfattning** – nyckeltal (sidvisningar, sessioner, kortklick, bokningsklick, kartklick, filterändringar, sök utan träff) + vald period.
-  - **Lokaler** – topp engagerande lokaler (namn + antal interaktioner uppdelat på expand/booking/map).
-  - **Filter** – mest använda filter med antal.
-  - **Sökningar utan träff** – tidpunkt, sökord, läge, kategorier.
-  - **Råhändelser** – alla events i perioden (tid, typ, path, session, payload som JSON).
-- Använder `xlsx`-biblioteket (lägg till som dep), filnamn `statistik_YYYY-MM-DD_till_YYYY-MM-DD.xlsx`.
+## 2. Filterkombinationer som ger 0 träffar
+- Ny sektion under befintliga "Sökningar utan träff".
+- Aggregera `empty_results`-events och gruppera på en normaliserad nyckel av filterkombinationen (sorterade kategorier + workMode + freeOnly, sökord exkluderat så det blir kombinationen som syns).
+- Topp 10 kombinationer med antal förekomster, sorterat fallande.
+- Tas med i Excel-exporten som ny flik "Filter utan träff".
 
-## 3. Övriga förbättringar
-- **Tidsserier-graf**: enkel staplad linje/stapel som visar sidvisningar och kortklick per dag (eller per timme om perioden ≤ 48h). Använder befintlig `recharts` om den finns, annars en enkel SVG-spark.
-- **Konverteringsmått**: visa "andel sessioner som klickade på bokning" och "andel sessioner som expanderade ett kort" – ger snabb känsla för engagemang.
-- **Topp sökord**: lista de vanligaste sökorden (från `filter_change` med `query`) – idag visas bara att sök skett, inte vad.
-- **Trafiktoppar**: visa mest aktiva tid på dygnet (timme 0–23) och mest aktiva veckodag.
-- **Kortlänkklick**: lägg till `space_link_click` i nyckeltalen (finns i `AnalyticsEvent`-typen men visas inte).
-- **Tom-resultat-export**: knapp för att kopiera alla "sök utan träff" – snabb input till content-arbete.
+## 3. Enhets- och källfördelning
+- Utöka `track()`-payload i `src/lib/analytics.ts` att skicka med `device` (mobile/tablet/desktop via userAgent + viewport), `referrer` (document.referrer host) och ev. UTM-parametrar (utm_source/medium/campaign från URL) på `page_view`.
+- I AnalyticsTab: två nya sektioner sida vid sida.
+  - **Enhet**: stapeldiagram mobil/desktop/tablet (andel av sidvisningar).
+  - **Källa**: lista över top referrers + UTM-källor (interna/direkta = "direkt").
+- Befintliga events fungerar oförändrat; nya fälten är optional på Row-typen.
+- Excel-flik "Källor" med referrer, utm_source, utm_medium, utm_campaign, antal.
+
+## 4. Heatmap veckodag × timme
+- Ersätt INTE de två befintliga graferna (timme/veckodag) – komplettera med en heatmap under dem.
+- 7×24 rutnät (måndag överst, 00–23 i kolumner), färgintensitet via opacity på `--primary`.
+- Tooltip per cell: "Tis 14:00 · 23 sidvisningar".
+- Implementeras som enkel CSS-grid i samma stil som övriga sektioner (ingen ny dep).
 
 ## Tekniska detaljer
-- Allt sker klient-sida i `AnalyticsTab.tsx`; query mot `analytics_events` utökas med dynamisk `gte`/`lte` baserat på vald period.
-- Limit höjs eller pagineras vid behov (idag 10 000).
-- Datumstate hålls lokalt; `useMemo` för aggregering precis som idag.
-- Nytt beroende: `xlsx` (SheetJS) för export. `recharts` finns troligen redan via shadcn chart.
+- Alla ändringar i `src/components/AnalyticsTab.tsx`, `src/lib/analyticsExport.ts` och `src/lib/analytics.ts`.
+- Föregående-period query körs via samma `useQuery` med två tidsfönster (en extra queryKey).
+- Device-detektion: enkel regex på `navigator.userAgent` + `window.innerWidth < 768` fallback.
+- UTM/referrer läses i `track()` vid `page_view` så historisk data påverkas inte – nya datapunkter får dem framåt.
+- Inga DB-migrationer behövs (`payload jsonb` rymmer fälten redan).
 
 ## Filer som ändras
-- `src/components/AnalyticsTab.tsx` – periodväljare, export-knapp, nya sektioner.
-- Eventuellt ny `src/lib/analyticsExport.ts` för xlsx-bygget.
-- `package.json` – `xlsx` (om recharts saknas läggs den också till).
+- `src/components/AnalyticsTab.tsx` – delta-badges, nya sektioner, heatmap.
+- `src/lib/analytics.ts` – berika `page_view`-payload.
+- `src/lib/analyticsExport.ts` – nya flikar "Filter utan träff" och "Källor".
 
-## Frågor att bekräfta
-- Vill du ha alla föreslagna förbättringar (tidsgraf, konvertering, topp sökord, trafiktoppar) eller bara vissa?
-- Ska exporten även innehålla råhändelser, eller räcker de aggregerade flikarna?
+## Att bekräfta
+- Vill du att deltan visas på alla KPI-kort eller bara de viktigaste (sidvisningar, sessioner, bokningsklick)?
+- Heatmap-färg: ren primary-opacity (matchar tema) eller en grön→röd-skala?
