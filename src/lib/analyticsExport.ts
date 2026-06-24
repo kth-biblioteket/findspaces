@@ -120,6 +120,55 @@ export function exportAnalyticsToExcel(rows: Row[], from: Date, to: Date): void 
   }
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(emptyRows), "Sök utan träff");
 
+  // Filter utan träff (kombinationer)
+  const comboCounts: Record<string, number> = {};
+  for (const r of rows) {
+    if (r.event_type !== "empty_results") continue;
+    const p = (r.payload ?? {}) as Record<string, unknown>;
+    const parts: string[] = [];
+    if (p.workMode) parts.push(`läge:${String(p.workMode)}`);
+    if (p.freeOnly) parts.push("endast lediga");
+    const cats = (p.categories ?? {}) as Record<string, string[]>;
+    for (const [k, v] of Object.entries(cats)) {
+      for (const val of (v ?? []).slice().sort()) parts.push(`${k}:${val}`);
+    }
+    const key = parts.length ? parts.sort().join(" · ") : "(inga filter)";
+    comboCounts[key] = (comboCounts[key] ?? 0) + 1;
+  }
+  const comboRows = [
+    ["Filterkombination", "Antal"],
+    ...Object.entries(comboCounts).sort((a, b) => b[1] - a[1]),
+  ];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(comboRows), "Filter utan träff");
+
+  // Källor
+  const srcCounts: Record<string, { referrer: string; utm_source: string; utm_medium: string; utm_campaign: string; count: number }> = {};
+  const deviceCounts: Record<string, number> = {};
+  for (const r of rows) {
+    if (r.event_type !== "page_view") continue;
+    const p = (r.payload ?? {}) as Record<string, unknown>;
+    const referrer = String(p.referrer ?? "direkt");
+    const utm_source = String(p.utm_source ?? "");
+    const utm_medium = String(p.utm_medium ?? "");
+    const utm_campaign = String(p.utm_campaign ?? "");
+    const key = `${referrer}|${utm_source}|${utm_medium}|${utm_campaign}`;
+    const e = srcCounts[key] ?? { referrer, utm_source, utm_medium, utm_campaign, count: 0 };
+    e.count++;
+    srcCounts[key] = e;
+    const dev = String(p.device ?? "okänd");
+    deviceCounts[dev] = (deviceCounts[dev] ?? 0) + 1;
+  }
+  const srcRows: (string | number)[][] = [["Referrer", "utm_source", "utm_medium", "utm_campaign", "Sidvisningar"]];
+  for (const v of Object.values(srcCounts).sort((a, b) => b.count - a.count)) {
+    srcRows.push([v.referrer, v.utm_source, v.utm_medium, v.utm_campaign, v.count]);
+  }
+  srcRows.push([], ["Enhet", "Sidvisningar"]);
+  for (const [d, c] of Object.entries(deviceCounts).sort((a, b) => b[1] - a[1])) {
+    srcRows.push([d, c]);
+  }
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(srcRows), "Källor");
+
+
   // Råhändelser
   const rawRows: (string | number)[][] = [["Tid", "Typ", "Path", "Session", "Payload"]];
   for (const r of rows) {

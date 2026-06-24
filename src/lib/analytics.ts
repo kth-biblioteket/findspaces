@@ -29,6 +29,37 @@ export type AnalyticsEvent =
   | "empty_results"
   | "space_link_click";
 
+function detectDevice(): "mobile" | "tablet" | "desktop" {
+  if (typeof window === "undefined") return "desktop";
+  const ua = navigator.userAgent || "";
+  const w = window.innerWidth;
+  if (/iPad|Tablet|PlayBook|Silk/i.test(ua) || (w >= 768 && w < 1024 && /Mobi|Android/i.test(ua))) return "tablet";
+  if (/Mobi|Android|iPhone|iPod/i.test(ua) || w < 768) return "mobile";
+  return "desktop";
+}
+
+function getContextPayload(event: AnalyticsEvent): Record<string, unknown> {
+  if (event !== "page_view" || typeof window === "undefined") return {};
+  const out: Record<string, unknown> = { device: detectDevice() };
+  try {
+    const ref = document.referrer;
+    if (ref) {
+      const refUrl = new URL(ref);
+      if (refUrl.host && refUrl.host !== window.location.host) {
+        out.referrer = refUrl.host;
+      }
+    }
+    const params = new URLSearchParams(window.location.search);
+    for (const k of ["utm_source", "utm_medium", "utm_campaign"]) {
+      const v = params.get(k);
+      if (v) out[k] = v;
+    }
+  } catch {
+    // ignore
+  }
+  return out;
+}
+
 export function track(
   event: AnalyticsEvent,
   payload: Record<string, unknown> = {},
@@ -36,10 +67,11 @@ export function track(
   if (typeof window === "undefined") return;
   const session_id = getSessionId();
   const path = window.location.pathname;
+  const merged = { ...getContextPayload(event), ...payload };
   // Fire and forget - never block UI or surface errors
   void supabase
     .from("analytics_events")
-    .insert({ event_type: event, payload: payload as never, session_id, path })
+    .insert({ event_type: event, payload: merged as never, session_id, path })
     .then(({ error }) => {
       if (error) console.debug("[analytics] insert failed", error.message);
     });
