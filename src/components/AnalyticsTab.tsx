@@ -465,7 +465,59 @@ export function AnalyticsTab() {
               </ul>
             )}
           </Section>
+
+          <Section title="Filterkombinationer som ger 0 träffar (topp 10)">
+            {emptyCombos.length === 0 ? <Empty /> : (
+              <ol className="divide-y divide-border">
+                {emptyCombos.map(([label, count]) => (
+                  <li key={label} className="flex items-center justify-between py-2 text-sm gap-3">
+                    <span className="truncate">{label}</span>
+                    <span className="font-mono tabular-nums text-muted-foreground">{count}</span>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </Section>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <Section title="Enhet (sidvisningar)">
+              {deviceBreakdown.length === 0 ? <Empty /> : (
+                <ul className="space-y-2">
+                  {deviceBreakdown.map((d) => (
+                    <li key={d.key} className="text-sm">
+                      <div className="flex items-center justify-between">
+                        <span>{d.label}</span>
+                        <span className="font-mono tabular-nums text-muted-foreground">
+                          {d.count.toLocaleString("sv-SE")} · {(d.pct * 100).toFixed(0)}%
+                        </span>
+                      </div>
+                      <div className="mt-1 h-2 rounded bg-muted overflow-hidden">
+                        <div className="h-full bg-primary" style={{ width: `${d.pct * 100}%` }} />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Section>
+            <Section title="Källor (referrer / UTM)">
+              {sourceBreakdown.length === 0 ? <Empty /> : (
+                <ol className="divide-y divide-border">
+                  {sourceBreakdown.map(([label, count]) => (
+                    <li key={label} className="flex items-center justify-between py-2 text-sm">
+                      <span className="truncate">{label}</span>
+                      <span className="font-mono tabular-nums text-muted-foreground">{count}</span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </Section>
+          </div>
+
+          <Section title="Heatmap: veckodag × timme (sidvisningar)">
+            <Heatmap grid={heatmap.grid} max={heatmap.max} />
+          </Section>
         </>
+
       )}
     </div>
   );
