@@ -602,3 +602,39 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Empty() {
   return <p className="text-sm text-muted-foreground">Ingen data ännu.</p>;
 }
+
+function Heatmap({ grid, max }: { grid: number[][]; max: number }) {
+  const days = ["Mån", "Tis", "Ons", "Tor", "Fre", "Lör", "Sön"];
+  if (max === 0) return <Empty />;
+  return (
+    <div className="overflow-x-auto">
+      <div className="inline-block min-w-full">
+        <div className="grid" style={{ gridTemplateColumns: "auto repeat(24, minmax(14px, 1fr))", gap: "2px" }}>
+          <div />
+          {Array.from({ length: 24 }).map((_, h) => (
+            <div key={h} className="text-[9px] text-muted-foreground text-center">
+              {h % 3 === 0 ? h : ""}
+            </div>
+          ))}
+          {grid.map((row, dow) => (
+            <Fragment key={dow}>
+              <div className="text-[10px] text-muted-foreground pr-2 self-center">{days[dow]}</div>
+              {row.map((v, h) => {
+                const intensity = max ? v / max : 0;
+                return (
+                  <div
+                    key={h}
+                    title={`${days[dow]} ${String(h).padStart(2, "0")}:00 · ${v} sidvisningar`}
+                    className="aspect-square rounded-sm border border-border/40"
+                    style={{ backgroundColor: `hsl(var(--primary) / ${0.08 + intensity * 0.85})` }}
+                  />
+                );
+              })}
+            </Fragment>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
