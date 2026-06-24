@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -23,8 +23,35 @@ export function ImageCarousel({
   const { t } = useTranslation();
   const [idx, setIdx] = useState(0);
   const [loaded, setLoaded] = useState<Record<number, boolean>>({});
+  const touchRef = useRef<{ x: number; y: number; moved: boolean } | null>(null);
+  const swipedRef = useRef(false);
   const list = images.filter(Boolean);
   const count = list.length;
+  const touchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    touchRef.current = { x: t.clientX, y: t.clientY, moved: false };
+  };
+  const touchMove = (e: React.TouchEvent) => {
+    const s = touchRef.current;
+    if (!s) return;
+    const t = e.touches[0];
+    if (Math.abs(t.clientX - s.x) > 8) s.moved = true;
+  };
+  const touchEnd = (e: React.TouchEvent) => {
+    const s = touchRef.current;
+    touchRef.current = null;
+    if (!s || count <= 1) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - s.x;
+    const dy = t.clientY - s.y;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      e.stopPropagation();
+      swipedRef.current = true;
+      setIdx((i) => (i + (dx < 0 ? 1 : -1) + count) % count);
+    } else if (s.moved) {
+      swipedRef.current = true;
+    }
+  };
 
   // Preload neighboring images for snappier paging
   useEffect(() => {
@@ -50,7 +77,12 @@ export function ImageCarousel({
   const isLoaded = !!loaded[idx];
 
   return (
-    <div className={cn("relative w-full h-full overflow-hidden bg-muted group", className)}>
+    <div
+      className={cn("relative w-full h-full overflow-hidden bg-muted group touch-pan-y", className)}
+      onTouchStart={touchStart}
+      onTouchMove={touchMove}
+      onTouchEnd={touchEnd}
+    >
       {/* Subtle shimmer skeleton — no icon, so it doesn't flash a fake placeholder */}
       {!isLoaded && (
         <div className="absolute inset-0 z-0 animate-pulse bg-gradient-to-br from-muted via-muted/60 to-muted" />
@@ -61,6 +93,7 @@ export function ImageCarousel({
         className="relative z-[1] w-full h-full p-0 m-0 border-0 bg-transparent cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         onClick={(e) => {
           e.stopPropagation();
+          if (swipedRef.current) { swipedRef.current = false; return; }
           onImageClick?.(idx);
         }}
         aria-label={t("gallery.open_full")}
