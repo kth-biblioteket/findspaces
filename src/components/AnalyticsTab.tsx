@@ -345,20 +345,25 @@ export function AnalyticsTab() {
       ) : (
         <>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Stat label="Sidvisningar" value={totals.byType.page_view ?? 0} />
-            <Stat label="Unika sessioner" value={totals.sessions} />
-            <Stat label="Kortklick (expand)" value={totals.byType.card_expand ?? 0} />
-            <Stat label="Bokningsklick" value={totals.byType.booking_link_click ?? 0} />
-            <Stat label="Kartklick" value={totals.byType.map_link_click ?? 0} />
-            <Stat label="Länkklick lokalsida" value={totals.byType.space_link_click ?? 0} />
-            <Stat label="Filterändringar" value={totals.byType.filter_change ?? 0} />
-            <Stat label="Sök utan träff" value={totals.byType.empty_results ?? 0} />
+            <Stat label="Sidvisningar" value={totals.byType.page_view ?? 0} prev={prevTotals.byType.page_view ?? 0} />
+            <Stat label="Unika sessioner" value={totals.sessions} prev={prevTotals.sessions} />
+            <Stat label="Kortklick (expand)" value={totals.byType.card_expand ?? 0} prev={prevTotals.byType.card_expand ?? 0} />
+            <Stat label="Bokningsklick" value={totals.byType.booking_link_click ?? 0} prev={prevTotals.byType.booking_link_click ?? 0} />
+            <Stat label="Kartklick" value={totals.byType.map_link_click ?? 0} prev={prevTotals.byType.map_link_click ?? 0} />
+            <Stat label="Länkklick lokalsida" value={totals.byType.space_link_click ?? 0} prev={prevTotals.byType.space_link_click ?? 0} />
+            <Stat label="Filterändringar" value={totals.byType.filter_change ?? 0} prev={prevTotals.byType.filter_change ?? 0} />
+            <Stat label="Sök utan träff" value={totals.byType.empty_results ?? 0} prev={prevTotals.byType.empty_results ?? 0} />
           </div>
+
+          <p className="text-xs text-muted-foreground -mt-2">
+            Jämförelse mot föregående period: {format(prevRange.prevFrom, "d MMM", { locale: sv })} – {format(prevRange.prevTo, "d MMM yyyy", { locale: sv })}
+          </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Stat label="Sessioner som expanderade kort" value={`${(totals.expandRate * 100).toFixed(1)}%`} />
             <Stat label="Sessioner med bokningsklick" value={`${(totals.bookRate * 100).toFixed(1)}%`} />
           </div>
+
 
           <Section title="Aktivitet över tid">
             <div className="h-64">
