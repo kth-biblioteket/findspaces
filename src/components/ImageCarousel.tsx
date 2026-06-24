@@ -46,7 +46,10 @@ export function ImageCarousel({
     const dy = t.clientY - s.y;
     if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) {
       e.stopPropagation();
+      swipedRef.current = true;
       setIdx((i) => (i + (dx < 0 ? 1 : -1) + count) % count);
+    } else if (s.moved) {
+      swipedRef.current = true;
     }
   };
 
