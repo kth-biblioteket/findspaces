@@ -509,16 +509,34 @@ function DatePicker({
   );
 }
 
-function Stat({ label, value }: { label: string; value: number | string }) {
+function Stat({ label, value, prev }: { label: string; value: number | string; prev?: number }) {
+  let delta: { pct: number; dir: "up" | "down" | "flat" } | null = null;
+  if (typeof value === "number" && typeof prev === "number") {
+    if (prev === 0 && value === 0) delta = { pct: 0, dir: "flat" };
+    else if (prev === 0) delta = { pct: 100, dir: "up" };
+    else {
+      const pct = ((value - prev) / prev) * 100;
+      delta = { pct, dir: Math.abs(pct) < 2 ? "flat" : pct > 0 ? "up" : "down" };
+    }
+  }
+  const deltaColor =
+    delta?.dir === "up" ? "text-emerald-600" : delta?.dir === "down" ? "text-red-600" : "text-muted-foreground";
+  const arrow = delta?.dir === "up" ? "▲" : delta?.dir === "down" ? "▼" : "→";
   return (
     <div className="rounded-xl border border-border bg-card p-4">
       <div className="text-xs text-muted-foreground">{label}</div>
       <div className="mt-1 text-2xl font-bold tabular-nums">
         {typeof value === "number" ? value.toLocaleString("sv-SE") : value}
       </div>
+      {delta && (
+        <div className={cn("text-xs mt-1 tabular-nums", deltaColor)}>
+          {arrow} {delta.pct > 0 ? "+" : ""}{delta.pct.toFixed(1)}% jmf föregående
+        </div>
+      )}
     </div>
   );
 }
+
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
