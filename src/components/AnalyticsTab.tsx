@@ -110,12 +110,12 @@ export function AnalyticsTab() {
   const prevRows = data?.previous ?? [];
 
 
-  const totals = useMemo(() => {
+  const computeTotals = (src: Row[]) => {
     const byType: Record<string, number> = {};
     const sessions = new Set<string>();
     const sessionsExpanded = new Set<string>();
     const sessionsBooked = new Set<string>();
-    for (const r of rows) {
+    for (const r of src) {
       byType[r.event_type] = (byType[r.event_type] ?? 0) + 1;
       if (r.session_id) sessions.add(r.session_id);
       if (r.event_type === "card_expand" && r.session_id) sessionsExpanded.add(r.session_id);
@@ -123,12 +123,15 @@ export function AnalyticsTab() {
     }
     return {
       byType,
-      total: rows.length,
+      total: src.length,
       sessions: sessions.size,
       expandRate: sessions.size ? sessionsExpanded.size / sessions.size : 0,
       bookRate: sessions.size ? sessionsBooked.size / sessions.size : 0,
     };
-  }, [rows]);
+  };
+  const totals = useMemo(() => computeTotals(rows), [rows]);
+  const prevTotals = useMemo(() => computeTotals(prevRows), [prevRows]);
+
 
   const timeSeries = useMemo(() => {
     const spanHours = (to.getTime() - from.getTime()) / 3600 / 1000;
