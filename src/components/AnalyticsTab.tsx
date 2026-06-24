@@ -69,24 +69,46 @@ export function AnalyticsTab() {
 
   const periodValid = from <= to && (to.getTime() - from.getTime()) <= 365 * 24 * 3600 * 1000;
 
+  const prevRange = useMemo(() => {
+    const span = to.getTime() - from.getTime();
+    const prevTo = new Date(from.getTime() - 1);
+    const prevFrom = new Date(prevTo.getTime() - span);
+    return { prevFrom, prevTo };
+  }, [from, to]);
+
   const { data, isLoading } = useQuery({
     queryKey: ["analytics_events", from.toISOString(), to.toISOString()],
-    queryFn: async (): Promise<Row[]> => {
-      const { data, error } = await supabase
-        .from("analytics_events")
-        .select("id,event_type,payload,session_id,path,created_at")
-        .gte("created_at", from.toISOString())
-        .lte("created_at", to.toISOString())
-        .order("created_at", { ascending: false })
-        .limit(50000);
-      if (error) throw error;
-      return (data ?? []) as unknown as Row[];
+    queryFn: async (): Promise<{ current: Row[]; previous: Row[] }> => {
+      const [cur, prev] = await Promise.all([
+        supabase
+          .from("analytics_events")
+          .select("id,event_type,payload,session_id,path,created_at")
+          .gte("created_at", from.toISOString())
+          .lte("created_at", to.toISOString())
+          .order("created_at", { ascending: false })
+          .limit(50000),
+        supabase
+          .from("analytics_events")
+          .select("id,event_type,payload,session_id,path,created_at")
+          .gte("created_at", prevRange.prevFrom.toISOString())
+          .lte("created_at", prevRange.prevTo.toISOString())
+          .order("created_at", { ascending: false })
+          .limit(50000),
+      ]);
+      if (cur.error) throw cur.error;
+      if (prev.error) throw prev.error;
+      return {
+        current: (cur.data ?? []) as unknown as Row[],
+        previous: (prev.data ?? []) as unknown as Row[],
+      };
     },
     enabled: periodValid,
     refetchInterval: 30_000,
   });
 
-  const rows = data ?? [];
+  const rows = data?.current ?? [];
+  const prevRows = data?.previous ?? [];
+
 
   const totals = useMemo(() => {
     const byType: Record<string, number> = {};
