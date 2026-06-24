@@ -93,6 +93,7 @@ export function ImageCarousel({
         className="relative z-[1] w-full h-full p-0 m-0 border-0 bg-transparent cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         onClick={(e) => {
           e.stopPropagation();
+          if (swipedRef.current) { swipedRef.current = false; return; }
           onImageClick?.(idx);
         }}
         aria-label={t("gallery.open_full")}
