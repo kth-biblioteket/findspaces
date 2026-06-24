@@ -24,6 +24,7 @@ export function ImageCarousel({
   const [idx, setIdx] = useState(0);
   const [loaded, setLoaded] = useState<Record<number, boolean>>({});
   const touchRef = useRef<{ x: number; y: number; moved: boolean } | null>(null);
+  const swipedRef = useRef(false);
   const list = images.filter(Boolean);
   const count = list.length;
   const touchStart = (e: React.TouchEvent) => {
