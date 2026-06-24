@@ -23,6 +23,29 @@ export function ImageCarousel({
   const { t } = useTranslation();
   const [idx, setIdx] = useState(0);
   const [loaded, setLoaded] = useState<Record<number, boolean>>({});
+  const touchRef = useState<{ x: number; y: number; t: number; moved: boolean } | null>(null);
+  const touchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    (touchRef as any)[0] = { x: t.clientX, y: t.clientY, t: Date.now(), moved: false };
+  };
+  const touchMove = (e: React.TouchEvent) => {
+    const s = (touchRef as any)[0];
+    if (!s) return;
+    const t = e.touches[0];
+    if (Math.abs(t.clientX - s.x) > 8) s.moved = true;
+  };
+  const touchEnd = (e: React.TouchEvent) => {
+    const s = (touchRef as any)[0];
+    (touchRef as any)[0] = null;
+    if (!s || count <= 1) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - s.x;
+    const dy = t.clientY - s.y;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      e.stopPropagation();
+      setIdx((i) => (i + (dx < 0 ? 1 : -1) + count) % count);
+    }
+  };
   const list = images.filter(Boolean);
   const count = list.length;
 
