@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -23,20 +23,22 @@ export function ImageCarousel({
   const { t } = useTranslation();
   const [idx, setIdx] = useState(0);
   const [loaded, setLoaded] = useState<Record<number, boolean>>({});
-  const touchRef = useState<{ x: number; y: number; t: number; moved: boolean } | null>(null);
+  const touchRef = useRef<{ x: number; y: number; moved: boolean } | null>(null);
+  const list = images.filter(Boolean);
+  const count = list.length;
   const touchStart = (e: React.TouchEvent) => {
     const t = e.touches[0];
-    (touchRef as any)[0] = { x: t.clientX, y: t.clientY, t: Date.now(), moved: false };
+    touchRef.current = { x: t.clientX, y: t.clientY, moved: false };
   };
   const touchMove = (e: React.TouchEvent) => {
-    const s = (touchRef as any)[0];
+    const s = touchRef.current;
     if (!s) return;
     const t = e.touches[0];
     if (Math.abs(t.clientX - s.x) > 8) s.moved = true;
   };
   const touchEnd = (e: React.TouchEvent) => {
-    const s = (touchRef as any)[0];
-    (touchRef as any)[0] = null;
+    const s = touchRef.current;
+    touchRef.current = null;
     if (!s || count <= 1) return;
     const t = e.changedTouches[0];
     const dx = t.clientX - s.x;
