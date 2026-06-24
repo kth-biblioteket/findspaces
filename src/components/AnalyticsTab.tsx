@@ -233,6 +233,66 @@ export function AnalyticsTab() {
     return out;
   }, [rows]);
 
+  const emptyCombos = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const r of rows) {
+      if (r.event_type !== "empty_results") continue;
+      const p = (r.payload ?? {}) as Record<string, unknown>;
+      const parts: string[] = [];
+      if (p.workMode) parts.push(`läge: ${String(p.workMode)}`);
+      if (p.freeOnly) parts.push("endast lediga");
+      const cats = (p.categories ?? {}) as Record<string, string[]>;
+      for (const [k, v] of Object.entries(cats)) {
+        for (const val of (v ?? []).slice().sort()) parts.push(`${k}: ${val}`);
+      }
+      const key = parts.length ? parts.sort().join(" · ") : "(inga filter)";
+      counts[key] = (counts[key] ?? 0) + 1;
+    }
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  }, [rows]);
+
+  const deviceBreakdown = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const r of rows) {
+      if (r.event_type !== "page_view") continue;
+      const d = String((r.payload as { device?: string } | null)?.device ?? "okänd");
+      counts[d] = (counts[d] ?? 0) + 1;
+    }
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    const labels: Record<string, string> = { mobile: "Mobil", desktop: "Desktop", tablet: "Surfplatta", okänd: "Okänd" };
+    return Object.entries(counts)
+      .map(([k, v]) => ({ key: k, label: labels[k] ?? k, count: v, pct: total ? v / total : 0 }))
+      .sort((a, b) => b.count - a.count);
+  }, [rows]);
+
+  const sourceBreakdown = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const r of rows) {
+      if (r.event_type !== "page_view") continue;
+      const p = (r.payload ?? {}) as Record<string, unknown>;
+      const utm = p.utm_source ? `utm: ${String(p.utm_source)}` : null;
+      const ref = p.referrer ? String(p.referrer) : null;
+      const key = utm ?? ref ?? "direkt";
+      counts[key] = (counts[key] ?? 0) + 1;
+    }
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  }, [rows]);
+
+  const heatmap = useMemo(() => {
+    // 7 rows (Mon-Sun) x 24 cols
+    const grid: number[][] = Array.from({ length: 7 }, () => new Array(24).fill(0));
+    for (const r of rows) {
+      if (r.event_type !== "page_view") continue;
+      const d = new Date(r.created_at);
+      const dow = (d.getDay() + 6) % 7; // Mon=0
+      grid[dow][d.getHours()]++;
+    }
+    let max = 0;
+    for (const row of grid) for (const v of row) if (v > max) max = v;
+    return { grid, max };
+  }, [rows]);
+
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
