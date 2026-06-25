@@ -256,28 +256,30 @@ export function SpaceCard({
               </h3>
             </div>
             {hasMeta && (
-              <div className="mt-1.5 space-y-0.5 text-sm text-foreground leading-snug">
-                {floorRowParts.length > 0 && (
-                  <div className="flex flex-col md:flex-row md:items-baseline gap-0.5 md:gap-1">
-                    {floorPart && (
-                      <span className="inline-flex items-center gap-1.5 text-foreground font-medium">
-                        <span className="inline-flex w-4 justify-center">
-                          <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                        </span>
-                        {floorPart}
+              <div className="mt-1.5 text-sm text-foreground leading-snug">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                  {floorPart && (
+                    <span className="inline-flex items-center gap-1.5 text-foreground">
+                      <span className="inline-flex w-4 justify-center">
+                        <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                       </span>
-                    )}
-                    {floorPart && locatedInPart && (
-                      <span className="hidden md:inline text-foreground/40 mx-0.5" aria-hidden="true">|</span>
-                    )}
-                    {locatedInPart && <span>{locatedInPart}</span>}
-                  </div>
-                )}
-                {lokaltypParts.length > 0 && (
-                  <div className="text-foreground/80">{lokaltypParts.join(" • ")}</div>
-                )}
+                      <span>{floorPart}</span>
+                    </span>
+                  )}
+                  {floorPart && locatedInPart && (
+                    <span className="text-foreground/40" aria-hidden="true">|</span>
+                  )}
+                  {locatedInPart && <span className="text-foreground">{locatedInPart}</span>}
+                  {(floorPart || locatedInPart) && lokaltypParts.length > 0 && (
+                    <span className="text-foreground/40" aria-hidden="true">|</span>
+                  )}
+                  {lokaltypParts.length > 0 && (
+                    <span className="text-foreground">{lokaltypParts.join(" • ")}</span>
+                  )}
+                </div>
               </div>
             )}
+
             {showCapacity && (
               <p className="mt-1 inline-flex items-end gap-1.5 text-sm text-foreground">
                 <span className="inline-flex w-4 justify-center">
