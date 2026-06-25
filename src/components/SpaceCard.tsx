@@ -335,9 +335,6 @@ export function SpaceCard({
                 <>
                   <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                   <span className="break-words">{c.label}</span>
-                  {interactive && selected && (
-                    <X className="h-3 w-3 shrink-0 opacity-80" aria-hidden="true" />
-                  )}
                 </>
               );
               return interactive ? (
@@ -349,7 +346,7 @@ export function SpaceCard({
                     toggleIntent(c.value);
                   }}
                   aria-pressed={selected}
-                  className={cn(chipBase, selected ? chipSelected : chipUnselected, "hover:bg-accent")}
+                  className={cn(chipBase, selected ? chipSelected : chipUnselected)}
                   title={selected ? t("chips.remove_aria", { label: c.label }) : c.label}
                 >
                   {content}
