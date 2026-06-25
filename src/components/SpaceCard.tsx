@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import DOMPurify from "dompurify";
-import { ChevronDown, MapPin, Calendar, Info, Users, User, X, DoorOpen, DoorClosed, AlertTriangle } from "lucide-react";
+import { ChevronDown, MapPin, Calendar, Info, Users, User, DoorOpen, DoorClosed, AlertTriangle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ChairIcon } from "./icons/ChairIcon";
 
@@ -220,21 +220,24 @@ export function SpaceCard({
   };
 
   const floorPart = localizedFloor;
-  const otherMetaParts = [
-    localizedLocatedIn,
-    ...(space.lokaltyp ?? []).map((l) => localizeChip("lokaltyp", l)),
-  ].filter((s): s is string => Boolean(s && s.length > 0));
+  const locatedInPart = localizedLocatedIn;
+  const lokaltypParts = (space.lokaltyp ?? [])
+    .map((l) => localizeChip("lokaltyp", l))
+    .filter((s): s is string => Boolean(s && s.length > 0));
+  const floorRowParts = [floorPart, locatedInPart].filter(
+    (s): s is string => Boolean(s && s.length > 0),
+  );
 
-  const hasMeta = Boolean(floorPart) || otherMetaParts.length > 0;
+  const hasMeta = floorRowParts.length > 0 || lokaltypParts.length > 0;
 
   const showCapacity =
     space.show_capacity_publicly && (space.capacity ?? 0) > 0;
 
   const chipBase =
     "inline-flex items-center gap-1.5 text-xs rounded-md px-2 py-1 max-w-full transition-colors";
-  const chipUnselected = "text-muted-foreground bg-secondary/60";
+  const chipUnselected = "text-muted-foreground bg-secondary/60 hover:bg-accent";
   const chipSelected =
-    "bg-primary text-primary-foreground [&_img]:brightness-0 [&_img]:invert";
+    "bg-[var(--kth-blue)] text-white hover:bg-[var(--kth-blue)]/90 [&_img]:brightness-0 [&_img]:invert";
 
   const renderSection = (key: CardSectionKey, idx: number) => {
     const spacing = idx === 0 ? "" : "mt-3 md:mt-4";
@@ -248,20 +251,25 @@ export function SpaceCard({
               </h3>
             </div>
             {hasMeta && (
-              <div className="mt-1.5 flex flex-col md:flex-row md:items-baseline gap-0.5 md:gap-1 text-sm text-foreground leading-snug">
-                {floorPart && (
-                  <span className="inline-flex items-center gap-1.5 text-foreground font-medium">
-                    <span className="inline-flex w-4 justify-center">
-                      <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                    </span>
-                    {floorPart}
-                  </span>
+              <div className="mt-1.5 space-y-0.5 text-sm text-foreground leading-snug">
+                {floorRowParts.length > 0 && (
+                  <div className="flex flex-col md:flex-row md:items-baseline gap-0.5 md:gap-1">
+                    {floorPart && (
+                      <span className="inline-flex items-center gap-1.5 text-foreground font-medium">
+                        <span className="inline-flex w-4 justify-center">
+                          <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                        </span>
+                        {floorPart}
+                      </span>
+                    )}
+                    {floorPart && locatedInPart && (
+                      <span className="hidden md:inline text-foreground/40 mx-0.5" aria-hidden="true">|</span>
+                    )}
+                    {locatedInPart && <span>{locatedInPart}</span>}
+                  </div>
                 )}
-                {floorPart && otherMetaParts.length > 0 && (
-                  <span className="hidden md:inline text-foreground/40 mx-0.5" aria-hidden="true">|</span>
-                )}
-                {otherMetaParts.length > 0 && (
-                  <span>{otherMetaParts.join(" • ")}</span>
+                {lokaltypParts.length > 0 && (
+                  <div className="text-foreground/80">{lokaltypParts.join(" • ")}</div>
                 )}
               </div>
             )}
@@ -327,9 +335,6 @@ export function SpaceCard({
                 <>
                   <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                   <span className="break-words">{c.label}</span>
-                  {interactive && selected && (
-                    <X className="h-3 w-3 shrink-0 opacity-80" aria-hidden="true" />
-                  )}
                 </>
               );
               return interactive ? (
@@ -341,7 +346,7 @@ export function SpaceCard({
                     toggleIntent(c.value);
                   }}
                   aria-pressed={selected}
-                  className={cn(chipBase, selected ? chipSelected : chipUnselected, "hover:bg-accent")}
+                  className={cn(chipBase, selected ? chipSelected : chipUnselected)}
                   title={selected ? t("chips.remove_aria", { label: c.label }) : c.label}
                 >
                   {content}
@@ -360,9 +365,6 @@ export function SpaceCard({
                 <>
                   <OptionIcon option={opt} className="h-3.5 w-3.5 shrink-0" />
                   <span className="break-words">{c.label}</span>
-                  {interactive && selected && (
-                    <X className="h-3 w-3 shrink-0 opacity-80" aria-hidden="true" />
-                  )}
                 </>
               );
               return interactive ? (
@@ -374,7 +376,7 @@ export function SpaceCard({
                     toggleCategory(c.category, c.value);
                   }}
                   aria-pressed={selected}
-                  className={cn(chipBase, selected ? chipSelected : chipUnselected, "hover:bg-accent")}
+                  className={cn(chipBase, selected ? chipSelected : chipUnselected)}
                   title={selected ? t("chips.remove_aria", { label: c.label }) : c.label}
                 >
                   {content}
@@ -515,7 +517,7 @@ export function SpaceCard({
         </div>
 
 
-        <div className="order-1 md:order-2 w-full shrink-0 self-stretch aspect-[3/2] md:aspect-auto md:h-full overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-l-none md:rounded-r-2xl">
+        <div className="order-1 md:order-2 w-full shrink-0 self-stretch aspect-[3/2] md:aspect-auto md:h-full md:min-h-[18rem] overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-l-none md:rounded-r-2xl">
           <ImageCarousel
             images={images}
             alts={localizedAlts}
