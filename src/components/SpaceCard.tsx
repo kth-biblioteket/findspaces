@@ -480,7 +480,7 @@ export function SpaceCard({
       id={`space-${space.id}`}
       aria-labelledby={`space-${space.id}-title`}
       className={cn(
-        "bg-card rounded-2xl border border-border overflow-hidden transition-all hover:shadow-md",
+        "bg-card rounded-2xl shadow-sm hover:shadow-md overflow-hidden transition-shadow",
         highlighted && "space-highlight",
       )}
     >

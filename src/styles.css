@@ -54,7 +54,7 @@
 
   --background: oklch(1 0 0);                    /* white for embedding */
   --foreground: oklch(0 0 0);                    /* black body text */
-  --card: oklch(0.985 0 0);                      /* subtle off-white for surfaces */
+  --card: oklch(1 0 0);                          /* white card surface */
   --card-foreground: oklch(0 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0 0 0);
