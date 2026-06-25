@@ -125,7 +125,9 @@ type FormState = {
   image_alts: string[];
   image_alts_en: string[];
   map_url: string;
+  map_url_en: string;
   booking_url: string;
+  booking_url_en: string;
   group_booking_url: string;
   group_booking_url_en: string;
   book_now_url: string;
