@@ -210,7 +210,7 @@ function SpaceFinder() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 lg:grid lg:grid-cols-[320px_1fr] lg:gap-6">
         <aside className="hidden lg:block" aria-label={t("filters.title")}>
-          <div className="sticky top-4 bg-card rounded-xl border border-border flex flex-col max-h-[calc(100vh-2rem)]">
+          <div className="sticky top-4 bg-card rounded-xl shadow-sm flex flex-col max-h-[calc(100vh-2rem)]">
             <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
               <span className="text-sm font-semibold">{t("filters.title")}</span>
               {hasActiveFilter && (
