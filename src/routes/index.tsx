@@ -242,21 +242,20 @@ function SpaceFinder() {
 
 
         <main id="main" tabIndex={-1} className="focus-visible:outline-none">
-          <div className="flex items-baseline justify-between mb-3">
-            <h2 className="text-lg font-bold">{t("results.heading")}</h2>
-            <span className="text-xs text-muted-foreground">
-              {isLoading
-                ? t("results.loading")
-                : hasActiveFilter
-                  ? t("results.count_filtered", { filtered: filtered.length, total: spaces.length })
-                  : t("results.count_total", { count: spaces.length })}
-            </span>
-          </div>
+          {(isLoading || hasActiveFilter) && (
+            <div className="flex items-baseline justify-end mb-3">
+              <span className="text-xs text-muted-foreground">
+                {isLoading
+                  ? t("results.loading")
+                  : t("results.count_filtered", { filtered: filtered.length, total: spaces.length })}
+              </span>
+            </div>
+          )}
 
           <ActiveFilterChips filters={filters} onChange={setFilters} />
 
           {!isLoading && filtered.length === 0 && (
-            <div className="bg-card rounded-2xl border border-border p-8 text-left">
+            <div className="bg-card rounded-2xl shadow-sm p-8 text-left">
               <p className="text-base font-semibold text-foreground mb-2 whitespace-pre-line">
                 {emptyTitle}
               </p>
