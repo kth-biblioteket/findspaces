@@ -1,7 +1,9 @@
-import { Search, Check, User, Users, DoorClosed } from "lucide-react";
+import { useState } from "react";
+import { Search, Check, User, Users, DoorClosed, ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PillToggle } from "./PillToggle";
 import { OptionIcon } from "./OptionIcon";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import { useFilterOptions, groupOptionsByKey } from "@/lib/useFilterOptions";
 import { useFilterCategories } from "@/lib/useFilterCategories";
 import { type FilterOption, type FilterCategoryRow } from "@/lib/spaces";
