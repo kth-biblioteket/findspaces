@@ -481,38 +481,39 @@ export function SpaceCard({
 
 
 
-          <div className="mt-auto pt-2 md:pt-4 flex items-center justify-between gap-3 flex-wrap">
-            {sanitizedDescription ? (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOpen((o) => {
-                    const next = !o;
-                    if (next) track("card_expand", { space_id: space.id, name: space.name });
-                    return next;
-                  });
-                }}
-                aria-expanded={open}
-                aria-controls={`space-${space.id}-description`}
-                className="inline-flex items-center text-xs text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary rounded"
-              >
-                <ChevronDown
-                  className={cn("h-4 w-4 transition-transform", open && "rotate-180")}
-                  aria-hidden="true"
-                />
-                <span className="ml-1">{open ? (hideDescriptionLabel ?? t("card.hide_description")) : (showDescriptionLabel ?? t("card.show_description"))}</span>
-              </button>
-            ) : (
-              <span />
-            )}
+          <div className="mt-auto pt-2 md:pt-5 flex flex-col gap-2 md:gap-3">
             {renderedButtons.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 ml-auto">
+              <div className="flex flex-wrap items-center gap-2 justify-end">
                 {renderedButtons}
+              </div>
+            )}
+            {sanitizedDescription && (
+              <div className="flex">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpen((o) => {
+                      const next = !o;
+                      if (next) track("card_expand", { space_id: space.id, name: space.name });
+                      return next;
+                    });
+                  }}
+                  aria-expanded={open}
+                  aria-controls={`space-${space.id}-description`}
+                  className="inline-flex items-center text-xs text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary rounded"
+                >
+                  <ChevronDown
+                    className={cn("h-4 w-4 transition-transform", open && "rotate-180")}
+                    aria-hidden="true"
+                  />
+                  <span className="ml-1">{open ? (hideDescriptionLabel ?? t("card.hide_description")) : (showDescriptionLabel ?? t("card.show_description"))}</span>
+                </button>
               </div>
             )}
           </div>
         </div>
+
 
         <div className="order-1 md:order-2 w-full shrink-0 self-stretch aspect-[3/2] md:aspect-auto md:h-full overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-l-none md:rounded-r-2xl">
           <ImageCarousel
