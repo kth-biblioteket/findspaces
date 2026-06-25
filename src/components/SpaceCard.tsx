@@ -413,11 +413,11 @@ export function SpaceCard({
   const renderButton = (key: CardSectionKey) => {
     switch (key) {
       case "button_map":
-        if (!space.map_url) return null;
+        if (!localizedMapUrl) return null;
         return (
           <a
             key="button_map"
-            href={space.map_url}
+            href={localizedMapUrl}
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => {
