@@ -143,6 +143,7 @@ export type Database = {
           book_now_url_en: string | null
           booking_room_number: number | null
           booking_url: string | null
+          booking_url_en: string | null
           capacity: number | null
           category: string | null
           computers_url: string | null
@@ -168,6 +169,7 @@ export type Database = {
           located_in_en: string | null
           lokaltyp: string[]
           map_url: string | null
+          map_url_en: string | null
           name: string
           name_en: string | null
           noise: string[]
@@ -185,6 +187,7 @@ export type Database = {
           book_now_url_en?: string | null
           booking_room_number?: number | null
           booking_url?: string | null
+          booking_url_en?: string | null
           capacity?: number | null
           category?: string | null
           computers_url?: string | null
@@ -210,6 +213,7 @@ export type Database = {
           located_in_en?: string | null
           lokaltyp?: string[]
           map_url?: string | null
+          map_url_en?: string | null
           name: string
           name_en?: string | null
           noise?: string[]
@@ -227,6 +231,7 @@ export type Database = {
           book_now_url_en?: string | null
           booking_room_number?: number | null
           booking_url?: string | null
+          booking_url_en?: string | null
           capacity?: number | null
           category?: string | null
           computers_url?: string | null
@@ -252,6 +257,7 @@ export type Database = {
           located_in_en?: string | null
           lokaltyp?: string[]
           map_url?: string | null
+          map_url_en?: string | null
           name?: string
           name_en?: string | null
           noise?: string[]
