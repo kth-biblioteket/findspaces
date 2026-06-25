@@ -475,13 +475,13 @@ export function SpaceCard({
         highlighted && "space-highlight",
       )}
     >
-        <div className="flex flex-col md:flex-row items-stretch gap-0 md:gap-3">
-          <div className="order-2 md:order-1 flex-1 min-w-0 flex flex-col p-3 md:p-3">
+        <div className="flex flex-col md:grid md:grid-cols-[2fr_3fr] items-stretch gap-0">
+          <div className="order-2 md:order-1 min-w-0 flex flex-col p-3 md:p-6">
           {layout.map((k, i) => renderSection(k, i))}
 
 
 
-          <div className="mt-auto pt-2 md:pt-2 flex items-center justify-between gap-3 flex-wrap">
+          <div className="mt-auto pt-2 md:pt-4 flex items-center justify-between gap-3 flex-wrap">
             {sanitizedDescription ? (
               <button
                 type="button"
@@ -514,7 +514,7 @@ export function SpaceCard({
           </div>
         </div>
 
-        <div className="order-1 md:order-2 w-full md:w-56 lg:w-64 shrink-0 self-stretch aspect-[3/2] md:aspect-[3/2] md:h-auto overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-r-2xl">
+        <div className="order-1 md:order-2 w-full shrink-0 self-stretch aspect-[3/2] md:aspect-auto md:h-full overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-l-none md:rounded-r-2xl">
           <ImageCarousel
             images={images}
             alts={localizedAlts}
