@@ -285,17 +285,18 @@ function ListGroup({
 }
 
 function PillGroup({
-  cat, options, selected, onToggle, lang,
+  cat, options, selected, onToggle, lang, hideTitle = false,
 }: {
   cat: FilterCategoryRow;
   options: FilterOption[];
   selected: string[];
   onToggle: (v: string) => void;
   lang: Lang;
+  hideTitle?: boolean;
 }) {
   return (
     <div>
-      <h3 className="text-sm font-semibold mb-3">{pickLocalized(cat, "title", lang)}</h3>
+      {!hideTitle && <h3 className="text-sm font-semibold mb-3">{pickLocalized(cat, "title", lang)}</h3>}
       <div className="flex flex-wrap gap-2">
         {options.map((o) => (
           <PillToggle
