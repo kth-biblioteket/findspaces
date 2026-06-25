@@ -189,7 +189,7 @@ function spaceToForm(s: Space): FormState {
     lokaltyp: s.lokaltyp ?? [],
     tags: (s.tags ?? {}) as Record<string, string[]>,
     images, image_alts, image_alts_en,
-    map_url: s.map_url ?? "", booking_url: s.booking_url ?? "",
+    map_url: s.map_url ?? "", map_url_en: s.map_url_en ?? "", booking_url: s.booking_url ?? "", booking_url_en: s.booking_url_en ?? "",
     group_booking_url: s.group_booking_url ?? "",
     group_booking_url_en: s.group_booking_url_en ?? "",
     book_now_url: s.book_now_url ?? "",
