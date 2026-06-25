@@ -101,6 +101,10 @@ export function SpaceCard({
   const localizedLocatedIn = pickLocalized(space, "located_in", lang);
   const localizedGroupBookingUrl =
     pickLocalized(space, "group_booking_url", lang) || space.group_booking_url || "";
+  const localizedMapUrl =
+    pickLocalized(space, "map_url", lang) || space.map_url || "";
+  const localizedBookingUrl =
+    pickLocalized(space, "booking_url", lang) || space.booking_url || "";
 
   const bookNowUrl = useMemo(() => {
     const template =
@@ -409,11 +413,11 @@ export function SpaceCard({
   const renderButton = (key: CardSectionKey) => {
     switch (key) {
       case "button_map":
-        if (!space.map_url) return null;
+        if (!localizedMapUrl) return null;
         return (
           <a
             key="button_map"
-            href={space.map_url}
+            href={localizedMapUrl}
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => {
@@ -447,11 +451,11 @@ export function SpaceCard({
           </a>
         );
       case "button_booking":
-        if (!space.booking_url) return null;
+        if (!localizedBookingUrl) return null;
         return (
           <a
             key="button_booking"
-            href={space.booking_url}
+            href={localizedBookingUrl}
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => {
