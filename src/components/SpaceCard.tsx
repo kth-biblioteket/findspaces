@@ -101,6 +101,10 @@ export function SpaceCard({
   const localizedLocatedIn = pickLocalized(space, "located_in", lang);
   const localizedGroupBookingUrl =
     pickLocalized(space, "group_booking_url", lang) || space.group_booking_url || "";
+  const localizedMapUrl =
+    pickLocalized(space, "map_url", lang) || space.map_url || "";
+  const localizedBookingUrl =
+    pickLocalized(space, "booking_url", lang) || space.booking_url || "";
 
   const bookNowUrl = useMemo(() => {
     const template =
