@@ -900,7 +900,7 @@ function AdminPage() {
                       </summary>
                       <div className="p-3 pt-2 space-y-4 border-t border-border">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <Field label="Länk till karta (map_url)">
+                          <Field label="Länk till karta – SV (map_url)">
                             <input
                               type="url"
                               value={form.map_url}
@@ -909,7 +909,16 @@ function AdminPage() {
                               className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                             />
                           </Field>
-                          <Field label="Länk till bokningsschema för övningssalar (booking_url)">
+                          <Field label="Link to map – EN (map_url_en)">
+                            <input
+                              type="url"
+                              value={form.map_url_en}
+                              onChange={(e) => setForm({ ...form, map_url_en: e.target.value })}
+                              placeholder="https://... (lämna tomt för att använda svenska som fallback)"
+                              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                            />
+                          </Field>
+                          <Field label="Länk till bokningsschema för övningssalar – SV (booking_url)">
                             <input
                               type="url"
                               value={form.booking_url}
@@ -920,6 +929,15 @@ function AdminPage() {
                             <p className="mt-1 text-xs text-muted-foreground">
                               Används för övningssalar. För grupprum, se nedan.
                             </p>
+                          </Field>
+                          <Field label="Link to booking schedule for practice rooms – EN (booking_url_en)">
+                            <input
+                              type="url"
+                              value={form.booking_url_en}
+                              onChange={(e) => setForm({ ...form, booking_url_en: e.target.value })}
+                              placeholder="https://... (lämna tomt för att använda svenska som fallback)"
+                              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                            />
                           </Field>
                         </div>
                       </div>
