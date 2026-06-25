@@ -220,12 +220,15 @@ export function SpaceCard({
   };
 
   const floorPart = localizedFloor;
-  const otherMetaParts = [
-    localizedLocatedIn,
-    ...(space.lokaltyp ?? []).map((l) => localizeChip("lokaltyp", l)),
-  ].filter((s): s is string => Boolean(s && s.length > 0));
+  const locatedInPart = localizedLocatedIn;
+  const lokaltypParts = (space.lokaltyp ?? [])
+    .map((l) => localizeChip("lokaltyp", l))
+    .filter((s): s is string => Boolean(s && s.length > 0));
+  const floorRowParts = [floorPart, locatedInPart].filter(
+    (s): s is string => Boolean(s && s.length > 0),
+  );
 
-  const hasMeta = Boolean(floorPart) || otherMetaParts.length > 0;
+  const hasMeta = floorRowParts.length > 0 || lokaltypParts.length > 0;
 
   const showCapacity =
     space.show_capacity_publicly && (space.capacity ?? 0) > 0;
