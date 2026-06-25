@@ -118,9 +118,6 @@ export function ImageCarousel({
           chrome floating over an empty placeholder. */}
       {count > 1 && isLoaded && (
         <>
-          {/* Gradient overlay for readability */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 via-black/30 to-transparent z-10" />
-
           {/* Image counter (top-right) */}
           <div className="absolute top-2 right-2 z-20 px-2 py-0.5 rounded-full bg-black/60 text-white text-[11px] font-medium tabular-nums shadow-sm backdrop-blur-sm font-sans">
             {idx + 1} / {count}
@@ -130,7 +127,7 @@ export function ImageCarousel({
             type="button"
             onClick={(e) => go(-1, e)}
             aria-label={t("gallery.prev")}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 h-8 w-8 rounded-full bg-white/90 hover:bg-white text-[var(--kth-navy)] shadow-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 h-8 w-8 rounded-full bg-white/90 hover:bg-white text-[var(--kth-navy)] shadow-md flex items-center justify-center transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
           >
             <ChevronLeft className="h-5 w-5" strokeWidth={2.5} aria-hidden="true" />
           </button>
@@ -138,7 +135,7 @@ export function ImageCarousel({
             type="button"
             onClick={(e) => go(1, e)}
             aria-label={t("gallery.next")}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 h-8 w-8 rounded-full bg-white/90 hover:bg-white text-[var(--kth-navy)] shadow-md flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 h-8 w-8 rounded-full bg-white/90 hover:bg-white text-[var(--kth-navy)] shadow-md flex items-center justify-center transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
           >
             <ChevronRight className="h-5 w-5" strokeWidth={2.5} aria-hidden="true" />
           </button>
@@ -153,8 +150,8 @@ export function ImageCarousel({
                 aria-label={t("gallery.go_to", { n: i + 1 })}
                 aria-current={i === idx ? "true" : undefined}
                 className={cn(
-                  "h-2 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
-                  i === idx ? "w-5 bg-white" : "w-2 bg-white/55 hover:bg-white/80"
+                  "h-2 w-2 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
+                  i === idx ? "bg-white" : "bg-white/55 hover:bg-white/80"
                 )}
               />
             ))}
