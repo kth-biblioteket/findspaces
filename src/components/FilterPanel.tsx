@@ -147,27 +147,89 @@ export function FilterPanel({
 
         if (opts.length === 0) return null;
         const selected = filters.byCategory[cat.key] ?? [];
-        return cat.style === "list" ? (
+        const inner = cat.style === "list" ? (
           <ListGroup
-            key={cat.id}
             cat={cat}
             options={opts}
             selected={selected}
             onToggle={(v) => setSelected(cat.key, toggle(selected, v))}
             lang={lang}
+            hideTitle
           />
         ) : (
           <PillGroup
-            key={cat.id}
             cat={cat}
             options={opts}
             selected={selected}
             onToggle={(v) => setSelected(cat.key, toggle(selected, v))}
             lang={lang}
+            hideTitle
           />
+        );
+
+        // Noise stays always visible alongside intent; everything else is collapsible.
+        if (cat.key === "noise") {
+          return (
+            <div key={cat.id}>
+              <h3 className="text-sm font-semibold mb-3">{pickLocalized(cat, "title", lang)}</h3>
+              {inner}
+            </div>
+          );
+        }
+
+        return (
+          <CollapsibleSection
+            key={cat.id}
+            title={pickLocalized(cat, "title", lang)}
+            defaultOpen={selected.length > 0}
+            badgeCount={selected.length}
+          >
+            {inner}
+          </CollapsibleSection>
         );
       })}
     </div>
+  );
+}
+
+function CollapsibleSection({
+  title, defaultOpen = false, badgeCount = 0, children,
+}: {
+  title: string;
+  defaultOpen?: boolean;
+  badgeCount?: number;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <Collapsible open={open} onOpenChange={setOpen} className="border-t border-border pt-3">
+      <CollapsibleTrigger
+        className={cn(
+          "flex w-full items-center justify-between gap-2 text-left",
+          "text-sm font-semibold cursor-pointer",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary rounded",
+        )}
+      >
+        <span className="inline-flex items-center gap-2">
+          {title}
+          {badgeCount > 0 && (
+            <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-[var(--kth-blue)] text-white text-[11px] font-semibold tabular-nums">
+              {badgeCount}
+            </span>
+          )}
+        </span>
+        <ChevronDown
+          className={cn(
+            "h-4 w-4 text-muted-foreground transition-transform shrink-0",
+            open && "rotate-180",
+          )}
+          aria-hidden="true"
+        />
+      </CollapsibleTrigger>
+      <CollapsibleContent className="pt-3">
+        {children}
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
 
