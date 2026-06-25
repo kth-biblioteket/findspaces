@@ -1,18 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
+import { ChevronLeft, ChevronRight, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 function Placeholder({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "relative w-full h-full bg-muted flex items-center justify-center",
+        "relative w-full h-full bg-muted-foreground/25 flex items-center justify-center",
         className
       )}
       aria-hidden="true"
     >
-      <BookOpen className="h-20 w-20 text-primary" />
+      <Camera className="h-20 w-20 text-white" strokeWidth={1.5} />
     </div>
   );
 }
