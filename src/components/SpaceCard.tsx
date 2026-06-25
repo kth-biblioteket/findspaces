@@ -235,9 +235,9 @@ export function SpaceCard({
 
   const chipBase =
     "inline-flex items-center gap-1.5 text-xs rounded-md px-2 py-1 max-w-full transition-colors";
-  const chipUnselected = "text-muted-foreground bg-secondary/60";
+  const chipUnselected = "text-muted-foreground bg-secondary/60 hover:bg-accent";
   const chipSelected =
-    "bg-primary text-primary-foreground [&_img]:brightness-0 [&_img]:invert";
+    "bg-[var(--kth-blue)] text-white hover:bg-[var(--kth-blue)]/90 [&_img]:brightness-0 [&_img]:invert";
 
   const renderSection = (key: CardSectionKey, idx: number) => {
     const spacing = idx === 0 ? "" : "mt-3 md:mt-4";
