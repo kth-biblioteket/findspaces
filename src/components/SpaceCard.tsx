@@ -451,11 +451,11 @@ export function SpaceCard({
           </a>
         );
       case "button_booking":
-        if (!space.booking_url) return null;
+        if (!localizedBookingUrl) return null;
         return (
           <a
             key="button_booking"
-            href={space.booking_url}
+            href={localizedBookingUrl}
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => {
