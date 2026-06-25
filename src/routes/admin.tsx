@@ -1046,10 +1046,11 @@ function AdminPage() {
                             />
                           </label>
                           <p className="text-xs text-muted-foreground max-w-sm">
-                            <strong>Format:</strong> WebP (.webp). <strong>Storlek:</strong> 1200×800 px
-                            i <strong>3:2-format</strong> (liggande). <strong>Max filstorlek:</strong> 150 kB.
-                            Bilden visas i samma format på både mobil och desktop, så placera motivet centrerat
-                            för att undvika beskärning vid kanterna. Upp till {MAX_IMAGES} bilder per lokal.
+                            <strong>Format:</strong> WebP (.webp). <strong>Storlek:</strong> 1600×1067 px
+                            i <strong>3:2-format</strong> (liggande). <strong>Max filstorlek:</strong> 250 kB.
+                            På desktop visas bilden större och sträcks ut i höjd vid sidan av texten,
+                            så håll motivet väl centrerat — kanterna kan beskäras lätt i topp/botten beroende
+                            på hur mycket text kortet innehåller. Upp till {MAX_IMAGES} bilder per lokal.
                             Konvertera JPG/PNG till WebP med t.ex. <a href="https://squoosh.app" target="_blank" rel="noopener noreferrer" className="underline">squoosh.app</a> innan uppladdning.
                           </p>
                         </div>
