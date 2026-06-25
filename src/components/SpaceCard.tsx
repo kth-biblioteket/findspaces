@@ -251,20 +251,25 @@ export function SpaceCard({
               </h3>
             </div>
             {hasMeta && (
-              <div className="mt-1.5 flex flex-col md:flex-row md:items-baseline gap-0.5 md:gap-1 text-sm text-foreground leading-snug">
-                {floorPart && (
-                  <span className="inline-flex items-center gap-1.5 text-foreground font-medium">
-                    <span className="inline-flex w-4 justify-center">
-                      <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                    </span>
-                    {floorPart}
-                  </span>
+              <div className="mt-1.5 space-y-0.5 text-sm text-foreground leading-snug">
+                {floorRowParts.length > 0 && (
+                  <div className="flex flex-col md:flex-row md:items-baseline gap-0.5 md:gap-1">
+                    {floorPart && (
+                      <span className="inline-flex items-center gap-1.5 text-foreground font-medium">
+                        <span className="inline-flex w-4 justify-center">
+                          <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                        </span>
+                        {floorPart}
+                      </span>
+                    )}
+                    {floorPart && locatedInPart && (
+                      <span className="hidden md:inline text-foreground/40 mx-0.5" aria-hidden="true">|</span>
+                    )}
+                    {locatedInPart && <span>{locatedInPart}</span>}
+                  </div>
                 )}
-                {floorPart && otherMetaParts.length > 0 && (
-                  <span className="hidden md:inline text-foreground/40 mx-0.5" aria-hidden="true">|</span>
-                )}
-                {otherMetaParts.length > 0 && (
-                  <span>{otherMetaParts.join(" • ")}</span>
+                {lokaltypParts.length > 0 && (
+                  <div className="text-foreground/80">{lokaltypParts.join(" • ")}</div>
                 )}
               </div>
             )}
