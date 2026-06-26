@@ -77,11 +77,13 @@ export function ImageCarousel({
 
   return (
     <div
-      className={cn("relative w-full h-full overflow-hidden bg-muted group touch-pan-y", className)}
-      onTouchStart={touchStart}
-      onTouchMove={touchMove}
-      onTouchEnd={touchEnd}
+      className={cn("relative w-full h-full overflow-hidden bg-muted group touch-pan-y select-none", className)}
+      onPointerDown={pointerDown}
+      onPointerMove={pointerMove}
+      onPointerUp={pointerUp}
+      onPointerCancel={() => { touchRef.current = null; }}
     >
+
       {/* Subtle shimmer skeleton — no icon, so it doesn't flash a fake placeholder */}
       {!isLoaded && (
         <div className="absolute inset-0 z-0 animate-pulse bg-gradient-to-br from-muted via-muted/60 to-muted" />
