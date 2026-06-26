@@ -23,27 +23,25 @@ export function ImageCarousel({
   const { t } = useTranslation();
   const [idx, setIdx] = useState(0);
   const [loaded, setLoaded] = useState<Record<number, boolean>>({});
-  const touchRef = useRef<{ x: number; y: number; moved: boolean } | null>(null);
+  const touchRef = useRef<{ x: number; y: number; moved: boolean; pointerType: string } | null>(null);
   const swipedRef = useRef(false);
   const list = images.filter(Boolean);
   const count = list.length;
-  const touchStart = (e: React.TouchEvent) => {
-    const t = e.touches[0];
-    touchRef.current = { x: t.clientX, y: t.clientY, moved: false };
+  const pointerDown = (e: React.PointerEvent) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    touchRef.current = { x: e.clientX, y: e.clientY, moved: false, pointerType: e.pointerType };
   };
-  const touchMove = (e: React.TouchEvent) => {
+  const pointerMove = (e: React.PointerEvent) => {
     const s = touchRef.current;
     if (!s) return;
-    const t = e.touches[0];
-    if (Math.abs(t.clientX - s.x) > 8) s.moved = true;
+    if (Math.abs(e.clientX - s.x) > 8) s.moved = true;
   };
-  const touchEnd = (e: React.TouchEvent) => {
+  const pointerUp = (e: React.PointerEvent) => {
     const s = touchRef.current;
     touchRef.current = null;
     if (!s || count <= 1) return;
-    const t = e.changedTouches[0];
-    const dx = t.clientX - s.x;
-    const dy = t.clientY - s.y;
+    const dx = e.clientX - s.x;
+    const dy = e.clientY - s.y;
     if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) {
       e.stopPropagation();
       swipedRef.current = true;
@@ -52,6 +50,7 @@ export function ImageCarousel({
       swipedRef.current = true;
     }
   };
+
 
   // Preload neighboring images for snappier paging
   useEffect(() => {
@@ -78,11 +77,13 @@ export function ImageCarousel({
 
   return (
     <div
-      className={cn("relative w-full h-full overflow-hidden bg-muted group touch-pan-y", className)}
-      onTouchStart={touchStart}
-      onTouchMove={touchMove}
-      onTouchEnd={touchEnd}
+      className={cn("relative w-full h-full overflow-hidden bg-muted group touch-pan-y select-none", className)}
+      onPointerDown={pointerDown}
+      onPointerMove={pointerMove}
+      onPointerUp={pointerUp}
+      onPointerCancel={() => { touchRef.current = null; }}
     >
+
       {/* Subtle shimmer skeleton — no icon, so it doesn't flash a fake placeholder */}
       {!isLoaded && (
         <div className="absolute inset-0 z-0 animate-pulse bg-gradient-to-br from-muted via-muted/60 to-muted" />
@@ -118,10 +119,8 @@ export function ImageCarousel({
           chrome floating over an empty placeholder. */}
       {count > 1 && isLoaded && (
         <>
-          {/* Image counter (top-right) */}
-          <div className="absolute top-2 right-2 z-20 px-2 py-0.5 rounded-full bg-black/60 text-white text-[11px] font-medium tabular-nums shadow-sm backdrop-blur-sm font-sans">
-            {idx + 1} / {count}
-          </div>
+          {/* image counter intentionally removed */}
+
 
           <button
             type="button"
