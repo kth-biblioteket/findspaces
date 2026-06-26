@@ -664,9 +664,10 @@ function GroupRoomBadge({
       <Icon className="h-4 w-4 text-foreground" aria-hidden="true" />
       <span className={cn("inline-block h-2.5 w-2.5 rounded-full", dotClass)} aria-hidden="true" />
       <span className="text-sm text-foreground">
-        <strong>{t("group_room.right_now")}:</strong>{" "}
-        {t(GROUP_ROOM_LABELS[status])}
+        <span className="text-muted-foreground">{t("group_room.right_now")}:</span>{" "}
+        <strong>{t(GROUP_ROOM_LABELS[status])}</strong>
       </span>
+
       {status === "free" && bookingUrl && (
         <a
           href={bookingUrl}
