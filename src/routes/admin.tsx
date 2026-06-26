@@ -2090,7 +2090,7 @@ const DUMMY_SPACE: Space = {
   sort_order: 0,
   floor: "Plan 3",
   located_in: "Biblioteket",
-  capacity: null,
+  capacity: 24,
   tags: {},
   notice: "Exempel på varningsruta – t.ex. tillfälligt stängt eller ombyggnation.",
   name_en: null,
