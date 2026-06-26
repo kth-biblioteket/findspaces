@@ -206,11 +206,14 @@ export function SpaceCard({
       category: "facility", value: f, key: `facility:${f}`, label: localizeChip("facility", f),
     })),
     ...Object.entries(space.tags ?? {}).flatMap(([cat, values]) =>
-      (Array.isArray(values) ? values : []).map((v) => ({
-        category: cat, value: v, key: `${cat}:${v}`, label: localizeChip(cat, v),
-      })),
+      cat === "vaningsplan"
+        ? []
+        : (Array.isArray(values) ? values : []).map((v) => ({
+            category: cat, value: v, key: `${cat}:${v}`, label: localizeChip(cat, v),
+          })),
     ),
   ];
+
 
   const isIntentSelected = (v: IntentValue) => filters?.workMode === v;
   const isCategorySelected = (cat: string, v: string) =>
@@ -239,8 +242,10 @@ export function SpaceCard({
   const floorPart = localizedFloor;
   const locatedInPart = localizedLocatedIn;
   const lokaltypParts = (space.lokaltyp ?? [])
+    .filter((l) => l !== "Grupprum" && l !== "Resursrum")
     .map((l) => localizeChip("lokaltyp", l))
     .filter((s): s is string => Boolean(s && s.length > 0));
+
   const floorRowParts = [floorPart, locatedInPart].filter(
     (s): s is string => Boolean(s && s.length > 0),
   );
@@ -624,8 +629,9 @@ function OccupancyBadge({
       <Users className="h-4 w-4 text-foreground" aria-hidden="true" />
       <OccupancyBlocks level={level} />
       <span className="text-sm text-foreground">
-        <strong>{t("occupancy.right_now")}:</strong> {label}
+        <span className="text-muted-foreground">{t("occupancy.right_now")}:</span> <strong>{label}</strong>
       </span>
+
     </div>
   );
 }
@@ -658,9 +664,10 @@ function GroupRoomBadge({
       <Icon className="h-4 w-4 text-foreground" aria-hidden="true" />
       <span className={cn("inline-block h-2.5 w-2.5 rounded-full", dotClass)} aria-hidden="true" />
       <span className="text-sm text-foreground">
-        <strong>{t("group_room.right_now")}:</strong>{" "}
-        {t(GROUP_ROOM_LABELS[status])}
+        <span className="text-muted-foreground">{t("group_room.right_now")}:</span>{" "}
+        <strong>{t(GROUP_ROOM_LABELS[status])}</strong>
       </span>
+
       {status === "free" && bookingUrl && (
         <a
           href={bookingUrl}
