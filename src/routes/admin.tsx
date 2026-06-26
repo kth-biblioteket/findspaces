@@ -2090,7 +2090,7 @@ const DUMMY_SPACE: Space = {
   sort_order: 0,
   floor: "Plan 3",
   located_in: "Biblioteket",
-  capacity: null,
+  capacity: 24,
   tags: {},
   notice: "Exempel på varningsruta – t.ex. tillfälligt stängt eller ombyggnation.",
   name_en: null,
@@ -2100,7 +2100,8 @@ const DUMMY_SPACE: Space = {
   notice_en: null,
   info: "Exempel på informationsruta – t.ex. öppettider eller praktisk info.",
   info_en: null,
-  show_capacity_publicly: false,
+  show_capacity_publicly: true,
+
   show_occupancy: true,
   countmatters_sensor_id: null,
   booking_room_number: null,
@@ -2176,12 +2177,21 @@ function CardLayoutTab() {
 
       <div className="space-y-6">
         <div>
-          <h3 className="text-sm font-semibold text-muted-foreground mb-2">Förhandsvisning</h3>
-          <SpaceCard space={DUMMY_SPACE} layoutOverride={order} />
+          <h3 className="text-sm font-semibold text-muted-foreground mb-2">
+            Förhandsvisning (samma mått som ett kort i studentvyn)
+          </h3>
+          <div className="max-w-[920px]">
+            <SpaceCard
+              space={DUMMY_SPACE}
+              layoutOverride={order}
+              previewOccupancy={{ level: 2, status: "moderate" }}
+            />
+          </div>
         </div>
         <CapacityIconSection />
       </div>
     </div>
+
   );
 }
 
@@ -2312,7 +2322,7 @@ function LangPairEditor({
 }
 
 function LandingMessageTab() {
-  const uiKeys: UiTextKey[] = ["empty_title", "empty_suggest_template", "empty_fallback", "show_description", "hide_description"];
+  const uiKeys: UiTextKey[] = ["empty_title", "empty_suggest_template", "empty_fallback", "show_description", "hide_description", "occupancy_free", "occupancy_moderate", "occupancy_busy"];
 
   return (
     <div className="space-y-6 max-w-4xl">

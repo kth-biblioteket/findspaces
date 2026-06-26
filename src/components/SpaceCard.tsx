@@ -12,6 +12,7 @@ import { useOccupancy, type OccupancyStatus } from "@/lib/useOccupancy";
 import { useGroupRoomAvailability, type GroupRoomStatus } from "@/lib/useGroupRoomAvailability";
 import { useOccupancySettings, isWithinSchedule, DEFAULT_SCHEDULE } from "@/lib/useOccupancySettings";
 import { useUiText } from "@/lib/useUiText";
+
 import { pickLocalized, type Lang } from "@/i18n";
 import { OptionIcon } from "./OptionIcon";
 import { ImageCarousel } from "./ImageCarousel";
@@ -34,6 +35,8 @@ export function SpaceCard({
   highlightId,
   highlightTick,
   onSpaceLink,
+  previewOccupancy,
+  previewGroupRoom,
 }: {
   space: Space;
   /** Optional override for live preview in admin. */
@@ -46,6 +49,10 @@ export function SpaceCard({
   highlightId?: string;
   highlightTick?: number;
   onSpaceLink?: (id: string) => void;
+  /** Force-show an occupancy badge in admin preview, bypassing real sensor data. */
+  previewOccupancy?: { level: 1 | 2 | 3; status: OccupancyStatus };
+  /** Force-show a group-room badge in admin preview. */
+  previewGroupRoom?: { status: GroupRoomStatus };
 }) {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
@@ -63,11 +70,12 @@ export function SpaceCard({
     (occSettings?.enabled ?? true) &&
     isWithinSchedule(occSettings?.schedule ?? DEFAULT_SCHEDULE, new Date());
   const occupancyVisible = space.show_occupancy !== false && settingsActive;
-  const occupancy = occupancyVisible ? rawOccupancy : null;
-  const groupRoom = settingsActive ? rawGroupRoom : null;
+  const occupancy = previewOccupancy ?? (occupancyVisible ? rawOccupancy : null);
+  const groupRoom = previewGroupRoom ?? (settingsActive ? rawGroupRoom : null);
   const { data: showDescriptionLabel } = useUiText("show_description");
   const { data: hideDescriptionLabel } = useUiText("hide_description");
   const layout = layoutOverride ?? layoutFromDb;
+
 
   useEffect(() => {
     if (highlightId && (highlightId === space.id || highlightId === space.slug)) {
@@ -573,7 +581,13 @@ export function SpaceCard({
   );
 }
 
-const OCCUPANCY_LABELS: Record<OccupancyStatus, string> = {
+const OCCUPANCY_TEXT_KEYS: Record<OccupancyStatus, "occupancy_free" | "occupancy_moderate" | "occupancy_busy"> = {
+  free: "occupancy_free",
+  moderate: "occupancy_moderate",
+  busy: "occupancy_busy",
+};
+
+const OCCUPANCY_FALLBACK_I18N: Record<OccupancyStatus, string> = {
   free: "occupancy.free",
   moderate: "occupancy.moderate",
   busy: "occupancy.busy",
@@ -603,17 +617,19 @@ function OccupancyBadge({
   status: OccupancyStatus;
 }) {
   const { t } = useTranslation();
+  const { data: customLabel } = useUiText(OCCUPANCY_TEXT_KEYS[status]);
+  const label = customLabel ?? t(OCCUPANCY_FALLBACK_I18N[status]);
   return (
     <div className="flex items-center gap-1.5 md:gap-2 mb-1.5 md:mb-2 mt-0.5 md:mt-0.5">
       <Users className="h-4 w-4 text-foreground" aria-hidden="true" />
       <OccupancyBlocks level={level} />
       <span className="text-sm text-foreground">
-        <strong>{t("occupancy.right_now")}:</strong>{" "}
-        {t(OCCUPANCY_LABELS[status])}
+        <strong>{t("occupancy.right_now")}:</strong> {label}
       </span>
     </div>
   );
 }
+
 
 
 const GROUP_ROOM_LABELS: Record<GroupRoomStatus, string> = {
