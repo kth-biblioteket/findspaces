@@ -629,8 +629,9 @@ function OccupancyBadge({
       <Users className="h-4 w-4 text-foreground" aria-hidden="true" />
       <OccupancyBlocks level={level} />
       <span className="text-sm text-foreground">
-        <strong>{t("occupancy.right_now")}:</strong> {label}
+        <span className="text-muted-foreground">{t("occupancy.right_now")}:</span> <strong>{label}</strong>
       </span>
+
     </div>
   );
 }
