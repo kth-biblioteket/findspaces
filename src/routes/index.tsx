@@ -215,7 +215,13 @@ function SpaceFinder() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 lg:grid lg:grid-cols-[320px_1fr] lg:gap-6">
         <aside className="hidden lg:block" aria-label={t("filters.title")}>
-          <div className="sticky top-4 bg-card rounded-xl shadow-[0_4px_16px_-2px_rgba(15,23,42,0.12),0_2px_6px_-2px_rgba(15,23,42,0.08)] flex flex-col max-h-[calc(100vh-2rem)]">
+          <div
+            className={
+              inIframe
+                ? "bg-card rounded-xl shadow-[0_4px_16px_-2px_rgba(15,23,42,0.12),0_2px_6px_-2px_rgba(15,23,42,0.08)] flex flex-col"
+                : "sticky top-4 bg-card rounded-xl shadow-[0_4px_16px_-2px_rgba(15,23,42,0.12),0_2px_6px_-2px_rgba(15,23,42,0.08)] flex flex-col max-h-[calc(100vh-2rem)]"
+            }
+          >
             <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
               <span className="text-sm font-semibold">{t("filters.title")}</span>
               {hasActiveFilter && (
@@ -229,11 +235,12 @@ function SpaceFinder() {
                 </button>
               )}
             </div>
-            <div className="overflow-y-auto px-4 py-4 min-h-0">
+            <div className={inIframe ? "px-4 py-4" : "overflow-y-auto px-4 py-4 min-h-0"}>
               <FilterPanel filters={filters} onChange={setFilters} />
             </div>
           </div>
         </aside>
+
 
         <div className="lg:hidden mb-4">
           <MobileFilterSheet
