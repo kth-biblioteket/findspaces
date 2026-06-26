@@ -119,10 +119,8 @@ export function ImageCarousel({
           chrome floating over an empty placeholder. */}
       {count > 1 && isLoaded && (
         <>
-          {/* Image counter (top-right) */}
-          <div className="absolute top-2 right-2 z-20 px-2 py-0.5 rounded-full bg-black/60 text-white text-[11px] font-medium tabular-nums shadow-sm backdrop-blur-sm font-sans">
-            {idx + 1} / {count}
-          </div>
+          {/* image counter intentionally removed */}
+
 
           <button
             type="button"
