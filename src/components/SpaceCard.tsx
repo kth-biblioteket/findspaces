@@ -35,6 +35,8 @@ export function SpaceCard({
   highlightId,
   highlightTick,
   onSpaceLink,
+  previewOccupancy,
+  previewGroupRoom,
 }: {
   space: Space;
   /** Optional override for live preview in admin. */
@@ -47,6 +49,10 @@ export function SpaceCard({
   highlightId?: string;
   highlightTick?: number;
   onSpaceLink?: (id: string) => void;
+  /** Force-show an occupancy badge in admin preview, bypassing real sensor data. */
+  previewOccupancy?: { level: 1 | 2 | 3; status: OccupancyStatus };
+  /** Force-show a group-room badge in admin preview. */
+  previewGroupRoom?: { status: GroupRoomStatus };
 }) {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
@@ -64,11 +70,12 @@ export function SpaceCard({
     (occSettings?.enabled ?? true) &&
     isWithinSchedule(occSettings?.schedule ?? DEFAULT_SCHEDULE, new Date());
   const occupancyVisible = space.show_occupancy !== false && settingsActive;
-  const occupancy = occupancyVisible ? rawOccupancy : null;
-  const groupRoom = settingsActive ? rawGroupRoom : null;
+  const occupancy = previewOccupancy ?? (occupancyVisible ? rawOccupancy : null);
+  const groupRoom = previewGroupRoom ?? (settingsActive ? rawGroupRoom : null);
   const { data: showDescriptionLabel } = useUiText("show_description");
   const { data: hideDescriptionLabel } = useUiText("hide_description");
   const layout = layoutOverride ?? layoutFromDb;
+
 
   useEffect(() => {
     if (highlightId && (highlightId === space.id || highlightId === space.slug)) {
