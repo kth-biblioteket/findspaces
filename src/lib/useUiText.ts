@@ -8,7 +8,10 @@ export type UiTextKey =
   | "empty_suggest_template"
   | "empty_fallback"
   | "show_description"
-  | "hide_description";
+  | "hide_description"
+  | "occupancy_free"
+  | "occupancy_moderate"
+  | "occupancy_busy";
 
 export const UI_TEXT_DEFAULTS: Record<UiTextKey, string> = {
   empty_title: "Inga lokaler matchar dina filter.",
@@ -17,6 +20,9 @@ export const UI_TEXT_DEFAULTS: Record<UiTextKey, string> = {
   empty_fallback: "Prova att rensa filtren och börja om.",
   show_description: "Visa beskrivning",
   hide_description: "Dölj beskrivning",
+  occupancy_free: "Gott om plats",
+  occupancy_moderate: "Halvfullt",
+  occupancy_busy: "Mycket folk",
 };
 
 export const UI_TEXT_DEFAULTS_EN: Record<UiTextKey, string> = {
@@ -26,6 +32,9 @@ export const UI_TEXT_DEFAULTS_EN: Record<UiTextKey, string> = {
   empty_fallback: "Try clearing the filters and start over.",
   show_description: "Show description",
   hide_description: "Hide description",
+  occupancy_free: "Plenty of space",
+  occupancy_moderate: "Moderately busy",
+  occupancy_busy: "Very busy",
 };
 
 export const UI_TEXT_META: Record<
@@ -62,7 +71,26 @@ export const UI_TEXT_META: Record<
       "Etikett på knappen som fäller ihop beskrivningen på ett lokalkort.",
     rows: 2,
   },
+  occupancy_free: {
+    title: "Beläggning – gott om plats",
+    description:
+      "Visas i beläggningsmätaren på lokalkortet när det är lugnt (lägsta nivån).",
+    rows: 2,
+  },
+  occupancy_moderate: {
+    title: "Beläggning – halvfullt",
+    description:
+      "Visas i beläggningsmätaren på lokalkortet vid mellannivån.",
+    rows: 2,
+  },
+  occupancy_busy: {
+    title: "Beläggning – mycket folk",
+    description:
+      "Visas i beläggningsmätaren på lokalkortet vid högsta nivån.",
+    rows: 2,
+  },
 };
+
 
 const SETTING_PREFIX_SV = "ui_text:";
 const SETTING_PREFIX_EN = "ui_text:en:";
