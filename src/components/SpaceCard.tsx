@@ -458,7 +458,7 @@ export function SpaceCard({
             }}
             className={buttonClass}
           >
-            <Users className="h-3.5 w-3.5" aria-hidden="true" />
+            <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
             <span>{t("card.button_group_booking")}</span>
             <span className="sr-only">{t("card.opens_new_tab_sr")}</span>
           </a>
