@@ -93,6 +93,11 @@ function SpaceFinder() {
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/" });
   const filters = useMemo(() => searchToFilters(search), [search]);
+  const [inIframe, setInIframe] = useState(false);
+  useEffect(() => {
+    try { setInIframe(window.self !== window.top); } catch { setInIframe(true); }
+  }, []);
+
 
   const setFilters = (next: Filters) => {
     navigate({ search: filtersToSearch(next, search.highlight) as never, replace: true });
