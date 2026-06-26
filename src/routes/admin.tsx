@@ -2177,12 +2177,21 @@ function CardLayoutTab() {
 
       <div className="space-y-6">
         <div>
-          <h3 className="text-sm font-semibold text-muted-foreground mb-2">Förhandsvisning</h3>
-          <SpaceCard space={DUMMY_SPACE} layoutOverride={order} />
+          <h3 className="text-sm font-semibold text-muted-foreground mb-2">
+            Förhandsvisning (samma mått som ett kort i studentvyn)
+          </h3>
+          <div className="max-w-[920px]">
+            <SpaceCard
+              space={DUMMY_SPACE}
+              layoutOverride={order}
+              previewOccupancy={{ level: 2, status: "moderate" }}
+            />
+          </div>
         </div>
         <CapacityIconSection />
       </div>
     </div>
+
   );
 }
 
