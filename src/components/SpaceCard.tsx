@@ -206,11 +206,14 @@ export function SpaceCard({
       category: "facility", value: f, key: `facility:${f}`, label: localizeChip("facility", f),
     })),
     ...Object.entries(space.tags ?? {}).flatMap(([cat, values]) =>
-      (Array.isArray(values) ? values : []).map((v) => ({
-        category: cat, value: v, key: `${cat}:${v}`, label: localizeChip(cat, v),
-      })),
+      cat === "vaningsplan"
+        ? []
+        : (Array.isArray(values) ? values : []).map((v) => ({
+            category: cat, value: v, key: `${cat}:${v}`, label: localizeChip(cat, v),
+          })),
     ),
   ];
+
 
   const isIntentSelected = (v: IntentValue) => filters?.workMode === v;
   const isCategorySelected = (cat: string, v: string) =>
