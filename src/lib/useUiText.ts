@@ -9,6 +9,7 @@ export type UiTextKey =
   | "empty_fallback"
   | "show_description"
   | "hide_description"
+  | "about_button"
   | "occupancy_free"
   | "occupancy_moderate"
   | "occupancy_busy";
