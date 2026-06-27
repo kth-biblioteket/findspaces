@@ -569,22 +569,6 @@ export function SpaceCard({
         onClose={() => setLightboxOpen(false)}
       />
 
-      {sanitizedDescription && (
-        <Dialog open={aboutOpen} onOpenChange={setAboutOpen}>
-          <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{localizedName}</DialogTitle>
-              <DialogDescription className="sr-only">
-                {aboutButtonLabel ?? t("card.about_button")}
-              </DialogDescription>
-            </DialogHeader>
-            <div
-              className="text-sm text-foreground/90 leading-relaxed space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
-              dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
-            />
-          </DialogContent>
-        </Dialog>
-      )}
     </article>
   );
 }
