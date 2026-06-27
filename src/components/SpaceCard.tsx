@@ -626,7 +626,7 @@ function OccupancyBadge({
   const { data: customLabel } = useUiText(OCCUPANCY_TEXT_KEYS[status]);
   const label = customLabel ?? t(OCCUPANCY_FALLBACK_I18N[status]);
   return (
-    <div className="flex items-center gap-1.5 md:gap-2 mb-1.5 md:mb-2 mt-0.5 md:mt-0.5">
+    <div className="flex items-center gap-1.5 md:gap-2">
       <Users className="h-4 w-4 text-foreground" aria-hidden="true" />
       <OccupancyBlocks level={level} />
       <span className="text-sm text-foreground">
