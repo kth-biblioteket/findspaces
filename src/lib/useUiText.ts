@@ -21,6 +21,7 @@ export const UI_TEXT_DEFAULTS: Record<UiTextKey, string> = {
   empty_fallback: "Prova att rensa filtren och börja om.",
   show_description: "Visa beskrivning",
   hide_description: "Dölj beskrivning",
+  about_button: "Om lokalen",
   occupancy_free: "Gott om plats",
   occupancy_moderate: "Halvfullt",
   occupancy_busy: "Mycket folk",
