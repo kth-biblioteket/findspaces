@@ -265,9 +265,34 @@ export function SpaceCard({
         return (
           <div key="header" className="flex flex-col gap-4 md:gap-5">
             <div className="flex flex-col gap-1">
-              <h3 id={`space-${space.id}-title`} className="text-lg md:text-xl font-semibold leading-tight">
-                {localizedName}
-              </h3>
+              <div className="flex items-start gap-1.5">
+                <h3 id={`space-${space.id}-title`} className="text-lg md:text-xl font-semibold leading-tight">
+                  {localizedName}
+                </h3>
+                {sanitizedDescription && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setAboutOpen((v) => {
+                        if (!v) track("card_expand", { space_id: space.id, name: space.name });
+                        return !v;
+                      });
+                    }}
+                    aria-expanded={aboutOpen}
+                    aria-controls={`space-${space.id}-about`}
+                    aria-label={aboutButtonLabel ?? t("card.about_button")}
+                    title={aboutButtonLabel ?? t("card.about_button")}
+                    className="inline-flex items-center gap-0.5 text-muted-foreground hover:text-[var(--kth-blue)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-primary rounded mt-1"
+                  >
+                    <Info className="h-4 w-4" aria-hidden="true" />
+                    <ChevronDown
+                      className={cn("h-4 w-4 transition-transform", aboutOpen && "rotate-180")}
+                      aria-hidden="true"
+                    />
+                  </button>
+                )}
+              </div>
               {hasMeta && (
                 <div className="text-sm text-foreground leading-snug">
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
