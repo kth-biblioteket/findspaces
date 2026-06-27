@@ -1,30 +1,61 @@
+# Bättre gruppering & gridsystem inne på lokalkortet
+
 ## Mål
-Modernare, luftigare utseende: vit bakgrund överallt, inga grå ramar runt kort/filterpanel, och rubriken "Studieplatser" borttagen så översta kortet linjerar med filterpanelens topp.
+Skapa tydligare visuell rytm genom att gruppera kortets innehåll i fyra block med samma vertikala avstånd mellan blocken, och ge filterchipsen lite mer luft internt.
 
-## Ändringar
+## De fyra grupperna
+1. **Identitet** – rubrik, våningsplan + lokaltyp, antal platser
+2. **Status** – beläggning (Just nu:) eller grupprumsstatus (Ledigt/Upptaget)
+3. **Filterchips** – intent + kategori-chips
+4. **Knappar** – Se på karta, Se schema, Boka grupprum
 
-**1. Ta bort resultatrubriken (`src/routes/index.tsx`)**
-- Ta bort `<h2>Studieplatser</h2>`-raden och dess wrapper.
-- Antalsräknaren ("47 lokaler") döljs när inga filter är aktiva. När filter är aktiva visas den som liten diskret text ovanför korten (t.ex. "12 av 47 lokaler").
-- Detta gör att översta lokalkortet linjerar med filterpanelens överkant på desktop.
+(Notice- och info-rutorna är egna block som ligger ovanför grupp 1 enligt nuvarande layout-ordning.)
 
-**2. Vit bakgrund överallt (`src/styles.css`)**
-- `--background` → vit (redan vit).
-- `--card` → vit (idag ljusgrå `oklch(0.985 0 0)`).
-- Header behåller en subtil nedre border som avgränsning mot innehållet.
+## Förändringar i `src/components/SpaceCard.tsx`
 
-**3. Ta bort grå linjer, ersätt med mjuk skugga**
-- `src/components/SpaceCard.tsx`: ta bort `border border-border`, lägg till mjuk skugga (`shadow-sm hover:shadow-md transition-shadow`).
-- `src/routes/index.tsx`: filterpanelens wrapper – ta bort `border border-border`, lägg till samma mjuka skugga. Behåll intern avdelare under "Filter"-rubriken.
-- "Inga träffar"-rutan: samma behandling (skugga istället för border).
+### 1. Ersätt ad-hoc-marginaler med ett konsekvent gridsystem
+Idag använder `renderSection` `mt-3 md:mt-4` som radspecifik marginal, och statusbadgar/knappar har egna marginaler. Det ger ojämna avstånd.
 
-**4. Småjusteringar för att vit-på-vit ska kännas avgränsat**
-- Chips, knappar och inputs som idag förlitar sig på `bg-muted`/`bg-card` mot grå bakgrund kontrolleras så de fortsatt syns – framförallt aktiva filter-chips (redan blå, OK) och sökfält i filterpanelen (lägg vid behov till tunn border på input).
+**Lösning:** Använd en `flex flex-col` på kortets innehållscontainer med `gap-4 md:gap-5` som enda källa till vertikalt avstånd mellan grupperna. Inom varje grupp används ett mindre internt avstånd (`gap-1.5` för identitet, `gap-2` för status).
 
-## Berörda filer
-- `src/routes/index.tsx`
-- `src/styles.css`
-- `src/components/SpaceCard.tsx`
-- (ev. mindre justering i `src/components/FilterPanel.tsx` om sökinput tappar kontrast)
+Konkret:
+- Wrappa identitet (rubrik + meta-raden + antal platser) i en `<div className="flex flex-col gap-1">` så de tre raderna hänger ihop tätt.
+- Wrappa status (occupancy + group room badge) i en `<div className="flex flex-col gap-2">` (eller döljs helt om inga finns).
+- Filterchips förblir en grupp, men `mb-2 md:mb-3` tas bort (gap hanteras av föräldern).
+- Knappraden ärver samma gap.
+- `renderSection` slutar lägga på `mt-3 md:mt-4` – istället returnerar varje sektion ett naket block och kortets yttre `flex flex-col gap-4 md:gap-5` styr avståndet.
 
-Inga ändringar i logik, data eller filtrering.
+### 2. Tokens för avstånd
+Lägg in en lokal konstant högst i komponenten:
+```
+const GROUP_GAP = "gap-4 md:gap-5";       // mellan de fyra grupperna
+const INNER_TIGHT = "gap-1";              // inom identitetsblocket
+const INNER_LOOSE = "gap-2";              // inom statusblocket
+```
+Detta gör spacing-systemet explicit och lätt att justera framöver.
+
+### 3. Lite mer padding i filterchipsen
+Nuvarande `chipBase`:
+```
+inline-flex items-center gap-1.5 text-xs rounded-md px-2 py-1 ...
+```
+Höjs till:
+```
+inline-flex items-center gap-1.5 text-xs rounded-md px-2.5 py-1.5 ...
+```
+(samma chip-stil används av både intent- och kategorichips, så bara en plats att ändra).
+
+Avståndet mellan chips (`gap-2`) behålls.
+
+### 4. Mindre städning
+- Ta bort den dubbla marginalen `mb-2 md:mb-3` på chips-blocket.
+- Säkerställ att tomma grupper (t.ex. inga chips, ingen status) inte lämnar kvar ett tomt gap – returnera `null` så att flex-gap inte räknar in dem.
+
+## Det här ändrar inte
+- Layout-ordningen från admin (`useCardLayout`) respekteras fortfarande.
+- Bildens kolumn (2fr/3fr på desktop) och kortets ytterpadding (`md:p-6`) rörs inte.
+- Färger, typografi, ikonstorlekar är oförändrade.
+- Notice- och info-rutornas utseende (gul varning / grå info) är oförändrat – de blir bara en del av samma gap-rytm.
+
+## Resultat
+Fyra tydliga block med samma andningsutrymme mellan sig, tätare inom varje block, och filterchips som känns lite mindre hopträngda.
