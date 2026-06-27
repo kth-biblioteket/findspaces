@@ -256,73 +256,74 @@ export function SpaceCard({
     space.show_capacity_publicly && (space.capacity ?? 0) > 0;
 
   const chipBase =
-    "inline-flex items-center gap-1.5 text-xs rounded-md px-2 py-1 max-w-full transition-colors";
+    "inline-flex items-center gap-1.5 text-xs rounded-md px-2.5 py-1.5 max-w-full transition-colors";
   const chipUnselected = "text-muted-foreground bg-secondary/60 hover:bg-accent";
   const chipSelected =
     "bg-[var(--kth-blue)] text-white hover:bg-[var(--kth-blue)]/90 [&_img]:brightness-0 [&_img]:invert";
 
-  const renderSection = (key: CardSectionKey, idx: number) => {
-    const spacing = idx === 0 ? "" : "mt-3 md:mt-4";
+  const renderSection = (key: CardSectionKey) => {
     switch (key) {
       case "header":
         return (
-          <div key="header" className={cn(spacing)}>
-            <div className="text-left">
+          <div key="header" className="flex flex-col gap-4 md:gap-5">
+            <div className="flex flex-col gap-1">
               <h3 id={`space-${space.id}-title`} className="text-lg md:text-xl font-semibold leading-tight">
                 {localizedName}
               </h3>
-            </div>
-            {hasMeta && (
-              <div className="mt-1.5 text-sm text-foreground leading-snug">
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                  {floorPart && (
-                    <span className="inline-flex items-center gap-1.5 text-foreground">
-                      <span className="inline-flex w-4 justify-center">
-                        <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              {hasMeta && (
+                <div className="text-sm text-foreground leading-snug">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                    {floorPart && (
+                      <span className="inline-flex items-center gap-1.5 text-foreground">
+                        <span className="inline-flex w-4 justify-center">
+                          <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                        </span>
+                        <span>{floorPart}</span>
                       </span>
-                      <span>{floorPart}</span>
-                    </span>
-                  )}
-                  {floorPart && locatedInPart && (
-                    <span className="text-foreground/40" aria-hidden="true">|</span>
-                  )}
-                  {locatedInPart && <span className="text-foreground">{locatedInPart}</span>}
-                  {(floorPart || locatedInPart) && lokaltypParts.length > 0 && (
-                    <span className="text-foreground/40" aria-hidden="true">|</span>
-                  )}
-                  {lokaltypParts.length > 0 && (
-                    <span className="text-foreground">{lokaltypParts.join(" • ")}</span>
-                  )}
+                    )}
+                    {floorPart && locatedInPart && (
+                      <span className="text-foreground/40" aria-hidden="true">|</span>
+                    )}
+                    {locatedInPart && <span className="text-foreground">{locatedInPart}</span>}
+                    {(floorPart || locatedInPart) && lokaltypParts.length > 0 && (
+                      <span className="text-foreground/40" aria-hidden="true">|</span>
+                    )}
+                    {lokaltypParts.length > 0 && (
+                      <span className="text-foreground">{lokaltypParts.join(" • ")}</span>
+                    )}
+                  </div>
                 </div>
+              )}
+              {showCapacity && (
+                <p className="inline-flex items-end gap-1.5 text-sm text-foreground">
+                  <span className="inline-flex w-4 justify-center">
+                    {capacityIconUrl ? (
+                      <img src={capacityIconUrl} alt="" className="h-4 w-4 object-contain" />
+                    ) : (
+                      <ChairIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                    )}
+                  </span>
+                  <span className="leading-none">
+                    <span className="sr-only">{t("card.capacity_sr")} </span>
+                    {space.capacity} {t("card.capacity_seats")}
+                  </span>
+                </p>
+              )}
+            </div>
+
+            {(occupancy || groupRoom) && (
+              <div className="flex flex-col gap-2">
+                {occupancy && (
+                  <OccupancyBadge level={occupancy.level} status={occupancy.status} />
+                )}
+                {groupRoom && (
+                  <GroupRoomBadge
+                    status={groupRoom.status}
+                    bookingUrl={bookNowUrl || null}
+                  />
+                )}
               </div>
             )}
-
-            {showCapacity && (
-              <p className="mt-1 inline-flex items-end gap-1.5 text-sm text-foreground">
-                <span className="inline-flex w-4 justify-center">
-                  {capacityIconUrl ? (
-                    <img src={capacityIconUrl} alt="" className="h-4 w-4 object-contain" />
-                  ) : (
-                    <ChairIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                  )}
-                </span>
-                <span className="leading-none">
-                  <span className="sr-only">{t("card.capacity_sr")} </span>
-                  {space.capacity} {t("card.capacity_seats")}
-                </span>
-              </p>
-            )}
-            {occupancy && (
-              <OccupancyBadge level={occupancy.level} status={occupancy.status} />
-            )}
-            {groupRoom && (
-              <GroupRoomBadge
-                status={groupRoom.status}
-                bookingUrl={bookNowUrl || null}
-              />
-            )}
-
-
           </div>
         );
       case "notice":
@@ -331,7 +332,7 @@ export function SpaceCard({
           <div
             key="notice"
             role="status"
-            className={cn(spacing, "flex items-start gap-1.5 bg-[hsl(48_100%_85%)] text-foreground rounded-lg px-3 py-2 text-sm")}
+            className="flex items-start gap-1.5 bg-[hsl(48_100%_85%)] text-foreground rounded-lg px-3 py-2 text-sm"
           >
             <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-orange-500" aria-hidden="true" />
             <span className="whitespace-pre-line">
@@ -343,7 +344,7 @@ export function SpaceCard({
       case "info":
         if (!linkedInfo) return null;
         return (
-          <div key="info" className={cn(spacing, "flex items-start gap-1.5 text-sm text-foreground/80")}>
+          <div key="info" className="flex items-start gap-1.5 text-sm text-foreground/80">
             <Info className="h-3.5 w-3.5 mt-0.5 shrink-0 text-muted-foreground" aria-hidden="true" />
             <span className="whitespace-pre-line">{linkedInfo}</span>
           </div>
@@ -351,7 +352,7 @@ export function SpaceCard({
       case "chips":
         if (intentChips.length === 0 && categoryChips.length === 0) return null;
         return (
-          <div key="chips" className={cn(spacing, "mb-2 md:mb-3 flex flex-wrap items-center gap-2")}>
+          <div key="chips" className="flex flex-wrap items-center gap-2">
             {intentChips.map((c) => {
               const selected = isIntentSelected(c.value);
               const Icon = c.value === "enskilt" ? User : Users;
@@ -419,6 +420,7 @@ export function SpaceCard({
         return null;
     }
   };
+
 
   const buttonClass =
     "inline-flex items-center gap-1.5 rounded-full bg-[var(--kth-blue)] text-white px-4 py-1.5 text-xs font-semibold hover:bg-[var(--kth-blue)]/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary transition-colors";
