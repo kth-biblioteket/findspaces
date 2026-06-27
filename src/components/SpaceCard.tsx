@@ -1,13 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import DOMPurify from "dompurify";
-import { MapPin, Calendar, Info, Users, User, DoorOpen, DoorClosed, AlertTriangle } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { MapPin, Calendar, Info, Users, User, DoorOpen, DoorClosed, AlertTriangle, ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ChairIcon } from "./icons/ChairIcon";
 
@@ -272,9 +265,34 @@ export function SpaceCard({
         return (
           <div key="header" className="flex flex-col gap-4 md:gap-5">
             <div className="flex flex-col gap-1">
-              <h3 id={`space-${space.id}-title`} className="text-lg md:text-xl font-semibold leading-tight">
-                {localizedName}
-              </h3>
+              <div className="flex items-start gap-1.5">
+                <h3 id={`space-${space.id}-title`} className="text-lg md:text-xl font-semibold leading-tight">
+                  {localizedName}
+                </h3>
+                {sanitizedDescription && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setAboutOpen((v) => {
+                        if (!v) track("card_expand", { space_id: space.id, name: space.name });
+                        return !v;
+                      });
+                    }}
+                    aria-expanded={aboutOpen}
+                    aria-controls={`space-${space.id}-about`}
+                    aria-label={aboutButtonLabel ?? t("card.about_button")}
+                    title={aboutButtonLabel ?? t("card.about_button")}
+                    className="inline-flex items-center gap-0.5 text-muted-foreground hover:text-[var(--kth-blue)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-primary rounded mt-1"
+                  >
+                    <Info className="h-4 w-4" aria-hidden="true" />
+                    <ChevronDown
+                      className={cn("h-4 w-4 transition-transform", aboutOpen && "rotate-180")}
+                      aria-hidden="true"
+                    />
+                  </button>
+                )}
+              </div>
               {hasMeta && (
                 <div className="text-sm text-foreground leading-snug">
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
@@ -512,23 +530,17 @@ export function SpaceCard({
           <div className="order-2 md:order-1 min-w-0 flex flex-col gap-4 md:gap-5 p-3 md:p-6">
           {layout.map((k) => renderSection(k))}
 
-          {(renderedButtons.length > 0 || sanitizedDescription) && (
+          {sanitizedDescription && aboutOpen && (
+            <div
+              id={`space-${space.id}-about`}
+              className="text-sm text-foreground/90 leading-relaxed space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line border-t border-border pt-4"
+              dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+            />
+          )}
+
+          {renderedButtons.length > 0 && (
             <div className="mt-auto flex flex-wrap items-center gap-2 justify-end">
               {renderedButtons}
-              {sanitizedDescription && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setAboutOpen(true);
-                    track("card_expand", { space_id: space.id, name: space.name });
-                  }}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[var(--kth-blue)] text-[var(--kth-blue)] bg-transparent px-4 py-1.5 text-xs font-semibold hover:bg-[var(--kth-blue)]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary transition-colors"
-                >
-                  <Info className="h-3.5 w-3.5" aria-hidden="true" />
-                  <span>{aboutButtonLabel ?? t("card.about_button")}</span>
-                </button>
-              )}
             </div>
           )}
         </div>
@@ -557,22 +569,6 @@ export function SpaceCard({
         onClose={() => setLightboxOpen(false)}
       />
 
-      {sanitizedDescription && (
-        <Dialog open={aboutOpen} onOpenChange={setAboutOpen}>
-          <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{localizedName}</DialogTitle>
-              <DialogDescription className="sr-only">
-                {aboutButtonLabel ?? t("card.about_button")}
-              </DialogDescription>
-            </DialogHeader>
-            <div
-              className="text-sm text-foreground/90 leading-relaxed space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
-              dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
-            />
-          </DialogContent>
-        </Dialog>
-      )}
     </article>
   );
 }
