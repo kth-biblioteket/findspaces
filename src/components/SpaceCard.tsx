@@ -79,8 +79,7 @@ export function SpaceCard({
   const occupancyVisible = space.show_occupancy !== false && settingsActive;
   const occupancy = previewOccupancy ?? (occupancyVisible ? rawOccupancy : null);
   const groupRoom = previewGroupRoom ?? (settingsActive ? rawGroupRoom : null);
-  const { data: showDescriptionLabel } = useUiText("show_description");
-  const { data: hideDescriptionLabel } = useUiText("hide_description");
+  const { data: aboutButtonLabel } = useUiText("about_button");
   const layout = layoutOverride ?? layoutFromDb;
 
 
