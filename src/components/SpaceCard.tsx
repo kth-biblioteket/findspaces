@@ -1,6 +1,13 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import DOMPurify from "dompurify";
-import { ChevronDown, MapPin, Calendar, Info, Users, User, DoorOpen, DoorClosed, AlertTriangle } from "lucide-react";
+import { MapPin, Calendar, Info, Users, User, DoorOpen, DoorClosed, AlertTriangle } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { useTranslation } from "react-i18next";
 import { ChairIcon } from "./icons/ChairIcon";
 
@@ -56,7 +63,7 @@ export function SpaceCard({
 }) {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
-  const [open, setOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [highlighted, setHighlighted] = useState(false);
@@ -72,14 +79,12 @@ export function SpaceCard({
   const occupancyVisible = space.show_occupancy !== false && settingsActive;
   const occupancy = previewOccupancy ?? (occupancyVisible ? rawOccupancy : null);
   const groupRoom = previewGroupRoom ?? (settingsActive ? rawGroupRoom : null);
-  const { data: showDescriptionLabel } = useUiText("show_description");
-  const { data: hideDescriptionLabel } = useUiText("hide_description");
+  const { data: aboutButtonLabel } = useUiText("about_button");
   const layout = layoutOverride ?? layoutFromDb;
 
 
   useEffect(() => {
     if (highlightId && (highlightId === space.id || highlightId === space.slug)) {
-      setOpen(true);
       setHighlighted(true);
       const el = document.getElementById(`space-${space.id}`);
       if (el) {
@@ -507,37 +512,25 @@ export function SpaceCard({
           <div className="order-2 md:order-1 min-w-0 flex flex-col gap-4 md:gap-5 p-3 md:p-6">
           {layout.map((k) => renderSection(k))}
 
-          <div className="mt-auto flex flex-col gap-2 md:gap-3">
-            {renderedButtons.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 justify-end">
-                {renderedButtons}
-              </div>
-            )}
-            {sanitizedDescription && (
-              <div className="flex">
+          {(renderedButtons.length > 0 || sanitizedDescription) && (
+            <div className="mt-auto flex flex-wrap items-center gap-2 justify-end">
+              {renderedButtons}
+              {sanitizedDescription && (
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setOpen((o) => {
-                      const next = !o;
-                      if (next) track("card_expand", { space_id: space.id, name: space.name });
-                      return next;
-                    });
+                    setAboutOpen(true);
+                    track("card_expand", { space_id: space.id, name: space.name });
                   }}
-                  aria-expanded={open}
-                  aria-controls={`space-${space.id}-description`}
-                  className="inline-flex items-center text-xs text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary rounded"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[var(--kth-blue)] text-[var(--kth-blue)] bg-transparent px-4 py-1.5 text-xs font-semibold hover:bg-[var(--kth-blue)]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary transition-colors"
                 >
-                  <ChevronDown
-                    className={cn("h-4 w-4 transition-transform", open && "rotate-180")}
-                    aria-hidden="true"
-                  />
-                  <span className="ml-1">{open ? (hideDescriptionLabel ?? t("card.hide_description")) : (showDescriptionLabel ?? t("card.show_description"))}</span>
+                  <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>{aboutButtonLabel ?? t("card.about_button")}</span>
                 </button>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
 
 
@@ -564,25 +557,22 @@ export function SpaceCard({
         onClose={() => setLightboxOpen(false)}
       />
 
-      <div
-        id={`space-${space.id}-description`}
-        // @ts-expect-error inert is a valid HTML attribute (React 19) but typings lag
-        inert={!open ? "" : undefined}
-        aria-hidden={!open}
-        className={cn(
-          "grid transition-all duration-300 ease-out",
-          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-        )}
-      >
-        <div className="overflow-hidden">
-          <div className="px-3 pb-3 pt-1 md:px-3.5 md:pb-4 border-t border-border/60">
+      {sanitizedDescription && (
+        <Dialog open={aboutOpen} onOpenChange={setAboutOpen}>
+          <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{localizedName}</DialogTitle>
+              <DialogDescription className="sr-only">
+                {aboutButtonLabel ?? t("card.about_button")}
+              </DialogDescription>
+            </DialogHeader>
             <div
-              className="text-sm text-foreground/80 leading-relaxed pt-2 space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
+              className="text-sm text-foreground/90 leading-relaxed space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
               dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
             />
-          </div>
-        </div>
-      </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </article>
   );
 }

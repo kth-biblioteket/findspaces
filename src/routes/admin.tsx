@@ -2322,7 +2322,7 @@ function LangPairEditor({
 }
 
 function LandingMessageTab() {
-  const uiKeys: UiTextKey[] = ["empty_title", "empty_suggest_template", "empty_fallback", "show_description", "hide_description", "occupancy_free", "occupancy_moderate", "occupancy_busy"];
+  const uiKeys: UiTextKey[] = ["empty_title", "empty_suggest_template", "empty_fallback", "show_description", "hide_description", "about_button", "occupancy_free", "occupancy_moderate", "occupancy_busy"];
 
   return (
     <div className="space-y-6 max-w-4xl">
