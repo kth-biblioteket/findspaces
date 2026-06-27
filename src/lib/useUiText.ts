@@ -74,6 +74,12 @@ export const UI_TEXT_META: Record<
       "Etikett på knappen som fäller ihop beskrivningen på ett lokalkort.",
     rows: 2,
   },
+  about_button: {
+    title: "Lokalkort – knapp för beskrivning",
+    description:
+      "Etikett på knappen som öppnar lokalens beskrivning i en popup. Visas endast när lokalen har en beskrivning.",
+    rows: 2,
+  },
   occupancy_free: {
     title: "Beläggning – gott om plats",
     description:
