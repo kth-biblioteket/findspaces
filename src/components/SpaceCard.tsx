@@ -513,37 +513,25 @@ export function SpaceCard({
           <div className="order-2 md:order-1 min-w-0 flex flex-col gap-4 md:gap-5 p-3 md:p-6">
           {layout.map((k) => renderSection(k))}
 
-          <div className="mt-auto flex flex-col gap-2 md:gap-3">
-            {renderedButtons.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 justify-end">
-                {renderedButtons}
-              </div>
-            )}
-            {sanitizedDescription && (
-              <div className="flex">
+          {(renderedButtons.length > 0 || sanitizedDescription) && (
+            <div className="mt-auto flex flex-wrap items-center gap-2 justify-end">
+              {renderedButtons}
+              {sanitizedDescription && (
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setOpen((o) => {
-                      const next = !o;
-                      if (next) track("card_expand", { space_id: space.id, name: space.name });
-                      return next;
-                    });
+                    setAboutOpen(true);
+                    track("card_expand", { space_id: space.id, name: space.name });
                   }}
-                  aria-expanded={open}
-                  aria-controls={`space-${space.id}-description`}
-                  className="inline-flex items-center text-xs text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary rounded"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[var(--kth-blue)] text-[var(--kth-blue)] bg-transparent px-4 py-1.5 text-xs font-semibold hover:bg-[var(--kth-blue)]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary transition-colors"
                 >
-                  <ChevronDown
-                    className={cn("h-4 w-4 transition-transform", open && "rotate-180")}
-                    aria-hidden="true"
-                  />
-                  <span className="ml-1">{open ? (hideDescriptionLabel ?? t("card.hide_description")) : (showDescriptionLabel ?? t("card.show_description"))}</span>
+                  <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>{aboutButtonLabel ?? t("card.about_button")}</span>
                 </button>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
 
 
