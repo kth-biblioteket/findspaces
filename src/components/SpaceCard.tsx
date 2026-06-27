@@ -504,12 +504,10 @@ export function SpaceCard({
       )}
     >
         <div className="flex flex-col md:grid md:grid-cols-[2fr_3fr] items-stretch gap-0">
-          <div className="order-2 md:order-1 min-w-0 flex flex-col p-3 md:p-6">
-          {layout.map((k, i) => renderSection(k, i))}
+          <div className="order-2 md:order-1 min-w-0 flex flex-col gap-4 md:gap-5 p-3 md:p-6">
+          {layout.map((k) => renderSection(k))}
 
-
-
-          <div className="mt-auto pt-2 md:pt-5 flex flex-col gap-2 md:gap-3">
+          <div className="mt-auto flex flex-col gap-2 md:gap-3">
             {renderedButtons.length > 0 && (
               <div className="flex flex-wrap items-center gap-2 justify-end">
                 {renderedButtons}
@@ -541,6 +539,7 @@ export function SpaceCard({
             )}
           </div>
         </div>
+
 
 
         <div className="order-1 md:order-2 w-full shrink-0 self-stretch aspect-[3/2] md:aspect-auto md:h-full md:min-h-[22rem] overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-l-none md:rounded-r-2xl">
