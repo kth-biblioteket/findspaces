@@ -86,7 +86,6 @@ export function SpaceCard({
 
   useEffect(() => {
     if (highlightId && (highlightId === space.id || highlightId === space.slug)) {
-      setOpen(true);
       setHighlighted(true);
       const el = document.getElementById(`space-${space.id}`);
       if (el) {
