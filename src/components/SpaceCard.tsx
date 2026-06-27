@@ -530,23 +530,17 @@ export function SpaceCard({
           <div className="order-2 md:order-1 min-w-0 flex flex-col gap-4 md:gap-5 p-3 md:p-6">
           {layout.map((k) => renderSection(k))}
 
-          {(renderedButtons.length > 0 || sanitizedDescription) && (
+          {sanitizedDescription && aboutOpen && (
+            <div
+              id={`space-${space.id}-about`}
+              className="text-sm text-foreground/90 leading-relaxed space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line border-t border-border pt-4"
+              dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+            />
+          )}
+
+          {renderedButtons.length > 0 && (
             <div className="mt-auto flex flex-wrap items-center gap-2 justify-end">
               {renderedButtons}
-              {sanitizedDescription && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setAboutOpen(true);
-                    track("card_expand", { space_id: space.id, name: space.name });
-                  }}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[var(--kth-blue)] text-[var(--kth-blue)] bg-transparent px-4 py-1.5 text-xs font-semibold hover:bg-[var(--kth-blue)]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary transition-colors"
-                >
-                  <Info className="h-3.5 w-3.5" aria-hidden="true" />
-                  <span>{aboutButtonLabel ?? t("card.about_button")}</span>
-                </button>
-              )}
             </div>
           )}
         </div>
