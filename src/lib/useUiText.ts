@@ -34,6 +34,7 @@ export const UI_TEXT_DEFAULTS_EN: Record<UiTextKey, string> = {
   empty_fallback: "Try clearing the filters and start over.",
   show_description: "Show description",
   hide_description: "Hide description",
+  about_button: "About this space",
   occupancy_free: "Plenty of space",
   occupancy_moderate: "Moderately busy",
   occupancy_busy: "Very busy",
