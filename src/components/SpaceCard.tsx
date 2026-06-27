@@ -557,25 +557,22 @@ export function SpaceCard({
         onClose={() => setLightboxOpen(false)}
       />
 
-      <div
-        id={`space-${space.id}-description`}
-        // @ts-expect-error inert is a valid HTML attribute (React 19) but typings lag
-        inert={!open ? "" : undefined}
-        aria-hidden={!open}
-        className={cn(
-          "grid transition-all duration-300 ease-out",
-          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-        )}
-      >
-        <div className="overflow-hidden">
-          <div className="px-3 pb-3 pt-1 md:px-3.5 md:pb-4 border-t border-border/60">
+      {sanitizedDescription && (
+        <Dialog open={aboutOpen} onOpenChange={setAboutOpen}>
+          <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{localizedName}</DialogTitle>
+              <DialogDescription className="sr-only">
+                {aboutButtonLabel ?? t("card.about_button")}
+              </DialogDescription>
+            </DialogHeader>
             <div
-              className="text-sm text-foreground/80 leading-relaxed pt-2 space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
+              className="text-sm text-foreground/90 leading-relaxed space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
               dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
             />
-          </div>
-        </div>
-      </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </article>
   );
 }
