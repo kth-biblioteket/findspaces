@@ -283,7 +283,7 @@ export function SpaceCard({
                     aria-controls={`space-${space.id}-about`}
                     aria-label={aboutButtonLabel ?? t("card.about_button")}
                     title={aboutButtonLabel ?? t("card.about_button")}
-                    className="inline-flex items-center gap-0.5 text-muted-foreground hover:text-[var(--kth-blue)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-primary rounded self-end translate-y-[-2px]"
+                    className="inline-flex items-center gap-0.5 text-foreground hover:text-[var(--kth-blue)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-primary rounded self-end translate-y-[-2px]"
                   >
                     <Info className="h-4 w-4" aria-hidden="true" />
                     <ChevronDown
