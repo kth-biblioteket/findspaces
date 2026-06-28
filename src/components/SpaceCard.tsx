@@ -265,7 +265,7 @@ export function SpaceCard({
         return (
           <div key="header" className="flex flex-col gap-4 md:gap-5">
             <div className="flex flex-col gap-1">
-              <div className="flex items-end gap-1.5">
+              <div className="flex items-start gap-1.5">
                 <h3 id={`space-${space.id}-title`} className="text-lg md:text-xl font-semibold leading-none">
                   {localizedName}
                 </h3>
@@ -283,11 +283,11 @@ export function SpaceCard({
                     aria-controls={`space-${space.id}-about`}
                     aria-label={aboutButtonLabel ?? t("card.about_button")}
                     title={aboutButtonLabel ?? t("card.about_button")}
-                    className="inline-flex items-center gap-0.5 text-foreground hover:text-[var(--kth-blue)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-primary rounded leading-none"
+                    className="relative top-[0.125em] inline-flex h-[1em] items-end gap-0.5 text-foreground hover:text-[var(--kth-blue)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-primary rounded leading-none"
                   >
-                    <Info className="h-4 w-4 block" aria-hidden="true" />
+                    <Info className="h-[0.9em] w-[0.9em] block" aria-hidden="true" />
                     <ChevronDown
-                      className={cn("h-4 w-4 block transition-transform", aboutOpen && "rotate-180")}
+                      className={cn("h-[0.9em] w-[0.9em] block transition-transform", aboutOpen && "rotate-180")}
                       aria-hidden="true"
                     />
                   </button>
