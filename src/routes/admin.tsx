@@ -2178,7 +2178,7 @@ function CardLayoutTab() {
       <div className="space-y-6">
         <div>
           <h3 className="text-sm font-semibold text-muted-foreground mb-2">
-            Förhandsvisning (samma mått som ett kort i studentvyn)
+            Förhandsvisning – studieplats (samma mått som ett kort i studentvyn)
           </h3>
           <div className="max-w-[920px]">
             <SpaceCard
@@ -2188,10 +2188,69 @@ function CardLayoutTab() {
             />
           </div>
         </div>
+
+        <GroupRoomPreviewCard order={order} />
+
         <CapacityIconSection />
       </div>
     </div>
 
+  );
+}
+
+const DUMMY_GROUP_ROOM: Space = {
+  ...DUMMY_SPACE,
+  id: "dummy-group",
+  name: "Grupprum 3001",
+  category: "",
+  description:
+    "Exempel på grupprum. Här ser du hur kortet ser ut med statusbadge för ledigt/upptaget och knappen Boka nu.",
+  lokaltyp: ["Grupprum"],
+  noise: ["Samtalston"],
+  equipment: ["Whiteboard", "Skärm"],
+  facilities: ["Dagsljus"],
+  floor: "Plan 3",
+  located_in: "Biblioteket",
+  capacity: 6,
+  notice: null,
+  info: null,
+  group_booking_url: "#",
+  book_now_url: "#",
+  booking_room_number: 3001,
+  show_occupancy: false,
+};
+
+function GroupRoomPreviewCard({ order }: { order: CardSectionKey[] }) {
+  const [status, setStatus] = useState<"free" | "busy">("free");
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2 gap-3 flex-wrap">
+        <h3 className="text-sm font-semibold text-muted-foreground">
+          Förhandsvisning – grupprum
+        </h3>
+        <div className="inline-flex rounded-full border border-border bg-card p-0.5 text-xs">
+          <button
+            onClick={() => setStatus("free")}
+            className={`px-3 py-1 rounded-full transition-colors ${status === "free" ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-accent"}`}
+          >
+            Ledigt (Boka nu)
+          </button>
+          <button
+            onClick={() => setStatus("busy")}
+            className={`px-3 py-1 rounded-full transition-colors ${status === "busy" ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-accent"}`}
+          >
+            Upptaget
+          </button>
+        </div>
+      </div>
+      <div className="max-w-[920px]">
+        <SpaceCard
+          space={DUMMY_GROUP_ROOM}
+          layoutOverride={order}
+          previewGroupRoom={{ status }}
+        />
+      </div>
+    </div>
   );
 }
 
