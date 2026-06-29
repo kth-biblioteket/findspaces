@@ -2176,18 +2176,7 @@ function CardLayoutTab() {
       </div>
 
       <div className="space-y-6">
-        <div>
-          <h3 className="text-sm font-semibold text-muted-foreground mb-2">
-            Förhandsvisning – studieplats (samma mått som ett kort i studentvyn)
-          </h3>
-          <div className="max-w-[920px]">
-            <SpaceCard
-              space={DUMMY_SPACE}
-              layoutOverride={order}
-              previewOccupancy={{ level: 2, status: "moderate" }}
-            />
-          </div>
-        </div>
+        <StudySpacePreviewCard order={order} />
 
         <GroupRoomPreviewCard order={order} />
 
@@ -2195,6 +2184,38 @@ function CardLayoutTab() {
       </div>
     </div>
 
+  );
+}
+
+function StudySpacePreviewCard({ order }: { order: CardSectionKey[] }) {
+  const [status, setStatus] = useState<"free" | "moderate" | "busy">("moderate");
+  const level = status === "free" ? 1 : status === "moderate" ? 2 : 3;
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2 gap-3 flex-wrap">
+        <h3 className="text-sm font-semibold text-muted-foreground">
+          Förhandsvisning – studieplats
+        </h3>
+        <div className="inline-flex rounded-full border border-border bg-card p-0.5 text-xs">
+          {(["free", "moderate", "busy"] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => setStatus(s)}
+              className={`px-3 py-1 rounded-full transition-colors ${status === s ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-accent"}`}
+            >
+              {s === "free" ? "Gott om plats" : s === "moderate" ? "Halvfullt" : "Mycket folk"}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="max-w-[920px]">
+        <SpaceCard
+          space={DUMMY_SPACE}
+          layoutOverride={order}
+          previewOccupancy={{ level: level as 1 | 2 | 3, status }}
+        />
+      </div>
+    </div>
   );
 }
 
