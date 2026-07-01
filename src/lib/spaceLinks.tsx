@@ -1,15 +1,42 @@
 import { pickLocalized, type Lang } from "@/i18n";
 import { type Space } from "@/lib/spaces";
 import { type ReactNode } from "react";
+import DOMPurify from "dompurify";
 
 const SPACE_LINK_RE = /\[\[\s*([^|\]\n]+?)\s*(?:\|\s*([^|\]\n]+?)\s*)?\]\]/g;
+
+function renderTextSegment(text: string, allowHtml: boolean, keyPrefix: string): ReactNode {
+  if (!allowHtml) return text;
+  let clean = DOMPurify.sanitize(text, {
+    ALLOWED_TAGS: ["a", "b", "strong", "i", "em", "br", "span"],
+    ALLOWED_ATTR: ["href", "target", "rel", "title"],
+  });
+  if (typeof window !== "undefined") {
+    const tmp = document.createElement("div");
+    tmp.innerHTML = clean;
+    tmp.querySelectorAll("a").forEach((a) => {
+      a.setAttribute("target", "_blank");
+      a.setAttribute("rel", "noopener noreferrer");
+      a.classList.add(
+        "font-medium",
+        "text-[var(--kth-blue)]",
+        "underline",
+        "hover:opacity-80",
+      );
+    });
+    clean = tmp.innerHTML;
+  }
+  return <span key={keyPrefix} dangerouslySetInnerHTML={{ __html: clean }} />;
+}
 
 export function parseSpaceLinks(
   text: string,
   spaces: Space[],
   lang: Lang,
   onClick: (id: string) => void,
+  options: { allowHtml?: boolean } = {},
 ): ReactNode[] {
+  const allowHtml = options.allowHtml === true;
   const byId = new Map(spaces.map((s) => [s.id, s]));
   const bySlug = new Map(
     spaces.filter((s) => s.slug).map((s) => [s.slug as string, s]),
@@ -22,7 +49,7 @@ export function parseSpaceLinks(
 
   while ((match = SPACE_LINK_RE.exec(text)) !== null) {
     if (match.index > last) {
-      out.push(text.slice(last, match.index));
+      out.push(renderTextSegment(text.slice(last, match.index), allowHtml, `t-${last}`));
     }
     const rawId = match[1].trim();
     const customText = match[2]?.trim();
@@ -46,7 +73,7 @@ export function parseSpaceLinks(
   }
 
   if (last < text.length) {
-    out.push(text.slice(last));
+    out.push(renderTextSegment(text.slice(last), allowHtml, `t-${last}`));
   }
   return out;
 }
