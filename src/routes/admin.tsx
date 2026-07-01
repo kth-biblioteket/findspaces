@@ -1362,7 +1362,7 @@ function FiltersTab({
           Lucide
         </a>{" "}
         och är fria att använda (ISC-licens). Du kan även ladda upp egna ikoner per alternativ.
-      </p>
+      </div>
 
       <div className="bg-muted/40 rounded-2xl border border-dashed border-border p-4">
         <div className="flex items-center gap-2 mb-1">
