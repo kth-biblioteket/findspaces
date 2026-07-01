@@ -852,7 +852,7 @@ function AdminPage() {
                             className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                           />
                           <p className="mt-1 text-xs text-muted-foreground">
-                            Använd för tillfälliga eller akuta meddelanden (t.ex. stängt idag). Visas med amber-färgad markering. Du kan länka till annat kort med <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[slug|valfri text]]</code>.
+                            Använd för tillfälliga eller akuta meddelanden (t.ex. stängt idag). Visas med amber-färgad markering. Du kan länka till annat kort med <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[slug|valfri text]]</code> eller till en extern webbsida med HTML: <code className="bg-secondary px-1 py-0.5 rounded text-xs">{`<a href="https://kth.se">KTH</a>`}</code>.
                           </p>
                         </Field>
                         <Field label="Tillfällig viktig information (gul ruta) (EN)">
