@@ -1351,6 +1351,18 @@ function FiltersTab({
       <p className="text-sm text-muted-foreground -mt-2">
         Redigera kategorinamn direkt, dra för att ändra ordningen i studentvyn, och lägg till egna alternativ med valfri ikon.
       </p>
+      <div className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+        <strong className="font-medium text-foreground">Om ikonerna:</strong> De inbyggda ikonerna kommer från{" "}
+        <a
+          href="https://lucide.dev/icons/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:opacity-80"
+        >
+          Lucide
+        </a>{" "}
+        och är fria att använda (ISC-licens). Du kan även ladda upp egna ikoner per alternativ.
+      </p>
 
       <div className="bg-muted/40 rounded-2xl border border-dashed border-border p-4">
         <div className="flex items-center gap-2 mb-1">
