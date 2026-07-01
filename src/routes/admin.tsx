@@ -865,7 +865,7 @@ function AdminPage() {
                           />
                         </Field>
 
-                        <Field label="Tillfällig neutral information (SV)">
+                        <Field label="Information på kortet (SV)">
                           <textarea
                             rows={2}
                             value={form.info}
@@ -874,10 +874,10 @@ function AdminPage() {
                             className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                           />
                           <p className="mt-1 text-xs text-muted-foreground">
-                            Neutral information som alltid visas på kortet. Använd syntaxen <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[slug|valfri text]]</code> för att länka till ett annat kort (t.ex. <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[{form.slug || "maxwell"}|Maxwell]]</code>).
+                            Neutral information som alltid visas på kortet. Använd syntaxen <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[slug|valfri text]]</code> för att länka till ett annat kort (t.ex. <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[{form.slug || "maxwell"}|Maxwell]]</code>). Länkar till externa webbsidor läggs in med HTML: <code className="bg-secondary px-1 py-0.5 rounded text-xs">{`<a href="https://kth.se">KTH</a>`}</code>.
                           </p>
                         </Field>
-                        <Field label="Tillfällig neutral information (EN)">
+                        <Field label="Information på kortet (EN)">
                           <textarea
                             rows={2}
                             value={form.info_en}
@@ -886,7 +886,7 @@ function AdminPage() {
                             className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                           />
                           <p className="mt-1 text-xs text-muted-foreground">
-                            English info. Use <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[space-id|optional text]]</code> for internal links.
+                            English info. Use <code className="bg-secondary px-1 py-0.5 rounded text-xs">[[space-id|optional text]]</code> for internal links, or standard HTML like <code className="bg-secondary px-1 py-0.5 rounded text-xs">{`<a href="https://kth.se">KTH</a>`}</code> for external links.
                           </p>
                         </Field>
                       </div>
@@ -1351,6 +1351,18 @@ function FiltersTab({
       <p className="text-sm text-muted-foreground -mt-2">
         Redigera kategorinamn direkt, dra för att ändra ordningen i studentvyn, och lägg till egna alternativ med valfri ikon.
       </p>
+      <div className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+        <strong className="font-medium text-foreground">Om ikonerna:</strong> De inbyggda ikonerna kommer från{" "}
+        <a
+          href="https://lucide.dev/icons/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:opacity-80"
+        >
+          Lucide
+        </a>{" "}
+        och är fria att använda (ISC-licens). Du kan även ladda upp egna ikoner per alternativ.
+      </div>
 
       <div className="bg-muted/40 rounded-2xl border border-dashed border-border p-4">
         <div className="flex items-center gap-2 mb-1">
