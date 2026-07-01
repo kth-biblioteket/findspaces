@@ -149,7 +149,7 @@ export function SpaceCard({
 
   const linkedNotice = useMemo(() => {
     if (!localizedNotice || !spaces || !onSpaceLink) return localizedNotice;
-    return parseSpaceLinks(localizedNotice, spaces, lang, handleSpaceLink);
+    return parseSpaceLinks(localizedNotice, spaces, lang, handleSpaceLink, { allowHtml: true });
   }, [localizedNotice, spaces, lang, handleSpaceLink]);
 
   const linkedInfo = useMemo(() => {
