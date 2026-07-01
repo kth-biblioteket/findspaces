@@ -154,7 +154,7 @@ export function SpaceCard({
 
   const linkedInfo = useMemo(() => {
     if (!localizedInfo || !spaces || !onSpaceLink) return localizedInfo;
-    return parseSpaceLinks(localizedInfo, spaces, lang, handleSpaceLink);
+    return parseSpaceLinks(localizedInfo, spaces, lang, handleSpaceLink, { allowHtml: true });
   }, [localizedInfo, spaces, lang, handleSpaceLink]);
 
   const sanitizedDescription = useMemo(() => {
