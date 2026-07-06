@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import DOMPurify from "dompurify";
-import { MapPin, Calendar, Info, Users, User, DoorOpen, DoorClosed, AlertTriangle, ChevronDown } from "lucide-react";
+import { MapPin, Calendar, Info, Users, User, AlertTriangle, ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ChairIcon } from "./icons/ChairIcon";
 
@@ -8,15 +8,15 @@ import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
 import { useCapacityIcon } from "@/lib/useCapacityIcon";
-import { useOccupancy, type OccupancyStatus } from "@/lib/useOccupancy";
-import { useGroupRoomAvailability, type GroupRoomStatus } from "@/lib/useGroupRoomAvailability";
-import { useOccupancySettings, isWithinSchedule, DEFAULT_SCHEDULE } from "@/lib/useOccupancySettings";
+import { useLiveSpaceStatus, type LiveOccupancy, type LiveGroupRoom } from "@/lib/useLiveSpaceStatus";
 import { useUiText } from "@/lib/useUiText";
 
 import { pickLocalized, type Lang } from "@/i18n";
 import { OptionIcon } from "./OptionIcon";
 import { ImageCarousel } from "./ImageCarousel";
 import { ImageLightbox } from "./ImageLightbox";
+import { OccupancyBadge } from "./OccupancyBadge";
+import { GroupRoomBadge } from "./GroupRoomBadge";
 import { cn } from "@/lib/utils";
 import { track } from "@/lib/analytics";
 import { type Filters } from "./FilterPanel";
