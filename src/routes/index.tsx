@@ -51,6 +51,16 @@ function validateSearch(input: Record<string, unknown>): SearchParams {
   return { q, mode, size, free, highlight, cats };
 }
 
+const spacesQueryOptions = queryOptions({
+  queryKey: ["spaces"],
+  queryFn: async (): Promise<Space[]> => {
+    const { data, error } = await supabase.from("spaces").select("*").order("sort_order").order("name");
+    if (error) throw error;
+    return data as unknown as Space[];
+  },
+  staleTime: 60_000,
+});
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -59,6 +69,12 @@ export const Route = createFileRoute("/")({
     ],
   }),
   validateSearch,
+  loader: ({ context }) => {
+    // Prime the cache so the first paint has data available (no fetch waterfall
+    // through useQuery). Fire-and-forget — the component keeps its own useQuery
+    // for reactivity and per-request Suspense-free rendering.
+    void context.queryClient.prefetchQuery(spacesQueryOptions);
+  },
   component: SpaceFinder,
 });
 
