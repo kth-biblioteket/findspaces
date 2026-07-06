@@ -50,9 +50,9 @@ export function SpaceCard({
   highlightTick?: number;
   onSpaceLink?: (id: string) => void;
   /** Force-show an occupancy badge in admin preview, bypassing real sensor data. */
-  previewOccupancy?: { level: 1 | 2 | 3; status: OccupancyStatus };
+  previewOccupancy?: LiveOccupancy;
   /** Force-show a group-room badge in admin preview. */
-  previewGroupRoom?: { status: GroupRoomStatus };
+  previewGroupRoom?: LiveGroupRoom;
 }) {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
@@ -63,15 +63,10 @@ export function SpaceCard({
   const { data: options = [] } = useFilterOptions();
   const { data: layoutFromDb = ["header", "notice", "info", "chips", "button_map", "button_group_booking", "button_booking"] } = useCardLayout();
   const { data: capacityIconUrl } = useCapacityIcon();
-  const rawOccupancy = useOccupancy(space.countmatters_sensor_id);
-  const rawGroupRoom = useGroupRoomAvailability(space.booking_room_number);
-  const { data: occSettings } = useOccupancySettings();
-  const settingsActive =
-    (occSettings?.enabled ?? true) &&
-    isWithinSchedule(occSettings?.schedule ?? DEFAULT_SCHEDULE, new Date());
-  const occupancyVisible = space.show_occupancy !== false && settingsActive;
-  const occupancy = previewOccupancy ?? (occupancyVisible ? rawOccupancy : null);
-  const groupRoom = previewGroupRoom ?? (settingsActive ? rawGroupRoom : null);
+  const { occupancy, groupRoom } = useLiveSpaceStatus(space, {
+    occupancy: previewOccupancy,
+    groupRoom: previewGroupRoom,
+  });
   const { data: aboutButtonLabel } = useUiText("about_button");
   const layout = layoutOverride ?? layoutFromDb;
 
