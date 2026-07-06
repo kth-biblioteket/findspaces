@@ -253,9 +253,13 @@ function SpaceFinder() {
         </div>
 
 
-        <main id="main" tabIndex={-1} className="focus-visible:outline-none">
+        <main id="main" tabIndex={-1} className="focus-visible:outline-none" aria-busy={isLoading}>
           {(isLoading || hasActiveFilter) && (
-            <div className="flex items-baseline justify-end mb-3">
+            <div
+              className="flex items-baseline justify-end mb-3"
+              aria-live="polite"
+              aria-atomic="true"
+            >
               <span className="text-xs text-muted-foreground">
                 {isLoading
                   ? t("results.loading")
@@ -265,6 +269,14 @@ function SpaceFinder() {
           )}
 
           <ActiveFilterChips filters={filters} onChange={setFilters} />
+
+          {isLoading && (
+            <div className="space-y-3 md:space-y-5" role="status" aria-label={t("results.loading")}>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <SpaceCardSkeleton key={i} />
+              ))}
+            </div>
+          )}
 
           {!isLoading && filtered.length === 0 && (
             <div className="bg-card rounded-2xl shadow-sm p-8 text-left">
@@ -313,11 +325,13 @@ function SpaceFinder() {
               )}
             </div>
           )}
-          <div className="space-y-3 md:space-y-5">
-            {filtered.map((s, i) => (
-              <SpaceCard key={s.id} space={s} filters={filters} onFiltersChange={setFilters} onSpaceLink={handleSpaceLink} highlightId={search.highlight} highlightTick={highlightTick} spaces={spaces} priority={i < 3} />
-            ))}
-          </div>
+          {!isLoading && (
+            <div className="space-y-3 md:space-y-5">
+              {filtered.map((s, i) => (
+                <SpaceCard key={s.id} space={s} filters={filters} onFiltersChange={setFilters} onSpaceLink={handleSpaceLink} highlightId={search.highlight} highlightTick={highlightTick} spaces={spaces} priority={i < 3} />
+              ))}
+            </div>
+          )}
         </main>
       </div>
     </div>
