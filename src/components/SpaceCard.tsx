@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import DOMPurify from "dompurify";
-import { MapPin, Calendar, Info, Users, User, DoorOpen, DoorClosed, AlertTriangle, ChevronDown } from "lucide-react";
+import { MapPin, Calendar, Info, Users, User, AlertTriangle, ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ChairIcon } from "./icons/ChairIcon";
 
@@ -8,15 +8,15 @@ import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
 import { useCapacityIcon } from "@/lib/useCapacityIcon";
-import { useOccupancy, type OccupancyStatus } from "@/lib/useOccupancy";
-import { useGroupRoomAvailability, type GroupRoomStatus } from "@/lib/useGroupRoomAvailability";
-import { useOccupancySettings, isWithinSchedule, DEFAULT_SCHEDULE } from "@/lib/useOccupancySettings";
+import { useLiveSpaceStatus, type LiveOccupancy, type LiveGroupRoom } from "@/lib/useLiveSpaceStatus";
 import { useUiText } from "@/lib/useUiText";
 
 import { pickLocalized, type Lang } from "@/i18n";
 import { OptionIcon } from "./OptionIcon";
 import { ImageCarousel } from "./ImageCarousel";
 import { ImageLightbox } from "./ImageLightbox";
+import { OccupancyBadge } from "./OccupancyBadge";
+import { GroupRoomBadge } from "./GroupRoomBadge";
 import { cn } from "@/lib/utils";
 import { track } from "@/lib/analytics";
 import { type Filters } from "./FilterPanel";
@@ -50,9 +50,9 @@ export function SpaceCard({
   highlightTick?: number;
   onSpaceLink?: (id: string) => void;
   /** Force-show an occupancy badge in admin preview, bypassing real sensor data. */
-  previewOccupancy?: { level: 1 | 2 | 3; status: OccupancyStatus };
+  previewOccupancy?: LiveOccupancy;
   /** Force-show a group-room badge in admin preview. */
-  previewGroupRoom?: { status: GroupRoomStatus };
+  previewGroupRoom?: LiveGroupRoom;
 }) {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
@@ -63,15 +63,10 @@ export function SpaceCard({
   const { data: options = [] } = useFilterOptions();
   const { data: layoutFromDb = ["header", "notice", "info", "chips", "button_map", "button_group_booking", "button_booking"] } = useCardLayout();
   const { data: capacityIconUrl } = useCapacityIcon();
-  const rawOccupancy = useOccupancy(space.countmatters_sensor_id);
-  const rawGroupRoom = useGroupRoomAvailability(space.booking_room_number);
-  const { data: occSettings } = useOccupancySettings();
-  const settingsActive =
-    (occSettings?.enabled ?? true) &&
-    isWithinSchedule(occSettings?.schedule ?? DEFAULT_SCHEDULE, new Date());
-  const occupancyVisible = space.show_occupancy !== false && settingsActive;
-  const occupancy = previewOccupancy ?? (occupancyVisible ? rawOccupancy : null);
-  const groupRoom = previewGroupRoom ?? (settingsActive ? rawGroupRoom : null);
+  const { occupancy, groupRoom } = useLiveSpaceStatus(space, {
+    occupancy: previewOccupancy,
+    groupRoom: previewGroupRoom,
+  });
   const { data: aboutButtonLabel } = useUiText("about_button");
   const layout = layoutOverride ?? layoutFromDb;
 
@@ -570,105 +565,6 @@ export function SpaceCard({
       />
 
     </article>
-  );
-}
-
-const OCCUPANCY_TEXT_KEYS: Record<OccupancyStatus, "occupancy_free" | "occupancy_moderate" | "occupancy_busy"> = {
-  free: "occupancy_free",
-  moderate: "occupancy_moderate",
-  busy: "occupancy_busy",
-};
-
-const OCCUPANCY_FALLBACK_I18N: Record<OccupancyStatus, string> = {
-  free: "occupancy.free",
-  moderate: "occupancy.moderate",
-  busy: "occupancy.busy",
-};
-
-function OccupancyBlocks({ level }: { level: 1 | 2 | 3 }) {
-  return (
-    <div className="flex items-center gap-[2px]" aria-hidden="true">
-      {[1, 2, 3].map((i) => (
-        <div
-          key={i}
-          className={cn(
-            "w-5 h-2 rounded-sm",
-            i <= level ? "bg-[var(--kth-blue)]" : "bg-muted"
-          )}
-        />
-      ))}
-    </div>
-  );
-}
-
-function OccupancyBadge({
-  level,
-  status,
-}: {
-  level: 1 | 2 | 3;
-  status: OccupancyStatus;
-}) {
-  const { t } = useTranslation();
-  const { data: customLabel } = useUiText(OCCUPANCY_TEXT_KEYS[status]);
-  const label = customLabel ?? t(OCCUPANCY_FALLBACK_I18N[status]);
-  return (
-    <div className="flex items-center gap-1.5 md:gap-2">
-      <Users className="h-4 w-4 text-foreground" aria-hidden="true" />
-      <OccupancyBlocks level={level} />
-      <span className="text-sm text-foreground">
-        <span className="text-muted-foreground">{t("occupancy.right_now")}:</span> <strong>{label}</strong>
-      </span>
-
-    </div>
-  );
-}
-
-
-
-const GROUP_ROOM_LABELS: Record<GroupRoomStatus, string> = {
-  free: "group_room.free",
-  busy: "group_room.busy",
-  tentative: "group_room.tentative",
-};
-
-function GroupRoomBadge({
-  status,
-  bookingUrl,
-}: {
-  status: GroupRoomStatus;
-  bookingUrl?: string | null;
-}) {
-  const { t } = useTranslation();
-  const Icon = status === "free" ? DoorOpen : DoorClosed;
-  const dotClass =
-    status === "free"
-      ? "bg-emerald-500"
-      : status === "tentative"
-      ? "bg-amber-400"
-      : "bg-red-500";
-  return (
-    <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
-      <Icon className="h-4 w-4 text-foreground" aria-hidden="true" />
-      <span className={cn("inline-block h-2.5 w-2.5 rounded-full", dotClass)} aria-hidden="true" />
-      <span className="text-sm text-foreground">
-        <span className="text-muted-foreground">{t("group_room.right_now")}:</span>{" "}
-        <strong>{t(GROUP_ROOM_LABELS[status])}</strong>
-      </span>
-
-      {status === "free" && bookingUrl && (
-        <a
-          href={bookingUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          className="ml-1 inline-flex items-center gap-1 rounded-full border border-emerald-600 bg-emerald-50 text-emerald-800 px-3 py-0.5 text-xs font-semibold hover:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-600 transition-colors"
-        >
-          <span>{t("card.book_now")}</span>
-          <span aria-hidden="true">→</span>
-          <span className="sr-only">{t("card.opens_new_tab_sr")}</span>
-        </a>
-      )}
-    </div>
   );
 }
 
