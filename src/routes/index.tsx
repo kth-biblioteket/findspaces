@@ -133,14 +133,7 @@ function SpaceFinder() {
     }
   };
 
-  const { data: spaces = [], isLoading } = useQuery({
-    queryKey: ["spaces"],
-    queryFn: async (): Promise<Space[]> => {
-      const { data, error } = await supabase.from("spaces").select("*").order("sort_order").order("name");
-      if (error) throw error;
-      return data as unknown as Space[];
-    },
-  });
+  const { data: spaces = [], isLoading } = useQuery(spacesQueryOptions);
 
   const { data: categories = [] } = useFilterCategories();
   const { data: emptyTitle } = useUiText("empty_title");
