@@ -9,6 +9,7 @@ import { useFilterCategories } from "@/lib/useFilterCategories";
 import { FilterPanel, emptyFilters, type Filters } from "@/components/FilterPanel";
 import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { SpaceCard } from "@/components/SpaceCard";
+import { SpaceCardSkeleton } from "@/components/SpaceCardSkeleton";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useUiText, formatSuggestTemplate } from "@/lib/useUiText";
 import { matchesSpace } from "@/lib/filterMatch";
