@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { X, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { optimizedImageUrl } from "@/lib/imageUrl";
 
 export function ImageLightbox({
   images,
@@ -35,7 +36,7 @@ export function ImageLightbox({
     if (!open || count <= 1) return;
     [(idx + 1) % count, (idx - 1 + count) % count].forEach((i) => {
       const img = new Image();
-      img.src = list[i];
+      img.src = optimizedImageUrl(list[i], 1600);
     });
   }, [idx, open, count, list]);
 
@@ -140,7 +141,7 @@ export function ImageLightbox({
         )}
         <img
           key={list[idx]}
-          src={list[idx]}
+          src={optimizedImageUrl(list[idx], 1600, { resize: "contain", quality: 85 })}
           alt={alts[idx]?.trim() || t("gallery.image_number", { n: idx + 1 })}
           onLoad={() => setImgLoaded(true)}
           className={cn(

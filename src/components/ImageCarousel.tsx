@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronLeft, ChevronRight, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { optimizedImageUrl, optimizedImageSrcSet } from "@/lib/imageUrl";
 
 function Placeholder({ className }: { className?: string }) {
   return (
@@ -59,7 +60,7 @@ export function ImageCarousel({
     neighbors.forEach((i) => {
       if (loaded[i]) return;
       const img = new Image();
-      img.src = list[i];
+      img.src = optimizedImageUrl(list[i], 960);
       img.onload = () => setLoaded((prev) => (prev[i] ? prev : { ...prev, [i]: true }));
     });
   }, [idx, count, list, loaded]);
@@ -101,7 +102,9 @@ export function ImageCarousel({
       >
         <img
           key={list[idx]}
-          src={list[idx]}
+          src={optimizedImageUrl(list[idx], 960)}
+          srcSet={optimizedImageSrcSet(list[idx])}
+          sizes="(min-width: 768px) 60vw, 100vw"
           alt={alts[idx]?.trim() || alt}
           className={cn(
             "w-full h-full object-cover transition-opacity duration-300",

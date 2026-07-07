@@ -18,7 +18,7 @@ import { ImageLightbox } from "./ImageLightbox";
 import { OccupancyBadge } from "./OccupancyBadge";
 import { GroupRoomBadge } from "./GroupRoomBadge";
 import { cn } from "@/lib/utils";
-import { track } from "@/lib/analytics";
+import { useSpaceAnalytics } from "@/lib/useSpaceAnalytics";
 import { type Filters } from "./FilterPanel";
 import { parseSpaceLinks } from "@/lib/spaceLinks";
 
@@ -134,12 +134,14 @@ export function SpaceCard({
     });
   }, [lang, space.image_alts, space.image_alts_en]);
 
+  const analytics = useSpaceAnalytics(space);
+
   const handleSpaceLink = useCallback(
     (id: string) => {
-      track("space_link_click", { source_id: space.id, target_id: id });
+      analytics.trackSpaceLink(id);
       onSpaceLink?.(id);
     },
-    [space.id, onSpaceLink],
+    [analytics, onSpaceLink],
   );
 
   const linkedNotice = useMemo(() => {
@@ -270,7 +272,7 @@ export function SpaceCard({
                     onClick={(e) => {
                       e.stopPropagation();
                       setAboutOpen((v) => {
-                        if (!v) track("card_expand", { space_id: space.id, name: space.name });
+                        if (!v) analytics.trackExpand();
                         return !v;
                       });
                     }}
@@ -455,7 +457,7 @@ export function SpaceCard({
             rel="noopener noreferrer"
             onClick={(e) => {
               e.stopPropagation();
-              track("map_link_click", { space_id: space.id, name: space.name });
+              analytics.trackMap();
             }}
             className={buttonClass}
           >
@@ -474,7 +476,7 @@ export function SpaceCard({
             rel="noopener noreferrer"
             onClick={(e) => {
               e.stopPropagation();
-              track("booking_link_click", { space_id: space.id, name: space.name, kind: "group_booking" });
+              analytics.trackBooking("group_booking");
             }}
             className={buttonClass}
           >
@@ -493,7 +495,7 @@ export function SpaceCard({
             rel="noopener noreferrer"
             onClick={(e) => {
               e.stopPropagation();
-              track("booking_link_click", { space_id: space.id, name: space.name, kind: "booking" });
+              analytics.trackBooking("booking");
             }}
             className={buttonClass}
           >
