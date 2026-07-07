@@ -134,12 +134,14 @@ export function SpaceCard({
     });
   }, [lang, space.image_alts, space.image_alts_en]);
 
+  const analytics = useSpaceAnalytics(space);
+
   const handleSpaceLink = useCallback(
     (id: string) => {
-      track("space_link_click", { source_id: space.id, target_id: id });
+      analytics.trackSpaceLink(id);
       onSpaceLink?.(id);
     },
-    [space.id, onSpaceLink],
+    [analytics, onSpaceLink],
   );
 
   const linkedNotice = useMemo(() => {
