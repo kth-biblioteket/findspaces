@@ -18,7 +18,7 @@ import { ImageLightbox } from "./ImageLightbox";
 import { OccupancyBadge } from "./OccupancyBadge";
 import { GroupRoomBadge } from "./GroupRoomBadge";
 import { cn } from "@/lib/utils";
-import { track } from "@/lib/analytics";
+import { useSpaceAnalytics } from "@/lib/useSpaceAnalytics";
 import { type Filters } from "./FilterPanel";
 import { parseSpaceLinks } from "@/lib/spaceLinks";
 
