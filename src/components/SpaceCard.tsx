@@ -272,7 +272,7 @@ export function SpaceCard({
                     onClick={(e) => {
                       e.stopPropagation();
                       setAboutOpen((v) => {
-                        if (!v) track("card_expand", { space_id: space.id, name: space.name });
+                        if (!v) analytics.trackExpand();
                         return !v;
                       });
                     }}
@@ -457,7 +457,7 @@ export function SpaceCard({
             rel="noopener noreferrer"
             onClick={(e) => {
               e.stopPropagation();
-              track("map_link_click", { space_id: space.id, name: space.name });
+              analytics.trackMap();
             }}
             className={buttonClass}
           >
@@ -476,7 +476,7 @@ export function SpaceCard({
             rel="noopener noreferrer"
             onClick={(e) => {
               e.stopPropagation();
-              track("booking_link_click", { space_id: space.id, name: space.name, kind: "group_booking" });
+              analytics.trackBooking("group_booking");
             }}
             className={buttonClass}
           >
@@ -495,7 +495,7 @@ export function SpaceCard({
             rel="noopener noreferrer"
             onClick={(e) => {
               e.stopPropagation();
-              track("booking_link_click", { space_id: space.id, name: space.name, kind: "booking" });
+              analytics.trackBooking("booking");
             }}
             className={buttonClass}
           >
