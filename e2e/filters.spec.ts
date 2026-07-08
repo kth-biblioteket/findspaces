@@ -62,7 +62,7 @@ test.describe("Filtering flow", () => {
     await freeOnly.check();
     await expect
       .poll(() => new URL(page.url()).searchParams.get("free"))
-      .toBe("1");
+      .toBe("true");
   });
 
   test("switching intent away from Grupprum clears group size & free-only", async ({ page }) => {
