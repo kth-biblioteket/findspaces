@@ -64,7 +64,7 @@ const spacesQueryOptions = queryOptions({
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Hitta studieplats demo" },
+      { title: "Hitta studieplats – KTH Biblioteket" },
       { name: "description", content: "Hitta rätt studieplats på KTH Biblioteket." },
     ],
   }),
