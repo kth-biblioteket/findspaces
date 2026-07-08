@@ -76,10 +76,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Hitta studieplats DEMO" },
+      { title: "Hitta studieplats – KTH Biblioteket" },
       { name: "description", content: "Hitta och boka studieplatser på KTH Biblioteket." },
-      { property: "og:title", content: "Hitta studieplats DEMO" },
-      { name: "twitter:title", content: "Hitta studieplats DEMO" },
+      { property: "og:title", content: "Hitta studieplats – KTH Biblioteket" },
+      { name: "twitter:title", content: "Hitta studieplats – KTH Biblioteket" },
       { property: "og:description", content: "Hitta och boka studieplatser på KTH Biblioteket." },
       { name: "twitter:description", content: "Hitta och boka studieplatser på KTH Biblioteket." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/82dfa793-2d3b-4ad3-8059-47e9136ac835/id-preview-3174cfc2--bd232791-3127-4a42-9cbf-7f94edef314e.lovable.app-1780037611269.png" },
