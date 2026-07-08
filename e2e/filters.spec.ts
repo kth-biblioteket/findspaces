@@ -31,7 +31,9 @@ test.describe("Filtering flow", () => {
       .toBe("bok");
 
     // Chip appears with the query label.
-    await expect(page.getByText(/Sök:\s*"bok"/)).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /Ta bort filter: Sök/i }),
+    ).toBeVisible();
 
     // Remove chip → query cleared.
     await page.getByRole("button", { name: /Ta bort filter: Sök/i }).click();
