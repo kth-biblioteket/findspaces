@@ -31,7 +31,9 @@ test.describe("Filtering flow", () => {
       .toBe("bok");
 
     // Chip appears with the query label.
-    await expect(page.getByText(/Sök:\s*"bok"/)).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /Ta bort filter: Sök/i }),
+    ).toBeVisible();
 
     // Remove chip → query cleared.
     await page.getByRole("button", { name: /Ta bort filter: Sök/i }).click();
@@ -62,7 +64,7 @@ test.describe("Filtering flow", () => {
     await freeOnly.check();
     await expect
       .poll(() => new URL(page.url()).searchParams.get("free"))
-      .toBe("1");
+      .toBe("true");
   });
 
   test("switching intent away from Grupprum clears group size & free-only", async ({ page }) => {
