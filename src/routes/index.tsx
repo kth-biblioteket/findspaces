@@ -29,7 +29,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/co
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import type { FilterCategoryRow } from "@/lib/spaces";
 
-type SortKey = "recommended" | "seats_desc" | "floor_asc" | "free_now";
+type SortKey = "recommended" | "seats_desc" | "floor_asc" | "floor_desc" | "name_asc" | "name_desc" | "free_now";
 
 type SearchParams = {
   q: string;
@@ -62,10 +62,8 @@ function validateSearch(input: Record<string, unknown>): SearchParams {
     }
   }
   const sortRaw = input.sort;
-  const sort: SortKey | undefined =
-    sortRaw === "seats_desc" || sortRaw === "floor_asc" || sortRaw === "free_now" || sortRaw === "recommended"
-      ? sortRaw
-      : undefined;
+  const validSorts: SortKey[] = ["recommended", "seats_desc", "floor_asc", "floor_desc", "name_asc", "name_desc", "free_now"];
+  const sort: SortKey | undefined = validSorts.includes(sortRaw as SortKey) ? (sortRaw as SortKey) : undefined;
   return { q, kind, mode, size, free, highlight, cats, sort };
 }
 
@@ -218,14 +216,33 @@ function SpaceFinder() {
 
   const sortedFiltered = useMemo(() => {
     const arr = [...filtered];
+    const collator = new Intl.Collator(lang, { sensitivity: "base", numeric: true });
+    const floorNum = (s: Space): number => {
+      const m = s.floor?.match(/-?\d+/);
+      return m ? parseInt(m[0], 10) : Number.NaN;
+    };
     if (effectiveSort === "seats_desc") {
       arr.sort((a, b) => (b.capacity ?? -1) - (a.capacity ?? -1));
     } else if (effectiveSort === "floor_asc") {
-      const floorNum = (s: Space): number => {
-        const m = s.floor?.match(/-?\d+/);
-        return m ? parseInt(m[0], 10) : Number.POSITIVE_INFINITY;
-      };
-      arr.sort((a, b) => floorNum(a) - floorNum(b));
+      arr.sort((a, b) => {
+        const av = floorNum(a); const bv = floorNum(b);
+        if (isNaN(av) && isNaN(bv)) return 0;
+        if (isNaN(av)) return 1;
+        if (isNaN(bv)) return -1;
+        return av - bv;
+      });
+    } else if (effectiveSort === "floor_desc") {
+      arr.sort((a, b) => {
+        const av = floorNum(a); const bv = floorNum(b);
+        if (isNaN(av) && isNaN(bv)) return 0;
+        if (isNaN(av)) return 1;
+        if (isNaN(bv)) return -1;
+        return bv - av;
+      });
+    } else if (effectiveSort === "name_asc") {
+      arr.sort((a, b) => collator.compare(a.name ?? "", b.name ?? ""));
+    } else if (effectiveSort === "name_desc") {
+      arr.sort((a, b) => collator.compare(b.name ?? "", a.name ?? ""));
     } else if (effectiveSort === "free_now" && canSortFree) {
       const rooms = availability?.rooms ?? {};
       const rank = (s: Space) => {
@@ -241,7 +258,7 @@ function SpaceFinder() {
       arr.sort((a, b) => rank(a) - rank(b));
     }
     return arr;
-  }, [filtered, effectiveSort, canSortFree, availability]);
+  }, [filtered, effectiveSort, canSortFree, availability, lang]);
 
 
 
@@ -353,21 +370,26 @@ function SpaceFinder() {
                   : ""}
             </span>
             {!isLoading && (
-              <div className="flex items-center gap-2 ml-auto">
-                <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
-                <label htmlFor="sort-select" className="text-xs text-muted-foreground">
-                  {t("results.sort_label")}
-                </label>
+              <div className="flex items-center ml-auto">
                 <Select
                   value={effectiveSort === "recommended" ? "" : effectiveSort}
                   onValueChange={(v) => setSort((v || "recommended") as SortKey)}
                 >
-                  <SelectTrigger id="sort-select" className="h-8 w-auto min-w-[160px] text-xs">
+                  <SelectTrigger
+                    id="sort-select"
+                    aria-label={t("results.sort_label")}
+                    className="h-auto w-auto gap-1.5 border-0 bg-transparent shadow-none px-1 py-0 text-xs text-muted-foreground hover:text-foreground focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 [&>svg]:opacity-100"
+                  >
+                    <ArrowUpDown className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span className="mr-1">{t("results.sort_label")}:</span>
                     <SelectValue placeholder={t("results.sort_placeholder")} />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent align="end">
+                    <SelectItem value="name_asc">{t("results.sort_name_asc")}</SelectItem>
+                    <SelectItem value="name_desc">{t("results.sort_name_desc")}</SelectItem>
                     <SelectItem value="seats_desc">{t("results.sort_seats_desc")}</SelectItem>
                     <SelectItem value="floor_asc">{t("results.sort_floor_asc")}</SelectItem>
+                    <SelectItem value="floor_desc">{t("results.sort_floor_desc")}</SelectItem>
                     {canSortFree && (
                       <SelectItem value="free_now">{t("results.sort_free_now")}</SelectItem>
                     )}

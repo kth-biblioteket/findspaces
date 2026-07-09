@@ -45,6 +45,9 @@
     "sort_placeholder": "Standard",
     "sort_seats_desc": "Flest platser först",
     "sort_floor_asc": "Våningsplan (lägst först)",
+    "sort_floor_desc": "Våningsplan (högst först)",
+    "sort_name_asc": "Namn (A–Ö)",
+    "sort_name_desc": "Namn (Ö–A)",
     "sort_free_now": "Lediga just nu",
     "sort_reset": "Återställ sortering"
   },
