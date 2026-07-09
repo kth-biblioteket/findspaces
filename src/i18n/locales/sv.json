@@ -58,6 +58,10 @@
   "card": {
     "capacity_sr": "Kapacitet:",
     "capacity_seats": "platser",
+    "study_seats_sr": "Antal studieplatser:",
+    "study_seats_label": "studieplatser",
+    "informal_seats_sr": "Antal nedslagsplatser:",
+    "informal_seats_label": "nedslagsplatser",
     "computers_sr": "Antal datorplatser:",
     "computers_label": "datorplatser",
     "notice_sr": "Viktigt meddelande:",
