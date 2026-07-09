@@ -364,15 +364,20 @@ function SpaceFinder() {
             aria-live="polite"
             aria-atomic="true"
           >
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs text-muted-foreground lg:hidden">
               {isLoading
                 ? t("results.loading")
                 : hasActiveFilter
                   ? t("results.count_filtered", { filtered: sortedFiltered.length, total: spaces.length })
-                  : ""}
+                  : t("results.count_total", { count: sortedFiltered.length })}
             </span>
             {!isLoading && (
-              <div className="flex items-center ml-auto">
+              <div className="flex items-center gap-3 ml-auto">
+                <span className="hidden lg:inline text-xs text-muted-foreground">
+                  {hasActiveFilter
+                    ? t("results.count_filtered", { filtered: sortedFiltered.length, total: spaces.length })
+                    : t("results.count_total", { count: sortedFiltered.length })}
+                </span>
                 <Select
                   value={effectiveSort === "recommended" ? "" : effectiveSort}
                   onValueChange={(v) => setSort((v || "recommended") as SortKey)}
