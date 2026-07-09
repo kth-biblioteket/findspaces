@@ -219,7 +219,7 @@ function SpaceFinder() {
   const sortedFiltered = useMemo(() => {
     const arr = [...filtered];
     if (effectiveSort === "seats_desc") {
-      arr.sort((a, b) => (b.seats ?? -1) - (a.seats ?? -1));
+      arr.sort((a, b) => (b.capacity ?? -1) - (a.capacity ?? -1));
     } else if (effectiveSort === "free_now" && canSortFree) {
       const rooms = availability?.rooms ?? {};
       const rank = (s: Space) => {
