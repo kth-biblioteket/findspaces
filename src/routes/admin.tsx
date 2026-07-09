@@ -185,6 +185,7 @@ function spaceToForm(s: Space): FormState {
     name_en: s.name_en ?? "",
     description: s.description,
     description_en: s.description_en ?? "",
+    description_inline: s.description_inline ?? false,
     floor: s.floor ?? "",
     floor_en: s.floor_en ?? "",
     located_in: s.located_in ?? "",
