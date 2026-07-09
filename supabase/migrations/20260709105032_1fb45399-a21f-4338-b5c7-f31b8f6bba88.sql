@@ -1,0 +1,1 @@
+ALTER TABLE public.spaces ADD COLUMN IF NOT EXISTS informal_seat_count integer;

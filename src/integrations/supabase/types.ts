@@ -166,6 +166,7 @@ export type Database = {
           images: string[]
           info: string | null
           info_en: string | null
+          informal_seat_count: number | null
           intent: string[]
           located_in: string | null
           located_in_en: string | null
@@ -213,6 +214,7 @@ export type Database = {
           images?: string[]
           info?: string | null
           info_en?: string | null
+          informal_seat_count?: number | null
           intent?: string[]
           located_in?: string | null
           located_in_en?: string | null
@@ -260,6 +262,7 @@ export type Database = {
           images?: string[]
           info?: string | null
           info_en?: string | null
+          informal_seat_count?: number | null
           intent?: string[]
           located_in?: string | null
           located_in_en?: string | null
