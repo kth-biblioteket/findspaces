@@ -511,26 +511,53 @@ function AdminPage() {
 
 
 
-  const handleUploadImage = async (file: File) => {
-    if (form.images.length >= MAX_IMAGES) {
+  const [uploadBusy, setUploadBusy] = useState(false);
+
+  const handleUploadFiles = async (fileList: FileList | File[]) => {
+    const files = Array.from(fileList).filter((f) => f.type.startsWith("image/"));
+    if (files.length === 0) {
+      toast.error("Ingen bildfil hittades");
+      return;
+    }
+    const remaining = MAX_IMAGES - form.images.length;
+    if (remaining <= 0) {
       toast.error(`Max ${MAX_IMAGES} bilder.`);
       return;
     }
-    const ext = file.name.split(".").pop();
-    const path = `${crypto.randomUUID()}.${ext}`;
-    const { error } = await supabase.storage.from("space-images").upload(path, file);
-    if (error) { toast.error(error.message); return; }
-    const { data } = supabase.storage.from("space-images").getPublicUrl(path);
-    const nowIso = new Date().toISOString();
-    setForm((f) => ({
-      ...f,
-      images: [...f.images, data.publicUrl],
-      image_alts: [...f.image_alts, ""],
-      image_alts_en: [...f.image_alts_en, ""],
-    }));
-    setImageDates((prev) => ({ ...prev, [data.publicUrl]: nowIso }));
-    toast.success("Bild uppladdad");
+    const batch = files.slice(0, remaining);
+    if (files.length > remaining) {
+      toast.warning(`Endast ${remaining} av ${files.length} bilder laddades upp (max ${MAX_IMAGES}).`);
+    }
+
+    setUploadBusy(true);
+    try {
+      for (const file of batch) {
+        try {
+          const processed = await processImageToWebp(file);
+          const path = `${crypto.randomUUID()}.webp`;
+          const { error } = await supabase.storage
+            .from("space-images")
+            .upload(path, processed.file, { contentType: "image/webp" });
+          if (error) { toast.error(`${file.name}: ${error.message}`); continue; }
+          const { data } = supabase.storage.from("space-images").getPublicUrl(path);
+          const nowIso = new Date().toISOString();
+          setForm((f) => ({
+            ...f,
+            images: [...f.images, data.publicUrl],
+            image_alts: [...f.image_alts, ""],
+            image_alts_en: [...f.image_alts_en, ""],
+          }));
+          setImageDates((prev) => ({ ...prev, [data.publicUrl]: nowIso }));
+        } catch (e: any) {
+          toast.error(`${file.name}: ${e?.message ?? "kunde inte bearbetas"}`);
+        }
+      }
+      toast.success(batch.length === 1 ? "Bild uppladdad" : `${batch.length} bilder uppladdade`);
+    } finally {
+      setUploadBusy(false);
+    }
   };
+
 
   const reorderImagesByIndex = (oldIdx: number, newIdx: number) => {
     setForm((f) => {
