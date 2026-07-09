@@ -1231,7 +1231,15 @@ function AdminPage() {
               </div>
             )}
 
+            <SelectByLokaltyp
+              spaces={spaces}
+              options={byKey["lokaltyp"] ?? []}
+              selectedIds={selectedIds}
+              setSelectedIds={setSelectedIds}
+            />
+
             <div className="bg-card rounded-2xl border border-border overflow-hidden">
+
               {isLoading ? (
                 <div className="p-8 text-center text-muted-foreground">Laddar...</div>
               ) : (
