@@ -179,6 +179,7 @@ export type Database = {
           show_occupancy: boolean
           slug: string | null
           sort_order: number
+          space_kind: string
           tags: Json
           updated_at: string
         }
@@ -223,6 +224,7 @@ export type Database = {
           show_occupancy?: boolean
           slug?: string | null
           sort_order?: number
+          space_kind?: string
           tags?: Json
           updated_at?: string
         }
@@ -267,6 +269,7 @@ export type Database = {
           show_occupancy?: boolean
           slug?: string | null
           sort_order?: number
+          space_kind?: string
           tags?: Json
           updated_at?: string
         }
