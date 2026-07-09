@@ -58,6 +58,10 @@
   "card": {
     "capacity_sr": "Capacity:",
     "capacity_seats": "seats",
+    "study_seats_sr": "Number of study seats:",
+    "study_seats_label": "study seats",
+    "informal_seats_sr": "Number of informal seats:",
+    "informal_seats_label": "informal seats",
     "computers_sr": "Number of computer workstations:",
     "computers_label": "computer workstations",
     "notice_sr": "Important notice:",
