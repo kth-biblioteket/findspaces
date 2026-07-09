@@ -45,6 +45,9 @@
     "sort_placeholder": "Default",
     "sort_seats_desc": "Most seats first",
     "sort_floor_asc": "Floor (lowest first)",
+    "sort_floor_desc": "Floor (highest first)",
+    "sort_name_asc": "Name (A–Z)",
+    "sort_name_desc": "Name (Z–A)",
     "sort_free_now": "Free right now",
     "sort_reset": "Reset sort"
   },
