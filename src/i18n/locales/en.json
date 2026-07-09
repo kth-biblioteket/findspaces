@@ -33,6 +33,7 @@
 
   "results": {
     "heading": "Study spaces",
+    "heading_service": "Services & facilities",
     "loading": "Loading...",
     "count_filtered": "{{filtered}} of {{total}} matching your filters",
     "count_total_one": "{{count}} space",
