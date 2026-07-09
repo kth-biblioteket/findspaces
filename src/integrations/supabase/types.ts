@@ -152,6 +152,7 @@ export type Database = {
           created_at: string
           description: string
           description_en: string | null
+          description_inline: boolean
           equipment: string[]
           facilities: string[]
           floor: string | null
@@ -198,6 +199,7 @@ export type Database = {
           created_at?: string
           description?: string
           description_en?: string | null
+          description_inline?: boolean
           equipment?: string[]
           facilities?: string[]
           floor?: string | null
@@ -244,6 +246,7 @@ export type Database = {
           created_at?: string
           description?: string
           description_en?: string | null
+          description_inline?: boolean
           equipment?: string[]
           facilities?: string[]
           floor?: string | null

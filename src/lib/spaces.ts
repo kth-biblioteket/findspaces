@@ -12,6 +12,7 @@ export type Space = {
   category: string;
   description: string;
   description_en: string | null;
+  description_inline: boolean;
   intent: string[];
   noise: string[];
   equipment: string[];

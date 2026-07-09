@@ -110,6 +110,7 @@ type FormState = {
   name_en: string;
   description: string;
   description_en: string;
+  description_inline: boolean;
   floor: string;
   floor_en: string;
   located_in: string;
@@ -149,6 +150,7 @@ const emptyForm: FormState = {
   slug: "",
   name: "", name_en: "",
   description: "", description_en: "",
+  description_inline: false,
   floor: "", floor_en: "",
   located_in: "", located_in_en: "",
   capacity: "",
@@ -183,6 +185,7 @@ function spaceToForm(s: Space): FormState {
     name_en: s.name_en ?? "",
     description: s.description,
     description_en: s.description_en ?? "",
+    description_inline: s.description_inline ?? false,
     floor: s.floor ?? "",
     floor_en: s.floor_en ?? "",
     located_in: s.located_in ?? "",
@@ -353,6 +356,7 @@ function AdminPage() {
         name_en: f.name_en.trim() || null,
         description: f.description,
         description_en: f.description_en.trim() || null,
+        description_inline: f.description_inline,
         floor: f.floor?.trim() ? f.floor.trim() : null,
         floor_en: f.floor_en?.trim() ? f.floor_en.trim() : null,
         located_in: f.located_in?.trim() ? f.located_in.trim() : null,
@@ -920,6 +924,21 @@ function AdminPage() {
                             className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
                           />
                         </Field>
+
+                        <label className="flex items-start gap-2 text-sm cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={form.description_inline}
+                            onChange={(e) => setForm({ ...form, description_inline: e.target.checked })}
+                            className="mt-0.5"
+                          />
+                          <span>
+                            <span className="font-medium">Visa beskrivningen direkt på kortet</span>
+                            <span className="block text-xs text-muted-foreground">
+                              När ikryssad visas beskrivningen alltid på kortet istället för att gömmas bakom en i-ikon.
+                            </span>
+                          </span>
+                        </label>
 
                         <Field label="Tillfällig viktig information (gul ruta) (SV)">
                           <textarea
@@ -2442,6 +2461,7 @@ const DUMMY_SPACE: Space = {
   info: "Exempel på informationsruta – t.ex. öppettider eller praktisk info.",
   info_en: null,
   show_capacity_publicly: true,
+  description_inline: false,
 
   show_occupancy: true,
   countmatters_sensor_id: null,
