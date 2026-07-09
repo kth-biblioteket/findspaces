@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Check, User, Users, DoorClosed, ChevronDown, BookOpen, Wrench } from "lucide-react";
+import { Search, Check, User, Users, DoorClosed, ChevronDown, BookOpen, Wrench, Palette } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PillToggle } from "./PillToggle";
 import { OptionIcon } from "./OptionIcon";
