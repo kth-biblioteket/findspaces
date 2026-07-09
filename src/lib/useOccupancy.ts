@@ -13,7 +13,7 @@ export type Occupancy = {
   isLive: boolean;
 };
 
-function useRealtimeOccupancy() {
+export function useRealtimeOccupancy() {
   return useQuery({
     queryKey: ["occupancy-realtime"],
     queryFn: () => getRealtimeOccupancy(),
