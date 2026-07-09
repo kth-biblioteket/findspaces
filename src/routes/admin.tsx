@@ -1931,6 +1931,7 @@ function SortableSpaceRow({
       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.floor ?? "—"}</td>
       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.lokaltyp?.join(", ") || "—"}</td>
       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.noise}</td>
+      <td className="px-4 py-3"><ContentBadges space={space} /></td>
       <td className="px-4 py-3 text-right">
         <div className="inline-flex gap-1">
           <button
