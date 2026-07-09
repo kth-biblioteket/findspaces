@@ -216,14 +216,33 @@ function SpaceFinder() {
 
   const sortedFiltered = useMemo(() => {
     const arr = [...filtered];
+    const collator = new Intl.Collator(lang, { sensitivity: "base", numeric: true });
+    const floorNum = (s: Space): number => {
+      const m = s.floor?.match(/-?\d+/);
+      return m ? parseInt(m[0], 10) : Number.NaN;
+    };
     if (effectiveSort === "seats_desc") {
       arr.sort((a, b) => (b.capacity ?? -1) - (a.capacity ?? -1));
     } else if (effectiveSort === "floor_asc") {
-      const floorNum = (s: Space): number => {
-        const m = s.floor?.match(/-?\d+/);
-        return m ? parseInt(m[0], 10) : Number.POSITIVE_INFINITY;
-      };
-      arr.sort((a, b) => floorNum(a) - floorNum(b));
+      arr.sort((a, b) => {
+        const av = floorNum(a); const bv = floorNum(b);
+        if (isNaN(av) && isNaN(bv)) return 0;
+        if (isNaN(av)) return 1;
+        if (isNaN(bv)) return -1;
+        return av - bv;
+      });
+    } else if (effectiveSort === "floor_desc") {
+      arr.sort((a, b) => {
+        const av = floorNum(a); const bv = floorNum(b);
+        if (isNaN(av) && isNaN(bv)) return 0;
+        if (isNaN(av)) return 1;
+        if (isNaN(bv)) return -1;
+        return bv - av;
+      });
+    } else if (effectiveSort === "name_asc") {
+      arr.sort((a, b) => collator.compare(a.name ?? "", b.name ?? ""));
+    } else if (effectiveSort === "name_desc") {
+      arr.sort((a, b) => collator.compare(b.name ?? "", a.name ?? ""));
     } else if (effectiveSort === "free_now" && canSortFree) {
       const rooms = availability?.rooms ?? {};
       const rank = (s: Space) => {
