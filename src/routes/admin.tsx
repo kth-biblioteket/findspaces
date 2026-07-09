@@ -2747,6 +2747,12 @@ function OccupancySettingsTab() {
         </p>
       </div>
 
+      <OccupancyDiagnosticsPanel
+        globalEnabled={enabled}
+        schedule={schedule}
+      />
+
+
       <div className="rounded-lg border border-border bg-card p-4 space-y-3">
         <label className="flex items-start gap-3 cursor-pointer">
           <input
