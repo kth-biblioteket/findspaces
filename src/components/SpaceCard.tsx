@@ -1,8 +1,9 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import DOMPurify from "dompurify";
-import { MapPin, Calendar, Info, Users, User, AlertTriangle, ChevronDown, Monitor } from "lucide-react";
+import { MapPin, Calendar, Info, Users, User, AlertTriangle, ChevronDown, Monitor, Armchair } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ChairIcon } from "./icons/ChairIcon";
+import { TableChairIcon } from "./icons/TableChairIcon";
 
 import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
