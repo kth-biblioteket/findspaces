@@ -2442,6 +2442,7 @@ const DUMMY_SPACE: Space = {
   info: "Exempel på informationsruta – t.ex. öppettider eller praktisk info.",
   info_en: null,
   show_capacity_publicly: true,
+  description_inline: false,
 
   show_occupancy: true,
   countmatters_sensor_id: null,
