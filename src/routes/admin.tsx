@@ -1128,32 +1128,14 @@ function AdminPage() {
                           </DndContext>
                         )}
 
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <label className={cn(
-                            "inline-flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2 text-sm cursor-pointer hover:bg-accent",
-                            form.images.length >= MAX_IMAGES && "opacity-50 cursor-not-allowed"
-                          )}>
-                            <Upload className="h-4 w-4" />
-                            <span>Ladda upp bild</span>
-                            <input
-                              type="file" accept="image/webp,.webp" className="hidden"
-                              disabled={form.images.length >= MAX_IMAGES}
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) handleUploadImage(file);
-                                e.target.value = "";
-                              }}
-                            />
-                          </label>
-                          <p className="text-xs text-muted-foreground max-w-sm">
-                            <strong>Format:</strong> WebP (.webp). <strong>Storlek:</strong> 1600×1067 px
-                            i <strong>3:2-format</strong> (liggande). <strong>Max filstorlek:</strong> 250 kB.
-                            På desktop visas bilden större och sträcks ut i höjd vid sidan av texten,
-                            så håll motivet väl centrerat — kanterna kan beskäras lätt i topp/botten beroende
-                            på hur mycket text kortet innehåller. Upp till {MAX_IMAGES} bilder per lokal.
-                            Konvertera JPG/PNG till WebP med t.ex. <a href="https://squoosh.app" target="_blank" rel="noopener noreferrer" className="underline">squoosh.app</a> innan uppladdning.
-                          </p>
-                        </div>
+                        <ImageDropzone
+                          disabled={form.images.length >= MAX_IMAGES || uploadBusy}
+                          busy={uploadBusy}
+                          remaining={MAX_IMAGES - form.images.length}
+                          maxImages={MAX_IMAGES}
+                          onFiles={handleUploadFiles}
+                        />
+
                       </div>
                     </details>
 
