@@ -194,6 +194,7 @@ function spaceToForm(s: Space): FormState {
     located_in_en: s.located_in_en ?? "",
     capacity: s.capacity != null ? String(s.capacity) : "",
     computer_count: s.computer_count != null ? String(s.computer_count) : "",
+    informal_seat_count: s.informal_seat_count != null ? String(s.informal_seat_count) : "",
     show_capacity_publicly: s.show_capacity_publicly ?? false,
     show_occupancy: s.show_occupancy ?? true,
     countmatters_sensor_id: s.countmatters_sensor_id ?? "",
