@@ -24,6 +24,7 @@ import type { FilterCategoryRow } from "@/lib/spaces";
 
 type SearchParams = {
   q: string;
+  kind?: "service";
   mode?: "enskilt" | "tillsammans" | "grupprum";
   size?: "2-4" | "5+";
   free?: boolean;
@@ -33,6 +34,7 @@ type SearchParams = {
 
 function validateSearch(input: Record<string, unknown>): SearchParams {
   const q = typeof input.q === "string" ? input.q : "";
+  const kind = input.kind === "service" ? "service" : undefined;
   const modeRaw = input.mode;
   const mode =
     modeRaw === "enskilt" || modeRaw === "tillsammans" || modeRaw === "grupprum"
@@ -48,7 +50,7 @@ function validateSearch(input: Record<string, unknown>): SearchParams {
       if (Array.isArray(v)) cats[k] = v.filter((x): x is string => typeof x === "string");
     }
   }
-  return { q, mode, size, free, highlight, cats };
+  return { q, kind, mode, size, free, highlight, cats };
 }
 
 const spacesQueryOptions = queryOptions({
@@ -79,11 +81,13 @@ export const Route = createFileRoute("/")({
 });
 
 function searchToFilters(s: SearchParams): Filters {
+  const kind = s.kind === "service" ? "service" : "study";
   return {
     query: s.q ?? "",
-    workMode: s.mode ?? null,
-    groupSize: s.mode === "grupprum" ? (s.size ?? null) : null,
-    freeOnly: s.mode === "grupprum" ? Boolean(s.free) : false,
+    spaceKind: kind,
+    workMode: kind === "study" ? (s.mode ?? null) : null,
+    groupSize: kind === "study" && s.mode === "grupprum" ? (s.size ?? null) : null,
+    freeOnly: kind === "study" && s.mode === "grupprum" ? Boolean(s.free) : false,
     byCategory: s.cats ?? {},
   };
 }
@@ -93,11 +97,13 @@ function filtersToSearch(f: Filters, highlight?: string) {
   for (const [k, v] of Object.entries(f.byCategory)) {
     if (v && v.length > 0) cats[k] = v;
   }
+  const isService = f.spaceKind === "service";
   return {
     q: f.query.trim() ? f.query : undefined,
-    mode: f.workMode ?? undefined,
-    size: f.workMode === "grupprum" && f.groupSize ? f.groupSize : undefined,
-    free: f.workMode === "grupprum" && f.freeOnly ? true : undefined,
+    kind: isService ? "service" : undefined,
+    mode: isService ? undefined : (f.workMode ?? undefined),
+    size: !isService && f.workMode === "grupprum" && f.groupSize ? f.groupSize : undefined,
+    free: !isService && f.workMode === "grupprum" && f.freeOnly ? true : undefined,
     highlight,
     cats: Object.keys(cats).length > 0 ? cats : undefined,
   };
