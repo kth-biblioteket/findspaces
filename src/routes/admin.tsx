@@ -925,6 +925,21 @@ function AdminPage() {
                           />
                         </Field>
 
+                        <label className="flex items-start gap-2 text-sm cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={form.description_inline}
+                            onChange={(e) => setForm({ ...form, description_inline: e.target.checked })}
+                            className="mt-0.5"
+                          />
+                          <span>
+                            <span className="font-medium">Visa beskrivningen direkt på kortet</span>
+                            <span className="block text-xs text-muted-foreground">
+                              När ikryssad visas beskrivningen alltid på kortet istället för att gömmas bakom en i-ikon.
+                            </span>
+                          </span>
+                        </label>
+
                         <Field label="Tillfällig viktig information (gul ruta) (SV)">
                           <textarea
                             rows={2}
