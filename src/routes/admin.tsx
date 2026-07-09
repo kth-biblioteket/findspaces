@@ -662,7 +662,8 @@ function AdminPage() {
                       <div className="flex flex-wrap gap-2">
                         {([
                           { key: "study", label: "Studieplats" },
-                          { key: "service", label: "Service & faciliteter (skrivare, skåp, makerspace …)" },
+                          { key: "service", label: "Service & faciliteter (skrivare, skåp …)" },
+                          { key: "creative", label: "Skapande & paus (makerspace, virkning …)" },
                         ] as const).map((k) => {
                           const active = form.space_kind === k.key;
                           return (
