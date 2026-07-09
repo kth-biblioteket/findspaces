@@ -201,10 +201,6 @@ function SpaceFinder() {
       (filters.workMode === "grupprum" && effectiveSort === "free_now"),
   });
 
-  const sortedFiltered = useMemo(() => {
-    // filtered is computed below; placeholder replaced via later useMemo
-    return [] as Space[];
-
   const filtered = useMemo(() => {
     const kindMatched = spaces.filter((s) => (s.space_kind ?? "study") === filters.spaceKind);
     const base = kindMatched.filter((s) => matchesSpace(s, filters, categories));
@@ -219,6 +215,28 @@ function SpaceFinder() {
     }
     return base;
   }, [spaces, filters, categories, availability]);
+
+  const sortedFiltered = useMemo(() => {
+    const arr = [...filtered];
+    if (effectiveSort === "seats_desc") {
+      arr.sort((a, b) => (b.seats ?? -1) - (a.seats ?? -1));
+    } else if (effectiveSort === "free_now" && canSortFree) {
+      const rooms = availability?.rooms ?? {};
+      const rank = (s: Space) => {
+        const num = s.booking_room_number;
+        if (num == null) return 3;
+        const r = rooms[String(num)];
+        if (!r || r.disabled) return 3;
+        if (r.status === "free") return 0;
+        if (r.status === "moderate") return 1;
+        if (r.status === "busy") return 2;
+        return 3;
+      };
+      arr.sort((a, b) => rank(a) - rank(b));
+    }
+    return arr;
+  }, [filtered, effectiveSort, canSortFree, availability]);
+
 
 
   const { data: filterOptions = [] } = useFilterOptions();
