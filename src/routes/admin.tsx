@@ -352,6 +352,7 @@ function AdminPage() {
     mutationFn: async (f: FormState) => {
       const capNum = f.capacity.trim() ? parseInt(f.capacity, 10) : NaN;
       const compNum = f.computer_count.trim() ? parseInt(f.computer_count, 10) : NaN;
+      const informalNum = f.informal_seat_count.trim() ? parseInt(f.informal_seat_count, 10) : NaN;
       const payload: any = {
         space_kind: f.space_kind,
         slug: f.slug.trim() ? f.slug.trim().toLowerCase() : null,
@@ -366,6 +367,7 @@ function AdminPage() {
         located_in_en: f.located_in_en?.trim() ? f.located_in_en.trim() : null,
         capacity: Number.isFinite(capNum) ? capNum : null,
         computer_count: Number.isFinite(compNum) ? compNum : null,
+        informal_seat_count: Number.isFinite(informalNum) ? informalNum : null,
         show_capacity_publicly: f.show_capacity_publicly,
         show_occupancy: f.show_occupancy,
         countmatters_sensor_id: f.countmatters_sensor_id.trim() || null,
