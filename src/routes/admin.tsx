@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useId, isValidElement, cloneElement, 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus, Pencil, Trash2, ArrowLeft, Upload, X, Settings2, GripVertical,
-  ChevronDown,
+  ChevronDown, AlertTriangle, Info, MapPin, CalendarClock, Users, Zap, ImageIcon,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -1196,6 +1196,7 @@ function AdminPage() {
                         <th className="px-4 py-3 font-semibold hidden md:table-cell">Våning</th>
                         <th className="px-4 py-3 font-semibold hidden md:table-cell">Lokaltyp</th>
                         <th className="px-4 py-3 font-semibold hidden md:table-cell">Ljudnivå</th>
+                        <th className="px-4 py-3 font-semibold">Innehåll</th>
                         <th className="px-4 py-3 font-semibold text-right">Åtgärder</th>
                       </tr>
                     </thead>
@@ -1885,6 +1886,74 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
+type ContentField = {
+  key: string;
+  label: string;
+  Icon: typeof Info;
+  sv: string | null | undefined;
+  en: string | null | undefined;
+};
+
+function ContentBadges({ space }: { space: Space }) {
+  const fields: ContentField[] = [
+    { key: "notice", label: "Tillfällig viktig information", Icon: AlertTriangle, sv: space.notice, en: space.notice_en },
+    { key: "info", label: "Information på kortet", Icon: Info, sv: space.info, en: space.info_en },
+    { key: "map", label: "Karta", Icon: MapPin, sv: space.map_url, en: space.map_url_en },
+    { key: "booking", label: "Bokningsschema", Icon: CalendarClock, sv: space.booking_url, en: space.booking_url_en },
+    { key: "group", label: "Boka grupprum", Icon: Users, sv: space.group_booking_url, en: space.group_booking_url_en },
+    { key: "book", label: "Boka nu", Icon: Zap, sv: space.book_now_url, en: space.book_now_url_en },
+  ];
+  const imgCount = space.images?.length ?? 0;
+  return (
+    <div className="flex flex-wrap gap-1.5 items-center">
+      {fields.map((f) => {
+        const hasSv = !!(f.sv && String(f.sv).trim());
+        const hasEn = !!(f.en && String(f.en).trim());
+        if (!hasSv && !hasEn) return null;
+        const both = hasSv && hasEn;
+        const svOnly = hasSv && !hasEn;
+        const enOnly = !hasSv && hasEn;
+        const title = both
+          ? `${f.label}: SV + EN`
+          : svOnly
+            ? `${f.label}: endast SV (visas även på engelska kortet)`
+            : `${f.label}: endast EN`;
+        const cls = both
+          ? "bg-primary/15 text-primary border-primary/30"
+          : svOnly
+            ? "bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-800"
+            : "bg-secondary text-foreground border-border";
+        return (
+          <span
+            key={f.key}
+            title={title}
+            aria-label={title}
+            className={cn(
+              "inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[11px] font-medium",
+              cls,
+            )}
+          >
+            <f.Icon className="h-3 w-3" aria-hidden="true" />
+            <span className="tabular-nums">
+              {both ? "SV·EN" : svOnly ? "SV" : "EN"}
+            </span>
+          </span>
+        );
+      })}
+      {imgCount > 0 && (
+        <span
+          title={`${imgCount} foto${imgCount === 1 ? "" : "n"} inlagda`}
+          aria-label={`${imgCount} foton inlagda`}
+          className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/15 text-primary px-1.5 py-0.5 text-[11px] font-medium"
+        >
+          <ImageIcon className="h-3 w-3" aria-hidden="true" />
+          <span className="tabular-nums">{imgCount}</span>
+        </span>
+      )}
+    </div>
+  );
+}
+
 function SortableSpaceRow({
   space, selected, onToggleSelected, onEdit, onDelete,
 }: {
@@ -1930,6 +1999,7 @@ function SortableSpaceRow({
       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.floor ?? "—"}</td>
       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.lokaltyp?.join(", ") || "—"}</td>
       <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.noise}</td>
+      <td className="px-4 py-3"><ContentBadges space={space} /></td>
       <td className="px-4 py-3 text-right">
         <div className="inline-flex gap-1">
           <button
