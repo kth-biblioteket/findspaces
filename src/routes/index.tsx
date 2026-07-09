@@ -334,19 +334,40 @@ function SpaceFinder() {
 
 
         <main id="main" tabIndex={-1} className="focus-visible:outline-none" aria-busy={isLoading}>
-          {(isLoading || hasActiveFilter) && (
-            <div
-              className="flex items-baseline justify-end mb-3"
-              aria-live="polite"
-              aria-atomic="true"
-            >
-              <span className="text-xs text-muted-foreground">
-                {isLoading
-                  ? t("results.loading")
-                  : t("results.count_filtered", { filtered: filtered.length, total: spaces.length })}
-              </span>
-            </div>
-          )}
+          <div
+            className="flex flex-wrap items-center justify-between gap-3 mb-3"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <span className="text-xs text-muted-foreground">
+              {isLoading
+                ? t("results.loading")
+                : hasActiveFilter
+                  ? t("results.count_filtered", { filtered: sortedFiltered.length, total: spaces.length })
+                  : ""}
+            </span>
+            {!isLoading && (
+              <div className="flex items-center gap-2 ml-auto">
+                <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+                <label htmlFor="sort-select" className="text-xs text-muted-foreground">
+                  {t("results.sort_label")}
+                </label>
+                <Select value={effectiveSort} onValueChange={(v) => setSort(v as SortKey)}>
+                  <SelectTrigger id="sort-select" className="h-8 w-auto min-w-[160px] text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="recommended">{t("results.sort_recommended")}</SelectItem>
+                    <SelectItem value="seats_desc">{t("results.sort_seats_desc")}</SelectItem>
+                    {canSortFree && (
+                      <SelectItem value="free_now">{t("results.sort_free_now")}</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+
 
           <ActiveFilterChips filters={filters} onChange={setFilters} />
 
