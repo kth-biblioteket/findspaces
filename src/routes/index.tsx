@@ -24,7 +24,7 @@ import type { FilterCategoryRow } from "@/lib/spaces";
 
 type SearchParams = {
   q: string;
-  kind?: "service";
+  kind?: "service" | "creative";
   mode?: "enskilt" | "tillsammans" | "grupprum";
   size?: "2-4" | "5+";
   free?: boolean;
@@ -34,7 +34,8 @@ type SearchParams = {
 
 function validateSearch(input: Record<string, unknown>): SearchParams {
   const q = typeof input.q === "string" ? input.q : "";
-  const kind = input.kind === "service" ? "service" : undefined;
+  const kind =
+    input.kind === "service" || input.kind === "creative" ? input.kind : undefined;
   const modeRaw = input.mode;
   const mode =
     modeRaw === "enskilt" || modeRaw === "tillsammans" || modeRaw === "grupprum"
