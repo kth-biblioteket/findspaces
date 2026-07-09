@@ -498,7 +498,8 @@ function MobileFilterSheet({
 
   const draftCount = useMemo(() => {
     const cats = categories ?? [];
-    const base = spaces.filter((s) => matchesSpace(s, draft, cats));
+    const kindMatched = spaces.filter((s) => (s.space_kind ?? "study") === draft.spaceKind);
+    const base = kindMatched.filter((s) => matchesSpace(s, draft, cats));
     if (draft.workMode === "grupprum" && draft.freeOnly) {
       const rooms = availability?.rooms ?? {};
       return base.filter((s) => {
