@@ -49,6 +49,8 @@
   "card": {
     "capacity_sr": "Capacity:",
     "capacity_seats": "seats",
+    "computers_sr": "Number of computers:",
+    "computers_label": "computers",
     "notice_sr": "Important notice:",
     "button_map": "Show on map",
     "button_group_booking": "Book group room",

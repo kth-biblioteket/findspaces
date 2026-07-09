@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import DOMPurify from "dompurify";
-import { MapPin, Calendar, Info, Users, User, AlertTriangle, ChevronDown } from "lucide-react";
+import { MapPin, Calendar, Info, Users, User, AlertTriangle, ChevronDown, Monitor } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ChairIcon } from "./icons/ChairIcon";
 
@@ -314,20 +314,35 @@ export function SpaceCard({
                   </div>
                 </div>
               )}
-              {showCapacity && (
-                <p className="inline-flex items-end gap-1.5 text-sm text-foreground">
-                  <span className="inline-flex w-4 justify-center">
-                    {capacityIconUrl ? (
-                      <img src={capacityIconUrl} alt="" className="h-4 w-4 object-contain" />
-                    ) : (
-                      <ChairIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                    )}
-                  </span>
-                  <span className="leading-none">
-                    <span className="sr-only">{t("card.capacity_sr")} </span>
-                    {space.capacity} {t("card.capacity_seats")}
-                  </span>
-                </p>
+              {(showCapacity || (space.computer_count ?? 0) > 0) && (
+                <div className="flex flex-wrap items-end gap-x-4 gap-y-1 text-sm text-foreground">
+                  {showCapacity && (
+                    <p className="inline-flex items-end gap-1.5">
+                      <span className="inline-flex w-4 justify-center">
+                        {capacityIconUrl ? (
+                          <img src={capacityIconUrl} alt="" className="h-4 w-4 object-contain" />
+                        ) : (
+                          <ChairIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                        )}
+                      </span>
+                      <span className="leading-none">
+                        <span className="sr-only">{t("card.capacity_sr")} </span>
+                        {space.capacity} {t("card.capacity_seats")}
+                      </span>
+                    </p>
+                  )}
+                  {(space.computer_count ?? 0) > 0 && (
+                    <p className="inline-flex items-end gap-1.5">
+                      <span className="inline-flex w-4 justify-center">
+                        <Monitor className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                      </span>
+                      <span className="leading-none">
+                        <span className="sr-only">{t("card.computers_sr")} </span>
+                        {space.computer_count} {t("card.computers_label")}
+                      </span>
+                    </p>
+                  )}
+                </div>
               )}
             </div>
 
