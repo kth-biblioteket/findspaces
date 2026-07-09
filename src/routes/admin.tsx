@@ -43,6 +43,7 @@ import { ChairIcon } from "@/components/icons/ChairIcon";
 import { AnalyticsTab } from "@/components/AnalyticsTab";
 import { Switch } from "@/components/ui/switch";
 import { useAnnouncementAdmin, useSaveAnnouncement } from "@/lib/useAnnouncement";
+import { processImageToWebp } from "@/lib/processImage";
 
 
 import { toast } from "sonner";
