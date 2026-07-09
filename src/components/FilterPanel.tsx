@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Search, Check, User, Users, DoorClosed, ChevronDown } from "lucide-react";
+import { Search, Check, User, Users, DoorClosed, ChevronDown, BookOpen, Wrench } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PillToggle } from "./PillToggle";
 import { OptionIcon } from "./OptionIcon";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import { useFilterOptions, groupOptionsByKey } from "@/lib/useFilterOptions";
 import { useFilterCategories } from "@/lib/useFilterCategories";
-import { type FilterOption, type FilterCategoryRow } from "@/lib/spaces";
+import { type FilterOption, type FilterCategoryRow, type SpaceKind } from "@/lib/spaces";
 import { pickLocalized, type Lang } from "@/i18n";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +15,7 @@ export type GroupSize = "2-4" | "5+" | null;
 
 export type Filters = {
   query: string;
+  spaceKind: SpaceKind;
   workMode: WorkMode;
   groupSize: GroupSize;
   freeOnly: boolean;
@@ -23,6 +24,7 @@ export type Filters = {
 
 export const emptyFilters: Filters = {
   query: "",
+  spaceKind: "study",
   workMode: null,
   groupSize: null,
   freeOnly: false,
