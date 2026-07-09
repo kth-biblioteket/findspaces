@@ -33,6 +33,7 @@
 
   "results": {
     "heading": "Studieplatser",
+    "heading_service": "Service & faciliteter",
     "loading": "Laddar...",
     "count_filtered": "{{filtered}} av {{total}} matchar dina filter",
     "count_total_one": "{{count}} lokal",
