@@ -356,6 +356,7 @@ function AdminPage() {
         name_en: f.name_en.trim() || null,
         description: f.description,
         description_en: f.description_en.trim() || null,
+        description_inline: f.description_inline,
         floor: f.floor?.trim() ? f.floor.trim() : null,
         floor_en: f.floor_en?.trim() ? f.floor_en.trim() : null,
         located_in: f.located_in?.trim() ? f.located_in.trim() : null,
