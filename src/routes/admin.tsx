@@ -2599,6 +2599,7 @@ const DUMMY_GROUP_ROOM: Space = {
   located_in: "Biblioteket",
   capacity: 6,
   computer_count: null,
+  informal_seat_count: null,
   notice: null,
   info: null,
   group_booking_url: "#",
