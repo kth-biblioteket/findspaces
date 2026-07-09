@@ -161,7 +161,8 @@ function SpaceFinder() {
   });
 
   const filtered = useMemo(() => {
-    const base = spaces.filter((s) => matchesSpace(s, filters, categories));
+    const kindMatched = spaces.filter((s) => (s.space_kind ?? "study") === filters.spaceKind);
+    const base = kindMatched.filter((s) => matchesSpace(s, filters, categories));
     if (filters.workMode === "grupprum" && filters.freeOnly) {
       const rooms = availability?.rooms ?? {};
       return base.filter((s) => {
