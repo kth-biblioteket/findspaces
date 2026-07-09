@@ -428,7 +428,7 @@ function SpaceFinder() {
           )}
           {!isLoading && (
             <div className="space-y-3 md:space-y-5">
-              {filtered.map((s, i) => (
+              {sortedFiltered.map((s, i) => (
                 <SpaceCard key={s.id} space={s} filters={filters} onFiltersChange={setFilters} onSpaceLink={handleSpaceLink} highlightId={search.highlight} highlightTick={highlightTick} spaces={spaces} priority={i < 2} />
               ))}
             </div>
