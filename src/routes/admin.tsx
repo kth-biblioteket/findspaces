@@ -62,7 +62,7 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-const MAX_IMAGES = 5;
+const MAX_IMAGES = 8;
 
 type BulkAction =
   | "set_floor"
