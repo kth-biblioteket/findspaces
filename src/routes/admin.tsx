@@ -150,6 +150,7 @@ const emptyForm: FormState = {
   slug: "",
   name: "", name_en: "",
   description: "", description_en: "",
+  description_inline: false,
   floor: "", floor_en: "",
   located_in: "", located_in_en: "",
   capacity: "",
