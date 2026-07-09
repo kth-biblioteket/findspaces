@@ -196,8 +196,14 @@ function SpaceFinder() {
     refetchInterval: 60_000,
     staleTime: 30_000,
     refetchOnWindowFocus: false,
-    enabled: filters.workMode === "grupprum" && filters.freeOnly,
+    enabled:
+      (filters.workMode === "grupprum" && filters.freeOnly) ||
+      (filters.workMode === "grupprum" && effectiveSort === "free_now"),
   });
+
+  const sortedFiltered = useMemo(() => {
+    // filtered is computed below; placeholder replaced via later useMemo
+    return [] as Space[];
 
   const filtered = useMemo(() => {
     const kindMatched = spaces.filter((s) => (s.space_kind ?? "study") === filters.spaceKind);
