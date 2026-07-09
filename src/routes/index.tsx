@@ -29,7 +29,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/co
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import type { FilterCategoryRow } from "@/lib/spaces";
 
-type SortKey = "recommended" | "seats_desc" | "free_now";
+type SortKey = "recommended" | "seats_desc" | "floor_asc" | "free_now";
 
 type SearchParams = {
   q: string;
@@ -63,7 +63,7 @@ function validateSearch(input: Record<string, unknown>): SearchParams {
   }
   const sortRaw = input.sort;
   const sort: SortKey | undefined =
-    sortRaw === "seats_desc" || sortRaw === "free_now" || sortRaw === "recommended"
+    sortRaw === "seats_desc" || sortRaw === "floor_asc" || sortRaw === "free_now" || sortRaw === "recommended"
       ? sortRaw
       : undefined;
   return { q, kind, mode, size, free, highlight, cats, sort };
@@ -220,6 +220,12 @@ function SpaceFinder() {
     const arr = [...filtered];
     if (effectiveSort === "seats_desc") {
       arr.sort((a, b) => (b.capacity ?? -1) - (a.capacity ?? -1));
+    } else if (effectiveSort === "floor_asc") {
+      const floorNum = (s: Space): number => {
+        const m = s.floor?.match(/-?\d+/);
+        return m ? parseInt(m[0], 10) : Number.POSITIVE_INFINITY;
+      };
+      arr.sort((a, b) => floorNum(a) - floorNum(b));
     } else if (effectiveSort === "free_now" && canSortFree) {
       const rooms = availability?.rooms ?? {};
       const rank = (s: Space) => {
@@ -352,15 +358,21 @@ function SpaceFinder() {
                 <label htmlFor="sort-select" className="text-xs text-muted-foreground">
                   {t("results.sort_label")}
                 </label>
-                <Select value={effectiveSort} onValueChange={(v) => setSort(v as SortKey)}>
+                <Select
+                  value={effectiveSort === "recommended" ? "" : effectiveSort}
+                  onValueChange={(v) => setSort((v || "recommended") as SortKey)}
+                >
                   <SelectTrigger id="sort-select" className="h-8 w-auto min-w-[160px] text-xs">
-                    <SelectValue />
+                    <SelectValue placeholder={t("results.sort_placeholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="recommended">{t("results.sort_recommended")}</SelectItem>
                     <SelectItem value="seats_desc">{t("results.sort_seats_desc")}</SelectItem>
+                    <SelectItem value="floor_asc">{t("results.sort_floor_asc")}</SelectItem>
                     {canSortFree && (
                       <SelectItem value="free_now">{t("results.sort_free_now")}</SelectItem>
+                    )}
+                    {effectiveSort !== "recommended" && (
+                      <SelectItem value="recommended">{t("results.sort_reset")}</SelectItem>
                     )}
                   </SelectContent>
                 </Select>
