@@ -102,6 +102,19 @@ export function FilterPanel({
   return (
     <div className="space-y-5">
       <div>
+        <label className="relative block">
+          <span className="sr-only">{t("filters.search_sr")}</span>
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+          <input
+            value={filters.query}
+            onChange={(e) => onChange({ ...filters, query: e.target.value })}
+            placeholder={t("filters.search_placeholder")}
+            className="w-full rounded-full border border-border bg-card pl-10 pr-4 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+          />
+        </label>
+      </div>
+
+      <div>
         <h3 className="text-sm font-semibold mb-3">{t("filters.mode_group_label")}</h3>
         <div className="flex flex-wrap gap-2">
           <PillToggle
@@ -123,19 +136,6 @@ export function FilterPanel({
             onClick={() => setSpaceKind("creative")}
           />
         </div>
-      </div>
-
-      <div>
-        <label className="relative block">
-          <span className="sr-only">{t("filters.search_sr")}</span>
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
-          <input
-            value={filters.query}
-            onChange={(e) => onChange({ ...filters, query: e.target.value })}
-            placeholder={t("filters.search_placeholder")}
-            className="w-full rounded-full border border-border bg-card pl-10 pr-4 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
-          />
-        </label>
       </div>
 
       {!isNonStudy && (
