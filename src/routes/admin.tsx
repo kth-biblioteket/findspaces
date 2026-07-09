@@ -141,6 +141,7 @@ type FormState = {
 };
 
 const emptyForm: FormState = {
+  space_kind: "study",
   slug: "",
   name: "", name_en: "",
   description: "", description_en: "",
