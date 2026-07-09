@@ -258,7 +258,7 @@ function SpaceFinder() {
       arr.sort((a, b) => rank(a) - rank(b));
     }
     return arr;
-  }, [filtered, effectiveSort, canSortFree, availability]);
+  }, [filtered, effectiveSort, canSortFree, availability, lang]);
 
 
 
