@@ -22,6 +22,8 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/co
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import type { FilterCategoryRow } from "@/lib/spaces";
 
+type SortKey = "recommended" | "seats_desc" | "free_now";
+
 type SearchParams = {
   q: string;
   kind?: "service" | "creative";
@@ -30,6 +32,7 @@ type SearchParams = {
   free?: boolean;
   highlight?: string;
   cats: Record<string, string[]>;
+  sort?: SortKey;
 };
 
 function validateSearch(input: Record<string, unknown>): SearchParams {
@@ -51,8 +54,14 @@ function validateSearch(input: Record<string, unknown>): SearchParams {
       if (Array.isArray(v)) cats[k] = v.filter((x): x is string => typeof x === "string");
     }
   }
-  return { q, kind, mode, size, free, highlight, cats };
+  const sortRaw = input.sort;
+  const sort: SortKey | undefined =
+    sortRaw === "seats_desc" || sortRaw === "free_now" || sortRaw === "recommended"
+      ? sortRaw
+      : undefined;
+  return { q, kind, mode, size, free, highlight, cats, sort };
 }
+
 
 const spacesQueryOptions = queryOptions({
   queryKey: ["spaces"],
