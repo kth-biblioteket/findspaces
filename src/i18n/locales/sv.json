@@ -42,9 +42,11 @@
     "remove_filter": "Ta bort {{label}}",
     "clear_all_filters": "Rensa alla filter",
     "sort_label": "Sortera",
-    "sort_recommended": "Rekommenderad",
+    "sort_placeholder": "Standard",
     "sort_seats_desc": "Flest platser först",
-    "sort_free_now": "Lediga just nu"
+    "sort_floor_asc": "Våningsplan (lägst först)",
+    "sort_free_now": "Lediga just nu",
+    "sort_reset": "Återställ sortering"
   },
   "chips": {
     "search_label": "Sök: \"{{query}}\"",

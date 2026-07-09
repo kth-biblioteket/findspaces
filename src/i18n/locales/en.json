@@ -42,9 +42,11 @@
     "remove_filter": "Remove {{label}}",
     "clear_all_filters": "Clear all filters",
     "sort_label": "Sort",
-    "sort_recommended": "Recommended",
+    "sort_placeholder": "Default",
     "sort_seats_desc": "Most seats first",
-    "sort_free_now": "Free right now"
+    "sort_floor_asc": "Floor (lowest first)",
+    "sort_free_now": "Free right now",
+    "sort_reset": "Reset sort"
   },
   "chips": {
     "search_label": "Search: \"{{query}}\"",
