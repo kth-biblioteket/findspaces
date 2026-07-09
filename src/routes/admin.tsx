@@ -2157,6 +2157,89 @@ function SortableImageRow({
 }
 
 
+function ImageDropzone({
+  disabled, busy, remaining, maxImages, onFiles,
+}: {
+  disabled: boolean;
+  busy: boolean;
+  remaining: number;
+  maxImages: number;
+  onFiles: (files: FileList | File[]) => void;
+}) {
+  const [dragOver, setDragOver] = useState(false);
+  const inputId = useId();
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setDragOver(false);
+    if (disabled) return;
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) onFiles(files);
+  };
+
+  return (
+    <div className="space-y-2">
+      <div
+        onDragOver={(e) => { e.preventDefault(); if (!disabled) setDragOver(true); }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={handleDrop}
+        className={cn(
+          "rounded-xl border-2 border-dashed p-4 text-center transition-colors",
+          dragOver ? "border-primary bg-primary/5" : "border-border bg-secondary/40",
+          disabled && "opacity-60 cursor-not-allowed",
+        )}
+      >
+        <div className="flex flex-col items-center gap-2">
+          <Upload className="h-6 w-6 text-muted-foreground" aria-hidden="true" />
+          <div className="text-sm">
+            <strong>Dra och släpp bilder här</strong> eller{" "}
+            <label
+              htmlFor={inputId}
+              className={cn(
+                "underline cursor-pointer text-primary",
+                disabled && "pointer-events-none",
+              )}
+            >
+              välj filer
+            </label>
+            .
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {busy
+              ? "Bearbetar och laddar upp..."
+              : remaining > 0
+                ? `Upp till ${remaining} till (max ${maxImages} totalt).`
+                : `Max ${maxImages} bilder har nåtts.`}
+          </p>
+          <input
+            id={inputId}
+            type="file"
+            multiple
+            accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+            className="hidden"
+            disabled={disabled}
+            onChange={(e) => {
+              const files = e.target.files;
+              if (files && files.length > 0) onFiles(files);
+              e.target.value = "";
+            }}
+          />
+        </div>
+      </div>
+      <p className="text-xs text-muted-foreground leading-relaxed">
+        <strong>Auto-crop:</strong> bilder beskärs automatiskt centrerat till <strong>3:2</strong>{" "}
+        (1600×1067 px) och konverteras till WebP under ~250 kB. JPG, PNG och WebP godtas.
+        Motivet bör vara centrerat — kanterna kan beskäras något i topp/botten på desktop
+        beroende på hur mycket text kortet innehåller.
+      </p>
+    </div>
+  );
+}
+
+
+
+
+
 
 function SortableFilterOptionRow({
   option, onEdit, onDelete,
