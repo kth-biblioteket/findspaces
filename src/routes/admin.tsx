@@ -2149,6 +2149,7 @@ const DUMMY_SPACE: Space = {
   id: "dummy",
   slug: null,
   name: "Exempel-lokal",
+  space_kind: "study",
   category: "",
   description:
     "Detta är en förhandsvisning. Ändringar i listan här bredvid uppdaterar ordningen på sektionerna i alla lokalkort i studentvyn.",
