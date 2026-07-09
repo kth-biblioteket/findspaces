@@ -780,13 +780,23 @@ function AdminPage() {
                           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                         />
                       </Field>
-                      <Field label="Kapacitet (antal personer)">
+                      <Field label="Antal studieplatser (bord + stol)">
                         <input
                           type="number"
                           min={1}
                           value={form.capacity}
                           onChange={(e) => setForm({ ...form, capacity: e.target.value })}
                           placeholder="t.ex. 4"
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        />
+                      </Field>
+                      <Field label="Antal nedslagsplatser (fåtöljer, soffor)">
+                        <input
+                          type="number"
+                          min={1}
+                          value={form.informal_seat_count}
+                          onChange={(e) => setForm({ ...form, informal_seat_count: e.target.value })}
+                          placeholder="t.ex. 6"
                           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                         />
                       </Field>
@@ -801,6 +811,7 @@ function AdminPage() {
                         />
                       </Field>
                     </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <Field label="Ligger i lokal (SV)">
                         <input
