@@ -2454,6 +2454,7 @@ const DUMMY_SPACE: Space = {
   located_in: "Biblioteket",
   capacity: 24,
   computer_count: null,
+  informal_seat_count: null,
   tags: {},
   notice: "Exempel på varningsruta – t.ex. tillfälligt stängt eller ombyggnation.",
   name_en: null,
