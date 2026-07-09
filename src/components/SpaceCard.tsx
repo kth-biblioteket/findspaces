@@ -266,7 +266,7 @@ export function SpaceCard({
                 <h3 id={`space-${space.id}-title`} className="text-lg md:text-xl font-semibold leading-none">
                   {localizedName}
                 </h3>
-                {sanitizedDescription && (
+                {sanitizedDescription && !space.description_inline && (
                   <button
                     type="button"
                     onClick={(e) => {
