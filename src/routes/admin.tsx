@@ -156,6 +156,7 @@ const emptyForm: FormState = {
   located_in: "", located_in_en: "",
   capacity: "",
   computer_count: "",
+  informal_seat_count: "",
   show_capacity_publicly: false,
   show_occupancy: true,
   countmatters_sensor_id: "",
