@@ -370,21 +370,26 @@ function SpaceFinder() {
                   : ""}
             </span>
             {!isLoading && (
-              <div className="flex items-center gap-2 ml-auto">
-                <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
-                <label htmlFor="sort-select" className="text-xs text-muted-foreground">
-                  {t("results.sort_label")}
-                </label>
+              <div className="flex items-center ml-auto">
                 <Select
                   value={effectiveSort === "recommended" ? "" : effectiveSort}
                   onValueChange={(v) => setSort((v || "recommended") as SortKey)}
                 >
-                  <SelectTrigger id="sort-select" className="h-8 w-auto min-w-[160px] text-xs">
+                  <SelectTrigger
+                    id="sort-select"
+                    aria-label={t("results.sort_label")}
+                    className="h-auto w-auto gap-1.5 border-0 bg-transparent shadow-none px-1 py-0 text-xs text-muted-foreground hover:text-foreground focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 [&>svg]:opacity-100"
+                  >
+                    <ArrowUpDown className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span className="mr-1">{t("results.sort_label")}:</span>
                     <SelectValue placeholder={t("results.sort_placeholder")} />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent align="end">
+                    <SelectItem value="name_asc">{t("results.sort_name_asc")}</SelectItem>
+                    <SelectItem value="name_desc">{t("results.sort_name_desc")}</SelectItem>
                     <SelectItem value="seats_desc">{t("results.sort_seats_desc")}</SelectItem>
                     <SelectItem value="floor_asc">{t("results.sort_floor_asc")}</SelectItem>
+                    <SelectItem value="floor_desc">{t("results.sort_floor_desc")}</SelectItem>
                     {canSortFree && (
                       <SelectItem value="free_now">{t("results.sort_free_now")}</SelectItem>
                     )}
