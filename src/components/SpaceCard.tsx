@@ -542,10 +542,13 @@ export function SpaceCard({
           <div className="order-2 md:order-1 min-w-0 flex flex-col gap-4 md:gap-5 p-3 md:p-6">
           {layout.map((k) => renderSection(k))}
 
-          {sanitizedDescription && aboutOpen && (
+          {sanitizedDescription && (space.description_inline || aboutOpen) && (
             <div
               id={`space-${space.id}-about`}
-              className="text-sm text-foreground/90 leading-relaxed space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line border-t border-border pt-4"
+              className={cn(
+                "text-sm text-foreground/90 leading-relaxed space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line",
+                !space.description_inline && "border-t border-border pt-4",
+              )}
               dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
             />
           )}
