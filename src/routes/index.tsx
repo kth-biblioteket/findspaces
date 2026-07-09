@@ -216,7 +216,9 @@ function SpaceFinder() {
 
   const sortedFiltered = useMemo(() => {
     const arr = [...filtered];
-    const collator = new Intl.Collator(lang, { sensitivity: "base", numeric: true });
+    // Space names are Swedish, so Swedish alphabetical order (Å, Ä, Ö at the
+    // end) must apply even when the UI is in English.
+    const collator = new Intl.Collator("sv", { sensitivity: "base", numeric: true });
     const floorNum = (s: Space): number => {
       const m = s.floor?.match(/-?\d+/);
       return m ? parseInt(m[0], 10) : Number.NaN;
@@ -258,7 +260,7 @@ function SpaceFinder() {
       arr.sort((a, b) => rank(a) - rank(b));
     }
     return arr;
-  }, [filtered, effectiveSort, canSortFree, availability, lang]);
+  }, [filtered, effectiveSort, canSortFree, availability]);
 
 
 
