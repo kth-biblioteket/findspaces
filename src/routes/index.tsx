@@ -82,7 +82,7 @@ export const Route = createFileRoute("/")({
 });
 
 function searchToFilters(s: SearchParams): Filters {
-  const kind = s.kind === "service" ? "service" : "study";
+  const kind = s.kind === "service" ? "service" : s.kind === "creative" ? "creative" : "study";
   return {
     query: s.q ?? "",
     spaceKind: kind,
@@ -98,13 +98,15 @@ function filtersToSearch(f: Filters, highlight?: string) {
   for (const [k, v] of Object.entries(f.byCategory)) {
     if (v && v.length > 0) cats[k] = v;
   }
-  const isService = f.spaceKind === "service";
+  const isStudy = f.spaceKind === "study";
+  const kind: "service" | "creative" | undefined =
+    f.spaceKind === "service" ? "service" : f.spaceKind === "creative" ? "creative" : undefined;
   return {
     q: f.query.trim() ? f.query : undefined,
-    kind: isService ? "service" : undefined,
-    mode: isService ? undefined : (f.workMode ?? undefined),
-    size: !isService && f.workMode === "grupprum" && f.groupSize ? f.groupSize : undefined,
-    free: !isService && f.workMode === "grupprum" && f.freeOnly ? true : undefined,
+    kind,
+    mode: isStudy ? (f.workMode ?? undefined) : undefined,
+    size: isStudy && f.workMode === "grupprum" && f.groupSize ? f.groupSize : undefined,
+    free: isStudy && f.workMode === "grupprum" && f.freeOnly ? true : undefined,
     highlight,
     cats: Object.keys(cats).length > 0 ? cats : undefined,
   };
