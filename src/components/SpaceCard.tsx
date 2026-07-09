@@ -1,8 +1,8 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import DOMPurify from "dompurify";
-import { MapPin, Calendar, Info, Users, User, AlertTriangle, ChevronDown, Monitor } from "lucide-react";
+import { MapPin, Calendar, Info, Users, User, AlertTriangle, ChevronDown, Monitor, Armchair } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { ChairIcon } from "./icons/ChairIcon";
+import { TableChairIcon } from "./icons/TableChairIcon";
 
 import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
@@ -314,7 +314,7 @@ export function SpaceCard({
                   </div>
                 </div>
               )}
-              {(showCapacity || (space.computer_count ?? 0) > 0) && (
+              {(showCapacity || (space.informal_seat_count ?? 0) > 0 || (space.computer_count ?? 0) > 0) && (
                 <div className="flex flex-wrap items-end gap-x-4 gap-y-1 text-sm text-foreground">
                   {showCapacity && (
                     <p className="inline-flex items-end gap-1.5">
@@ -322,12 +322,23 @@ export function SpaceCard({
                         {capacityIconUrl ? (
                           <img src={capacityIconUrl} alt="" className="h-4 w-4 object-contain" />
                         ) : (
-                          <ChairIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                          <TableChairIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                         )}
                       </span>
                       <span className="leading-none">
-                        <span className="sr-only">{t("card.capacity_sr")} </span>
-                        {space.capacity} {t("card.capacity_seats")}
+                        <span className="sr-only">{t("card.study_seats_sr")} </span>
+                        {space.capacity} {t("card.study_seats_label")}
+                      </span>
+                    </p>
+                  )}
+                  {(space.informal_seat_count ?? 0) > 0 && (
+                    <p className="inline-flex items-end gap-1.5">
+                      <span className="inline-flex w-4 justify-center">
+                        <Armchair className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                      </span>
+                      <span className="leading-none">
+                        <span className="sr-only">{t("card.informal_seats_sr")} </span>
+                        {space.informal_seat_count} {t("card.informal_seats_label")}
                       </span>
                     </p>
                   )}
@@ -344,6 +355,7 @@ export function SpaceCard({
                   )}
                 </div>
               )}
+
             </div>
 
             {(occupancy || groupRoom) && (

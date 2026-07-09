@@ -117,6 +117,7 @@ type FormState = {
   located_in_en: string;
   capacity: string;
   computer_count: string;
+  informal_seat_count: string;
   show_capacity_publicly: boolean;
   show_occupancy: boolean;
   countmatters_sensor_id: string;
@@ -155,6 +156,7 @@ const emptyForm: FormState = {
   located_in: "", located_in_en: "",
   capacity: "",
   computer_count: "",
+  informal_seat_count: "",
   show_capacity_publicly: false,
   show_occupancy: true,
   countmatters_sensor_id: "",
@@ -192,6 +194,7 @@ function spaceToForm(s: Space): FormState {
     located_in_en: s.located_in_en ?? "",
     capacity: s.capacity != null ? String(s.capacity) : "",
     computer_count: s.computer_count != null ? String(s.computer_count) : "",
+    informal_seat_count: s.informal_seat_count != null ? String(s.informal_seat_count) : "",
     show_capacity_publicly: s.show_capacity_publicly ?? false,
     show_occupancy: s.show_occupancy ?? true,
     countmatters_sensor_id: s.countmatters_sensor_id ?? "",
@@ -349,6 +352,7 @@ function AdminPage() {
     mutationFn: async (f: FormState) => {
       const capNum = f.capacity.trim() ? parseInt(f.capacity, 10) : NaN;
       const compNum = f.computer_count.trim() ? parseInt(f.computer_count, 10) : NaN;
+      const informalNum = f.informal_seat_count.trim() ? parseInt(f.informal_seat_count, 10) : NaN;
       const payload: any = {
         space_kind: f.space_kind,
         slug: f.slug.trim() ? f.slug.trim().toLowerCase() : null,
@@ -363,6 +367,7 @@ function AdminPage() {
         located_in_en: f.located_in_en?.trim() ? f.located_in_en.trim() : null,
         capacity: Number.isFinite(capNum) ? capNum : null,
         computer_count: Number.isFinite(compNum) ? compNum : null,
+        informal_seat_count: Number.isFinite(informalNum) ? informalNum : null,
         show_capacity_publicly: f.show_capacity_publicly,
         show_occupancy: f.show_occupancy,
         countmatters_sensor_id: f.countmatters_sensor_id.trim() || null,
@@ -775,13 +780,23 @@ function AdminPage() {
                           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                         />
                       </Field>
-                      <Field label="Kapacitet (antal personer)">
+                      <Field label="Antal studieplatser (bord + stol)">
                         <input
                           type="number"
                           min={1}
                           value={form.capacity}
                           onChange={(e) => setForm({ ...form, capacity: e.target.value })}
                           placeholder="t.ex. 4"
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        />
+                      </Field>
+                      <Field label="Antal nedslagsplatser (fåtöljer, soffor)">
+                        <input
+                          type="number"
+                          min={1}
+                          value={form.informal_seat_count}
+                          onChange={(e) => setForm({ ...form, informal_seat_count: e.target.value })}
+                          placeholder="t.ex. 6"
                           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                         />
                       </Field>
@@ -796,6 +811,7 @@ function AdminPage() {
                         />
                       </Field>
                     </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <Field label="Ligger i lokal (SV)">
                         <input
@@ -2451,6 +2467,7 @@ const DUMMY_SPACE: Space = {
   located_in: "Biblioteket",
   capacity: 24,
   computer_count: null,
+  informal_seat_count: null,
   tags: {},
   notice: "Exempel på varningsruta – t.ex. tillfälligt stängt eller ombyggnation.",
   name_en: null,
@@ -2595,6 +2612,7 @@ const DUMMY_GROUP_ROOM: Space = {
   located_in: "Biblioteket",
   capacity: 6,
   computer_count: null,
+  informal_seat_count: null,
   notice: null,
   info: null,
   group_booking_url: "#",
