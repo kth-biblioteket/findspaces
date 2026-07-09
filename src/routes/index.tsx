@@ -2,7 +2,14 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { SlidersHorizontal, Settings, X } from "lucide-react";
+import { SlidersHorizontal, Settings, X, ArrowUpDown } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { type Space } from "@/lib/spaces";
 import { useFilterCategories } from "@/lib/useFilterCategories";
@@ -22,6 +29,8 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/co
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import type { FilterCategoryRow } from "@/lib/spaces";
 
+type SortKey = "recommended" | "seats_desc" | "free_now";
+
 type SearchParams = {
   q: string;
   kind?: "service" | "creative";
@@ -30,6 +39,7 @@ type SearchParams = {
   free?: boolean;
   highlight?: string;
   cats: Record<string, string[]>;
+  sort?: SortKey;
 };
 
 function validateSearch(input: Record<string, unknown>): SearchParams {
@@ -51,8 +61,14 @@ function validateSearch(input: Record<string, unknown>): SearchParams {
       if (Array.isArray(v)) cats[k] = v.filter((x): x is string => typeof x === "string");
     }
   }
-  return { q, kind, mode, size, free, highlight, cats };
+  const sortRaw = input.sort;
+  const sort: SortKey | undefined =
+    sortRaw === "seats_desc" || sortRaw === "free_now" || sortRaw === "recommended"
+      ? sortRaw
+      : undefined;
+  return { q, kind, mode, size, free, highlight, cats, sort };
 }
+
 
 const spacesQueryOptions = queryOptions({
   queryKey: ["spaces"],
@@ -125,9 +141,29 @@ function SpaceFinder() {
   }, []);
 
 
+  const sort: SortKey = search.sort ?? "recommended";
+  const canSortFree = filters.workMode === "grupprum";
+  const effectiveSort: SortKey = sort === "free_now" && !canSortFree ? "recommended" : sort;
+
   const setFilters = (next: Filters) => {
-    navigate({ search: filtersToSearch(next, search.highlight) as never, replace: true });
+    const nextSearch = filtersToSearch(next, search.highlight) as Record<string, unknown>;
+    const nextMode = next.workMode;
+    if (sort && sort !== "recommended" && !(sort === "free_now" && nextMode !== "grupprum")) {
+      nextSearch.sort = sort;
+    }
+    navigate({ search: nextSearch as never, replace: true });
   };
+
+  const setSort = (next: SortKey) => {
+    navigate({
+      search: (prev: SearchParams) => ({
+        ...prev,
+        sort: next === "recommended" ? undefined : next,
+      }) as never,
+      replace: true,
+    });
+  };
+
 
   const [highlightTick, setHighlightTick] = useState(0);
 
@@ -160,7 +196,9 @@ function SpaceFinder() {
     refetchInterval: 60_000,
     staleTime: 30_000,
     refetchOnWindowFocus: false,
-    enabled: filters.workMode === "grupprum" && filters.freeOnly,
+    enabled:
+      (filters.workMode === "grupprum" && filters.freeOnly) ||
+      (filters.workMode === "grupprum" && effectiveSort === "free_now"),
   });
 
   const filtered = useMemo(() => {
@@ -177,6 +215,28 @@ function SpaceFinder() {
     }
     return base;
   }, [spaces, filters, categories, availability]);
+
+  const sortedFiltered = useMemo(() => {
+    const arr = [...filtered];
+    if (effectiveSort === "seats_desc") {
+      arr.sort((a, b) => (b.capacity ?? -1) - (a.capacity ?? -1));
+    } else if (effectiveSort === "free_now" && canSortFree) {
+      const rooms = availability?.rooms ?? {};
+      const rank = (s: Space) => {
+        const num = s.booking_room_number;
+        if (num == null) return 3;
+        const r = rooms[String(num)];
+        if (!r || r.disabled) return 3;
+        if (r.status === "free") return 0;
+        if (r.status === "tentative") return 1;
+        if (r.status === "busy") return 2;
+        return 3;
+      };
+      arr.sort((a, b) => rank(a) - rank(b));
+    }
+    return arr;
+  }, [filtered, effectiveSort, canSortFree, availability]);
+
 
 
   const { data: filterOptions = [] } = useFilterOptions();
@@ -274,19 +334,40 @@ function SpaceFinder() {
 
 
         <main id="main" tabIndex={-1} className="focus-visible:outline-none" aria-busy={isLoading}>
-          {(isLoading || hasActiveFilter) && (
-            <div
-              className="flex items-baseline justify-end mb-3"
-              aria-live="polite"
-              aria-atomic="true"
-            >
-              <span className="text-xs text-muted-foreground">
-                {isLoading
-                  ? t("results.loading")
-                  : t("results.count_filtered", { filtered: filtered.length, total: spaces.length })}
-              </span>
-            </div>
-          )}
+          <div
+            className="flex flex-wrap items-center justify-between gap-3 mb-3"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <span className="text-xs text-muted-foreground">
+              {isLoading
+                ? t("results.loading")
+                : hasActiveFilter
+                  ? t("results.count_filtered", { filtered: sortedFiltered.length, total: spaces.length })
+                  : ""}
+            </span>
+            {!isLoading && (
+              <div className="flex items-center gap-2 ml-auto">
+                <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+                <label htmlFor="sort-select" className="text-xs text-muted-foreground">
+                  {t("results.sort_label")}
+                </label>
+                <Select value={effectiveSort} onValueChange={(v) => setSort(v as SortKey)}>
+                  <SelectTrigger id="sort-select" className="h-8 w-auto min-w-[160px] text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="recommended">{t("results.sort_recommended")}</SelectItem>
+                    <SelectItem value="seats_desc">{t("results.sort_seats_desc")}</SelectItem>
+                    {canSortFree && (
+                      <SelectItem value="free_now">{t("results.sort_free_now")}</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+
 
           <ActiveFilterChips filters={filters} onChange={setFilters} />
 
@@ -298,7 +379,7 @@ function SpaceFinder() {
             </div>
           )}
 
-          {!isLoading && filtered.length === 0 && (
+          {!isLoading && sortedFiltered.length === 0 && (
             <div className="bg-card rounded-2xl shadow-sm p-8 text-left">
               <p className="text-base font-semibold text-foreground mb-2 whitespace-pre-line">
                 {emptyTitle}
@@ -347,7 +428,7 @@ function SpaceFinder() {
           )}
           {!isLoading && (
             <div className="space-y-3 md:space-y-5">
-              {filtered.map((s, i) => (
+              {sortedFiltered.map((s, i) => (
                 <SpaceCard key={s.id} space={s} filters={filters} onFiltersChange={setFilters} onSpaceLink={handleSpaceLink} highlightId={search.highlight} highlightTick={highlightTick} spaces={spaces} priority={i < 2} />
               ))}
             </div>

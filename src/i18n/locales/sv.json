@@ -40,7 +40,11 @@
     "count_total_one": "{{count}} lokal",
     "count_total_other": "{{count}} lokaler",
     "remove_filter": "Ta bort {{label}}",
-    "clear_all_filters": "Rensa alla filter"
+    "clear_all_filters": "Rensa alla filter",
+    "sort_label": "Sortera",
+    "sort_recommended": "Rekommenderad",
+    "sort_seats_desc": "Flest platser först",
+    "sort_free_now": "Lediga just nu"
   },
   "chips": {
     "search_label": "Sök: \"{{query}}\"",
