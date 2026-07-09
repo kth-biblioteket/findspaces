@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Check, User, Users, DoorClosed, ChevronDown, BookOpen, Wrench } from "lucide-react";
+import { Search, Check, User, Users, DoorClosed, ChevronDown, BookOpen, Wrench, Palette } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PillToggle } from "./PillToggle";
 import { OptionIcon } from "./OptionIcon";
@@ -96,7 +96,8 @@ export function FilterPanel({
     { key: "grupprum", label: t("filters.intent_grupprum"), Icon: DoorClosed },
   ];
 
-  const isService = filters.spaceKind === "service";
+  const isStudy = filters.spaceKind === "study";
+  const isNonStudy = !isStudy;
 
   return (
     <div className="space-y-5">
@@ -115,6 +116,12 @@ export function FilterPanel({
             selected={filters.spaceKind === "service"}
             onClick={() => setSpaceKind("service")}
           />
+          <PillToggle
+            label={t("filters.mode_creative")}
+            icon={<Palette className="h-4 w-4" />}
+            selected={filters.spaceKind === "creative"}
+            onClick={() => setSpaceKind("creative")}
+          />
         </div>
       </div>
 
@@ -131,7 +138,7 @@ export function FilterPanel({
         </label>
       </div>
 
-      {!isService && (
+      {!isNonStudy && (
         <div>
           <h3 className="text-sm font-semibold mb-3">{intentTitle}</h3>
           <div className="flex flex-wrap gap-2">
@@ -185,7 +192,7 @@ export function FilterPanel({
         // In service mode, hide categories that only make sense for study
         // spaces (noise, equipment, group-size). "lokaltyp" and "vaningsplan"
         // remain so users can narrow by facility type or floor.
-        if (isService && (cat.key === "noise" || cat.key === "equipment" || cat.key === "facility")) {
+        if (isNonStudy && (cat.key === "noise" || cat.key === "equipment" || cat.key === "facility")) {
           return null;
         }
         const opts = byKey[cat.key] ?? [];
@@ -226,7 +233,7 @@ export function FilterPanel({
           <CollapsibleSection
             key={cat.id}
             title={pickLocalized(cat, "title", lang)}
-            defaultOpen={selected.length > 0 || isService}
+            defaultOpen={selected.length > 0 || isNonStudy}
             badgeCount={selected.length}
           >
             {inner}

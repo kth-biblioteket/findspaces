@@ -1,7 +1,7 @@
 import * as Icons from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-export type SpaceKind = "study" | "service";
+export type SpaceKind = "study" | "service" | "creative";
 
 export type Space = {
   id: string;

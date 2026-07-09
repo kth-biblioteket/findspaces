@@ -101,7 +101,7 @@ const BULK_ACTIONS: { value: BulkAction; label: string; needsValue: boolean; pla
 
 type FormState = {
   id?: string;
-  space_kind: "study" | "service";
+  space_kind: "study" | "service" | "creative";
   slug: string;
   name: string;
   name_en: string;
@@ -172,7 +172,7 @@ function spaceToForm(s: Space): FormState {
   while (image_alts_en.length < images.length) image_alts_en.push("");
   return {
     id: s.id,
-    space_kind: (s.space_kind ?? "study") as "study" | "service",
+    space_kind: (s.space_kind ?? "study") as "study" | "service" | "creative",
     slug: s.slug ?? "",
     name: s.name,
     name_en: s.name_en ?? "",
@@ -662,7 +662,8 @@ function AdminPage() {
                       <div className="flex flex-wrap gap-2">
                         {([
                           { key: "study", label: "Studieplats" },
-                          { key: "service", label: "Service & faciliteter (skrivare, skåp, makerspace …)" },
+                          { key: "service", label: "Service & faciliteter (skrivare, skåp …)" },
+                          { key: "creative", label: "Skapande & paus (makerspace, virkning …)" },
                         ] as const).map((k) => {
                           const active = form.space_kind === k.key;
                           return (
@@ -683,7 +684,7 @@ function AdminPage() {
                         })}
                       </div>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Servicelokaler visas i egen flik "Service & faciliteter" i studentvyn – utan beläggning, bokning eller ljudnivå.
+                        Service- och skapandelokaler visas i egna flikar i studentvyn – utan beläggning, bokning eller ljudnivå.
                       </p>
                     </Field>
                     <Field label="Kort-ID / slug (valfritt)">
