@@ -658,6 +658,34 @@ function AdminPage() {
                   </DialogHeader>
 
                   <div className="space-y-5 py-2">
+                    <Field label="Typ av lokal">
+                      <div className="flex flex-wrap gap-2">
+                        {([
+                          { key: "study", label: "Studieplats" },
+                          { key: "service", label: "Service & faciliteter (skrivare, skåp, makerspace …)" },
+                        ] as const).map((k) => {
+                          const active = form.space_kind === k.key;
+                          return (
+                            <button
+                              key={k.key}
+                              type="button"
+                              onClick={() => setForm({ ...form, space_kind: k.key })}
+                              className={cn(
+                                "rounded-full border px-3 py-1.5 text-sm transition",
+                                active
+                                  ? "bg-[var(--kth-blue)] text-white border-[var(--kth-blue)]"
+                                  : "bg-card text-foreground border-border hover:bg-accent",
+                              )}
+                            >
+                              {k.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Servicelokaler visas i egen flik "Service & faciliteter" i studentvyn – utan beläggning, bokning eller ljudnivå.
+                      </p>
+                    </Field>
                     <Field label="Kort-ID / slug (valfritt)">
                       <input
                         value={form.slug}
