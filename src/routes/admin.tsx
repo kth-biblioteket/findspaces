@@ -43,6 +43,7 @@ import { ChairIcon } from "@/components/icons/ChairIcon";
 import { AnalyticsTab } from "@/components/AnalyticsTab";
 import { Switch } from "@/components/ui/switch";
 import { useAnnouncementAdmin, useSaveAnnouncement } from "@/lib/useAnnouncement";
+import { processImageToWebp } from "@/lib/processImage";
 
 
 import { toast } from "sonner";
@@ -62,7 +63,7 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-const MAX_IMAGES = 5;
+const MAX_IMAGES = 8;
 
 type BulkAction =
   | "set_floor"
@@ -511,26 +512,53 @@ function AdminPage() {
 
 
 
-  const handleUploadImage = async (file: File) => {
-    if (form.images.length >= MAX_IMAGES) {
+  const [uploadBusy, setUploadBusy] = useState(false);
+
+  const handleUploadFiles = async (fileList: FileList | File[]) => {
+    const files = Array.from(fileList).filter((f) => f.type.startsWith("image/"));
+    if (files.length === 0) {
+      toast.error("Ingen bildfil hittades");
+      return;
+    }
+    const remaining = MAX_IMAGES - form.images.length;
+    if (remaining <= 0) {
       toast.error(`Max ${MAX_IMAGES} bilder.`);
       return;
     }
-    const ext = file.name.split(".").pop();
-    const path = `${crypto.randomUUID()}.${ext}`;
-    const { error } = await supabase.storage.from("space-images").upload(path, file);
-    if (error) { toast.error(error.message); return; }
-    const { data } = supabase.storage.from("space-images").getPublicUrl(path);
-    const nowIso = new Date().toISOString();
-    setForm((f) => ({
-      ...f,
-      images: [...f.images, data.publicUrl],
-      image_alts: [...f.image_alts, ""],
-      image_alts_en: [...f.image_alts_en, ""],
-    }));
-    setImageDates((prev) => ({ ...prev, [data.publicUrl]: nowIso }));
-    toast.success("Bild uppladdad");
+    const batch = files.slice(0, remaining);
+    if (files.length > remaining) {
+      toast.warning(`Endast ${remaining} av ${files.length} bilder laddades upp (max ${MAX_IMAGES}).`);
+    }
+
+    setUploadBusy(true);
+    try {
+      for (const file of batch) {
+        try {
+          const processed = await processImageToWebp(file);
+          const path = `${crypto.randomUUID()}.webp`;
+          const { error } = await supabase.storage
+            .from("space-images")
+            .upload(path, processed.file, { contentType: "image/webp" });
+          if (error) { toast.error(`${file.name}: ${error.message}`); continue; }
+          const { data } = supabase.storage.from("space-images").getPublicUrl(path);
+          const nowIso = new Date().toISOString();
+          setForm((f) => ({
+            ...f,
+            images: [...f.images, data.publicUrl],
+            image_alts: [...f.image_alts, ""],
+            image_alts_en: [...f.image_alts_en, ""],
+          }));
+          setImageDates((prev) => ({ ...prev, [data.publicUrl]: nowIso }));
+        } catch (e: any) {
+          toast.error(`${file.name}: ${e?.message ?? "kunde inte bearbetas"}`);
+        }
+      }
+      toast.success(batch.length === 1 ? "Bild uppladdad" : `${batch.length} bilder uppladdade`);
+    } finally {
+      setUploadBusy(false);
+    }
   };
+
 
   const reorderImagesByIndex = (oldIdx: number, newIdx: number) => {
     setForm((f) => {
@@ -1100,32 +1128,14 @@ function AdminPage() {
                           </DndContext>
                         )}
 
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <label className={cn(
-                            "inline-flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2 text-sm cursor-pointer hover:bg-accent",
-                            form.images.length >= MAX_IMAGES && "opacity-50 cursor-not-allowed"
-                          )}>
-                            <Upload className="h-4 w-4" />
-                            <span>Ladda upp bild</span>
-                            <input
-                              type="file" accept="image/webp,.webp" className="hidden"
-                              disabled={form.images.length >= MAX_IMAGES}
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) handleUploadImage(file);
-                                e.target.value = "";
-                              }}
-                            />
-                          </label>
-                          <p className="text-xs text-muted-foreground max-w-sm">
-                            <strong>Format:</strong> WebP (.webp). <strong>Storlek:</strong> 1600×1067 px
-                            i <strong>3:2-format</strong> (liggande). <strong>Max filstorlek:</strong> 250 kB.
-                            På desktop visas bilden större och sträcks ut i höjd vid sidan av texten,
-                            så håll motivet väl centrerat — kanterna kan beskäras lätt i topp/botten beroende
-                            på hur mycket text kortet innehåller. Upp till {MAX_IMAGES} bilder per lokal.
-                            Konvertera JPG/PNG till WebP med t.ex. <a href="https://squoosh.app" target="_blank" rel="noopener noreferrer" className="underline">squoosh.app</a> innan uppladdning.
-                          </p>
-                        </div>
+                        <ImageDropzone
+                          disabled={form.images.length >= MAX_IMAGES || uploadBusy}
+                          busy={uploadBusy}
+                          remaining={MAX_IMAGES - form.images.length}
+                          maxImages={MAX_IMAGES}
+                          onFiles={handleUploadFiles}
+                        />
+
                       </div>
                     </details>
 
@@ -2145,6 +2155,89 @@ function SortableImageRow({
     </li>
   );
 }
+
+
+function ImageDropzone({
+  disabled, busy, remaining, maxImages, onFiles,
+}: {
+  disabled: boolean;
+  busy: boolean;
+  remaining: number;
+  maxImages: number;
+  onFiles: (files: FileList | File[]) => void;
+}) {
+  const [dragOver, setDragOver] = useState(false);
+  const inputId = useId();
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setDragOver(false);
+    if (disabled) return;
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) onFiles(files);
+  };
+
+  return (
+    <div className="space-y-2">
+      <div
+        onDragOver={(e) => { e.preventDefault(); if (!disabled) setDragOver(true); }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={handleDrop}
+        className={cn(
+          "rounded-xl border-2 border-dashed p-4 text-center transition-colors",
+          dragOver ? "border-primary bg-primary/5" : "border-border bg-secondary/40",
+          disabled && "opacity-60 cursor-not-allowed",
+        )}
+      >
+        <div className="flex flex-col items-center gap-2">
+          <Upload className="h-6 w-6 text-muted-foreground" aria-hidden="true" />
+          <div className="text-sm">
+            <strong>Dra och släpp bilder här</strong> eller{" "}
+            <label
+              htmlFor={inputId}
+              className={cn(
+                "underline cursor-pointer text-primary",
+                disabled && "pointer-events-none",
+              )}
+            >
+              välj filer
+            </label>
+            .
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {busy
+              ? "Bearbetar och laddar upp..."
+              : remaining > 0
+                ? `Upp till ${remaining} till (max ${maxImages} totalt).`
+                : `Max ${maxImages} bilder har nåtts.`}
+          </p>
+          <input
+            id={inputId}
+            type="file"
+            multiple
+            accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+            className="hidden"
+            disabled={disabled}
+            onChange={(e) => {
+              const files = e.target.files;
+              if (files && files.length > 0) onFiles(files);
+              e.target.value = "";
+            }}
+          />
+        </div>
+      </div>
+      <p className="text-xs text-muted-foreground leading-relaxed">
+        <strong>Auto-crop:</strong> bilder beskärs automatiskt centrerat till <strong>3:2</strong>{" "}
+        (1600×1067 px) och konverteras till WebP under ~250 kB. JPG, PNG och WebP godtas.
+        Motivet bör vara centrerat — kanterna kan beskäras något i topp/botten på desktop
+        beroende på hur mycket text kortet innehåller.
+      </p>
+    </div>
+  );
+}
+
+
+
 
 
 
