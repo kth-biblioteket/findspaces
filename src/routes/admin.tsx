@@ -697,8 +697,8 @@ function AdminPage() {
                       <div className="flex flex-wrap gap-2">
                         {([
                           { key: "study", label: "Studieplats" },
-                          { key: "service", label: "Service & faciliteter (skrivare, skåp …)" },
-                          { key: "creative", label: "Skapande & paus (makerspace, virkning …)" },
+                          { key: "service", label: "Service & faciliteter" },
+                          { key: "creative", label: "Skapande & paus" },
                         ] as const).map((k) => {
                           const active = form.space_kind === k.key;
                           return (
@@ -781,7 +781,7 @@ function AdminPage() {
                           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                         />
                       </Field>
-                      <Field label="Antal datorer (valfritt)">
+                      <Field label="Antal datorplatser (valfritt)">
                         <input
                           type="number"
                           min={1}

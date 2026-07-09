@@ -49,8 +49,8 @@
   "card": {
     "capacity_sr": "Kapacitet:",
     "capacity_seats": "platser",
-    "computers_sr": "Antal datorer:",
-    "computers_label": "datorer",
+    "computers_sr": "Antal datorplatser:",
+    "computers_label": "datorplatser",
     "notice_sr": "Viktigt meddelande:",
     "button_map": "Visa på karta",
     "button_group_booking": "Boka grupprum",
