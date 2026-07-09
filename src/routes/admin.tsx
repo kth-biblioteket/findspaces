@@ -101,6 +101,7 @@ const BULK_ACTIONS: { value: BulkAction; label: string; needsValue: boolean; pla
 
 type FormState = {
   id?: string;
+  space_kind: "study" | "service";
   slug: string;
   name: string;
   name_en: string;
