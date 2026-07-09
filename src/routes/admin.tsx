@@ -1231,7 +1231,15 @@ function AdminPage() {
               </div>
             )}
 
+            <SelectByLokaltyp
+              spaces={spaces}
+              options={byKey["lokaltyp"] ?? []}
+              selectedIds={selectedIds}
+              setSelectedIds={setSelectedIds}
+            />
+
             <div className="bg-card rounded-2xl border border-border overflow-hidden">
+
               {isLoading ? (
                 <div className="p-8 text-center text-muted-foreground">Laddar...</div>
               ) : (
@@ -2157,7 +2165,113 @@ function SortableImageRow({
 }
 
 
+function SelectByLokaltyp({
+  spaces, options, selectedIds, setSelectedIds,
+}: {
+  spaces: Space[];
+  options: FilterOption[];
+  selectedIds: Set<string>;
+  setSelectedIds: React.Dispatch<React.SetStateAction<Set<string>>>;
+}) {
+  const matchesForLabel = (label: string) =>
+    spaces.filter((s) => Array.isArray(s.lokaltyp) && s.lokaltyp.includes(label));
+
+  const kindGroups: Array<{ key: "study" | "service" | "creative"; label: string }> = [
+    { key: "study", label: "Studieplatser" },
+    { key: "service", label: "Service & faciliteter" },
+    { key: "creative", label: "Skapande & paus" },
+  ];
+
+  const toggleForMatches = (matches: Space[]) => {
+    if (matches.length === 0) return;
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      const allSelected = matches.every((s) => next.has(s.id));
+      if (allSelected) {
+        for (const s of matches) next.delete(s.id);
+      } else {
+        for (const s of matches) next.add(s.id);
+      }
+      return next;
+    });
+  };
+
+  const usable = options
+    .map((o) => ({ opt: o, matches: matchesForLabel(o.label) }))
+    .filter((x) => x.matches.length > 0);
+
+  if (usable.length === 0 && spaces.length === 0) return null;
+
+  return (
+    <div className="rounded-xl border border-border bg-muted/40 p-3 space-y-2">
+      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+        Markera flera per typ
+      </div>
+
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="text-xs text-muted-foreground mr-1">Kategori:</span>
+        {kindGroups.map((g) => {
+          const matches = spaces.filter((s) => (s.space_kind ?? "study") === g.key);
+          if (matches.length === 0) return null;
+          const allSelected = matches.every((s) => selectedIds.has(s.id));
+          return (
+            <button
+              key={g.key}
+              type="button"
+              onClick={() => toggleForMatches(matches)}
+              aria-pressed={allSelected}
+              className={cn(
+                "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition",
+                allSelected
+                  ? "bg-[var(--kth-blue)] text-white border-[var(--kth-blue)]"
+                  : "bg-card text-foreground border-border hover:bg-accent",
+              )}
+            >
+              {g.label}
+              <span className="opacity-70">({matches.length})</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {usable.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-xs text-muted-foreground mr-1">Lokaltyp:</span>
+          {usable.map(({ opt, matches }) => {
+            const allSelected = matches.every((s) => selectedIds.has(s.id));
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => toggleForMatches(matches)}
+                aria-pressed={allSelected}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition",
+                  allSelected
+                    ? "bg-[var(--kth-blue)] text-white border-[var(--kth-blue)]"
+                    : "bg-card text-foreground border-border hover:bg-accent",
+                )}
+              >
+                <OptionIcon option={opt} className="h-3.5 w-3.5" />
+                {opt.label}
+                <span className="opacity-70">({matches.length})</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      <p className="text-[11px] text-muted-foreground">
+        Klicka en pill för att markera alla lokaler med den typen. Klicka igen för att avmarkera dem.
+        Använd sedan bulk-verktyget ovanför tabellen för att uppdatera flera lokaler samtidigt.
+      </p>
+    </div>
+  );
+}
+
+
 function ImageDropzone({
+
   disabled, busy, remaining, maxImages, onFiles,
 }: {
   disabled: boolean;
