@@ -110,6 +110,7 @@ type FormState = {
   name_en: string;
   description: string;
   description_en: string;
+  description_inline: boolean;
   floor: string;
   floor_en: string;
   located_in: string;
