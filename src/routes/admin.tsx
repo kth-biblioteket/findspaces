@@ -117,6 +117,7 @@ type FormState = {
   located_in_en: string;
   capacity: string;
   computer_count: string;
+  informal_seat_count: string;
   show_capacity_publicly: boolean;
   show_occupancy: boolean;
   countmatters_sensor_id: string;
