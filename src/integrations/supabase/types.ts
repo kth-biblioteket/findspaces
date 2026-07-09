@@ -146,6 +146,7 @@ export type Database = {
           booking_url_en: string | null
           capacity: number | null
           category: string | null
+          computer_count: number | null
           computers_url: string | null
           countmatters_sensor_id: string | null
           created_at: string
@@ -191,6 +192,7 @@ export type Database = {
           booking_url_en?: string | null
           capacity?: number | null
           category?: string | null
+          computer_count?: number | null
           computers_url?: string | null
           countmatters_sensor_id?: string | null
           created_at?: string
@@ -236,6 +238,7 @@ export type Database = {
           booking_url_en?: string | null
           capacity?: number | null
           category?: string | null
+          computer_count?: number | null
           computers_url?: string | null
           countmatters_sensor_id?: string | null
           created_at?: string
