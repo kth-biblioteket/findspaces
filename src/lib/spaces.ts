@@ -38,6 +38,7 @@ export type Space = {
   located_in_en: string | null;
   capacity: number | null;
   computer_count: number | null;
+  informal_seat_count: number | null;
   tags: Record<string, string[]>;
   notice: string | null;
   notice_en: string | null;
