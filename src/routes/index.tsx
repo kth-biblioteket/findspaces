@@ -364,12 +364,12 @@ function SpaceFinder() {
             aria-live="polite"
             aria-atomic="true"
           >
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs text-muted-foreground lg:hidden">
               {isLoading
                 ? t("results.loading")
                 : hasActiveFilter
                   ? t("results.count_filtered", { filtered: sortedFiltered.length, total: spaces.length })
-                  : ""}
+                  : t("results.count_total", { count: sortedFiltered.length })}
             </span>
             {!isLoading && (
               <div className="flex items-center ml-auto">
