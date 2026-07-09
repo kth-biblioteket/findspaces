@@ -112,6 +112,7 @@ type FormState = {
   located_in: string;
   located_in_en: string;
   capacity: string;
+  computer_count: string;
   show_capacity_publicly: boolean;
   show_occupancy: boolean;
   countmatters_sensor_id: string;
@@ -148,6 +149,7 @@ const emptyForm: FormState = {
   floor: "", floor_en: "",
   located_in: "", located_in_en: "",
   capacity: "",
+  computer_count: "",
   show_capacity_publicly: false,
   show_occupancy: true,
   countmatters_sensor_id: "",
@@ -183,6 +185,7 @@ function spaceToForm(s: Space): FormState {
     located_in: s.located_in ?? "",
     located_in_en: s.located_in_en ?? "",
     capacity: s.capacity != null ? String(s.capacity) : "",
+    computer_count: s.computer_count != null ? String(s.computer_count) : "",
     show_capacity_publicly: s.show_capacity_publicly ?? false,
     show_occupancy: s.show_occupancy ?? true,
     countmatters_sensor_id: s.countmatters_sensor_id ?? "",
@@ -339,6 +342,7 @@ function AdminPage() {
   const save = useMutation({
     mutationFn: async (f: FormState) => {
       const capNum = f.capacity.trim() ? parseInt(f.capacity, 10) : NaN;
+      const compNum = f.computer_count.trim() ? parseInt(f.computer_count, 10) : NaN;
       const payload: any = {
         space_kind: f.space_kind,
         slug: f.slug.trim() ? f.slug.trim().toLowerCase() : null,
@@ -351,6 +355,7 @@ function AdminPage() {
         located_in: f.located_in?.trim() ? f.located_in.trim() : null,
         located_in_en: f.located_in_en?.trim() ? f.located_in_en.trim() : null,
         capacity: Number.isFinite(capNum) ? capNum : null,
+        computer_count: Number.isFinite(compNum) ? compNum : null,
         show_capacity_publicly: f.show_capacity_publicly,
         show_occupancy: f.show_occupancy,
         countmatters_sensor_id: f.countmatters_sensor_id.trim() || null,
@@ -743,6 +748,16 @@ function AdminPage() {
                           value={form.capacity}
                           onChange={(e) => setForm({ ...form, capacity: e.target.value })}
                           placeholder="t.ex. 4"
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                        />
+                      </Field>
+                      <Field label="Antal datorer (valfritt)">
+                        <input
+                          type="number"
+                          min={1}
+                          value={form.computer_count}
+                          onChange={(e) => setForm({ ...form, computer_count: e.target.value })}
+                          placeholder="t.ex. 3"
                           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                         />
                       </Field>
