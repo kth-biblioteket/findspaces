@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Search, Check, User, Users, DoorClosed, ChevronDown } from "lucide-react";
+import { Search, Check, User, Users, DoorClosed, ChevronDown, BookOpen, Wrench } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PillToggle } from "./PillToggle";
 import { OptionIcon } from "./OptionIcon";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import { useFilterOptions, groupOptionsByKey } from "@/lib/useFilterOptions";
 import { useFilterCategories } from "@/lib/useFilterCategories";
-import { type FilterOption, type FilterCategoryRow } from "@/lib/spaces";
+import { type FilterOption, type FilterCategoryRow, type SpaceKind } from "@/lib/spaces";
 import { pickLocalized, type Lang } from "@/i18n";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +15,7 @@ export type GroupSize = "2-4" | "5+" | null;
 
 export type Filters = {
   query: string;
+  spaceKind: SpaceKind;
   workMode: WorkMode;
   groupSize: GroupSize;
   freeOnly: boolean;
@@ -23,6 +24,7 @@ export type Filters = {
 
 export const emptyFilters: Filters = {
   query: "",
+  spaceKind: "study",
   workMode: null,
   groupSize: null,
   freeOnly: false,
@@ -45,6 +47,21 @@ export function FilterPanel({
 
   const setSelected = (key: string, values: string[]) => {
     onChange({ ...filters, byCategory: { ...filters.byCategory, [key]: values } });
+  };
+
+  const setSpaceKind = (kind: SpaceKind) => {
+    if (filters.spaceKind === kind) return;
+    onChange({
+      ...filters,
+      spaceKind: kind,
+      // Switching mode resets study-only intent/group-room state and all
+      // category selections, since filter categories rarely overlap between
+      // study spaces and service locations.
+      workMode: null,
+      groupSize: null,
+      freeOnly: false,
+      byCategory: {},
+    });
   };
 
   const setWorkMode = (mode: Exclude<WorkMode, null>) => {
@@ -79,8 +96,28 @@ export function FilterPanel({
     { key: "grupprum", label: t("filters.intent_grupprum"), Icon: DoorClosed },
   ];
 
+  const isService = filters.spaceKind === "service";
+
   return (
     <div className="space-y-5">
+      <div>
+        <h3 className="text-sm font-semibold mb-3">{t("filters.mode_group_label")}</h3>
+        <div className="flex flex-wrap gap-2">
+          <PillToggle
+            label={t("filters.mode_study")}
+            icon={<BookOpen className="h-4 w-4" />}
+            selected={filters.spaceKind === "study"}
+            onClick={() => setSpaceKind("study")}
+          />
+          <PillToggle
+            label={t("filters.mode_service")}
+            icon={<Wrench className="h-4 w-4" />}
+            selected={filters.spaceKind === "service"}
+            onClick={() => setSpaceKind("service")}
+          />
+        </div>
+      </div>
+
       <div>
         <label className="relative block">
           <span className="sr-only">{t("filters.search_sr")}</span>
@@ -94,55 +131,63 @@ export function FilterPanel({
         </label>
       </div>
 
-      <div>
-        <h3 className="text-sm font-semibold mb-3">{intentTitle}</h3>
-        <div className="flex flex-wrap gap-2">
-          {intentTabs.map(({ key, label, Icon }) => (
-            <PillToggle
-              key={key}
-              label={label}
-              icon={<Icon className="h-4 w-4" />}
-              selected={filters.workMode === key}
-              onClick={() => setWorkMode(key)}
-            />
-          ))}
-        </div>
-
-
-        {filters.workMode === "grupprum" && (
-          <div className="mt-3 space-y-3">
-            <div>
-              <p className="text-xs text-muted-foreground mb-2">{t("filters.group_size_label")}</p>
-              <div className="flex flex-wrap gap-2">
-                <PillToggle
-                  label={t("filters.group_size_2_4")}
-                  selected={filters.groupSize === "2-4"}
-                  onClick={() => setGroupSize("2-4")}
-                />
-                <PillToggle
-                  label={t("filters.group_size_5plus")}
-                  selected={filters.groupSize === "5+"}
-                  onClick={() => setGroupSize("5+")}
-                />
-              </div>
-            </div>
-            <label className="flex items-center gap-2 text-sm font-medium cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={filters.freeOnly}
-                onChange={(e) => setFreeOnly(e.target.checked)}
-                className="h-4 w-4 rounded border-border accent-[var(--kth-blue)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+      {!isService && (
+        <div>
+          <h3 className="text-sm font-semibold mb-3">{intentTitle}</h3>
+          <div className="flex flex-wrap gap-2">
+            {intentTabs.map(({ key, label, Icon }) => (
+              <PillToggle
+                key={key}
+                label={label}
+                icon={<Icon className="h-4 w-4" />}
+                selected={filters.workMode === key}
+                onClick={() => setWorkMode(key)}
               />
-              <span>{t("filters.free_only")}</span>
-            </label>
+            ))}
           </div>
-        )}
 
-      </div>
+
+          {filters.workMode === "grupprum" && (
+            <div className="mt-3 space-y-3">
+              <div>
+                <p className="text-xs text-muted-foreground mb-2">{t("filters.group_size_label")}</p>
+                <div className="flex flex-wrap gap-2">
+                  <PillToggle
+                    label={t("filters.group_size_2_4")}
+                    selected={filters.groupSize === "2-4"}
+                    onClick={() => setGroupSize("2-4")}
+                  />
+                  <PillToggle
+                    label={t("filters.group_size_5plus")}
+                    selected={filters.groupSize === "5+"}
+                    onClick={() => setGroupSize("5+")}
+                  />
+                </div>
+              </div>
+              <label className="flex items-center gap-2 text-sm font-medium cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={filters.freeOnly}
+                  onChange={(e) => setFreeOnly(e.target.checked)}
+                  className="h-4 w-4 rounded border-border accent-[var(--kth-blue)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                />
+                <span>{t("filters.free_only")}</span>
+              </label>
+            </div>
+          )}
+
+        </div>
+      )}
 
 
       {categories.map((cat) => {
         if (cat.key === "intent") return null;
+        // In service mode, hide categories that only make sense for study
+        // spaces (noise, equipment, group-size). "lokaltyp" and "vaningsplan"
+        // remain so users can narrow by facility type or floor.
+        if (isService && (cat.key === "noise" || cat.key === "equipment" || cat.key === "facility")) {
+          return null;
+        }
         const opts = byKey[cat.key] ?? [];
 
         if (opts.length === 0) return null;
@@ -181,7 +226,7 @@ export function FilterPanel({
           <CollapsibleSection
             key={cat.id}
             title={pickLocalized(cat, "title", lang)}
-            defaultOpen={selected.length > 0}
+            defaultOpen={selected.length > 0 || isService}
             badgeCount={selected.length}
           >
             {inner}

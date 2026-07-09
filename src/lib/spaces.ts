@@ -1,11 +1,14 @@
 import * as Icons from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
+export type SpaceKind = "study" | "service";
+
 export type Space = {
   id: string;
   slug: string | null;
   name: string;
   name_en: string | null;
+  space_kind: SpaceKind;
   category: string;
   description: string;
   description_en: string | null;

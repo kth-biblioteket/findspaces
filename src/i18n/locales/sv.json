@@ -22,6 +22,9 @@
     "intent_enskilt": "Enskilt",
     "intent_tillsammans": "Tillsammans",
     "intent_grupprum": "I grupprum",
+    "mode_group_label": "Vad letar du efter?",
+    "mode_study": "En studieplats",
+    "mode_service": "Service & faciliteter",
     "group_size_label": "Gruppstorlek",
     "group_size_2_4": "2–4 pers",
     "group_size_5plus": "5+ pers",
@@ -30,6 +33,7 @@
 
   "results": {
     "heading": "Studieplatser",
+    "heading_service": "Service & faciliteter",
     "loading": "Laddar...",
     "count_filtered": "{{filtered}} av {{total}} matchar dina filter",
     "count_total_one": "{{count}} lokal",

@@ -101,6 +101,7 @@ const BULK_ACTIONS: { value: BulkAction; label: string; needsValue: boolean; pla
 
 type FormState = {
   id?: string;
+  space_kind: "study" | "service";
   slug: string;
   name: string;
   name_en: string;
@@ -140,6 +141,7 @@ type FormState = {
 };
 
 const emptyForm: FormState = {
+  space_kind: "study",
   slug: "",
   name: "", name_en: "",
   description: "", description_en: "",
@@ -170,6 +172,7 @@ function spaceToForm(s: Space): FormState {
   while (image_alts_en.length < images.length) image_alts_en.push("");
   return {
     id: s.id,
+    space_kind: (s.space_kind ?? "study") as "study" | "service",
     slug: s.slug ?? "",
     name: s.name,
     name_en: s.name_en ?? "",
@@ -337,6 +340,7 @@ function AdminPage() {
     mutationFn: async (f: FormState) => {
       const capNum = f.capacity.trim() ? parseInt(f.capacity, 10) : NaN;
       const payload: any = {
+        space_kind: f.space_kind,
         slug: f.slug.trim() ? f.slug.trim().toLowerCase() : null,
         name: f.name,
         name_en: f.name_en.trim() || null,
@@ -654,6 +658,34 @@ function AdminPage() {
                   </DialogHeader>
 
                   <div className="space-y-5 py-2">
+                    <Field label="Typ av lokal">
+                      <div className="flex flex-wrap gap-2">
+                        {([
+                          { key: "study", label: "Studieplats" },
+                          { key: "service", label: "Service & faciliteter (skrivare, skåp, makerspace …)" },
+                        ] as const).map((k) => {
+                          const active = form.space_kind === k.key;
+                          return (
+                            <button
+                              key={k.key}
+                              type="button"
+                              onClick={() => setForm({ ...form, space_kind: k.key })}
+                              className={cn(
+                                "rounded-full border px-3 py-1.5 text-sm transition",
+                                active
+                                  ? "bg-[var(--kth-blue)] text-white border-[var(--kth-blue)]"
+                                  : "bg-card text-foreground border-border hover:bg-accent",
+                              )}
+                            >
+                              {k.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Servicelokaler visas i egen flik "Service & faciliteter" i studentvyn – utan beläggning, bokning eller ljudnivå.
+                      </p>
+                    </Field>
                     <Field label="Kort-ID / slug (valfritt)">
                       <input
                         value={form.slug}
@@ -2149,6 +2181,7 @@ const DUMMY_SPACE: Space = {
   id: "dummy",
   slug: null,
   name: "Exempel-lokal",
+  space_kind: "study",
   category: "",
   description:
     "Detta är en förhandsvisning. Ändringar i listan här bredvid uppdaterar ordningen på sektionerna i alla lokalkort i studentvyn.",
