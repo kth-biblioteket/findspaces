@@ -96,7 +96,8 @@ export function FilterPanel({
     { key: "grupprum", label: t("filters.intent_grupprum"), Icon: DoorClosed },
   ];
 
-  const isService = filters.spaceKind === "service";
+  const isStudy = filters.spaceKind === "study";
+  const isNonStudy = !isStudy;
 
   return (
     <div className="space-y-5">
@@ -114,6 +115,12 @@ export function FilterPanel({
             icon={<Wrench className="h-4 w-4" />}
             selected={filters.spaceKind === "service"}
             onClick={() => setSpaceKind("service")}
+          />
+          <PillToggle
+            label={t("filters.mode_creative")}
+            icon={<Palette className="h-4 w-4" />}
+            selected={filters.spaceKind === "creative"}
+            onClick={() => setSpaceKind("creative")}
           />
         </div>
       </div>
