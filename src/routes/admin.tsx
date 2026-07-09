@@ -684,7 +684,7 @@ function AdminPage() {
                         })}
                       </div>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Servicelokaler visas i egen flik "Service & faciliteter" i studentvyn – utan beläggning, bokning eller ljudnivå.
+                        Service- och skapandelokaler visas i egna flikar i studentvyn – utan beläggning, bokning eller ljudnivå.
                       </p>
                     </Field>
                     <Field label="Kort-ID / slug (valfritt)">
