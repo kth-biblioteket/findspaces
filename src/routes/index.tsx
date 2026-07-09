@@ -228,7 +228,7 @@ function SpaceFinder() {
         const r = rooms[String(num)];
         if (!r || r.disabled) return 3;
         if (r.status === "free") return 0;
-        if (r.status === "moderate") return 1;
+        if (r.status === "tentative") return 1;
         if (r.status === "busy") return 2;
         return 3;
       };
