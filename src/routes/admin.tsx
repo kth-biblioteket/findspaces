@@ -2082,6 +2082,15 @@ function SortableSpaceRow({
         ><GripVertical className="h-4 w-4" aria-hidden="true" /></button>
       </td>
       <td className="px-4 py-3 font-medium">{space.name}</td>
+      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">
+        {(() => {
+          const k = space.space_kind ?? "study";
+          if (k === "service") return "Service & faciliteter";
+          if (k === "creative") return "Skapande & paus";
+          return "Studieplats";
+        })()}
+      </td>
+
       <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
         {space.slug ? (
           <code className="text-xs bg-secondary px-1.5 py-0.5 rounded font-mono">{space.slug}</code>
