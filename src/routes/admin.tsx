@@ -2037,6 +2037,24 @@ function ContentBadges({ space }: { space: Space }) {
           </span>
         );
       })}
+      {(() => {
+        const counts: { key: string; count: number; label: string; Icon: React.ComponentType<{ className?: string }> }[] = [
+          { key: "study", count: space.capacity ?? 0, label: "studieplatser", Icon: TableChairIcon },
+          { key: "informal", count: space.informal_seat_count ?? 0, label: "nedslagsplatser", Icon: Armchair },
+          { key: "computers", count: space.computer_count ?? 0, label: "datorplatser", Icon: Monitor },
+        ];
+        return counts.filter((c) => c.count > 0).map((c) => (
+          <span
+            key={c.key}
+            title={`${c.count} ${c.label}`}
+            aria-label={`${c.count} ${c.label}`}
+            className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/15 text-primary px-1.5 py-0.5 text-[11px] font-medium"
+          >
+            <c.Icon className="h-3 w-3" />
+            <span className="tabular-nums">{c.count}</span>
+          </span>
+        ));
+      })()}
       {imgCount > 0 && (
         <span
           title={`${imgCount} foto${imgCount === 1 ? "" : "n"} inlagda`}
@@ -2050,6 +2068,7 @@ function ContentBadges({ space }: { space: Space }) {
     </div>
   );
 }
+
 
 function SortableSpaceRow({
   space, selected, onToggleSelected, onEdit, onDelete,
