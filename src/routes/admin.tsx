@@ -5,7 +5,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus, Pencil, Trash2, ArrowLeft, Upload, X, Settings2, GripVertical,
   ChevronDown, AlertTriangle, Info, MapPin, CalendarClock, Users, Zap, ImageIcon,
+  Armchair, Monitor,
 } from "lucide-react";
+import { TableChairIcon } from "@/components/icons/TableChairIcon";
+
 import { supabase } from "@/integrations/supabase/client";
 import {
   type Space, type FilterOption, type FilterCategoryRow,
@@ -79,9 +82,8 @@ type BulkAction =
   | "add_filter"
   | "remove_filter"
   | "show_occupancy_on"
-  | "show_occupancy_off"
-  | "show_capacity_on"
-  | "show_capacity_off";
+  | "show_occupancy_off";
+
 
 const BULK_ACTIONS: { value: BulkAction; label: string; needsValue: boolean; placeholder?: string }[] = [
   { value: "set_floor", label: "Sätt våningsplan (SV)", needsValue: true, placeholder: "t.ex. Plan 3" },
@@ -98,8 +100,7 @@ const BULK_ACTIONS: { value: BulkAction; label: string; needsValue: boolean; pla
   { value: "remove_filter", label: "Ta bort filtervärde", needsValue: true },
   { value: "show_occupancy_on", label: "Visa beläggning: PÅ", needsValue: false },
   { value: "show_occupancy_off", label: "Visa beläggning: AV", needsValue: false },
-  { value: "show_capacity_on", label: "Visa kapacitet publikt: PÅ", needsValue: false },
-  { value: "show_capacity_off", label: "Visa kapacitet publikt: AV", needsValue: false },
+
 ];
 
 type FormState = {
@@ -466,8 +467,6 @@ function AdminPage() {
           case "clear_info_en": return { info_en: null };
           case "show_occupancy_on": return { show_occupancy: true };
           case "show_occupancy_off": return { show_occupancy: false };
-          case "show_capacity_on": return { show_capacity_publicly: true };
-          case "show_capacity_off": return { show_capacity_publicly: false };
           default: return null;
         }
       })();
@@ -833,15 +832,8 @@ function AdminPage() {
 
 
 
-                    <label className="flex items-start gap-2 text-sm cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={form.show_capacity_publicly}
-                        onChange={(e) => setForm({ ...form, show_capacity_publicly: e.target.checked })}
-                        className="mt-0.5 h-4 w-4 rounded border-border cursor-pointer accent-[var(--kth-blue)]"
-                      />
-                      <span>Visa antal platser publikt på lokalkortet</span>
-                    </label>
+
+
 
                     <details className="rounded-lg border border-border bg-muted/30 group">
                       <summary className="cursor-pointer select-none px-3 py-2 text-sm font-semibold flex items-center justify-between hover:bg-accent/50 rounded-lg">
@@ -1249,13 +1241,34 @@ function AdminPage() {
                     </select>
                   </>
                 ) : BULK_ACTIONS.find((a) => a.value === bulkAction)?.needsValue && (
-                  <input
-                    value={bulkValue}
-                    onChange={(e) => setBulkValue(e.target.value)}
-                    placeholder={BULK_ACTIONS.find((a) => a.value === bulkAction)?.placeholder ?? ""}
-                    aria-label={BULK_ACTIONS.find((a) => a.value === bulkAction)?.placeholder ?? "Värde"}
-                    className="rounded-lg border border-border bg-card px-2 py-1.5 text-sm min-w-[12rem]"
-                  />
+                  (() => {
+                    const isRichText =
+                      bulkAction === "set_notice" ||
+                      bulkAction === "set_notice_en" ||
+                      bulkAction === "set_info" ||
+                      bulkAction === "set_info_en";
+                    if (isRichText) {
+                      return (
+                        <textarea
+                          value={bulkValue}
+                          onChange={(e) => setBulkValue(e.target.value)}
+                          placeholder={BULK_ACTIONS.find((a) => a.value === bulkAction)?.placeholder ?? ""}
+                          aria-label={BULK_ACTIONS.find((a) => a.value === bulkAction)?.placeholder ?? "Värde"}
+                          rows={5}
+                          className="basis-full min-w-0 rounded-lg border border-border bg-card px-3 py-2 text-sm leading-relaxed resize-y min-h-[7rem]"
+                        />
+                      );
+                    }
+                    return (
+                      <input
+                        value={bulkValue}
+                        onChange={(e) => setBulkValue(e.target.value)}
+                        placeholder={BULK_ACTIONS.find((a) => a.value === bulkAction)?.placeholder ?? ""}
+                        aria-label={BULK_ACTIONS.find((a) => a.value === bulkAction)?.placeholder ?? "Värde"}
+                        className="rounded-lg border border-border bg-card px-2 py-1.5 text-sm min-w-[12rem]"
+                      />
+                    );
+                  })()
                 )}
                 <button
                   type="button"
@@ -1263,8 +1276,22 @@ function AdminPage() {
                   onClick={applyBulk}
                   className="rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-sm font-medium disabled:opacity-50"
                 >{bulkBusy ? "Uppdaterar..." : "Tillämpa"}</button>
+                {(bulkAction === "set_notice" ||
+                  bulkAction === "set_notice_en" ||
+                  bulkAction === "set_info" ||
+                  bulkAction === "set_info_en") && (
+                  <p className="basis-full text-xs text-muted-foreground leading-relaxed">
+                    <strong>Länkar:</strong> länka till en webbsida med
+                    {" "}<code className="text-[11px] bg-secondary px-1 py-0.5 rounded">&lt;a href="https://exempel.se"&gt;Länktext&lt;/a&gt;</code>.
+                    Länka till ett annat lokalkort med
+                    {" "}<code className="text-[11px] bg-secondary px-1 py-0.5 rounded">[[slug|Länktext]]</code>
+                    {" "}(eller bara <code className="text-[11px] bg-secondary px-1 py-0.5 rounded">[[slug]]</code> för att använda lokalens namn).
+                  </p>
+                )}
               </div>
             )}
+
+
 
             <SelectByLokaltyp
               spaces={spaces}
@@ -1295,6 +1322,8 @@ function AdminPage() {
                         </th>
                         <th className="px-2 py-3 w-8"></th>
                         <th className="px-4 py-3 font-semibold">Namn</th>
+                        <th className="px-4 py-3 font-semibold hidden md:table-cell">Kategori</th>
+
                         <th className="px-4 py-3 font-semibold hidden lg:table-cell">Slug</th>
                         <th className="px-4 py-3 font-semibold hidden md:table-cell">Våning</th>
                         <th className="px-4 py-3 font-semibold hidden md:table-cell">Lokaltyp</th>
@@ -2043,6 +2072,24 @@ function ContentBadges({ space }: { space: Space }) {
           </span>
         );
       })}
+      {(() => {
+        const counts: { key: string; count: number; label: string; Icon: React.ComponentType<{ className?: string }> }[] = [
+          { key: "study", count: space.capacity ?? 0, label: "studieplatser", Icon: TableChairIcon },
+          { key: "informal", count: space.informal_seat_count ?? 0, label: "nedslagsplatser", Icon: Armchair },
+          { key: "computers", count: space.computer_count ?? 0, label: "datorplatser", Icon: Monitor },
+        ];
+        return counts.filter((c) => c.count > 0).map((c) => (
+          <span
+            key={c.key}
+            title={`${c.count} ${c.label}`}
+            aria-label={`${c.count} ${c.label}`}
+            className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/15 text-primary px-1.5 py-0.5 text-[11px] font-medium"
+          >
+            <c.Icon className="h-3 w-3" />
+            <span className="tabular-nums">{c.count}</span>
+          </span>
+        ));
+      })()}
       {imgCount > 0 && (
         <span
           title={`${imgCount} foto${imgCount === 1 ? "" : "n"} inlagda`}
@@ -2056,6 +2103,7 @@ function ContentBadges({ space }: { space: Space }) {
     </div>
   );
 }
+
 
 function SortableSpaceRow({
   space, selected, onToggleSelected, onEdit, onDelete,
@@ -2091,6 +2139,15 @@ function SortableSpaceRow({
         ><GripVertical className="h-4 w-4" aria-hidden="true" /></button>
       </td>
       <td className="px-4 py-3 font-medium">{space.name}</td>
+      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">
+        {(() => {
+          const k = space.space_kind ?? "study";
+          if (k === "service") return "Service & faciliteter";
+          if (k === "creative") return "Skapande & paus";
+          return "Studieplats";
+        })()}
+      </td>
+
       <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
         {space.slug ? (
           <code className="text-xs bg-secondary px-1.5 py-0.5 rounded font-mono">{space.slug}</code>

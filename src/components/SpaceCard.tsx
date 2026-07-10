@@ -247,8 +247,8 @@ export function SpaceCard({
 
   const hasMeta = floorRowParts.length > 0 || lokaltypParts.length > 0;
 
-  const showCapacity =
-    space.show_capacity_publicly && (space.capacity ?? 0) > 0;
+  const showCapacity = (space.capacity ?? 0) > 0;
+
 
   const chipBase =
     "inline-flex items-center gap-1.5 text-xs rounded-md px-2.5 py-1.5 max-w-full transition-colors";
