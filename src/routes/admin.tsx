@@ -1284,6 +1284,8 @@ function AdminPage() {
                         </th>
                         <th className="px-2 py-3 w-8"></th>
                         <th className="px-4 py-3 font-semibold">Namn</th>
+                        <th className="px-4 py-3 font-semibold hidden md:table-cell">Kategori</th>
+
                         <th className="px-4 py-3 font-semibold hidden lg:table-cell">Slug</th>
                         <th className="px-4 py-3 font-semibold hidden md:table-cell">Våning</th>
                         <th className="px-4 py-3 font-semibold hidden md:table-cell">Lokaltyp</th>
