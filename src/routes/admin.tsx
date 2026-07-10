@@ -79,9 +79,8 @@ type BulkAction =
   | "add_filter"
   | "remove_filter"
   | "show_occupancy_on"
-  | "show_occupancy_off"
-  | "show_capacity_on"
-  | "show_capacity_off";
+  | "show_occupancy_off";
+
 
 const BULK_ACTIONS: { value: BulkAction; label: string; needsValue: boolean; placeholder?: string }[] = [
   { value: "set_floor", label: "Sätt våningsplan (SV)", needsValue: true, placeholder: "t.ex. Plan 3" },
