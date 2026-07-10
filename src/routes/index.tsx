@@ -367,16 +367,20 @@ function SpaceFinder() {
             <span className="text-xs text-muted-foreground lg:hidden">
               {isLoading
                 ? t("results.loading")
-                : hasActiveFilter
-                  ? t("results.count_filtered", { filtered: sortedFiltered.length, total: spaces.length })
-                  : t("results.count_total", { count: sortedFiltered.length })}
+                : filters.spaceKind !== "study"
+                  ? t("results.count_hits", { count: sortedFiltered.length })
+                  : hasActiveFilter
+                    ? t("results.count_filtered", { filtered: sortedFiltered.length, total: spaces.length })
+                    : t("results.count_total", { count: sortedFiltered.length })}
             </span>
             {!isLoading && (
               <div className="flex items-center gap-3 ml-auto">
                 <span className="hidden lg:inline text-xs text-muted-foreground">
-                  {hasActiveFilter
-                    ? t("results.count_filtered", { filtered: sortedFiltered.length, total: spaces.length })
-                    : t("results.count_total", { count: sortedFiltered.length })}
+                  {filters.spaceKind !== "study"
+                    ? t("results.count_hits", { count: sortedFiltered.length })
+                    : hasActiveFilter
+                      ? t("results.count_filtered", { filtered: sortedFiltered.length, total: spaces.length })
+                      : t("results.count_total", { count: sortedFiltered.length })}
                 </span>
                 <Select
                   value={effectiveSort === "recommended" ? "" : effectiveSort}
@@ -394,7 +398,9 @@ function SpaceFinder() {
                   <SelectContent align="end">
                     <SelectItem value="name_asc">{t("results.sort_name_asc")}</SelectItem>
                     <SelectItem value="name_desc">{t("results.sort_name_desc")}</SelectItem>
-                    <SelectItem value="seats_desc">{t("results.sort_seats_desc")}</SelectItem>
+                    {filters.spaceKind === "study" && (
+                      <SelectItem value="seats_desc">{t("results.sort_seats_desc")}</SelectItem>
+                    )}
                     <SelectItem value="floor_asc">{t("results.sort_floor_asc")}</SelectItem>
                     <SelectItem value="floor_desc">{t("results.sort_floor_desc")}</SelectItem>
                     {canSortFree && (
@@ -405,6 +411,7 @@ function SpaceFinder() {
                     )}
                   </SelectContent>
                 </Select>
+
               </div>
             )}
           </div>
