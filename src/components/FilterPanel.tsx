@@ -189,12 +189,10 @@ export function FilterPanel({
 
       {categories.map((cat) => {
         if (cat.key === "intent") return null;
-        // In service mode, hide categories that only make sense for study
-        // spaces (noise, equipment, group-size). "lokaltyp" and "vaningsplan"
-        // remain so users can narrow by facility type or floor.
-        if (isNonStudy && (cat.key === "noise" || cat.key === "equipment" || cat.key === "facility")) {
-          return null;
-        }
+        // In service / creative modes, hide all category filters — the
+        // remaining browse UX is intentionally minimal.
+        if (isNonStudy) return null;
+
         const opts = byKey[cat.key] ?? [];
 
         if (opts.length === 0) return null;
