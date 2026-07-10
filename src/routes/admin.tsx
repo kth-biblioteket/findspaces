@@ -97,8 +97,7 @@ const BULK_ACTIONS: { value: BulkAction; label: string; needsValue: boolean; pla
   { value: "remove_filter", label: "Ta bort filtervärde", needsValue: true },
   { value: "show_occupancy_on", label: "Visa beläggning: PÅ", needsValue: false },
   { value: "show_occupancy_off", label: "Visa beläggning: AV", needsValue: false },
-  { value: "show_capacity_on", label: "Visa kapacitet publikt: PÅ", needsValue: false },
-  { value: "show_capacity_off", label: "Visa kapacitet publikt: AV", needsValue: false },
+
 ];
 
 type FormState = {
