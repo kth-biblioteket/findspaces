@@ -464,8 +464,6 @@ function AdminPage() {
           case "clear_info_en": return { info_en: null };
           case "show_occupancy_on": return { show_occupancy: true };
           case "show_occupancy_off": return { show_occupancy: false };
-          case "show_capacity_on": return { show_capacity_publicly: true };
-          case "show_capacity_off": return { show_capacity_publicly: false };
           default: return null;
         }
       })();
