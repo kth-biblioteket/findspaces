@@ -39,6 +39,10 @@
     "count_filtered": "{{filtered}} av {{total}} matchar dina filter",
     "count_total_one": "{{count}} lokal",
     "count_total_other": "{{count}} lokaler",
+    "count_hits_one": "{{count}} träff",
+    "count_hits_other": "{{count}} träffar",
+    "count_filtered_hits": "{{filtered}} av {{total}} matchar dina filter",
+
     "remove_filter": "Ta bort {{label}}",
     "clear_all_filters": "Rensa alla filter",
     "sort_label": "Sortera",
