@@ -5,7 +5,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus, Pencil, Trash2, ArrowLeft, Upload, X, Settings2, GripVertical,
   ChevronDown, AlertTriangle, Info, MapPin, CalendarClock, Users, Zap, ImageIcon,
+  Armchair, Monitor,
 } from "lucide-react";
+import { TableChairIcon } from "@/components/icons/TableChairIcon";
+
 import { supabase } from "@/integrations/supabase/client";
 import {
   type Space, type FilterOption, type FilterCategoryRow,
