@@ -141,7 +141,14 @@ function SpaceFinder() {
 
   const sort: SortKey = search.sort ?? "recommended";
   const canSortFree = filters.workMode === "grupprum";
-  const effectiveSort: SortKey = sort === "free_now" && !canSortFree ? "recommended" : sort;
+  const canSortSeats = filters.spaceKind === "study";
+  const effectiveSort: SortKey =
+    sort === "free_now" && !canSortFree
+      ? "recommended"
+      : sort === "seats_desc" && !canSortSeats
+        ? "recommended"
+        : sort;
+
 
   const setFilters = (next: Filters) => {
     const nextSearch = filtersToSearch(next, search.highlight) as Record<string, unknown>;
