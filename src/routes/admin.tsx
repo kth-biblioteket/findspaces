@@ -1241,13 +1241,34 @@ function AdminPage() {
                     </select>
                   </>
                 ) : BULK_ACTIONS.find((a) => a.value === bulkAction)?.needsValue && (
-                  <input
-                    value={bulkValue}
-                    onChange={(e) => setBulkValue(e.target.value)}
-                    placeholder={BULK_ACTIONS.find((a) => a.value === bulkAction)?.placeholder ?? ""}
-                    aria-label={BULK_ACTIONS.find((a) => a.value === bulkAction)?.placeholder ?? "Värde"}
-                    className="rounded-lg border border-border bg-card px-2 py-1.5 text-sm min-w-[12rem]"
-                  />
+                  (() => {
+                    const isRichText =
+                      bulkAction === "set_notice" ||
+                      bulkAction === "set_notice_en" ||
+                      bulkAction === "set_info" ||
+                      bulkAction === "set_info_en";
+                    if (isRichText) {
+                      return (
+                        <textarea
+                          value={bulkValue}
+                          onChange={(e) => setBulkValue(e.target.value)}
+                          placeholder={BULK_ACTIONS.find((a) => a.value === bulkAction)?.placeholder ?? ""}
+                          aria-label={BULK_ACTIONS.find((a) => a.value === bulkAction)?.placeholder ?? "Värde"}
+                          rows={5}
+                          className="basis-full min-w-0 rounded-lg border border-border bg-card px-3 py-2 text-sm leading-relaxed resize-y min-h-[7rem]"
+                        />
+                      );
+                    }
+                    return (
+                      <input
+                        value={bulkValue}
+                        onChange={(e) => setBulkValue(e.target.value)}
+                        placeholder={BULK_ACTIONS.find((a) => a.value === bulkAction)?.placeholder ?? ""}
+                        aria-label={BULK_ACTIONS.find((a) => a.value === bulkAction)?.placeholder ?? "Värde"}
+                        className="rounded-lg border border-border bg-card px-2 py-1.5 text-sm min-w-[12rem]"
+                      />
+                    );
+                  })()
                 )}
                 <button
                   type="button"
@@ -1255,8 +1276,22 @@ function AdminPage() {
                   onClick={applyBulk}
                   className="rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-sm font-medium disabled:opacity-50"
                 >{bulkBusy ? "Uppdaterar..." : "Tillämpa"}</button>
+                {(bulkAction === "set_notice" ||
+                  bulkAction === "set_notice_en" ||
+                  bulkAction === "set_info" ||
+                  bulkAction === "set_info_en") && (
+                  <p className="basis-full text-xs text-muted-foreground leading-relaxed">
+                    <strong>Länkar:</strong> länka till en webbsida med
+                    {" "}<code className="text-[11px] bg-secondary px-1 py-0.5 rounded">&lt;a href="https://exempel.se"&gt;Länktext&lt;/a&gt;</code>.
+                    Länka till ett annat lokalkort med
+                    {" "}<code className="text-[11px] bg-secondary px-1 py-0.5 rounded">[[slug|Länktext]]</code>
+                    {" "}(eller bara <code className="text-[11px] bg-secondary px-1 py-0.5 rounded">[[slug]]</code> för att använda lokalens namn).
+                  </p>
+                )}
               </div>
             )}
+
+
 
             <SelectByLokaltyp
               spaces={spaces}
