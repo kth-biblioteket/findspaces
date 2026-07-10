@@ -39,6 +39,10 @@
     "count_filtered": "{{filtered}} of {{total}} matching your filters",
     "count_total_one": "{{count}} space",
     "count_total_other": "{{count}} spaces",
+    "count_hits_one": "{{count}} hit",
+    "count_hits_other": "{{count}} hits",
+    "count_filtered_hits": "{{filtered}} of {{total}} matching your filters",
+
     "remove_filter": "Remove {{label}}",
     "clear_all_filters": "Clear all filters",
     "sort_label": "Sort",
