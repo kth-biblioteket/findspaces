@@ -62,7 +62,7 @@ function validateSearch(input: Record<string, unknown>): SearchParams {
     }
   }
   const sortRaw = input.sort;
-  const validSorts: SortKey[] = ["recommended", "seats_desc", "floor_asc", "floor_desc", "name_asc", "name_desc", "free_now"];
+  const validSorts: SortKey[] = ["recommended", "seats_desc", "seats_asc", "floor_asc", "floor_desc", "name_asc", "name_desc", "free_now"];
   const sort: SortKey | undefined = validSorts.includes(sortRaw as SortKey) ? (sortRaw as SortKey) : undefined;
   return { q, kind, mode, size, free, highlight, cats, sort };
 }
