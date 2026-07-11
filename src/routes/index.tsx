@@ -232,6 +232,12 @@ function SpaceFinder() {
     };
     if (effectiveSort === "seats_desc") {
       arr.sort((a, b) => (b.capacity ?? -1) - (a.capacity ?? -1));
+    } else if (effectiveSort === "seats_asc") {
+      arr.sort((a, b) => {
+        const av = a.capacity ?? Number.POSITIVE_INFINITY;
+        const bv = b.capacity ?? Number.POSITIVE_INFINITY;
+        return av - bv;
+      });
     } else if (effectiveSort === "floor_asc") {
       arr.sort((a, b) => {
         const av = floorNum(a); const bv = floorNum(b);
