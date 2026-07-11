@@ -426,6 +426,9 @@ function SpaceFinder() {
                     {filters.spaceKind === "study" && (
                       <SelectItem value="seats_desc">{t("results.sort_seats_desc")}</SelectItem>
                     )}
+                    {filters.spaceKind === "study" && (
+                      <SelectItem value="seats_asc">{t("results.sort_seats_asc")}</SelectItem>
+                    )}
                     <SelectItem value="floor_asc">{t("results.sort_floor_asc")}</SelectItem>
                     <SelectItem value="floor_desc">{t("results.sort_floor_desc")}</SelectItem>
                     {canSortFree && (
