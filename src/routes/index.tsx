@@ -275,6 +275,18 @@ function SpaceFinder() {
     return arr;
   }, [filtered, effectiveSort, canSortFree, availability]);
 
+  const noFreeRoomsForSort = useMemo(() => {
+    if (effectiveSort !== "free_now" || !canSortFree) return false;
+    const rooms = availability?.rooms ?? {};
+    return !sortedFiltered.some((s) => {
+      const num = s.booking_room_number;
+      if (num == null) return false;
+      const r = rooms[String(num)];
+      return r && !r.disabled && r.status === "free";
+    });
+  }, [effectiveSort, canSortFree, availability, sortedFiltered]);
+
+
 
 
   const { data: filterOptions = [] } = useFilterOptions();
