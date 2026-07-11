@@ -447,6 +447,17 @@ function SpaceFinder() {
 
           <ActiveFilterChips filters={filters} onChange={setFilters} />
 
+          {!isLoading && noFreeRoomsForSort && sortedFiltered.length > 0 && (
+            <div
+              role="status"
+              className="rounded-2xl border border-border bg-[color:var(--kth-blue)]/5 px-4 py-3 text-sm text-foreground"
+            >
+              {t("results.no_free_rooms_notice")}
+            </div>
+          )}
+
+
+
           {isLoading && (
             <div className="space-y-3 md:space-y-5" role="status" aria-label={t("results.loading")}>
               {Array.from({ length: 3 }).map((_, i) => (
