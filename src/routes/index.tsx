@@ -145,7 +145,7 @@ function SpaceFinder() {
   const effectiveSort: SortKey =
     sort === "free_now" && !canSortFree
       ? "recommended"
-      : sort === "seats_desc" && !canSortSeats
+      : (sort === "seats_desc" || sort === "seats_asc") && !canSortSeats
         ? "recommended"
         : sort;
 
