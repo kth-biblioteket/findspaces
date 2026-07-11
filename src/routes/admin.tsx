@@ -1499,11 +1499,28 @@ function FiltersTab({
 
       <div className="bg-muted/40 rounded-2xl border border-dashed border-border p-4">
         <div className="flex items-center gap-2 mb-1">
-          <h3 className="font-semibold text-base">Jag vill arbeta</h3>
+          <h3 className="font-semibold text-base">Vad letar du efter?</h3>
           <span className="text-xs rounded-full bg-secondary px-2 py-0.5 text-muted-foreground">Systemstyrd</span>
         </div>
         <p className="text-sm text-muted-foreground mb-3">
-          Dessa val är inbyggda i studentvyn och kan inte redigeras här. Använd lokal-redigeraren för att markera vilka arbetssätt varje lokal passar för.
+          Dessa val är inbyggda i studentvyn och kan inte redigeras här. Kategorin för varje lokal sätts i lokal-redigeraren (Studieplats, Service &amp; faciliteter eller Skapande &amp; paus).
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {["En studieplats", "Service & faciliteter", "Skapande & paus"].map((label) => (
+            <span key={label} className="inline-flex items-center rounded-full border border-border bg-card px-3 py-1 text-sm">
+              {label}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-muted/40 rounded-2xl border border-dashed border-border p-4">
+        <div className="flex items-center gap-2 mb-1">
+          <h3 className="font-semibold text-base">Hur vill du arbeta?</h3>
+          <span className="text-xs rounded-full bg-secondary px-2 py-0.5 text-muted-foreground">Systemstyrd</span>
+        </div>
+        <p className="text-sm text-muted-foreground mb-3">
+          Visas bara när <strong>En studieplats</strong> är valt. Använd lokal-redigeraren för att markera vilka arbetssätt varje lokal passar för.
         </p>
         <div className="flex flex-wrap gap-2">
           {["Enskilt", "Tillsammans", "I grupprum"].map((label) => (
