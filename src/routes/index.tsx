@@ -29,7 +29,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/co
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import type { FilterCategoryRow } from "@/lib/spaces";
 
-type SortKey = "recommended" | "seats_desc" | "floor_asc" | "floor_desc" | "name_asc" | "name_desc" | "free_now";
+type SortKey = "recommended" | "seats_desc" | "seats_asc" | "floor_asc" | "floor_desc" | "name_asc" | "name_desc" | "free_now";
 
 type SearchParams = {
   q: string;
