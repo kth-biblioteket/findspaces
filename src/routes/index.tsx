@@ -29,7 +29,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/co
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import type { FilterCategoryRow } from "@/lib/spaces";
 
-type SortKey = "recommended" | "seats_desc" | "floor_asc" | "floor_desc" | "name_asc" | "name_desc" | "free_now";
+type SortKey = "recommended" | "seats_desc" | "seats_asc" | "floor_asc" | "floor_desc" | "name_asc" | "name_desc" | "free_now";
 
 type SearchParams = {
   q: string;
@@ -62,7 +62,7 @@ function validateSearch(input: Record<string, unknown>): SearchParams {
     }
   }
   const sortRaw = input.sort;
-  const validSorts: SortKey[] = ["recommended", "seats_desc", "floor_asc", "floor_desc", "name_asc", "name_desc", "free_now"];
+  const validSorts: SortKey[] = ["recommended", "seats_desc", "seats_asc", "floor_asc", "floor_desc", "name_asc", "name_desc", "free_now"];
   const sort: SortKey | undefined = validSorts.includes(sortRaw as SortKey) ? (sortRaw as SortKey) : undefined;
   return { q, kind, mode, size, free, highlight, cats, sort };
 }
@@ -145,7 +145,7 @@ function SpaceFinder() {
   const effectiveSort: SortKey =
     sort === "free_now" && !canSortFree
       ? "recommended"
-      : sort === "seats_desc" && !canSortSeats
+      : (sort === "seats_desc" || sort === "seats_asc") && !canSortSeats
         ? "recommended"
         : sort;
 
@@ -232,6 +232,12 @@ function SpaceFinder() {
     };
     if (effectiveSort === "seats_desc") {
       arr.sort((a, b) => (b.capacity ?? -1) - (a.capacity ?? -1));
+    } else if (effectiveSort === "seats_asc") {
+      arr.sort((a, b) => {
+        const av = a.capacity ?? Number.POSITIVE_INFINITY;
+        const bv = b.capacity ?? Number.POSITIVE_INFINITY;
+        return av - bv;
+      });
     } else if (effectiveSort === "floor_asc") {
       arr.sort((a, b) => {
         const av = floorNum(a); const bv = floorNum(b);
@@ -268,6 +274,18 @@ function SpaceFinder() {
     }
     return arr;
   }, [filtered, effectiveSort, canSortFree, availability]);
+
+  const noFreeRoomsForSort = useMemo(() => {
+    if (effectiveSort !== "free_now" || !canSortFree) return false;
+    const rooms = availability?.rooms ?? {};
+    return !sortedFiltered.some((s) => {
+      const num = s.booking_room_number;
+      if (num == null) return false;
+      const r = rooms[String(num)];
+      return r && !r.disabled && r.status === "free";
+    });
+  }, [effectiveSort, canSortFree, availability, sortedFiltered]);
+
 
 
 
@@ -408,6 +426,9 @@ function SpaceFinder() {
                     {filters.spaceKind === "study" && (
                       <SelectItem value="seats_desc">{t("results.sort_seats_desc")}</SelectItem>
                     )}
+                    {filters.spaceKind === "study" && (
+                      <SelectItem value="seats_asc">{t("results.sort_seats_asc")}</SelectItem>
+                    )}
                     <SelectItem value="floor_asc">{t("results.sort_floor_asc")}</SelectItem>
                     <SelectItem value="floor_desc">{t("results.sort_floor_desc")}</SelectItem>
                     {canSortFree && (
@@ -425,6 +446,17 @@ function SpaceFinder() {
 
 
           <ActiveFilterChips filters={filters} onChange={setFilters} />
+
+          {!isLoading && noFreeRoomsForSort && sortedFiltered.length > 0 && (
+            <div
+              role="status"
+              className="rounded-2xl border border-border bg-[color:var(--kth-blue)]/5 px-4 py-3 text-sm text-foreground"
+            >
+              {t("results.no_free_rooms_notice")}
+            </div>
+          )}
+
+
 
           {isLoading && (
             <div className="space-y-3 md:space-y-5" role="status" aria-label={t("results.loading")}>

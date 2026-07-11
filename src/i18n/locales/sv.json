@@ -48,6 +48,8 @@
     "sort_label": "Sortera",
     "sort_placeholder": "Standard",
     "sort_seats_desc": "Flest platser först",
+    "sort_seats_asc": "Minst antal platser först",
+    "no_free_rooms_notice": "Just nu finns inga lediga grupprum bland träffarna. Listan visas i vanlig ordning.",
     "sort_floor_asc": "Våningsplan (lägst först)",
     "sort_floor_desc": "Våningsplan (högst först)",
     "sort_name_asc": "Namn (A–Ö)",
