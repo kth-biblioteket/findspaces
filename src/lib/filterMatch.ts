@@ -8,14 +8,11 @@ export function matchesSpace(s: Space, filters: Filters, categories: FilterCateg
 
   if (filters.workMode === "grupprum") {
     if (!(s.lokaltyp ?? []).includes("Grupprum") && !(s.intent ?? []).includes("grupprum")) return false;
-    if (filters.groupSize) {
+    if (filters.groupSize === "5+") {
       const cap = s.capacity ?? 0;
-      if (filters.groupSize === "5+") {
-        if (cap < 5) return false;
-      } else {
-        if (cap < 2 || cap > 4) return false;
-      }
+      if (cap < 5) return false;
     }
+    // For "2-4": show all group rooms; ranking is handled by sort (seats asc).
   } else if (filters.workMode === "enskilt" || filters.workMode === "tillsammans") {
     if (!(s.intent ?? []).includes(filters.workMode)) return false;
   }
