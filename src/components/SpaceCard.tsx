@@ -327,7 +327,7 @@ export function SpaceCard({
                       </span>
                       <span className="leading-none">
                         <span className="sr-only">{t("card.study_seats_sr")} </span>
-                        {space.capacity} {t("card.study_seats_label")}
+                        {space.capacity} {t("card.study_seats_label", { count: space.capacity ?? 0 })}
                       </span>
                     </p>
                   )}
@@ -338,7 +338,7 @@ export function SpaceCard({
                       </span>
                       <span className="leading-none">
                         <span className="sr-only">{t("card.informal_seats_sr")} </span>
-                        {space.informal_seat_count} {t("card.informal_seats_label")}
+                        {space.informal_seat_count} {t("card.informal_seats_label", { count: space.informal_seat_count ?? 0 })}
                       </span>
                     </p>
                   )}
@@ -349,7 +349,7 @@ export function SpaceCard({
                       </span>
                       <span className="leading-none">
                         <span className="sr-only">{t("card.computers_sr")} </span>
-                        {space.computer_count} {t("card.computers_label")}
+                        {space.computer_count} {t("card.computers_label", { count: space.computer_count ?? 0 })}
                       </span>
                     </p>
                   )}
