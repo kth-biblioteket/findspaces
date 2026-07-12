@@ -680,7 +680,7 @@ function AdminPage() {
 
           <TabsContent value="spaces" className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold">Alla lokaler ({spaces.length})</h2>
+              <h2 className="text-xl font-bold">Alla lokaler/ytor ({spaces.length})</h2>
               <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
                   <button
@@ -2044,6 +2044,7 @@ type ContentField = {
 };
 
 function ContentBadges({ space }: { space: Space }) {
+  const { data: capacityIconUrl } = useCapacityIcon();
   const fields: ContentField[] = [
     { key: "notice", label: "Tillfällig viktig information", Icon: AlertTriangle, sv: space.notice, en: space.notice_en },
     { key: "info", label: "Information på kortet", Icon: Info, sv: space.info, en: space.info_en },
@@ -2102,7 +2103,11 @@ function ContentBadges({ space }: { space: Space }) {
             aria-label={`${c.count} ${c.label}`}
             className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/15 text-primary px-1.5 py-0.5 text-[11px] font-medium"
           >
-            <c.Icon className="h-3 w-3" />
+            {c.key === "study" && capacityIconUrl ? (
+              <img src={capacityIconUrl} alt="" className="h-3 w-3 object-contain" />
+            ) : (
+              <c.Icon className="h-3 w-3" />
+            )}
             <span className="tabular-nums">{c.count}</span>
           </span>
         ));
