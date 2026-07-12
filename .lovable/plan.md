@@ -1,69 +1,44 @@
-# Förslag: snygga till adminläget
+## Mål
+Snygga till lokalkorten i admin så de blir lättare att skanna, flytta kategorietiketten till efter titeln, och uppdatera texter så de matchar dagens studievy (där "Jag vill arbeta" inte längre finns).
 
-Fokus på lokal-översikten (som du tycker känns rörig) plus några övergripande grepp som lyfter hela admin. Inga funktioner tas bort – bara omgruppering, tydligare visuell hierarki och mindre "chip-sallad".
+## 1. Ny layout på lokalkortet (SortableSpaceRow)
 
-## 1. Lokal-översikten (tabellen)
+Idag: kategori-pill står **före** titeln på översta raden. Meta-raden nedanför blandar plan, byggnad, lokaltyp, ljud och slug i en lång rad prickar.
 
-Idag ligger allt på en rad: checkbox, drag-handtag, namn, kategori, slug, våning, lokaltyp, ljudnivå + en rad små badges (SV/EN·SV/EN·SV/EN·SV/EN·SV/EN·SV/EN + studieplatser + nedslag + datorer + foton) + två actions. På 1266 px blir det trångt.
-
-**Byt tabellen mot en kortlista** (en rad = ett kort):
+Ny ordning på översta raden:
 
 ```text
-┌──────────────────────────────────────────────────────────────────┐
-│ ⋮⋮ ☐  [Studieplats]  Maxwell                                🖉 🗑 │
-│      Plan 3 · Norra Arkaden · slug: maxwell                       │
-│      Lokaltyp: Grupprum, Datorsal   Ljud: Tyst                    │
-│      Innehåll:  📝Info SV·EN  📍Karta SV  📅Bokning SV·EN  🖼 4    │
-│      Platser:   🪑 24 studie   🛋 6 nedslag   🖥 8 dator          │
-└──────────────────────────────────────────────────────────────────┘
+⋮⋮ ☐   Maxwell  [Studieplats]                                    🖉  🗑
+       Plan 3 · Norra Arkaden · slug: maxwell
+       [Grupprum] [Datorsal]   [Tyst]
+       Innehåll: ...    Platser: ...
 ```
 
 Konkret:
-- Kategori som färgad "pill" längst upp till vänster (blå = studie, grön = service, lila = skapande) – ersätter dagens textkolumn.
-- Namn stort och fetstilt; metarad (plan, byggnad, slug) i muted text under.
-- Två grupperade rader: **Innehåll** (texter/länkar/foton) och **Platser** (studie/nedslag/dator).
-- Redigera/Ta bort som stora ikon-knappar längst till höger, alltid på samma plats.
-- Behåll drag-handtag och checkbox till vänster, men lägre visuell tyngd (mindre grå).
+- **Titeln först**, kategori-pill (Studieplats / Service & faciliteter / Skapande & paus) direkt efter namnet, samma färgkodning som idag men lite mindre visuell tyngd (behåll pill-formen).
+- **Meta-rad 1** (muted, `text-xs`): endast plan · byggnad · slug. Lokaltyp och ljudnivå flyttas till en egen rad.
+- **Meta-rad 2**: lokaltyps-chip (neutrala grå pills) + separat ljudnivå-chip. Blir en tydlig visuell grupp för "vad är det här för lokal".
+- **Innehåll/Platser** (befintlig `ContentBadges`): oförändrad.
+- Slug visas alltid; "ingen slug" kursivt när saknas – oförändrat men flyttar in i meta-rad 1.
 
-Vinsten: samma information, men ögat får en tydlig läsordning istället för en radda små chips.
+## 2. Uppdaterade texter i redigera-dialogen
 
-## 2. Chips – lugna ner färgpaletten
+Studievyn använder inte längre "Jag vill arbeta". Ändra i `Field label`:
+- **"Arbetssätt (vilka val i 'Jag vill arbeta' som lokalen passar)"** → **"Arbetssätt (matchar filtret 'Hur vill du arbeta?' i studievyn)"**
 
-Idag är nästan varje chip blå (`bg-primary/15`). Det gör att ögat inte kan skilja "innehåll" från "platser". Förslag:
-- **Innehåll (texter/länkar/foton)**: neutral grå chip, blå bara när något saknas på EN och det är värt att flagga.
-- **SV-only**-flaggan behålls i amber (varning) – den är faktiskt informativ.
-- **Platser** (studie/nedslag/dator): behåll blåa chips men bara i platser-raden – då blir de en egen visuell grupp.
-- **Foton**: liten bild-ikon i innehållsraden istället för egen färgad chip.
+Detta är hjälptexten i redigera-dialogen (rad 872). Alternativen (Enskilt / Tillsammans / I grupprum) står kvar oförändrade eftersom de fortfarande används av filtret.
 
-## 3. Header + flikar
+## 3. Små konsekventa detaljer
 
-- Öka rubrikens tyngd: "Admin — Studieplatser" är idag `text-sm`. Höj till `text-base font-semibold` och lägg en liten bygg-/miljöindikator (t.ex. "Preview" / "Live") till höger så man vet var man är.
-- Flikarna: byt ordning till en mer logisk gruppering – **Lokaler · Filter · Texter · Kortlayout · Beläggning · Statistik** (innehåll före utseende före drift).
-- Aktiv flik med underlinje i KTH-blått istället för default shadcn-stilen, så det matchar studentvyn.
-
-## 4. Redigera-dialogen ("Ny/Redigera lokal")
-
-Idag är den en lång vertikal lista med ~30 fält. Gör den till en dialog med interna flikar:
-
-- **Grundinfo**: typ, namn (SV/EN), slug, våning, byggnad
-- **Innehåll**: beskrivning (SV/EN), info-text, notis
-- **Länkar**: karta, bokning, grupprum, "boka nu" (SV/EN)
-- **Kapacitet & utrustning**: studieplatser, nedslag, datorer, taggar
-- **Bilder**: uppladdning + alt-texter
-
-Samma fält, men bara 5–6 synliga åt gången. Hjälptexterna (som du lade in för länksyntax) blir mycket lättare att hitta när fälten inte drunknar.
-
-## 5. Små konsekventa detaljer
-
-- Använd samma "pill"-form och samma spacing överallt (`rounded-full`, `px-2.5 py-1`, `text-xs`).
-- Säkerställ att alla "spara"/"avbryt"-knappar har samma ordning (avbryt vänster, spara höger, primär färg på spara).
-- Töm-tillstånd: när ingen lokal matchar sökningen, visa en illustrerad tom ruta istället för en tom tabell.
-- Sticky-header på lokal-listan så du ser kolumnrubriker när du scrollar.
+- Byt "Studieplats"-pill till "Studieplatser" (så att den matchar den nya rubriken "Alla lokaler/ytor" och studievyns språk).
+- Konsekventa pill-mått överallt: `rounded-full px-2 py-0.5 text-[11px]`.
+- Ljudnivå-chippen får en subtilt annorlunda stil (border + `text-muted-foreground`) så man snabbt ser att det är metadata, inte en kategori.
 
 ## Teknisk not
 
-Alla ändringar bor i `src/routes/admin.tsx` + möjligen en ny liten komponent `AdminSpaceCard.tsx` för kortraden. Inga databasändringar, inga API-ändringar, inga ändringar i studentvyn. Färger tas från befintliga design-tokens i `src/styles.css` (`--kth-blue`, `--kth-navy`, `--primary`, `--muted`) – inga hårdkodade hex.
+Alla ändringar bor i `src/routes/admin.tsx`:
+- `SortableSpaceRow` (rad 2135–2255): flytta pill, dela upp meta i två rader.
+- `Field label` för Arbetssätt (rad 872): byt hjälptext.
+- `kindMeta.label` för `study` (rad 2157): "Studieplats" → "Studieplatser".
 
----
-
-Vill du att jag kör hela paketet, eller ska vi börja med bara **§1 + §2** (kortlistan + lugnare chips) som ger störst visuell effekt direkt?
+Inga databasändringar, ingen ändring i studentvyn, inga nya komponenter.

@@ -869,7 +869,7 @@ function AdminPage() {
                     </details>
 
 
-                    <Field label="Arbetssätt (vilka val i ”Jag vill arbeta” som lokalen passar)">
+                    <Field label="Arbetssätt (matchar filtret ”Hur vill du arbeta?” i studievyn)">
                       <div className="flex flex-wrap gap-2">
                         {[
                           { key: "enskilt", label: "Enskilt" },
