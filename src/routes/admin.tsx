@@ -2204,7 +2204,8 @@ function SortableSpaceRow({
                 </span>
               </div>
               {(locationBits.length > 0 || space.slug !== undefined) && (
-                <p className="mt-1 text-xs text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1">
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                  <span className="text-[11px] uppercase tracking-wide text-muted-foreground/80 mr-1">Plats</span>
                   {locationBits.map((b, i) => (
                     <span key={i} className="inline-flex items-center gap-1">
                       {i > 0 && <span aria-hidden="true" className="opacity-40">·</span>}
@@ -2222,10 +2223,11 @@ function SortableSpaceRow({
                       ingen slug
                     </span>
                   )}
-                </p>
+                </div>
               )}
               {(typeChips.length > 0 || noiseChips.length > 0) && (
-                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                  <span className="text-[11px] uppercase tracking-wide text-muted-foreground mr-1">Typ</span>
                   {typeChips.map((t) => (
                     <span
                       key={`type-${t}`}
@@ -2244,6 +2246,7 @@ function SortableSpaceRow({
                   ))}
                 </div>
               )}
+
             </div>
 
 
