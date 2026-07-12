@@ -2044,73 +2044,88 @@ function ContentBadges({ space }: { space: Space }) {
     { key: "book", label: "Boka nu", Icon: Zap, sv: space.book_now_url, en: space.book_now_url_en },
   ];
   const imgCount = space.images?.length ?? 0;
-  return (
-    <div className="flex flex-wrap gap-1.5 items-center">
-      {fields.map((f) => {
-        const hasSv = !!(f.sv && String(f.sv).trim());
-        const hasEn = !!(f.en && String(f.en).trim());
-        if (!hasSv && !hasEn) return null;
-        const both = hasSv && hasEn;
-        const svOnly = hasSv && !hasEn;
-        const enOnly = !hasSv && hasEn;
-        const title = both
-          ? `${f.label}: SV + EN`
-          : svOnly
-            ? `${f.label}: endast SV (visas även på engelska kortet)`
-            : `${f.label}: endast EN`;
-        const cls = both
-          ? "bg-primary/15 text-primary border-primary/30"
-          : svOnly
-            ? "bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-800"
-            : "bg-secondary text-foreground border-border";
-        return (
-          <span
-            key={f.key}
-            title={title}
-            aria-label={title}
-            className={cn(
-              "inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[11px] font-medium",
-              cls,
-            )}
-          >
-            <f.Icon className="h-3 w-3" aria-hidden="true" />
-            <span className="tabular-nums">
-              {both ? "SV·EN" : svOnly ? "SV" : "EN"}
-            </span>
-          </span>
-        );
-      })}
-      {(() => {
-        const counts: { key: string; count: number; label: string; Icon: React.ComponentType<{ className?: string }> }[] = [
-          { key: "study", count: space.capacity ?? 0, label: "studieplatser", Icon: TableChairIcon },
-          { key: "informal", count: space.informal_seat_count ?? 0, label: "nedslagsplatser", Icon: Armchair },
-          { key: "computers", count: space.computer_count ?? 0, label: "datorplatser", Icon: Monitor },
-        ];
-        return counts.filter((c) => c.count > 0).map((c) => (
-          <span
-            key={c.key}
-            title={`${c.count} ${c.label}`}
-            aria-label={`${c.count} ${c.label}`}
-            className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/15 text-primary px-1.5 py-0.5 text-[11px] font-medium"
-          >
-            {c.key === "study" && capacityIconUrl ? (
-              <img src={capacityIconUrl} alt="" className="h-3 w-3 object-contain" />
-            ) : (
-              <c.Icon className="h-3 w-3" />
-            )}
-            <span className="tabular-nums">{c.count}</span>
-          </span>
-        ));
-      })()}
-      {imgCount > 0 && (
+  const contentChips = fields
+    .map((f) => {
+      const hasSv = !!(f.sv && String(f.sv).trim());
+      const hasEn = !!(f.en && String(f.en).trim());
+      if (!hasSv && !hasEn) return null;
+      const both = hasSv && hasEn;
+      const svOnly = hasSv && !hasEn;
+      const title = both
+        ? `${f.label}: SV + EN`
+        : svOnly
+          ? `${f.label}: endast SV (visas även på engelska kortet)`
+          : `${f.label}: endast EN`;
+      const cls = svOnly
+        ? "bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-800"
+        : "bg-secondary text-foreground border-border";
+      return (
         <span
-          title={`${imgCount} foto${imgCount === 1 ? "" : "n"} inlagda`}
-          aria-label={`${imgCount} foton inlagda`}
-          className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/15 text-primary px-1.5 py-0.5 text-[11px] font-medium"
+          key={f.key}
+          title={title}
+          aria-label={title}
+          className={cn(
+            "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium",
+            cls,
+          )}
         >
-          <ImageIcon className="h-3 w-3" aria-hidden="true" />
-          <span className="tabular-nums">{imgCount}</span>
+          <f.Icon className="h-3 w-3" aria-hidden="true" />
+          <span className="tabular-nums">
+            {both ? "SV·EN" : svOnly ? "SV" : "EN"}
+          </span>
         </span>
+      );
+    })
+    .filter(Boolean);
+
+  const seats: { key: string; count: number; label: string; Icon: React.ComponentType<{ className?: string }> }[] = [
+    { key: "study", count: space.capacity ?? 0, label: "studieplatser", Icon: TableChairIcon },
+    { key: "informal", count: space.informal_seat_count ?? 0, label: "nedslagsplatser", Icon: Armchair },
+    { key: "computers", count: space.computer_count ?? 0, label: "datorplatser", Icon: Monitor },
+  ].filter((c) => c.count > 0);
+
+  if (contentChips.length === 0 && seats.length === 0 && imgCount === 0) {
+    return <span className="text-xs italic text-muted-foreground">— Inget innehåll ännu</span>;
+  }
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      {(contentChips.length > 0 || imgCount > 0) && (
+        <div className="flex flex-wrap gap-1.5 items-center">
+          <span className="text-[11px] uppercase tracking-wide text-muted-foreground mr-1">Innehåll</span>
+          {contentChips}
+          {imgCount > 0 && (
+            <span
+              title={`${imgCount} foto${imgCount === 1 ? "" : "n"} inlagda`}
+              aria-label={`${imgCount} foton inlagda`}
+              className="inline-flex items-center gap-1 rounded-full border border-border bg-secondary text-foreground px-2 py-0.5 text-[11px] font-medium"
+            >
+              <ImageIcon className="h-3 w-3" aria-hidden="true" />
+              <span className="tabular-nums">{imgCount}</span>
+            </span>
+          )}
+        </div>
+      )}
+      {seats.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 items-center">
+          <span className="text-[11px] uppercase tracking-wide text-muted-foreground mr-1">Platser</span>
+          {seats.map((c) => (
+            <span
+              key={c.key}
+              title={`${c.count} ${c.label}`}
+              aria-label={`${c.count} ${c.label}`}
+              className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 text-primary px-2 py-0.5 text-[11px] font-medium"
+            >
+              {c.key === "study" && capacityIconUrl ? (
+                <img src={capacityIconUrl} alt="" className="h-3 w-3 object-contain" />
+              ) : (
+                <c.Icon className="h-3 w-3" />
+              )}
+              <span className="tabular-nums">{c.count}</span>
+              <span className="text-[10px] opacity-80">{c.label}</span>
+            </span>
+          ))}
+        </div>
       )}
     </div>
   );
@@ -2132,67 +2147,110 @@ function SortableSpaceRow({
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
+
+  const kind = space.space_kind ?? "study";
+  const kindMeta =
+    kind === "service"
+      ? { label: "Service & faciliteter", cls: "bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-800" }
+      : kind === "creative"
+        ? { label: "Skapande & paus", cls: "bg-violet-100 text-violet-900 border-violet-300 dark:bg-violet-950/40 dark:text-violet-200 dark:border-violet-800" }
+        : { label: "Studieplats", cls: "bg-primary/10 text-primary border-primary/30" };
+
+  const metaBits: string[] = [];
+  if (space.floor) metaBits.push(`Plan ${space.floor}`);
+  if (space.located_in) metaBits.push(space.located_in);
+  if (space.lokaltyp && space.lokaltyp.length > 0) metaBits.push(space.lokaltyp.join(", "));
+  if (space.noise) metaBits.push(`Ljud: ${space.noise}`);
+
   return (
-    <tr ref={setNodeRef} style={style} className={cn("border-t border-border", selected ? "bg-accent/40" : "bg-card")}>
-      <td className="px-2 py-3">
-        <input
-          type="checkbox"
-          aria-label={`Markera ${space.name}`}
-          checked={selected}
-          onChange={onToggleSelected}
-        />
-      </td>
-      <td className="px-2 py-3 text-muted-foreground">
-        <button
-          {...attributes} {...listeners}
-          type="button"
-          className="min-h-11 min-w-11 inline-flex items-center justify-center rounded hover:bg-accent cursor-grab active:cursor-grabbing touch-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          aria-label={`Dra för att flytta ${space.name}`}
-        ><GripVertical className="h-4 w-4" aria-hidden="true" /></button>
-      </td>
-      <td className="px-4 py-3 font-medium">{space.name}</td>
-      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">
-        {(() => {
-          const k = space.space_kind ?? "study";
-          if (k === "service") return "Service & faciliteter";
-          if (k === "creative") return "Skapande & paus";
-          return "Studieplats";
-        })()}
-      </td>
-
-      <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
-        {space.slug ? (
-          <code className="text-xs bg-secondary px-1.5 py-0.5 rounded font-mono">{space.slug}</code>
-        ) : (
-          <span className="text-xs italic">— (ingen slug)</span>
-        )}
-
-      </td>
-      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.floor ?? "—"}</td>
-      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.lokaltyp?.join(", ") || "—"}</td>
-      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{space.noise}</td>
-      <td className="px-4 py-3"><ContentBadges space={space} /></td>
-      <td className="px-4 py-3 text-right">
-        <div className="inline-flex gap-1">
+    <li
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "bg-card rounded-2xl border transition-colors",
+        selected ? "border-primary/60 ring-1 ring-primary/40" : "border-border hover:border-border/80",
+      )}
+    >
+      <div className="flex items-stretch gap-2 p-3 sm:p-4">
+        {/* Left rail: drag + select */}
+        <div className="flex flex-col items-center gap-1 pt-1">
           <button
+            {...attributes} {...listeners}
             type="button"
-            onClick={onEdit}
-            className="min-h-11 min-w-11 inline-flex items-center justify-center rounded-md hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            aria-label={`Redigera ${space.name}`}
-          >
-            <Pencil className="h-4 w-4" aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            onClick={onDelete}
-            className="min-h-11 min-w-11 inline-flex items-center justify-center rounded-md hover:bg-destructive/10 text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            aria-label={`Ta bort ${space.name}`}
-          >
-            <Trash2 className="h-4 w-4" aria-hidden="true" />
-          </button>
+            className="h-8 w-8 inline-flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent cursor-grab active:cursor-grabbing touch-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label={`Dra för att flytta ${space.name}`}
+          ><GripVertical className="h-4 w-4" aria-hidden="true" /></button>
+          <input
+            type="checkbox"
+            aria-label={`Markera ${space.name}`}
+            checked={selected}
+            onChange={onToggleSelected}
+            className="h-4 w-4"
+          />
         </div>
-      </td>
-    </tr>
+
+        {/* Main content */}
+        <div className="flex-1 min-w-0 flex flex-col gap-2">
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className={cn(
+                  "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium",
+                  kindMeta.cls,
+                )}>
+                  {kindMeta.label}
+                </span>
+                <h3 className="text-base font-semibold text-foreground truncate">{space.name}</h3>
+              </div>
+              {(metaBits.length > 0 || space.slug) && (
+                <p className="mt-1 text-xs text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1">
+                  {metaBits.map((b, i) => (
+                    <span key={i} className="inline-flex items-center gap-1">
+                      {i > 0 && <span aria-hidden="true" className="opacity-40">·</span>}
+                      {b}
+                    </span>
+                  ))}
+                  {space.slug ? (
+                    <span className="inline-flex items-center gap-1">
+                      <span aria-hidden="true" className="opacity-40">·</span>
+                      slug: <code className="bg-secondary px-1 py-0.5 rounded font-mono text-[11px]">{space.slug}</code>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 italic">
+                      <span aria-hidden="true" className="opacity-40">·</span>
+                      ingen slug
+                    </span>
+                  )}
+                </p>
+              )}
+            </div>
+
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={onEdit}
+                className="min-h-9 min-w-9 inline-flex items-center justify-center rounded-md hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label={`Redigera ${space.name}`}
+                title="Redigera"
+              >
+                <Pencil className="h-4 w-4" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                onClick={onDelete}
+                className="min-h-9 min-w-9 inline-flex items-center justify-center rounded-md hover:bg-destructive/10 text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label={`Ta bort ${space.name}`}
+                title="Ta bort"
+              >
+                <Trash2 className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+
+          <ContentBadges space={space} />
+        </div>
+      </div>
+    </li>
   );
 }
 
