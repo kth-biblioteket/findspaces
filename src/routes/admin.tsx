@@ -1300,40 +1300,30 @@ function AdminPage() {
               setSelectedIds={setSelectedIds}
             />
 
-            <div className="bg-card rounded-2xl border border-border overflow-hidden">
-
+            <div className="space-y-2">
               {isLoading ? (
-                <div className="p-8 text-center text-muted-foreground">Laddar...</div>
+                <div className="bg-card rounded-2xl border border-border p-8 text-center text-muted-foreground">Laddar...</div>
+              ) : spaces.length === 0 ? (
+                <div className="bg-card rounded-2xl border border-border p-10 text-center text-muted-foreground text-sm">
+                  Inga lokaler ännu. Klicka på <span className="font-medium text-foreground">Ny lokal</span> för att komma igång.
+                </div>
               ) : (
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSpacesDragEnd}>
-                  <table className="w-full text-sm">
-                    <thead className="bg-secondary/50">
-                      <tr className="text-left">
-                        <th className="px-2 py-3 w-8">
-                          <input
-                            type="checkbox"
-                            aria-label="Markera alla"
-                            checked={spaces.length > 0 && selectedIds.size === spaces.length}
-                            ref={(el) => {
-                              if (el) el.indeterminate = selectedIds.size > 0 && selectedIds.size < spaces.length;
-                            }}
-                            onChange={(e) => { if (e.target.checked) selectAll(); else clearSelection(); }}
-                          />
-                        </th>
-                        <th className="px-2 py-3 w-8"></th>
-                        <th className="px-4 py-3 font-semibold">Namn</th>
-                        <th className="px-4 py-3 font-semibold hidden md:table-cell">Kategori</th>
-
-                        <th className="px-4 py-3 font-semibold hidden lg:table-cell">Slug</th>
-                        <th className="px-4 py-3 font-semibold hidden md:table-cell">Våning</th>
-                        <th className="px-4 py-3 font-semibold hidden md:table-cell">Lokaltyp</th>
-                        <th className="px-4 py-3 font-semibold hidden md:table-cell">Ljudnivå</th>
-                        <th className="px-4 py-3 font-semibold">Innehåll</th>
-                        <th className="px-4 py-3 font-semibold text-right">Åtgärder</th>
-                      </tr>
-                    </thead>
+                <>
+                  <div className="flex items-center gap-3 px-4 py-2 text-xs text-muted-foreground">
+                    <input
+                      type="checkbox"
+                      aria-label="Markera alla"
+                      checked={spaces.length > 0 && selectedIds.size === spaces.length}
+                      ref={(el) => {
+                        if (el) el.indeterminate = selectedIds.size > 0 && selectedIds.size < spaces.length;
+                      }}
+                      onChange={(e) => { if (e.target.checked) selectAll(); else clearSelection(); }}
+                    />
+                    <span>Markera alla · {spaces.length} lokaler/ytor</span>
+                  </div>
+                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSpacesDragEnd}>
                     <SortableContext items={spaces.map((s) => s.id)} strategy={verticalListSortingStrategy}>
-                      <tbody>
+                      <ul className="space-y-2 list-none">
                         {spaces.map((s) => (
                           <SortableSpaceRow
                             key={s.id}
@@ -1344,10 +1334,10 @@ function AdminPage() {
                             onDelete={() => { if (confirm(`Ta bort "${s.name}"?`)) del.mutate(s.id); }}
                           />
                         ))}
-                      </tbody>
+                      </ul>
                     </SortableContext>
-                  </table>
-                </DndContext>
+                  </DndContext>
+                </>
               )}
             </div>
           </TabsContent>
