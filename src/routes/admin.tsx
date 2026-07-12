@@ -869,7 +869,7 @@ function AdminPage() {
                     </details>
 
 
-                    <Field label="Arbetssätt (vilka val i ”Jag vill arbeta” som lokalen passar)">
+                    <Field label="Arbetssätt (matchar filtret ”Hur vill du arbeta?” i studievyn)">
                       <div className="flex flex-wrap gap-2">
                         {[
                           { key: "enskilt", label: "Enskilt" },
@@ -2154,13 +2154,14 @@ function SortableSpaceRow({
       ? { label: "Service & faciliteter", cls: "bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-800" }
       : kind === "creative"
         ? { label: "Skapande & paus", cls: "bg-violet-100 text-violet-900 border-violet-300 dark:bg-violet-950/40 dark:text-violet-200 dark:border-violet-800" }
-        : { label: "Studieplats", cls: "bg-primary/10 text-primary border-primary/30" };
+        : { label: "Studieplatser", cls: "bg-primary/10 text-primary border-primary/30" };
 
-  const metaBits: string[] = [];
-  if (space.floor) metaBits.push(`Plan ${space.floor}`);
-  if (space.located_in) metaBits.push(space.located_in);
-  if (space.lokaltyp && space.lokaltyp.length > 0) metaBits.push(space.lokaltyp.join(", "));
-  if (space.noise) metaBits.push(`Ljud: ${space.noise}`);
+  const locationBits: string[] = [];
+  if (space.floor) locationBits.push(`Plan ${space.floor}`);
+  if (space.located_in) locationBits.push(space.located_in);
+
+  const typeChips = space.lokaltyp ?? [];
+  const noiseChips = space.noise ?? [];
 
   return (
     <li
@@ -2194,17 +2195,17 @@ function SortableSpaceRow({
           <div className="flex items-start justify-between gap-3 flex-wrap">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-base font-semibold text-foreground truncate">{space.name}</h3>
                 <span className={cn(
                   "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium",
                   kindMeta.cls,
                 )}>
                   {kindMeta.label}
                 </span>
-                <h3 className="text-base font-semibold text-foreground truncate">{space.name}</h3>
               </div>
-              {(metaBits.length > 0 || space.slug) && (
+              {(locationBits.length > 0 || space.slug !== undefined) && (
                 <p className="mt-1 text-xs text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1">
-                  {metaBits.map((b, i) => (
+                  {locationBits.map((b, i) => (
                     <span key={i} className="inline-flex items-center gap-1">
                       {i > 0 && <span aria-hidden="true" className="opacity-40">·</span>}
                       {b}
@@ -2212,18 +2213,39 @@ function SortableSpaceRow({
                   ))}
                   {space.slug ? (
                     <span className="inline-flex items-center gap-1">
-                      <span aria-hidden="true" className="opacity-40">·</span>
+                      {locationBits.length > 0 && <span aria-hidden="true" className="opacity-40">·</span>}
                       slug: <code className="bg-secondary px-1 py-0.5 rounded font-mono text-[11px]">{space.slug}</code>
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1 italic">
-                      <span aria-hidden="true" className="opacity-40">·</span>
+                      {locationBits.length > 0 && <span aria-hidden="true" className="opacity-40">·</span>}
                       ingen slug
                     </span>
                   )}
                 </p>
               )}
+              {(typeChips.length > 0 || noiseChips.length > 0) && (
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  {typeChips.map((t) => (
+                    <span
+                      key={`type-${t}`}
+                      className="inline-flex items-center rounded-full border border-border bg-secondary/60 px-2 py-0.5 text-[11px] text-foreground"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                  {noiseChips.map((n) => (
+                    <span
+                      key={`noise-${n}`}
+                      className="inline-flex items-center rounded-full border border-border bg-transparent px-2 py-0.5 text-[11px] text-muted-foreground"
+                    >
+                      Ljud: {n}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
+
 
             <div className="flex items-center gap-1 shrink-0">
               <button
