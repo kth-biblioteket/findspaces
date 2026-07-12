@@ -2044,6 +2044,7 @@ type ContentField = {
 };
 
 function ContentBadges({ space }: { space: Space }) {
+  const { data: capacityIconUrl } = useCapacityIcon();
   const fields: ContentField[] = [
     { key: "notice", label: "Tillfällig viktig information", Icon: AlertTriangle, sv: space.notice, en: space.notice_en },
     { key: "info", label: "Information på kortet", Icon: Info, sv: space.info, en: space.info_en },
