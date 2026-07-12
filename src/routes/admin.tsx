@@ -648,7 +648,7 @@ function AdminPage() {
     <div className="min-h-dvh bg-background">
       <header className="bg-card border-b border-border">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between">
-          <h1 className="text-sm font-semibold leading-tight">Admin — Studieplatser</h1>
+          <h1 className="text-base font-semibold leading-tight text-[var(--kth-navy)]">Admin — Studieplatser</h1>
           <div className="flex items-center gap-3">
             {userEmail && <span className="hidden sm:inline text-xs text-muted-foreground">{userEmail}</span>}
             <button
