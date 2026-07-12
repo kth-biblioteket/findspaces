@@ -671,8 +671,8 @@ function AdminPage() {
           <TabsList className="mb-6">
             <TabsTrigger value="spaces">Lokaler</TabsTrigger>
             <TabsTrigger value="filters">Filteralternativ</TabsTrigger>
-            <TabsTrigger value="layout">Kortlayout</TabsTrigger>
             <TabsTrigger value="landing">Texter</TabsTrigger>
+            <TabsTrigger value="layout">Kortlayout</TabsTrigger>
             <TabsTrigger value="occupancy">Beläggning</TabsTrigger>
             <TabsTrigger value="analytics">Statistik</TabsTrigger>
           </TabsList>
