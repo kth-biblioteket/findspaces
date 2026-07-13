@@ -20,10 +20,22 @@ export function ActiveFilterChips({
   const { data: options = [] } = useFilterOptions();
   const optLookup = new Map(options.map((o) => [`${o.category}:${o.label}`, o]));
 
-  const workModeLabel: Record<NonNullable<Filters["workMode"]>, string> = {
+  // Look up work-mode chip labels via the DB-backed "arbetssatt" category
+  // (falls back to i18n if the DB row is missing).
+  const arbetssattCat = categories.find((c) => c.special_kind === "arbetssatt");
+  const arbetssattByKey = new Map(
+    (arbetssattCat ? options.filter((o) => o.category === arbetssattCat.key) : [])
+      .filter((o) => o.value_key)
+      .map((o) => [o.value_key as string, o]),
+  );
+  const fallbackWorkMode: Record<string, string> = {
     enskilt: t("filters.intent_enskilt"),
     tillsammans: t("filters.intent_tillsammans"),
     grupprum: t("filters.intent_grupprum"),
+  };
+  const workModeLabel = (key: string) => {
+    const opt = arbetssattByKey.get(key);
+    return opt ? pickLocalized(opt, "label", lang) : (fallbackWorkMode[key] ?? key);
   };
   const groupSizeLabel: Record<NonNullable<Filters["groupSize"]>, string> = {
     "2-4": t("filters.group_size_2_4"),
@@ -43,7 +55,7 @@ export function ActiveFilterChips({
   if (filters.workMode) {
     chips.push({
       key: "workMode",
-      label: workModeLabel[filters.workMode],
+      label: workModeLabel(filters.workMode),
       onRemove: () => onChange({ ...filters, workMode: null, groupSize: null, freeOnly: false }),
     });
   }

@@ -105,7 +105,7 @@ const BULK_ACTIONS: { value: BulkAction; label: string; needsValue: boolean; pla
 
 type FormState = {
   id?: string;
-  space_kind: "study" | "service" | "creative";
+  space_kind: string;
   slug: string;
   name: string;
   name_en: string;
@@ -182,7 +182,7 @@ function spaceToForm(s: Space): FormState {
   while (image_alts_en.length < images.length) image_alts_en.push("");
   return {
     id: s.id,
-    space_kind: (s.space_kind ?? "study") as "study" | "service" | "creative",
+    space_kind: s.space_kind ?? "study",
     slug: s.slug ?? "",
     name: s.name,
     name_en: s.name_en ?? "",
@@ -348,6 +348,16 @@ function AdminPage() {
   const { data: filterOptions = [] } = useFilterOptions();
   const { data: categories = [] } = useFilterCategories();
   const byKey = groupOptionsByKey(filterOptions);
+
+  // Read the two special categories from DB so their labels/icons/order
+  // (edited from the Filters tab) drive the space editor's own pickers.
+  const spaceKindCat = categories.find((c) => c.special_kind === "space_kind");
+  const arbetssattCat = categories.find((c) => c.special_kind === "arbetssatt");
+  const spaceKindOptions: FilterOption[] = (spaceKindCat ? byKey[spaceKindCat.key] ?? [] : [])
+    .filter((o) => !o.hidden && o.value_key);
+  const arbetssattOptions: FilterOption[] = (arbetssattCat ? byKey[arbetssattCat.key] ?? [] : [])
+    .filter((o) => !o.hidden && o.value_key);
+
 
   const save = useMutation({
     mutationFn: async (f: FormState) => {
@@ -701,19 +711,16 @@ function AdminPage() {
                   </DialogHeader>
 
                   <div className="space-y-5 py-2">
-                    <Field label="Typ av lokal">
+                    <Field label={spaceKindCat ? spaceKindCat.title : "Typ av lokal"}>
                       <div className="flex flex-wrap gap-2">
-                        {([
-                          { key: "study", label: "Studieplats" },
-                          { key: "service", label: "Service & faciliteter" },
-                          { key: "creative", label: "Skapande & paus" },
-                        ] as const).map((k) => {
-                          const active = form.space_kind === k.key;
+                        {spaceKindOptions.map((o) => {
+                          const key = o.value_key ?? "";
+                          const active = form.space_kind === key;
                           return (
                             <button
-                              key={k.key}
+                              key={o.id}
                               type="button"
-                              onClick={() => setForm({ ...form, space_kind: k.key })}
+                              onClick={() => setForm({ ...form, space_kind: key })}
                               className={cn(
                                 "rounded-full border px-3 py-1.5 text-sm transition",
                                 active
@@ -721,7 +728,7 @@ function AdminPage() {
                                   : "bg-card text-foreground border-border hover:bg-accent",
                               )}
                             >
-                              {k.label}
+                              {o.label}
                             </button>
                           );
                         })}
@@ -869,22 +876,19 @@ function AdminPage() {
                     </details>
 
 
-                    <Field label="Arbetssätt (matchar filtret ”Hur vill du arbeta?” i studievyn)">
+                    <Field label={arbetssattCat ? `${arbetssattCat.title} (arbetssätt per lokal)` : "Arbetssätt"}>
                       <div className="flex flex-wrap gap-2">
-                        {[
-                          { key: "enskilt", label: "Enskilt" },
-                          { key: "tillsammans", label: "Tillsammans" },
-                          { key: "grupprum", label: "I grupprum" },
-                        ].map((wm) => {
-                          const active = form.intent.includes(wm.key);
+                        {arbetssattOptions.map((o) => {
+                          const key = o.value_key ?? "";
+                          const active = form.intent.includes(key);
                           return (
                             <button
-                              key={wm.key}
+                              key={o.id}
                               type="button"
                               onClick={() => {
                                 const next = active
-                                  ? form.intent.filter((v) => v !== wm.key)
-                                  : [...form.intent, wm.key];
+                                  ? form.intent.filter((v) => v !== key)
+                                  : [...form.intent, key];
                                 setForm({ ...form, intent: next });
                               }}
                               className={cn(
@@ -894,7 +898,7 @@ function AdminPage() {
                                   : "bg-card text-foreground border-border hover:bg-accent"
                               )}
                             >
-                              {wm.label}
+                              {o.label}
                             </button>
                           );
                         })}
@@ -1166,7 +1170,7 @@ function AdminPage() {
                       </div>
                     </details>
 
-                    {categories.filter((c) => c.key !== "intent").map((cat) => (
+                    {categories.filter((c) => !c.special_kind).map((cat) => (
                       <DynamicCategoryField
                         key={cat.id}
                         cat={cat}
@@ -1455,7 +1459,7 @@ function FiltersTab({
     reorder.mutate(arrayMove(categories, oldIdx, newIdx));
   };
 
-  const editableCategories = categories.filter((c) => c.key !== "intent");
+  const editableCategories = categories;
 
   return (
     <div className="space-y-4">
@@ -1472,7 +1476,7 @@ function FiltersTab({
         </button>
       </div>
       <p className="text-sm text-muted-foreground -mt-2">
-        Redigera kategorinamn direkt, dra för att ändra ordningen i studentvyn, och lägg till egna alternativ med valfri ikon.
+        Redigera kategorinamn direkt, dra för att ändra ordningen i studentvyn, och lägg till egna alternativ med valfri ikon. Alternativ märkta <strong>Standard</strong> är kopplade till kod och kan bara döljas — inte raderas.
       </p>
       <div className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
         <strong className="font-medium text-foreground">Om ikonerna:</strong> De inbyggda ikonerna kommer från{" "}
@@ -1487,42 +1491,6 @@ function FiltersTab({
         och är fria att använda (ISC-licens). Du kan även ladda upp egna ikoner per alternativ.
       </div>
 
-      <div className="bg-muted/40 rounded-2xl border border-dashed border-border p-4">
-        <div className="flex items-center gap-2 mb-1">
-          <h3 className="font-semibold text-base">Vad letar du efter?</h3>
-          <span className="text-xs rounded-full bg-secondary px-2 py-0.5 text-muted-foreground">Systemstyrd</span>
-        </div>
-        <p className="text-sm text-muted-foreground mb-3">
-          Dessa val är inbyggda i studentvyn och kan inte redigeras här. Kategorin för varje lokal sätts i lokal-redigeraren (Studieplats, Service &amp; faciliteter eller Skapande &amp; paus).
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {["En studieplats", "Service & faciliteter", "Skapande & paus"].map((label) => (
-            <span key={label} className="inline-flex items-center rounded-full border border-border bg-card px-3 py-1 text-sm">
-              {label}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <div className="bg-muted/40 rounded-2xl border border-dashed border-border p-4">
-        <div className="flex items-center gap-2 mb-1">
-          <h3 className="font-semibold text-base">Hur vill du arbeta?</h3>
-          <span className="text-xs rounded-full bg-secondary px-2 py-0.5 text-muted-foreground">Systemstyrd</span>
-        </div>
-        <p className="text-sm text-muted-foreground mb-3">
-          Visas bara när <strong>En studieplats</strong> är valt. Använd lokal-redigeraren för att markera vilka arbetssätt varje lokal passar för.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {["Enskilt", "Tillsammans", "I grupprum"].map((label) => (
-            <span key={label} className="inline-flex items-center rounded-full border border-border bg-card px-3 py-1 text-sm">
-              {label}
-            </span>
-          ))}
-        </div>
-        <p className="text-xs text-muted-foreground mt-3">
-          När <strong>I grupprum</strong> är vald visas även gruppstorlek (2–4 / 5+) automatiskt utifrån lokalens kapacitet.
-        </p>
-      </div>
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={editableCategories.map((c) => c.id)} strategy={verticalListSortingStrategy}>

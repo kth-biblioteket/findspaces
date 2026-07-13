@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Check, User, Users, DoorClosed, ChevronDown, BookOpen, Wrench, Palette } from "lucide-react";
+import { Search, Check, ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PillToggle } from "./PillToggle";
 import { OptionIcon } from "./OptionIcon";
@@ -10,7 +10,7 @@ import { type FilterOption, type FilterCategoryRow, type SpaceKind } from "@/lib
 import { pickLocalized, type Lang } from "@/i18n";
 import { cn } from "@/lib/utils";
 
-export type WorkMode = "enskilt" | "tillsammans" | "grupprum" | null;
+export type WorkMode = string | null;
 export type GroupSize = "2-4" | "5+" | null;
 
 export type Filters = {
@@ -86,15 +86,14 @@ export function FilterPanel({
   };
 
 
-  // Intent section is hard-coded in the student view, so the title should
-  // always come from the translation file (not the DB).
-  const intentTitle = t("filters.intent_default_title");
-
-  const intentTabs: { key: Exclude<WorkMode, null>; label: string; Icon: typeof User }[] = [
-    { key: "enskilt", label: t("filters.intent_enskilt"), Icon: User },
-    { key: "tillsammans", label: t("filters.intent_tillsammans"), Icon: Users },
-    { key: "grupprum", label: t("filters.intent_grupprum"), Icon: DoorClosed },
-  ];
+  // Read the two "special" categories from the DB. Labels, icons and order
+  // are edited in admin; if a row is missing we silently omit the section.
+  const spaceKindCat = categories.find((c) => c.special_kind === "space_kind");
+  const arbetssattCat = categories.find((c) => c.special_kind === "arbetssatt");
+  const spaceKindOpts = (spaceKindCat ? byKey[spaceKindCat.key] ?? [] : [])
+    .filter((o) => !o.hidden && o.value_key);
+  const arbetssattOpts = (arbetssattCat ? byKey[arbetssattCat.key] ?? [] : [])
+    .filter((o) => !o.hidden && o.value_key);
 
   const isStudy = filters.spaceKind === "study";
   const isNonStudy = !isStudy;
@@ -114,41 +113,34 @@ export function FilterPanel({
         </label>
       </div>
 
-      <div>
-        <h3 className="text-sm font-semibold mb-3">{t("filters.mode_group_label")}</h3>
-        <div className="flex flex-wrap gap-2">
-          <PillToggle
-            label={t("filters.mode_study")}
-            icon={<BookOpen className="h-4 w-4" />}
-            selected={filters.spaceKind === "study"}
-            onClick={() => setSpaceKind("study")}
-          />
-          <PillToggle
-            label={t("filters.mode_service")}
-            icon={<Wrench className="h-4 w-4" />}
-            selected={filters.spaceKind === "service"}
-            onClick={() => setSpaceKind("service")}
-          />
-          <PillToggle
-            label={t("filters.mode_creative")}
-            icon={<Palette className="h-4 w-4" />}
-            selected={filters.spaceKind === "creative"}
-            onClick={() => setSpaceKind("creative")}
-          />
-        </div>
-      </div>
-
-      {!isNonStudy && (
+      {spaceKindCat && spaceKindOpts.length > 0 && (
         <div>
-          <h3 className="text-sm font-semibold mb-3">{intentTitle}</h3>
+          <h3 className="text-sm font-semibold mb-3">{pickLocalized(spaceKindCat, "title", lang)}</h3>
           <div className="flex flex-wrap gap-2">
-            {intentTabs.map(({ key, label, Icon }) => (
+            {spaceKindOpts.map((o) => (
               <PillToggle
-                key={key}
-                label={label}
-                icon={<Icon className="h-4 w-4" />}
-                selected={filters.workMode === key}
-                onClick={() => setWorkMode(key)}
+                key={o.id}
+                label={pickLocalized(o, "label", lang)}
+                icon={<OptionIcon option={o} className="h-4 w-4" />}
+                selected={filters.spaceKind === o.value_key}
+                onClick={() => setSpaceKind(o.value_key as SpaceKind)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!isNonStudy && arbetssattCat && arbetssattOpts.length > 0 && (
+        <div>
+          <h3 className="text-sm font-semibold mb-3">{pickLocalized(arbetssattCat, "title", lang)}</h3>
+          <div className="flex flex-wrap gap-2">
+            {arbetssattOpts.map((o) => (
+              <PillToggle
+                key={o.id}
+                label={pickLocalized(o, "label", lang)}
+                icon={<OptionIcon option={o} className="h-4 w-4" />}
+                selected={filters.workMode === o.value_key}
+                onClick={() => setWorkMode(o.value_key as string)}
               />
             ))}
           </div>
@@ -188,7 +180,7 @@ export function FilterPanel({
 
 
       {categories.map((cat) => {
-        if (cat.key === "intent") return null;
+        if (cat.special_kind) return null;
         // In service / creative modes, hide all category filters — the
         // remaining browse UX is intentionally minimal.
         if (isNonStudy) return null;
