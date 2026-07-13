@@ -68,6 +68,7 @@ export type Database = {
           locked: boolean
           match_mode: string
           sort_order: number
+          special_kind: string | null
           style: string
           title: string
           title_en: string | null
@@ -81,6 +82,7 @@ export type Database = {
           locked?: boolean
           match_mode?: string
           sort_order?: number
+          special_kind?: string | null
           style?: string
           title: string
           title_en?: string | null
@@ -94,6 +96,7 @@ export type Database = {
           locked?: boolean
           match_mode?: string
           sort_order?: number
+          special_kind?: string | null
           style?: string
           title?: string
           title_en?: string | null
@@ -106,34 +109,43 @@ export type Database = {
           category: string
           created_at: string
           default_icon: string | null
+          hidden: boolean
           icon_url: string | null
           id: string
+          is_seed: boolean
           label: string
           label_en: string | null
           sort_order: number
           updated_at: string
+          value_key: string | null
         }
         Insert: {
           category: string
           created_at?: string
           default_icon?: string | null
+          hidden?: boolean
           icon_url?: string | null
           id?: string
+          is_seed?: boolean
           label: string
           label_en?: string | null
           sort_order?: number
           updated_at?: string
+          value_key?: string | null
         }
         Update: {
           category?: string
           created_at?: string
           default_icon?: string | null
+          hidden?: boolean
           icon_url?: string | null
           id?: string
+          is_seed?: boolean
           label?: string
           label_en?: string | null
           sort_order?: number
           updated_at?: string
+          value_key?: string | null
         }
         Relationships: []
       }

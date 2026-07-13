@@ -105,7 +105,7 @@ const BULK_ACTIONS: { value: BulkAction; label: string; needsValue: boolean; pla
 
 type FormState = {
   id?: string;
-  space_kind: "study" | "service" | "creative";
+  space_kind: string;
   slug: string;
   name: string;
   name_en: string;
@@ -182,7 +182,7 @@ function spaceToForm(s: Space): FormState {
   while (image_alts_en.length < images.length) image_alts_en.push("");
   return {
     id: s.id,
-    space_kind: (s.space_kind ?? "study") as "study" | "service" | "creative",
+    space_kind: s.space_kind ?? "study",
     slug: s.slug ?? "",
     name: s.name,
     name_en: s.name_en ?? "",
@@ -349,6 +349,16 @@ function AdminPage() {
   const { data: categories = [] } = useFilterCategories();
   const byKey = groupOptionsByKey(filterOptions);
 
+  // Read the two special categories from DB so their labels/icons/order
+  // (edited from the Filters tab) drive the space editor's own pickers.
+  const spaceKindCat = categories.find((c) => c.special_kind === "space_kind");
+  const arbetssattCat = categories.find((c) => c.special_kind === "arbetssatt");
+  const spaceKindOptions: FilterOption[] = (spaceKindCat ? byKey[spaceKindCat.key] ?? [] : [])
+    .filter((o) => !o.hidden && o.value_key);
+  const arbetssattOptions: FilterOption[] = (arbetssattCat ? byKey[arbetssattCat.key] ?? [] : [])
+    .filter((o) => !o.hidden && o.value_key);
+
+
   const save = useMutation({
     mutationFn: async (f: FormState) => {
       const capNum = f.capacity.trim() ? parseInt(f.capacity, 10) : NaN;
@@ -481,7 +491,7 @@ function AdminPage() {
         }
         // Map category key to spaces column (or tags JSON)
         const colMap: Record<string, string> = {
-          intent: "intent", noise: "noise", equipment: "equipment",
+          intent: "intent", arbetssatt: "intent", noise: "noise", equipment: "equipment",
           facility: "facilities", lokaltyp: "lokaltyp",
         };
         const col = colMap[cat];
@@ -701,19 +711,16 @@ function AdminPage() {
                   </DialogHeader>
 
                   <div className="space-y-5 py-2">
-                    <Field label="Typ av lokal">
+                    <Field label={spaceKindCat ? spaceKindCat.title : "Typ av lokal"}>
                       <div className="flex flex-wrap gap-2">
-                        {([
-                          { key: "study", label: "Studieplats" },
-                          { key: "service", label: "Service & faciliteter" },
-                          { key: "creative", label: "Skapande & paus" },
-                        ] as const).map((k) => {
-                          const active = form.space_kind === k.key;
+                        {spaceKindOptions.map((o) => {
+                          const key = o.value_key ?? "";
+                          const active = form.space_kind === key;
                           return (
                             <button
-                              key={k.key}
+                              key={o.id}
                               type="button"
-                              onClick={() => setForm({ ...form, space_kind: k.key })}
+                              onClick={() => setForm({ ...form, space_kind: key })}
                               className={cn(
                                 "rounded-full border px-3 py-1.5 text-sm transition",
                                 active
@@ -721,7 +728,7 @@ function AdminPage() {
                                   : "bg-card text-foreground border-border hover:bg-accent",
                               )}
                             >
-                              {k.label}
+                              {o.label}
                             </button>
                           );
                         })}
@@ -869,22 +876,19 @@ function AdminPage() {
                     </details>
 
 
-                    <Field label="Arbetssätt (matchar filtret ”Hur vill du arbeta?” i studievyn)">
+                    <Field label={arbetssattCat ? `${arbetssattCat.title} (arbetssätt per lokal)` : "Arbetssätt"}>
                       <div className="flex flex-wrap gap-2">
-                        {[
-                          { key: "enskilt", label: "Enskilt" },
-                          { key: "tillsammans", label: "Tillsammans" },
-                          { key: "grupprum", label: "I grupprum" },
-                        ].map((wm) => {
-                          const active = form.intent.includes(wm.key);
+                        {arbetssattOptions.map((o) => {
+                          const key = o.value_key ?? "";
+                          const active = form.intent.includes(key);
                           return (
                             <button
-                              key={wm.key}
+                              key={o.id}
                               type="button"
                               onClick={() => {
                                 const next = active
-                                  ? form.intent.filter((v) => v !== wm.key)
-                                  : [...form.intent, wm.key];
+                                  ? form.intent.filter((v) => v !== key)
+                                  : [...form.intent, key];
                                 setForm({ ...form, intent: next });
                               }}
                               className={cn(
@@ -894,7 +898,7 @@ function AdminPage() {
                                   : "bg-card text-foreground border-border hover:bg-accent"
                               )}
                             >
-                              {wm.label}
+                              {o.label}
                             </button>
                           );
                         })}
@@ -1166,7 +1170,7 @@ function AdminPage() {
                       </div>
                     </details>
 
-                    {categories.filter((c) => c.key !== "intent").map((cat) => (
+                    {categories.filter((c) => !c.special_kind).map((cat) => (
                       <DynamicCategoryField
                         key={cat.id}
                         cat={cat}
@@ -1455,7 +1459,7 @@ function FiltersTab({
     reorder.mutate(arrayMove(categories, oldIdx, newIdx));
   };
 
-  const editableCategories = categories.filter((c) => c.key !== "intent");
+  const editableCategories = categories;
 
   return (
     <div className="space-y-4">
@@ -1472,7 +1476,7 @@ function FiltersTab({
         </button>
       </div>
       <p className="text-sm text-muted-foreground -mt-2">
-        Redigera kategorinamn direkt, dra för att ändra ordningen i studentvyn, och lägg till egna alternativ med valfri ikon.
+        Redigera kategorinamn direkt, dra för att ändra ordningen i studentvyn, och lägg till egna alternativ med valfri ikon. Alternativ märkta <strong>Standard</strong> är kopplade till kod och kan bara döljas — inte raderas.
       </p>
       <div className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
         <strong className="font-medium text-foreground">Om ikonerna:</strong> De inbyggda ikonerna kommer från{" "}
@@ -1487,42 +1491,6 @@ function FiltersTab({
         och är fria att använda (ISC-licens). Du kan även ladda upp egna ikoner per alternativ.
       </div>
 
-      <div className="bg-muted/40 rounded-2xl border border-dashed border-border p-4">
-        <div className="flex items-center gap-2 mb-1">
-          <h3 className="font-semibold text-base">Vad letar du efter?</h3>
-          <span className="text-xs rounded-full bg-secondary px-2 py-0.5 text-muted-foreground">Systemstyrd</span>
-        </div>
-        <p className="text-sm text-muted-foreground mb-3">
-          Dessa val är inbyggda i studentvyn och kan inte redigeras här. Kategorin för varje lokal sätts i lokal-redigeraren (Studieplats, Service &amp; faciliteter eller Skapande &amp; paus).
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {["En studieplats", "Service & faciliteter", "Skapande & paus"].map((label) => (
-            <span key={label} className="inline-flex items-center rounded-full border border-border bg-card px-3 py-1 text-sm">
-              {label}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <div className="bg-muted/40 rounded-2xl border border-dashed border-border p-4">
-        <div className="flex items-center gap-2 mb-1">
-          <h3 className="font-semibold text-base">Hur vill du arbeta?</h3>
-          <span className="text-xs rounded-full bg-secondary px-2 py-0.5 text-muted-foreground">Systemstyrd</span>
-        </div>
-        <p className="text-sm text-muted-foreground mb-3">
-          Visas bara när <strong>En studieplats</strong> är valt. Använd lokal-redigeraren för att markera vilka arbetssätt varje lokal passar för.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {["Enskilt", "Tillsammans", "I grupprum"].map((label) => (
-            <span key={label} className="inline-flex items-center rounded-full border border-border bg-card px-3 py-1 text-sm">
-              {label}
-            </span>
-          ))}
-        </div>
-        <p className="text-xs text-muted-foreground mt-3">
-          När <strong>I grupprum</strong> är vald visas även gruppstorlek (2–4 / 5+) automatiskt utifrån lokalens kapacitet.
-        </p>
-      </div>
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={editableCategories.map((c) => c.id)} strategy={verticalListSortingStrategy}>
@@ -1639,7 +1607,13 @@ function FilterCategoryCard({
     reorderOptions.mutate(arrayMove(items, oldIdx, newIdx));
   };
 
+  const isSpecial = cat.special_kind != null;
+
   const handleDeleteCategory = async () => {
+    if (isSpecial) {
+      toast.error("Denna kategori är kopplad till koden och kan inte tas bort. Du kan dölja enskilda alternativ istället.");
+      return;
+    }
     if (!confirm(`Ta bort kategorin "${cat.title}" och alla dess alternativ?`)) return;
     try {
       // First delete options for this category, then the category
@@ -1701,7 +1675,13 @@ function FilterCategoryCard({
                   key={o.id}
                   option={o}
                   onEdit={() => setEditing(o)}
-                  onDelete={() => { if (confirm(`Ta bort "${o.label}"?`)) del.mutate(o.id); }}
+                  onDelete={() => {
+                    if (o.is_seed) {
+                      toast.error("Standardalternativ kan inte raderas — redigera etiketten/ikonen eller dölj det i alternativet.");
+                      return;
+                    }
+                    if (confirm(`Ta bort "${o.label}"?`)) del.mutate(o.id);
+                  }}
                 />
               ))}
             </ul>
@@ -2148,13 +2128,22 @@ function SortableSpaceRow({
     opacity: isDragging ? 0.5 : 1,
   };
 
+  const { data: filterOptions = [] } = useFilterOptions();
+  const { data: categories = [] } = useFilterCategories();
   const kind = space.space_kind ?? "study";
-  const kindMeta =
-    kind === "service"
-      ? { label: "Service & faciliteter", cls: "bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-800" }
-      : kind === "creative"
-        ? { label: "Skapande & paus", cls: "bg-violet-100 text-violet-900 border-violet-300 dark:bg-violet-950/40 dark:text-violet-200 dark:border-violet-800" }
-        : { label: "Studieplatser", cls: "bg-primary/10 text-primary border-primary/30" };
+  const kindCatKey = categories.find((c) => c.special_kind === "space_kind")?.key;
+  const kindOpt = kindCatKey
+    ? filterOptions.find((o) => o.category === kindCatKey && o.value_key === kind)
+    : undefined;
+  const kindClsByValue: Record<string, string> = {
+    service: "bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-800",
+    creative: "bg-violet-100 text-violet-900 border-violet-300 dark:bg-violet-950/40 dark:text-violet-200 dark:border-violet-800",
+    study: "bg-primary/10 text-primary border-primary/30",
+  };
+  const kindMeta = {
+    label: kindOpt?.label ?? (kind === "service" ? "Service & faciliteter" : kind === "creative" ? "Skapande & paus" : "Studieplatser"),
+    cls: kindClsByValue[kind] ?? "bg-primary/10 text-primary border-primary/30",
+  };
 
   const locationBits: string[] = [];
   if (space.floor) locationBits.push(`Plan ${space.floor}`);
@@ -2363,11 +2352,12 @@ function SelectByLokaltyp({
   const matchesForLabel = (label: string) =>
     spaces.filter((s) => Array.isArray(s.lokaltyp) && s.lokaltyp.includes(label));
 
-  const kindGroups: Array<{ key: "study" | "service" | "creative"; label: string }> = [
-    { key: "study", label: "Studieplatser" },
-    { key: "service", label: "Service & faciliteter" },
-    { key: "creative", label: "Skapande & paus" },
-  ];
+  const { data: kindCategories = [] } = useFilterCategories();
+  const kindCatKeyForGroups = kindCategories.find((c) => c.special_kind === "space_kind")?.key;
+  const kindOptsForGroups = (kindCatKeyForGroups
+    ? options.filter((o) => o.category === kindCatKeyForGroups && !o.hidden && o.value_key)
+    : []);
+  const kindGroups = kindOptsForGroups.map((o) => ({ key: o.value_key as string, label: o.label }));
 
   const toggleForMatches = (matches: Space[]) => {
     if (matches.length === 0) return;
@@ -2545,14 +2535,30 @@ function ImageDropzone({
 function SortableFilterOptionRow({
   option, onEdit, onDelete,
 }: { option: FilterOption; onEdit: () => void; onDelete: () => void }) {
+  const qc = useQueryClient();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: option.id });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
+  const toggleHidden = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("filter_options")
+        .update({ hidden: !option.hidden } as any).eq("id", option.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["filter_options"] });
+      toast.success(option.hidden ? "Synligt igen" : "Dolt");
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
   return (
-    <li ref={setNodeRef} style={style} className="py-2 flex items-center justify-between gap-3 bg-card">
+    <li ref={setNodeRef} style={style} className={cn(
+      "py-2 flex items-center justify-between gap-3 bg-card",
+      option.hidden && "opacity-60",
+    )}>
       <div className="flex items-center gap-2 min-w-0">
         <button
           {...attributes} {...listeners}
@@ -2564,8 +2570,24 @@ function SortableFilterOptionRow({
           <OptionIcon option={option} className="h-4 w-4" />
         </span>
         <span className="text-sm truncate">{option.label}</span>
+        {option.is_seed && (
+          <span className="text-[10px] rounded-full bg-secondary px-1.5 py-0.5 text-muted-foreground uppercase tracking-wide">Standard</span>
+        )}
+        {option.hidden && (
+          <span className="text-[10px] rounded-full bg-secondary px-1.5 py-0.5 text-muted-foreground uppercase tracking-wide">Dold</span>
+        )}
       </div>
       <div className="inline-flex gap-1">
+        {(option.is_seed || option.hidden) && (
+          <button
+            type="button"
+            onClick={() => toggleHidden.mutate()}
+            className="min-h-11 px-2 inline-flex items-center justify-center rounded-md hover:bg-accent text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label={option.hidden ? `Visa ${option.label}` : `Dölj ${option.label}`}
+          >
+            {option.hidden ? "Visa" : "Dölj"}
+          </button>
+        )}
         <button
           type="button"
           onClick={onEdit}
@@ -2574,14 +2596,16 @@ function SortableFilterOptionRow({
         >
           <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
         </button>
-        <button
-          type="button"
-          onClick={onDelete}
-          className="min-h-11 min-w-11 inline-flex items-center justify-center rounded-md hover:bg-destructive/10 text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          aria-label={`Ta bort ${option.label}`}
-        >
-          <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-        </button>
+        {!option.is_seed && (
+          <button
+            type="button"
+            onClick={onDelete}
+            className="min-h-11 min-w-11 inline-flex items-center justify-center rounded-md hover:bg-destructive/10 text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label={`Ta bort ${option.label}`}
+          >
+            <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+          </button>
+        )}
       </div>
     </li>
   );

@@ -1,7 +1,14 @@
 import * as Icons from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-export type SpaceKind = "study" | "service" | "creative";
+/**
+ * A space's "kind" is the value_key of a filter_options row in the
+ * space_kind category. The three seed keys are "study", "service",
+ * "creative" — admins can add more via the admin filter editor.
+ */
+export type SpaceKind = string;
+export const SEED_SPACE_KINDS = ["study", "service", "creative"] as const;
+export const SEED_WORK_MODES = ["enskilt", "tillsammans", "grupprum"] as const;
 
 export type Space = {
   id: string;
@@ -70,6 +77,8 @@ export type FilterCategoryRow = {
   is_single_select: boolean;
   locked: boolean;
   sort_order: number;
+  /** Non-null marks a category as backed by a dedicated column on spaces. */
+  special_kind: "space_kind" | "arbetssatt" | null;
 };
 
 export type FilterOption = {
@@ -80,11 +89,17 @@ export type FilterOption = {
   icon_url: string | null;
   default_icon: string | null;
   sort_order: number;
+  /** Stable code-facing key for options in special categories. */
+  value_key: string | null;
+  is_seed: boolean;
+  hidden: boolean;
 };
 
 /** Read the array of selected values on a space for a given category. */
 export function getSpaceValues(space: Space, key: string): string[] {
   switch (key) {
+    case "space_kind": return space.space_kind ? [space.space_kind] : [];
+    case "arbetssatt":
     case "intent": return space.intent ?? [];
     case "noise": return space.noise ?? [];
     case "equipment": return space.equipment ?? [];

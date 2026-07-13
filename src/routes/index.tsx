@@ -33,8 +33,8 @@ type SortKey = "recommended" | "seats_desc" | "seats_asc" | "floor_asc" | "floor
 
 type SearchParams = {
   q: string;
-  kind?: "service" | "creative";
-  mode?: "enskilt" | "tillsammans" | "grupprum";
+  kind?: string;
+  mode?: string;
   size?: "2-4" | "5+";
   free?: boolean;
   highlight?: string;
@@ -44,13 +44,11 @@ type SearchParams = {
 
 function validateSearch(input: Record<string, unknown>): SearchParams {
   const q = typeof input.q === "string" ? input.q : "";
-  const kind =
-    input.kind === "service" || input.kind === "creative" ? input.kind : undefined;
-  const modeRaw = input.mode;
-  const mode =
-    modeRaw === "enskilt" || modeRaw === "tillsammans" || modeRaw === "grupprum"
-      ? modeRaw
-      : undefined;
+  const kindRaw = typeof input.kind === "string" ? input.kind : undefined;
+  // "study" is the implicit default and never appears in the URL.
+  const kind = kindRaw && kindRaw !== "study" ? kindRaw : undefined;
+  const modeRaw = typeof input.mode === "string" ? input.mode : undefined;
+  const mode = modeRaw || undefined;
   const sizeRaw = input.size;
   const size = sizeRaw === "2-4" || sizeRaw === "5+" ? sizeRaw : undefined;
   const free = input.free === true || input.free === "1" || input.free === 1 ? true : undefined;
@@ -96,13 +94,14 @@ export const Route = createFileRoute("/")({
 });
 
 function searchToFilters(s: SearchParams): Filters {
-  const kind = s.kind === "service" ? "service" : s.kind === "creative" ? "creative" : "study";
+  const kind = s.kind ?? "study";
+  const isStudy = kind === "study";
   return {
     query: s.q ?? "",
     spaceKind: kind,
-    workMode: kind === "study" ? (s.mode ?? null) : null,
-    groupSize: kind === "study" && s.mode === "grupprum" ? (s.size ?? null) : null,
-    freeOnly: kind === "study" && s.mode === "grupprum" ? Boolean(s.free) : false,
+    workMode: isStudy ? (s.mode ?? null) : null,
+    groupSize: isStudy && s.mode === "grupprum" ? (s.size ?? null) : null,
+    freeOnly: isStudy && s.mode === "grupprum" ? Boolean(s.free) : false,
     byCategory: s.cats ?? {},
   };
 }
@@ -113,8 +112,7 @@ function filtersToSearch(f: Filters, highlight?: string) {
     if (v && v.length > 0) cats[k] = v;
   }
   const isStudy = f.spaceKind === "study";
-  const kind: "service" | "creative" | undefined =
-    f.spaceKind === "service" ? "service" : f.spaceKind === "creative" ? "creative" : undefined;
+  const kind = f.spaceKind && f.spaceKind !== "study" ? f.spaceKind : undefined;
   return {
     q: f.query.trim() ? f.query : undefined,
     kind,
