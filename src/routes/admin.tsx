@@ -1607,7 +1607,13 @@ function FilterCategoryCard({
     reorderOptions.mutate(arrayMove(items, oldIdx, newIdx));
   };
 
+  const isSpecial = cat.special_kind != null;
+
   const handleDeleteCategory = async () => {
+    if (isSpecial) {
+      toast.error("Denna kategori är kopplad till koden och kan inte tas bort. Du kan dölja enskilda alternativ istället.");
+      return;
+    }
     if (!confirm(`Ta bort kategorin "${cat.title}" och alla dess alternativ?`)) return;
     try {
       // First delete options for this category, then the category
@@ -1669,7 +1675,13 @@ function FilterCategoryCard({
                   key={o.id}
                   option={o}
                   onEdit={() => setEditing(o)}
-                  onDelete={() => { if (confirm(`Ta bort "${o.label}"?`)) del.mutate(o.id); }}
+                  onDelete={() => {
+                    if (o.is_seed) {
+                      toast.error("Standardalternativ kan inte raderas — redigera etiketten/ikonen eller dölj det i alternativet.");
+                      return;
+                    }
+                    if (confirm(`Ta bort "${o.label}"?`)) del.mutate(o.id);
+                  }}
                 />
               ))}
             </ul>
