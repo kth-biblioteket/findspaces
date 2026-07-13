@@ -2525,14 +2525,30 @@ function ImageDropzone({
 function SortableFilterOptionRow({
   option, onEdit, onDelete,
 }: { option: FilterOption; onEdit: () => void; onDelete: () => void }) {
+  const qc = useQueryClient();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: option.id });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
+  const toggleHidden = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("filter_options")
+        .update({ hidden: !option.hidden } as any).eq("id", option.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["filter_options"] });
+      toast.success(option.hidden ? "Synligt igen" : "Dolt");
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
   return (
-    <li ref={setNodeRef} style={style} className="py-2 flex items-center justify-between gap-3 bg-card">
+    <li ref={setNodeRef} style={style} className={cn(
+      "py-2 flex items-center justify-between gap-3 bg-card",
+      option.hidden && "opacity-60",
+    )}>
       <div className="flex items-center gap-2 min-w-0">
         <button
           {...attributes} {...listeners}
@@ -2544,8 +2560,24 @@ function SortableFilterOptionRow({
           <OptionIcon option={option} className="h-4 w-4" />
         </span>
         <span className="text-sm truncate">{option.label}</span>
+        {option.is_seed && (
+          <span className="text-[10px] rounded-full bg-secondary px-1.5 py-0.5 text-muted-foreground uppercase tracking-wide">Standard</span>
+        )}
+        {option.hidden && (
+          <span className="text-[10px] rounded-full bg-secondary px-1.5 py-0.5 text-muted-foreground uppercase tracking-wide">Dold</span>
+        )}
       </div>
       <div className="inline-flex gap-1">
+        {(option.is_seed || option.hidden) && (
+          <button
+            type="button"
+            onClick={() => toggleHidden.mutate()}
+            className="min-h-11 px-2 inline-flex items-center justify-center rounded-md hover:bg-accent text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label={option.hidden ? `Visa ${option.label}` : `Dölj ${option.label}`}
+          >
+            {option.hidden ? "Visa" : "Dölj"}
+          </button>
+        )}
         <button
           type="button"
           onClick={onEdit}
@@ -2554,14 +2586,16 @@ function SortableFilterOptionRow({
         >
           <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
         </button>
-        <button
-          type="button"
-          onClick={onDelete}
-          className="min-h-11 min-w-11 inline-flex items-center justify-center rounded-md hover:bg-destructive/10 text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          aria-label={`Ta bort ${option.label}`}
-        >
-          <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-        </button>
+        {!option.is_seed && (
+          <button
+            type="button"
+            onClick={onDelete}
+            className="min-h-11 min-w-11 inline-flex items-center justify-center rounded-md hover:bg-destructive/10 text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label={`Ta bort ${option.label}`}
+          >
+            <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+          </button>
+        )}
       </div>
     </li>
   );
