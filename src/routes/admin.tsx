@@ -491,7 +491,7 @@ function AdminPage() {
         }
         // Map category key to spaces column (or tags JSON)
         const colMap: Record<string, string> = {
-          intent: "intent", noise: "noise", equipment: "equipment",
+          intent: "intent", arbetssatt: "intent", noise: "noise", equipment: "equipment",
           facility: "facilities", lokaltyp: "lokaltyp",
         };
         const col = colMap[cat];
@@ -2128,13 +2128,22 @@ function SortableSpaceRow({
     opacity: isDragging ? 0.5 : 1,
   };
 
+  const { data: filterOptions = [] } = useFilterOptions();
+  const { data: categories = [] } = useFilterCategories();
   const kind = space.space_kind ?? "study";
-  const kindMeta =
-    kind === "service"
-      ? { label: "Service & faciliteter", cls: "bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-800" }
-      : kind === "creative"
-        ? { label: "Skapande & paus", cls: "bg-violet-100 text-violet-900 border-violet-300 dark:bg-violet-950/40 dark:text-violet-200 dark:border-violet-800" }
-        : { label: "Studieplatser", cls: "bg-primary/10 text-primary border-primary/30" };
+  const kindCatKey = categories.find((c) => c.special_kind === "space_kind")?.key;
+  const kindOpt = kindCatKey
+    ? filterOptions.find((o) => o.category === kindCatKey && o.value_key === kind)
+    : undefined;
+  const kindClsByValue: Record<string, string> = {
+    service: "bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-800",
+    creative: "bg-violet-100 text-violet-900 border-violet-300 dark:bg-violet-950/40 dark:text-violet-200 dark:border-violet-800",
+    study: "bg-primary/10 text-primary border-primary/30",
+  };
+  const kindMeta = {
+    label: kindOpt?.label ?? (kind === "service" ? "Service & faciliteter" : kind === "creative" ? "Skapande & paus" : "Studieplatser"),
+    cls: kindClsByValue[kind] ?? "bg-primary/10 text-primary border-primary/30",
+  };
 
   const locationBits: string[] = [];
   if (space.floor) locationBits.push(`Plan ${space.floor}`);
@@ -2343,11 +2352,12 @@ function SelectByLokaltyp({
   const matchesForLabel = (label: string) =>
     spaces.filter((s) => Array.isArray(s.lokaltyp) && s.lokaltyp.includes(label));
 
-  const kindGroups: Array<{ key: "study" | "service" | "creative"; label: string }> = [
-    { key: "study", label: "Studieplatser" },
-    { key: "service", label: "Service & faciliteter" },
-    { key: "creative", label: "Skapande & paus" },
-  ];
+  const { data: kindCategories = [] } = useFilterCategories();
+  const kindCatKeyForGroups = kindCategories.find((c) => c.special_kind === "space_kind")?.key;
+  const kindOptsForGroups = (kindCatKeyForGroups
+    ? options.filter((o) => o.category === kindCatKeyForGroups && !o.hidden && o.value_key)
+    : []);
+  const kindGroups = kindOptsForGroups.map((o) => ({ key: o.value_key as string, label: o.label }));
 
   const toggleForMatches = (matches: Space[]) => {
     if (matches.length === 0) return;
