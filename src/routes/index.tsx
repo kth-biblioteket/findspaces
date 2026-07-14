@@ -385,12 +385,12 @@ function SpaceFinder() {
 
 
         <main id="main" tabIndex={-1} className="focus-visible:outline-none" aria-busy={isLoading}>
-          <div
-            className="flex flex-wrap items-center justify-between gap-3 mb-3"
-            aria-live="polite"
-            aria-atomic="true"
-          >
-            <span className="text-xs text-muted-foreground lg:hidden">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+            <span
+              className="text-xs text-muted-foreground lg:hidden"
+              aria-live="polite"
+              aria-atomic="true"
+            >
               {isLoading
                 ? t("results.loading")
                 : filters.spaceKind !== "study"
@@ -401,7 +401,11 @@ function SpaceFinder() {
             </span>
             {!isLoading && (
               <div className="flex items-center gap-3 ml-auto">
-                <span className="hidden lg:inline text-xs text-muted-foreground">
+                <span
+                  className="hidden lg:inline text-xs text-muted-foreground"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
                   {filters.spaceKind !== "study"
                     ? t("results.count_hits", { count: sortedFiltered.length })
                     : hasActiveFilter
@@ -444,6 +448,7 @@ function SpaceFinder() {
               </div>
             )}
           </div>
+
 
 
           <ActiveFilterChips filters={filters} onChange={setFilters} />
@@ -514,13 +519,21 @@ function SpaceFinder() {
               )}
             </div>
           )}
-          {!isLoading && (
-            <div className="space-y-3 md:space-y-5">
-              {sortedFiltered.map((s, i) => (
-                <SpaceCard key={s.id} space={s} filters={filters} onFiltersChange={setFilters} onSpaceLink={handleSpaceLink} highlightId={search.highlight} highlightTick={highlightTick} spaces={spaces} priority={i < 2} />
-              ))}
-            </div>
+          {!isLoading && sortedFiltered.length > 0 && (
+            <section aria-labelledby="results-heading">
+              <h2 id="results-heading" className="sr-only">
+                {t("results.heading")}
+              </h2>
+              <ul role="list" className="space-y-3 md:space-y-5 list-none pl-0">
+                {sortedFiltered.map((s, i) => (
+                  <li key={s.id}>
+                    <SpaceCard space={s} filters={filters} onFiltersChange={setFilters} onSpaceLink={handleSpaceLink} highlightId={search.highlight} highlightTick={highlightTick} spaces={spaces} priority={i < 2} />
+                  </li>
+                ))}
+              </ul>
+            </section>
           )}
+
         </main>
       </div>
     </div>

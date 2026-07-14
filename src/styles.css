@@ -107,6 +107,31 @@
   100% { box-shadow: 0 0 0 0 rgba(25, 84, 166, 0); }
 }
 
-.space-highlight {
-  animation: space-highlight-pulse 1.5s ease-out;
+@media (prefers-reduced-motion: no-preference) {
+  .space-highlight {
+    animation: space-highlight-pulse 1.5s ease-out;
+  }
+}
+
+/* Respect users who prefer reduced motion — disable non-essential
+   animations/transitions app-wide. Preserves opacity fades that are
+   used purely to hide loading state. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Highlight-outline for the space that the user just jumped to — replaces
+   the animated pulse for reduced-motion users so the affordance is not lost. */
+@media (prefers-reduced-motion: reduce) {
+  .space-highlight {
+    outline: 2px solid var(--kth-blue);
+    outline-offset: 2px;
+  }
 }
