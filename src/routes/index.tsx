@@ -519,13 +519,21 @@ function SpaceFinder() {
               )}
             </div>
           )}
-          {!isLoading && (
-            <div className="space-y-3 md:space-y-5">
-              {sortedFiltered.map((s, i) => (
-                <SpaceCard key={s.id} space={s} filters={filters} onFiltersChange={setFilters} onSpaceLink={handleSpaceLink} highlightId={search.highlight} highlightTick={highlightTick} spaces={spaces} priority={i < 2} />
-              ))}
-            </div>
+          {!isLoading && sortedFiltered.length > 0 && (
+            <section aria-labelledby="results-heading">
+              <h2 id="results-heading" className="sr-only">
+                {t("results.heading")}
+              </h2>
+              <ul role="list" className="space-y-3 md:space-y-5 list-none pl-0">
+                {sortedFiltered.map((s, i) => (
+                  <li key={s.id}>
+                    <SpaceCard space={s} filters={filters} onFiltersChange={setFilters} onSpaceLink={handleSpaceLink} highlightId={search.highlight} highlightTick={highlightTick} spaces={spaces} priority={i < 2} />
+                  </li>
+                ))}
+              </ul>
+            </section>
           )}
+
         </main>
       </div>
     </div>
