@@ -59,7 +59,8 @@
   },
   "chips": {
     "search_label": "Search: \"{{query}}\"",
-    "remove_aria": "Remove filter: {{label}}"
+    "remove_aria": "Remove filter: {{label}}",
+    "active_filters": "Active filters"
   },
   "card": {
     "capacity_sr": "Capacity:",
