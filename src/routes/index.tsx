@@ -385,12 +385,12 @@ function SpaceFinder() {
 
 
         <main id="main" tabIndex={-1} className="focus-visible:outline-none" aria-busy={isLoading}>
-          <div
-            className="flex flex-wrap items-center justify-between gap-3 mb-3"
-            aria-live="polite"
-            aria-atomic="true"
-          >
-            <span className="text-xs text-muted-foreground lg:hidden">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+            <span
+              className="text-xs text-muted-foreground lg:hidden"
+              aria-live="polite"
+              aria-atomic="true"
+            >
               {isLoading
                 ? t("results.loading")
                 : filters.spaceKind !== "study"
@@ -401,7 +401,11 @@ function SpaceFinder() {
             </span>
             {!isLoading && (
               <div className="flex items-center gap-3 ml-auto">
-                <span className="hidden lg:inline text-xs text-muted-foreground">
+                <span
+                  className="hidden lg:inline text-xs text-muted-foreground"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
                   {filters.spaceKind !== "study"
                     ? t("results.count_hits", { count: sortedFiltered.length })
                     : hasActiveFilter
@@ -444,6 +448,7 @@ function SpaceFinder() {
               </div>
             )}
           </div>
+
 
 
           <ActiveFilterChips filters={filters} onChange={setFilters} />
