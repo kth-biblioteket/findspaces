@@ -103,7 +103,11 @@ export function ActiveFilterChips({
   void categories;
 
   return (
-    <div className="mb-4 flex flex-nowrap items-center gap-2 overflow-x-auto scrollbar-hide">
+    <div
+      role="group"
+      aria-label={t("chips.active_filters")}
+      className="mb-4 flex flex-nowrap items-center gap-2 overflow-x-auto scrollbar-hide"
+    >
       {chips.map((c) => (
         <button
           key={c.key}
@@ -128,3 +132,4 @@ export function ActiveFilterChips({
     </div>
   );
 }
+
