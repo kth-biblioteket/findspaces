@@ -59,7 +59,8 @@
   },
   "chips": {
     "search_label": "Sök: \"{{query}}\"",
-    "remove_aria": "Ta bort filter: {{label}}"
+    "remove_aria": "Ta bort filter: {{label}}",
+    "active_filters": "Aktiva filter"
   },
   "card": {
     "capacity_sr": "Kapacitet:",
