@@ -66,15 +66,54 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   return brandedErrorResponse();
 }
 
+// Security headers, including CSP tuned for iframe embedding under kth.se.
+// script-src / style-src still need 'unsafe-inline' because TanStack Start
+// emits inline hydration scripts and Tailwind emits inline styles;
+// tighten with nonces once we introduce a nonce middleware.
+const CSP = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'self' https://*.kth.se https://kth.se https://*.lovable.app",
+  "img-src 'self' data: blob: https://*.supabase.co https://*.r2.dev https://pub-*.r2.dev",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+  "form-action 'self'",
+  "worker-src 'self' blob:",
+].join("; ");
+
+function applySecurityHeaders(response: Response): Response {
+  const headers = new Headers(response.headers);
+  headers.set("Content-Security-Policy", CSP);
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=(), payment=()",
+  );
+  if (!headers.has("X-Frame-Options")) {
+    // Some proxies still respect this even though CSP frame-ancestors supersedes.
+    // Omit it entirely so iframe embedding under kth.se works.
+  }
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      return applySecurityHeaders(await normalizeCatastrophicSsrResponse(response));
     } catch (error) {
       console.error(error);
-      return brandedErrorResponse();
+      return applySecurityHeaders(brandedErrorResponse());
     }
   },
 };
+
