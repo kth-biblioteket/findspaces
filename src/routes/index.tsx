@@ -493,7 +493,7 @@ function SpaceFinder() {
             </div>
           )}
 
-          {!isLoading && sortedFiltered.length === 0 && (
+          {!isLoading && !isError && sortedFiltered.length === 0 && (
             <div className="bg-card rounded-2xl shadow-sm p-8 text-left">
               <p className="text-base font-semibold text-foreground mb-2 whitespace-pre-line">
                 {emptyTitle}
