@@ -184,7 +184,7 @@ function SpaceFinder() {
     }
   };
 
-  const { data: spaces = [], isLoading } = useQuery(spacesQueryOptions);
+  const { data: spaces = [], isLoading, isError, refetch } = useQuery(spacesQueryOptions);
 
   const { data: categories = [] } = useFilterCategories();
   const { data: emptyTitle } = useUiText("empty_title");
