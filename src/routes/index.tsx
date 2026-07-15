@@ -331,10 +331,10 @@ function SpaceFinder() {
             <LanguageSwitcher />
             <Link
               to="/admin"
-              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               aria-label={t("header.admin")}
             >
-              <Settings className="h-3.5 w-3.5" aria-hidden="true" />
+              <Settings className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
         </div>
@@ -419,7 +419,7 @@ function SpaceFinder() {
                   <SelectTrigger
                     id="sort-select"
                     aria-label={t("results.sort_label")}
-                    className="h-auto w-auto gap-1.5 border-0 bg-transparent shadow-none px-1 py-0 text-xs text-muted-foreground hover:text-foreground focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 [&>svg]:opacity-100"
+                    className="h-auto min-h-9 w-auto gap-1.5 border-0 bg-transparent shadow-none px-2 py-2 text-xs text-muted-foreground hover:text-foreground focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 [&>svg]:opacity-100"
                   >
                     <ArrowUpDown className="h-3.5 w-3.5" aria-hidden="true" />
                     <span className="mr-1">{t("results.sort_label")}:</span>
