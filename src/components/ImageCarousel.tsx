@@ -142,8 +142,8 @@ export function ImageCarousel({
             <ChevronRight className="h-5 w-5" strokeWidth={2.5} aria-hidden="true" />
           </button>
 
-          {/* Pagination dots in a pill */}
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-black/55 backdrop-blur-sm shadow-md">
+          {/* Pagination dots in a pill — buttons keep a 24×24 hit target with a smaller visual dot */}
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex items-center gap-0.5 px-1 py-0.5 rounded-full bg-black/55 backdrop-blur-sm shadow-md">
             {list.map((_, i) => (
               <button
                 key={i}
@@ -151,11 +151,16 @@ export function ImageCarousel({
                 onClick={(e) => { e.stopPropagation(); setIdx(i); }}
                 aria-label={t("gallery.go_to", { n: i + 1 })}
                 aria-current={i === idx ? "true" : undefined}
-                className={cn(
-                  "h-2 w-2 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
-                  i === idx ? "bg-white" : "bg-white/55 hover:bg-white/80"
-                )}
-              />
+                className="h-6 w-6 inline-flex items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              >
+                <span
+                  className={cn(
+                    "block h-2 w-2 rounded-full transition-all",
+                    i === idx ? "bg-white" : "bg-white/55 hover:bg-white/80"
+                  )}
+                  aria-hidden="true"
+                />
+              </button>
             ))}
           </div>
         </>
