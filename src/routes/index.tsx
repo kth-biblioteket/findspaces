@@ -472,6 +472,27 @@ function SpaceFinder() {
             </div>
           )}
 
+          {!isLoading && isError && (
+            <div
+              role="alert"
+              className="bg-card rounded-2xl shadow-sm p-8 text-left"
+            >
+              <p className="text-base font-semibold text-foreground mb-2">
+                {t("results.error_title")}
+              </p>
+              <p className="text-sm text-muted-foreground mb-4">
+                {t("results.error_body")}
+              </p>
+              <button
+                type="button"
+                onClick={() => { void refetch(); }}
+                className="inline-flex items-center rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+              >
+                {t("results.error_retry")}
+              </button>
+            </div>
+          )}
+
           {!isLoading && sortedFiltered.length === 0 && (
             <div className="bg-card rounded-2xl shadow-sm p-8 text-left">
               <p className="text-base font-semibold text-foreground mb-2 whitespace-pre-line">
