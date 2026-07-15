@@ -262,21 +262,33 @@ function AdminPage() {
 
   useEffect(() => {
     let mounted = true;
-    supabase.auth.getSession().then(({ data }) => {
-      if (!mounted) return;
-      if (!data.session) {
+    const checkAccess = async (session: { user: { id: string; email?: string | null } } | null) => {
+      if (!session) {
         navigate({ to: "/login" });
         return;
       }
-      setUserEmail(data.session.user.email ?? null);
+      const { data: isAdmin, error } = await supabase.rpc("has_role", {
+        _user_id: session.user.id,
+        _role: "admin",
+      });
+      if (!mounted) return;
+      if (error || !isAdmin) {
+        toast.error("Saknar admin-behörighet");
+        await supabase.auth.signOut();
+        navigate({ to: "/login" });
+        return;
+      }
+      setUserEmail(session.user.email ?? null);
       setAuthChecked(true);
-    });
+    };
+    supabase.auth.getSession().then(({ data }) => { void checkAccess(data.session); });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       if (!session) navigate({ to: "/login" });
-      else setUserEmail(session.user.email ?? null);
+      else void checkAccess(session);
     });
     return () => { mounted = false; sub.subscription.unsubscribe(); };
   }, [navigate]);
+
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
