@@ -354,7 +354,7 @@ function SpaceFinder() {
             }
           >
             <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
-              <span className="text-sm font-semibold">{t("filters.title")}</span>
+              <h2 className="text-sm font-semibold m-0">{t("filters.title")}</h2>
               {hasActiveFilter && (
                 <button
                   type="button"

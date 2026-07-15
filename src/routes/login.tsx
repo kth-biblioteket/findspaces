@@ -36,7 +36,8 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <main id="main" className="min-h-dvh bg-background flex items-center justify-center px-4">
+
       <div className="w-full max-w-md bg-card rounded-2xl border border-border p-8">
         <div className="flex items-center gap-3 mb-6">
           <div className="h-10 w-10 rounded-lg bg-[var(--kth-navy)] flex items-center justify-center">
@@ -84,6 +85,6 @@ function LoginPage() {
           </Link>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
