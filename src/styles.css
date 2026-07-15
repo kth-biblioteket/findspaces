@@ -1,4 +1,5 @@
 @import "tailwindcss" source(none);
+@import "@fontsource-variable/figtree";
 @source "../src";
 @import "tw-animate-css";
 
