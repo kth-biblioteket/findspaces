@@ -2144,13 +2144,14 @@ function ContentBadges({ space }: { space: Space }) {
 
 
 function SortableSpaceRow({
-  space, selected, onToggleSelected, onEdit, onDelete,
+  space, selected, onToggleSelected, onEdit, onDelete, onToggleHidden,
 }: {
   space: Space;
   selected: boolean;
   onToggleSelected: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onToggleHidden: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: space.id });
   const style = {
