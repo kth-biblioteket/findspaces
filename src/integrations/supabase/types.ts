@@ -171,6 +171,7 @@ export type Database = {
           floor_en: string | null
           group_booking_url: string | null
           group_booking_url_en: string | null
+          hidden: boolean
           id: string
           image_alts: string[]
           image_alts_en: string[]
@@ -219,6 +220,7 @@ export type Database = {
           floor_en?: string | null
           group_booking_url?: string | null
           group_booking_url_en?: string | null
+          hidden?: boolean
           id?: string
           image_alts?: string[]
           image_alts_en?: string[]
@@ -267,6 +269,7 @@ export type Database = {
           floor_en?: string | null
           group_booking_url?: string | null
           group_booking_url_en?: string | null
+          hidden?: boolean
           id?: string
           image_alts?: string[]
           image_alts_en?: string[]
