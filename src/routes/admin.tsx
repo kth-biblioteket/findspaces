@@ -447,6 +447,18 @@ function AdminPage() {
     },
   });
 
+  const toggleHidden = useMutation({
+    mutationFn: async ({ id, hidden }: { id: string; hidden: boolean }) => {
+      const { error } = await supabase.from("spaces").update({ hidden } as any).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_d, vars) => {
+      qc.invalidateQueries({ queryKey: ["spaces"] });
+      toast.success(vars.hidden ? "Lokalen är dold" : "Lokalen är synlig igen");
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   const toggleSelected = (id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
