@@ -69,7 +69,7 @@ function validateSearch(input: Record<string, unknown>): SearchParams {
 const spacesQueryOptions = queryOptions({
   queryKey: ["spaces"],
   queryFn: async (): Promise<Space[]> => {
-    const { data, error } = await supabase.from("spaces").select("*").order("sort_order").order("name");
+    const { data, error } = await supabase.from("spaces").select("*").eq("hidden", false).order("sort_order").order("name");
     if (error) throw error;
     return data as unknown as Space[];
   },
