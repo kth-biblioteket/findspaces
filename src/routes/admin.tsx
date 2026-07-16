@@ -2224,6 +2224,11 @@ function SortableSpaceRow({
                 )}>
                   {kindMeta.label}
                 </span>
+                {space.hidden && (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+                    <EyeOff className="h-3 w-3" aria-hidden="true" /> Dold
+                  </span>
+                )}
               </div>
               {(locationBits.length > 0 || space.slug !== undefined) && (
                 <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
