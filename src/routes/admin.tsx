@@ -1359,7 +1359,14 @@ function AdminPage() {
                             selected={selectedIds.has(s.id)}
                             onToggleSelected={() => toggleSelected(s.id)}
                             onEdit={() => openEdit(s)}
-                            onDelete={() => { if (confirm(`Ta bort "${s.name}"?`)) del.mutate(s.id); }}
+                            onToggleHidden={() => toggleHidden.mutate({ id: s.id, hidden: !s.hidden })}
+                            onDelete={() => {
+                              if (!s.hidden) {
+                                toast.error("Dölj lokalen först innan du kan radera den.");
+                                return;
+                              }
+                              if (confirm(`Ta bort "${s.name}"? Detta går inte att ångra.`)) del.mutate(s.id);
+                            }}
                           />
                         ))}
                       </ul>
