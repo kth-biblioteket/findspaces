@@ -2190,6 +2190,7 @@ function SortableSpaceRow({
       style={style}
       className={cn(
         "bg-card rounded-2xl border transition-colors",
+        space.hidden && "opacity-60",
         selected ? "border-primary/60 ring-1 ring-primary/40" : "border-border hover:border-border/80",
       )}
     >
