@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus, Pencil, Trash2, ArrowLeft, Upload, X, Settings2, GripVertical,
   ChevronDown, AlertTriangle, Info, MapPin, CalendarClock, Users, Zap, ImageIcon,
-  Armchair, Monitor,
+  Armchair, Monitor, Eye, EyeOff,
 } from "lucide-react";
 import { TableChairIcon } from "@/components/icons/TableChairIcon";
 
@@ -445,6 +445,18 @@ function AdminPage() {
       qc.invalidateQueries({ queryKey: ["spaces"] });
       toast.success("Borttagen");
     },
+  });
+
+  const toggleHidden = useMutation({
+    mutationFn: async ({ id, hidden }: { id: string; hidden: boolean }) => {
+      const { error } = await supabase.from("spaces").update({ hidden } as any).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_d, vars) => {
+      qc.invalidateQueries({ queryKey: ["spaces"] });
+      toast.success(vars.hidden ? "Lokalen är dold" : "Lokalen är synlig igen");
+    },
+    onError: (e: any) => toast.error(e.message),
   });
 
   const toggleSelected = (id: string) => {
@@ -1347,7 +1359,14 @@ function AdminPage() {
                             selected={selectedIds.has(s.id)}
                             onToggleSelected={() => toggleSelected(s.id)}
                             onEdit={() => openEdit(s)}
-                            onDelete={() => { if (confirm(`Ta bort "${s.name}"?`)) del.mutate(s.id); }}
+                            onToggleHidden={() => toggleHidden.mutate({ id: s.id, hidden: !s.hidden })}
+                            onDelete={() => {
+                              if (!s.hidden) {
+                                toast.error("Dölj lokalen först innan du kan radera den.");
+                                return;
+                              }
+                              if (confirm(`Ta bort "${s.name}"? Detta går inte att ångra.`)) del.mutate(s.id);
+                            }}
                           />
                         ))}
                       </ul>
@@ -2125,13 +2144,14 @@ function ContentBadges({ space }: { space: Space }) {
 
 
 function SortableSpaceRow({
-  space, selected, onToggleSelected, onEdit, onDelete,
+  space, selected, onToggleSelected, onEdit, onDelete, onToggleHidden,
 }: {
   space: Space;
   selected: boolean;
   onToggleSelected: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onToggleHidden: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: space.id });
   const style = {
@@ -2170,6 +2190,7 @@ function SortableSpaceRow({
       style={style}
       className={cn(
         "bg-card rounded-2xl border transition-colors",
+        space.hidden && "opacity-60",
         selected ? "border-primary/60 ring-1 ring-primary/40" : "border-border hover:border-border/80",
       )}
     >
@@ -2203,6 +2224,11 @@ function SortableSpaceRow({
                 )}>
                   {kindMeta.label}
                 </span>
+                {space.hidden && (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+                    <EyeOff className="h-3 w-3" aria-hidden="true" /> Dold
+                  </span>
+                )}
               </div>
               {(locationBits.length > 0 || space.slug !== undefined) && (
                 <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
@@ -2263,10 +2289,27 @@ function SortableSpaceRow({
               </button>
               <button
                 type="button"
+                onClick={onToggleHidden}
+                className="min-h-9 min-w-9 inline-flex items-center justify-center rounded-md hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label={space.hidden ? `Visa ${space.name} igen` : `Dölj ${space.name}`}
+                title={space.hidden ? "Visa igen" : "Dölj lokalen"}
+              >
+                {space.hidden
+                  ? <Eye className="h-4 w-4" aria-hidden="true" />
+                  : <EyeOff className="h-4 w-4" aria-hidden="true" />}
+              </button>
+              <button
+                type="button"
                 onClick={onDelete}
-                className="min-h-9 min-w-9 inline-flex items-center justify-center rounded-md hover:bg-destructive/10 text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                aria-label={`Ta bort ${space.name}`}
-                title="Ta bort"
+                disabled={!space.hidden}
+                className={cn(
+                  "min-h-9 min-w-9 inline-flex items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  space.hidden
+                    ? "hover:bg-destructive/10 text-destructive"
+                    : "text-muted-foreground/40 cursor-not-allowed",
+                )}
+                aria-label={space.hidden ? `Ta bort ${space.name}` : `Dölj lokalen först för att kunna ta bort ${space.name}`}
+                title={space.hidden ? "Ta bort permanent" : "Dölj lokalen först för att kunna ta bort den"}
               >
                 <Trash2 className="h-4 w-4" aria-hidden="true" />
               </button>
@@ -2671,6 +2714,7 @@ const DUMMY_SPACE: Space = {
   show_occupancy: true,
   countmatters_sensor_id: null,
   booking_room_number: null,
+  hidden: false,
 };
 
 function CardLayoutTab() {
