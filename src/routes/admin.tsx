@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus, Pencil, Trash2, ArrowLeft, Upload, X, Settings2, GripVertical,
   ChevronDown, AlertTriangle, Info, MapPin, CalendarClock, Users, Zap, ImageIcon,
-  Armchair, Monitor,
+  Armchair, Monitor, Eye, EyeOff,
 } from "lucide-react";
 import { TableChairIcon } from "@/components/icons/TableChairIcon";
 
