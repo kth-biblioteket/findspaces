@@ -2289,10 +2289,27 @@ function SortableSpaceRow({
               </button>
               <button
                 type="button"
+                onClick={onToggleHidden}
+                className="min-h-9 min-w-9 inline-flex items-center justify-center rounded-md hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label={space.hidden ? `Visa ${space.name} igen` : `Dölj ${space.name}`}
+                title={space.hidden ? "Visa igen" : "Dölj lokalen"}
+              >
+                {space.hidden
+                  ? <Eye className="h-4 w-4" aria-hidden="true" />
+                  : <EyeOff className="h-4 w-4" aria-hidden="true" />}
+              </button>
+              <button
+                type="button"
                 onClick={onDelete}
-                className="min-h-9 min-w-9 inline-flex items-center justify-center rounded-md hover:bg-destructive/10 text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                aria-label={`Ta bort ${space.name}`}
-                title="Ta bort"
+                disabled={!space.hidden}
+                className={cn(
+                  "min-h-9 min-w-9 inline-flex items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  space.hidden
+                    ? "hover:bg-destructive/10 text-destructive"
+                    : "text-muted-foreground/40 cursor-not-allowed",
+                )}
+                aria-label={space.hidden ? `Ta bort ${space.name}` : `Dölj lokalen först för att kunna ta bort ${space.name}`}
+                title={space.hidden ? "Ta bort permanent" : "Dölj lokalen först för att kunna ta bort den"}
               >
                 <Trash2 className="h-4 w-4" aria-hidden="true" />
               </button>
