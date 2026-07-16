@@ -55,6 +55,7 @@ export type Space = {
   show_occupancy: boolean;
   countmatters_sensor_id: string | null;
   booking_room_number: number | null;
+  hidden: boolean;
 };
 
 /** Category keys that map to dedicated columns on the spaces table. */
