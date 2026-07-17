@@ -1388,41 +1388,140 @@ function AdminPage() {
                 </div>
               ) : (
                 <>
+                  {/* List toolbar: search, filters, compact toggle */}
+                  <div className="bg-card border border-border rounded-xl p-2 flex flex-wrap items-center gap-2">
+                    <div className="relative flex-1 min-w-[12rem]">
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                      <input
+                        type="search"
+                        value={listQuery}
+                        onChange={(e) => setListQuery(e.target.value)}
+                        placeholder="Sök på namn, slug, plan eller lokal…"
+                        aria-label="Sök i lokallistan"
+                        className="w-full rounded-lg border border-border bg-background pl-8 pr-8 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      />
+                      {listQuery && (
+                        <button
+                          type="button"
+                          onClick={() => setListQuery("")}
+                          aria-label="Rensa sökning"
+                          className="absolute right-1.5 top-1/2 -translate-y-1/2 h-6 w-6 inline-flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent"
+                        >
+                          <X className="h-3.5 w-3.5" aria-hidden="true" />
+                        </button>
+                      )}
+                    </div>
+                    <label className="text-xs text-muted-foreground flex items-center gap-1.5">
+                      <span className="sr-only">Typ</span>
+                      <select
+                        value={listKind}
+                        onChange={(e) => setListKind(e.target.value)}
+                        aria-label="Filtrera på typ"
+                        className="rounded-lg border border-border bg-background px-2 py-1.5 text-sm text-foreground"
+                      >
+                        <option value="all">Alla typer</option>
+                        {spaceKindOptions.map((o) => (
+                          <option key={o.id} value={o.value_key ?? ""}>{o.label}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="text-xs text-muted-foreground flex items-center gap-1.5">
+                      <span className="sr-only">Synlighet</span>
+                      <select
+                        value={listVisibility}
+                        onChange={(e) => setListVisibility(e.target.value as "all" | "visible" | "hidden")}
+                        aria-label="Filtrera på synlighet"
+                        className="rounded-lg border border-border bg-background px-2 py-1.5 text-sm text-foreground"
+                      >
+                        <option value="all">Alla</option>
+                        <option value="visible">Endast synliga</option>
+                        <option value="hidden">Endast dolda</option>
+                      </select>
+                    </label>
+                    <label className="text-xs flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg cursor-pointer select-none hover:bg-accent/60">
+                      <Switch checked={listCompact} onCheckedChange={setListCompact} aria-label="Kompakt vy" />
+                      <span className="text-foreground">Kompakt vy</span>
+                    </label>
+                    {listFiltersActive && (
+                      <button
+                        type="button"
+                        onClick={() => { setListQuery(""); setListKind("all"); setListVisibility("all"); }}
+                        className="text-xs text-muted-foreground hover:text-foreground underline"
+                      >Rensa filter</button>
+                    )}
+                  </div>
+
                   <div className="flex items-center gap-3 px-4 py-2 text-xs text-muted-foreground">
                     <input
                       type="checkbox"
-                      aria-label="Markera alla"
-                      checked={spaces.length > 0 && selectedIds.size === spaces.length}
+                      aria-label="Markera alla synliga"
+                      checked={filteredSpaces.length > 0 && filteredSpaces.every((s) => selectedIds.has(s.id))}
                       ref={(el) => {
-                        if (el) el.indeterminate = selectedIds.size > 0 && selectedIds.size < spaces.length;
+                        if (el) {
+                          const sel = filteredSpaces.filter((s) => selectedIds.has(s.id)).length;
+                          el.indeterminate = sel > 0 && sel < filteredSpaces.length;
+                        }
                       }}
-                      onChange={(e) => { if (e.target.checked) selectAll(); else clearSelection(); }}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedIds((prev) => {
+                            const next = new Set(prev);
+                            filteredSpaces.forEach((s) => next.add(s.id));
+                            return next;
+                          });
+                        } else {
+                          setSelectedIds((prev) => {
+                            const next = new Set(prev);
+                            filteredSpaces.forEach((s) => next.delete(s.id));
+                            return next;
+                          });
+                        }
+                      }}
                     />
-                    <span>Markera alla · {spaces.length} lokaler/ytor</span>
+                    <span>
+                      {listFiltersActive
+                        ? `Markera alla ${filteredSpaces.length} träffar`
+                        : `Markera alla · ${spaces.length} lokaler/ytor`}
+                    </span>
                   </div>
-                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSpacesDragEnd}>
-                    <SortableContext items={spaces.map((s) => s.id)} strategy={verticalListSortingStrategy}>
-                      <ul className="space-y-2 list-none">
-                        {spaces.map((s) => (
-                          <SortableSpaceRow
-                            key={s.id}
-                            space={s}
-                            selected={selectedIds.has(s.id)}
-                            onToggleSelected={() => toggleSelected(s.id)}
-                            onEdit={() => openEdit(s)}
-                            onToggleHidden={() => toggleHidden.mutate({ id: s.id, hidden: !s.hidden })}
-                            onDelete={() => {
-                              if (!s.hidden) {
-                                toast.error("Dölj lokalen först innan du kan radera den.");
-                                return;
-                              }
-                              if (confirm(`Ta bort "${s.name}"? Detta går inte att ångra.`)) del.mutate(s.id);
-                            }}
-                          />
-                        ))}
-                      </ul>
-                    </SortableContext>
-                  </DndContext>
+
+                  {listFiltersActive && (
+                    <div className="text-xs text-muted-foreground px-4 py-1.5 rounded-lg bg-muted/40 border border-dashed border-border">
+                      Filter är aktivt — omordning är inaktiverad. Rensa filter för att sortera om listan.
+                    </div>
+                  )}
+
+                  {filteredSpaces.length === 0 ? (
+                    <div className="bg-card rounded-2xl border border-border p-8 text-center text-muted-foreground text-sm">
+                      Inga lokaler matchar dina filter.
+                    </div>
+                  ) : (
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSpacesDragEnd}>
+                      <SortableContext items={filteredSpaces.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+                        <ul className={cn("list-none", listCompact ? "space-y-1" : "space-y-2")}>
+                          {filteredSpaces.map((s) => (
+                            <SortableSpaceRow
+                              key={s.id}
+                              space={s}
+                              selected={selectedIds.has(s.id)}
+                              compact={listCompact}
+                              dragDisabled={listFiltersActive}
+                              onToggleSelected={() => toggleSelected(s.id)}
+                              onEdit={() => openEdit(s)}
+                              onToggleHidden={() => toggleHidden.mutate({ id: s.id, hidden: !s.hidden })}
+                              onDelete={() => {
+                                if (!s.hidden) {
+                                  toast.error("Dölj lokalen först innan du kan radera den.");
+                                  return;
+                                }
+                                if (confirm(`Ta bort "${s.name}"? Detta går inte att ångra.`)) del.mutate(s.id);
+                              }}
+                            />
+                          ))}
+                        </ul>
+                      </SortableContext>
+                    </DndContext>
+                  )}
                 </>
               )}
             </div>
