@@ -2339,7 +2339,7 @@ function SortableSpaceRow({
 
   const thumbRawUrl = space.images?.[0] ?? space.image_url ?? null;
   const thumbSize = compact ? 60 : 96; // width in px (3:2 ratio)
-  const thumbUrl = thumbRawUrl ? optimizedImageUrl(thumbRawUrl, thumbSize * 2) : null;
+  const thumbUrl = thumbRawUrl ? optimizedImageUrl(thumbRawUrl, thumbSize * 2, { resize: "contain" }) : null;
 
   // Stop propagation so clicks on interactive elements inside the card
   // don't also trigger the card's onEdit.
@@ -2412,7 +2412,7 @@ function SortableSpaceRow({
               src={thumbUrl}
               alt=""
               loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover"
+              className="absolute inset-0 h-full w-full object-contain"
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
