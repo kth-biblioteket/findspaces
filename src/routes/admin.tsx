@@ -2402,7 +2402,7 @@ function SortableSpaceRow({
         {/* Thumbnail */}
         <div
           className={cn(
-            "shrink-0 overflow-hidden rounded-lg bg-muted border border-border flex items-center justify-center",
+            "relative shrink-0 overflow-hidden rounded-lg bg-muted border border-border",
             compact ? "h-10 w-10" : "h-16 w-16",
           )}
           aria-hidden="true"
@@ -2412,12 +2412,15 @@ function SortableSpaceRow({
               src={thumbUrl}
               alt=""
               loading="lazy"
-              className="h-full w-full object-contain"
+              className="absolute inset-0 h-full w-full object-cover"
             />
           ) : (
-            <ImageOff className={cn("text-muted-foreground/60", compact ? "h-4 w-4" : "h-5 w-5")} aria-hidden="true" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <ImageOff className={cn("text-muted-foreground/60", compact ? "h-4 w-4" : "h-5 w-5")} aria-hidden="true" />
+            </div>
           )}
         </div>
+
 
         {/* Main content */}
         <div className="flex-1 min-w-0 flex flex-col gap-2">
