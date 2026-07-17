@@ -2399,11 +2399,11 @@ function SortableSpaceRow({
           />
         </div>
 
-        {/* Thumbnail */}
+        {/* Thumbnail — 3:2 to match original photo ratio */}
         <div
           className={cn(
-            "relative shrink-0 overflow-hidden rounded-lg bg-muted border border-border",
-            compact ? "h-10 w-10" : "h-16 w-16",
+            "relative shrink-0 overflow-hidden rounded-lg bg-muted border border-border aspect-[3/2]",
+            compact ? "h-10" : "h-16",
           )}
           aria-hidden="true"
         >
@@ -2420,6 +2420,7 @@ function SortableSpaceRow({
             </div>
           )}
         </div>
+
 
 
         {/* Main content */}
