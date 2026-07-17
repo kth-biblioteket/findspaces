@@ -760,7 +760,12 @@ function AdminPage() {
 
           <TabsContent value="spaces" className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold">Alla lokaler/ytor ({spaces.length})</h2>
+              <h2 className="text-xl font-bold">
+                Alla lokaler/ytor{" "}
+                <span className="text-muted-foreground font-normal">
+                  ({listFiltersActive ? `${filteredSpaces.length} av ${spaces.length}` : spaces.length})
+                </span>
+              </h2>
               <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
                   <button
