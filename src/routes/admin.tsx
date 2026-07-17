@@ -2294,16 +2294,19 @@ function ContentBadges({ space }: { space: Space }) {
 
 
 function SortableSpaceRow({
-  space, selected, onToggleSelected, onEdit, onDelete, onToggleHidden,
+  space, selected, compact = false, dragDisabled = false,
+  onToggleSelected, onEdit, onDelete, onToggleHidden,
 }: {
   space: Space;
   selected: boolean;
+  compact?: boolean;
+  dragDisabled?: boolean;
   onToggleSelected: () => void;
   onEdit: () => void;
   onDelete: () => void;
   onToggleHidden: () => void;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: space.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: space.id, disabled: dragDisabled });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -2334,6 +2337,21 @@ function SortableSpaceRow({
   const typeChips = space.lokaltyp ?? [];
   const noiseChips = space.noise ?? [];
 
+  const thumbRawUrl = space.images?.[0] ?? space.image_url ?? null;
+  const thumbSize = compact ? 40 : 64;
+  const thumbUrl = thumbRawUrl ? optimizedImageUrl(thumbRawUrl, thumbSize * 2) : null;
+
+  // Stop propagation so clicks on interactive elements inside the card
+  // don't also trigger the card's onEdit.
+  const stop = (e: React.MouseEvent | React.KeyboardEvent) => e.stopPropagation();
+
+  const handleCardKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onEdit();
+    }
+  };
+
   return (
     <li
       ref={setNodeRef}
@@ -2341,25 +2359,64 @@ function SortableSpaceRow({
       className={cn(
         "bg-card rounded-2xl border transition-colors",
         space.hidden && "opacity-60",
-        selected ? "border-primary/60 ring-1 ring-primary/40" : "border-border hover:border-border/80",
+        selected ? "border-primary/60 ring-1 ring-primary/40" : "border-border hover:border-primary/40",
       )}
     >
-      <div className="flex items-stretch gap-2 p-3 sm:p-4">
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={onEdit}
+        onKeyDown={handleCardKey}
+        aria-label={`Redigera ${space.name}`}
+        className={cn(
+          "flex items-stretch gap-2 rounded-2xl cursor-pointer hover:bg-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          compact ? "p-2" : "p-3 sm:p-4",
+        )}
+      >
         {/* Left rail: drag + select */}
-        <div className="flex flex-col items-center gap-1 pt-1">
+        <div className="flex flex-col items-center gap-1 pt-1" onClick={stop}>
           <button
             {...attributes} {...listeners}
             type="button"
-            className="h-8 w-8 inline-flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent cursor-grab active:cursor-grabbing touch-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            aria-label={`Dra för att flytta ${space.name}`}
+            disabled={dragDisabled}
+            onClick={stop}
+            className={cn(
+              "h-8 w-8 inline-flex items-center justify-center rounded-md text-muted-foreground touch-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              dragDisabled
+                ? "opacity-30 cursor-not-allowed"
+                : "hover:bg-accent cursor-grab active:cursor-grabbing",
+            )}
+            aria-label={dragDisabled ? "Omordning inaktiverad med aktivt filter" : `Dra för att flytta ${space.name}`}
+            title={dragDisabled ? "Rensa filter för att sortera om" : undefined}
           ><GripVertical className="h-4 w-4" aria-hidden="true" /></button>
           <input
             type="checkbox"
             aria-label={`Markera ${space.name}`}
             checked={selected}
+            onClick={stop}
             onChange={onToggleSelected}
             className="h-4 w-4"
           />
+        </div>
+
+        {/* Thumbnail */}
+        <div
+          className={cn(
+            "shrink-0 overflow-hidden rounded-lg bg-muted border border-border flex items-center justify-center",
+            compact ? "h-10 w-10" : "h-16 w-16",
+          )}
+          aria-hidden="true"
+        >
+          {thumbUrl ? (
+            <img
+              src={thumbUrl}
+              alt=""
+              loading="lazy"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <ImageOff className={cn("text-muted-foreground/60", compact ? "h-4 w-4" : "h-5 w-5")} aria-hidden="true" />
+          )}
         </div>
 
         {/* Main content */}
@@ -2367,7 +2424,10 @@ function SortableSpaceRow({
           <div className="flex items-start justify-between gap-3 flex-wrap">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-base font-semibold text-foreground truncate">{space.name}</h3>
+                <h3 className={cn(
+                  "font-semibold text-foreground break-words",
+                  compact ? "text-sm" : "text-lg leading-snug",
+                )}>{space.name}</h3>
                 <span className={cn(
                   "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium",
                   kindMeta.cls,
@@ -2381,15 +2441,14 @@ function SortableSpaceRow({
                 )}
               </div>
               {(locationBits.length > 0 || space.slug !== undefined) && (
-                <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-                  <span className="text-[11px] uppercase tracking-wide text-muted-foreground/80 mr-1">Plats</span>
+                <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
                   {locationBits.map((b, i) => (
                     <span key={i} className="inline-flex items-center gap-1">
                       {i > 0 && <span aria-hidden="true" className="opacity-40">·</span>}
                       {b}
                     </span>
                   ))}
-                  {space.slug ? (
+                  {!compact && (space.slug ? (
                     <span className="inline-flex items-center gap-1">
                       {locationBits.length > 0 && <span aria-hidden="true" className="opacity-40">·</span>}
                       slug: <code className="bg-secondary px-1 py-0.5 rounded font-mono text-[11px]">{space.slug}</code>
@@ -2399,12 +2458,11 @@ function SortableSpaceRow({
                       {locationBits.length > 0 && <span aria-hidden="true" className="opacity-40">·</span>}
                       ingen slug
                     </span>
-                  )}
+                  ))}
                 </div>
               )}
-              {(typeChips.length > 0 || noiseChips.length > 0) && (
+              {!compact && (typeChips.length > 0 || noiseChips.length > 0) && (
                 <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                  <span className="text-[11px] uppercase tracking-wide text-muted-foreground mr-1">Typ</span>
                   {typeChips.map((t) => (
                     <span
                       key={`type-${t}`}
@@ -2427,19 +2485,10 @@ function SortableSpaceRow({
             </div>
 
 
-            <div className="flex items-center gap-1 shrink-0">
+            <div className="flex items-center gap-1 shrink-0" onClick={stop}>
               <button
                 type="button"
-                onClick={onEdit}
-                className="min-h-9 min-w-9 inline-flex items-center justify-center rounded-md hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                aria-label={`Redigera ${space.name}`}
-                title="Redigera"
-              >
-                <Pencil className="h-4 w-4" aria-hidden="true" />
-              </button>
-              <button
-                type="button"
-                onClick={onToggleHidden}
+                onClick={(e) => { stop(e); onToggleHidden(); }}
                 className="min-h-9 min-w-9 inline-flex items-center justify-center rounded-md hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label={space.hidden ? `Visa ${space.name} igen` : `Dölj ${space.name}`}
                 title={space.hidden ? "Visa igen" : "Dölj lokalen"}
@@ -2450,7 +2499,7 @@ function SortableSpaceRow({
               </button>
               <button
                 type="button"
-                onClick={onDelete}
+                onClick={(e) => { stop(e); onDelete(); }}
                 disabled={!space.hidden}
                 className={cn(
                   "min-h-9 min-w-9 inline-flex items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
@@ -2466,12 +2515,13 @@ function SortableSpaceRow({
             </div>
           </div>
 
-          <ContentBadges space={space} />
+          {!compact && <ContentBadges space={space} />}
         </div>
       </div>
     </li>
   );
 }
+
 
 function SortableImageRow({
   id, url, index, altSv, altEn, uploadedAt, onAltSv, onAltEn, onRemove,
