@@ -2338,7 +2338,7 @@ function SortableSpaceRow({
   const noiseChips = space.noise ?? [];
 
   const thumbRawUrl = space.images?.[0] ?? space.image_url ?? null;
-  const thumbSize = compact ? 40 : 64;
+  const thumbSize = compact ? 60 : 96; // width in px (3:2 ratio)
   const thumbUrl = thumbRawUrl ? optimizedImageUrl(thumbRawUrl, thumbSize * 2) : null;
 
   // Stop propagation so clicks on interactive elements inside the card
