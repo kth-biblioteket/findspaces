@@ -1,13 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect, useCallback, useId, isValidElement, cloneElement, Children, type ReactElement } from "react";
+import { useState, useEffect, useMemo, useCallback, useId, isValidElement, cloneElement, Children, type ReactElement } from "react";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus, Pencil, Trash2, ArrowLeft, Upload, X, Settings2, GripVertical,
   ChevronDown, AlertTriangle, Info, MapPin, CalendarClock, Users, Zap, ImageIcon,
+  ImageOff, Search,
   Armchair, Monitor, Eye, EyeOff,
 } from "lucide-react";
 import { TableChairIcon } from "@/components/icons/TableChairIcon";
+import { optimizedImageUrl } from "@/lib/imageUrl";
 
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -471,6 +473,29 @@ function AdminPage() {
 
   const [bulkCategory, setBulkCategory] = useState<string>("lokaltyp");
 
+  // List UI state (persisted in localStorage) — search, filters, compact view.
+  const [listQuery, setListQuery] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    return window.localStorage.getItem("admin.spaces.query") ?? "";
+  });
+  const [listKind, setListKind] = useState<string>(() => {
+    if (typeof window === "undefined") return "all";
+    return window.localStorage.getItem("admin.spaces.kind") ?? "all";
+  });
+  const [listVisibility, setListVisibility] = useState<"all" | "visible" | "hidden">(() => {
+    if (typeof window === "undefined") return "all";
+    const v = window.localStorage.getItem("admin.spaces.visibility");
+    return v === "visible" || v === "hidden" ? v : "all";
+  });
+  const [listCompact, setListCompact] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("admin.spaces.compact") === "1";
+  });
+  useEffect(() => { window.localStorage.setItem("admin.spaces.query", listQuery); }, [listQuery]);
+  useEffect(() => { window.localStorage.setItem("admin.spaces.kind", listKind); }, [listKind]);
+  useEffect(() => { window.localStorage.setItem("admin.spaces.visibility", listVisibility); }, [listVisibility]);
+  useEffect(() => { window.localStorage.setItem("admin.spaces.compact", listCompact ? "1" : "0"); }, [listCompact]);
+
   const applyBulk = async () => {
     if (selectedIds.size === 0) return;
     const meta = BULK_ACTIONS.find((a) => a.value === bulkAction);
@@ -670,6 +695,27 @@ function AdminPage() {
     }
   }, [open, form.images.length, fetchImageDates]);
 
+  // Filtered spaces for the admin list — search + kind + visibility.
+  const listFiltersActive =
+    listQuery.trim() !== "" || listKind !== "all" || listVisibility !== "all";
+  const filteredSpaces = useMemo(() => {
+    const q = listQuery.trim().toLowerCase();
+    return spaces.filter((s) => {
+      if (listKind !== "all" && (s.space_kind ?? "study") !== listKind) return false;
+      if (listVisibility === "visible" && s.hidden) return false;
+      if (listVisibility === "hidden" && !s.hidden) return false;
+      if (q) {
+        const hay = [
+          s.name, s.name_en ?? "", s.slug ?? "",
+          s.floor ?? "", s.located_in ?? "",
+        ].join(" ").toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [spaces, listQuery, listKind, listVisibility]);
+
+
   if (!authChecked) {
     return (
       <div className="min-h-dvh flex items-center justify-center text-sm text-muted-foreground">
@@ -714,7 +760,12 @@ function AdminPage() {
 
           <TabsContent value="spaces" className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold">Alla lokaler/ytor ({spaces.length})</h2>
+              <h2 className="text-xl font-bold">
+                Alla lokaler/ytor{" "}
+                <span className="text-muted-foreground font-normal">
+                  ({listFiltersActive ? `${filteredSpaces.length} av ${spaces.length}` : spaces.length})
+                </span>
+              </h2>
               <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
                   <button
@@ -1337,41 +1388,140 @@ function AdminPage() {
                 </div>
               ) : (
                 <>
+                  {/* List toolbar: search, filters, compact toggle */}
+                  <div className="bg-card border border-border rounded-xl p-2 flex flex-wrap items-center gap-2">
+                    <div className="relative flex-1 min-w-[12rem]">
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                      <input
+                        type="search"
+                        value={listQuery}
+                        onChange={(e) => setListQuery(e.target.value)}
+                        placeholder="Sök på namn, slug, plan eller lokal…"
+                        aria-label="Sök i lokallistan"
+                        className="w-full rounded-lg border border-border bg-background pl-8 pr-8 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      />
+                      {listQuery && (
+                        <button
+                          type="button"
+                          onClick={() => setListQuery("")}
+                          aria-label="Rensa sökning"
+                          className="absolute right-1.5 top-1/2 -translate-y-1/2 h-6 w-6 inline-flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent"
+                        >
+                          <X className="h-3.5 w-3.5" aria-hidden="true" />
+                        </button>
+                      )}
+                    </div>
+                    <label className="text-xs text-muted-foreground flex items-center gap-1.5">
+                      <span className="sr-only">Typ</span>
+                      <select
+                        value={listKind}
+                        onChange={(e) => setListKind(e.target.value)}
+                        aria-label="Filtrera på typ"
+                        className="rounded-lg border border-border bg-background px-2 py-1.5 text-sm text-foreground"
+                      >
+                        <option value="all">Alla typer</option>
+                        {spaceKindOptions.map((o) => (
+                          <option key={o.id} value={o.value_key ?? ""}>{o.label}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="text-xs text-muted-foreground flex items-center gap-1.5">
+                      <span className="sr-only">Synlighet</span>
+                      <select
+                        value={listVisibility}
+                        onChange={(e) => setListVisibility(e.target.value as "all" | "visible" | "hidden")}
+                        aria-label="Filtrera på synlighet"
+                        className="rounded-lg border border-border bg-background px-2 py-1.5 text-sm text-foreground"
+                      >
+                        <option value="all">Alla</option>
+                        <option value="visible">Endast synliga</option>
+                        <option value="hidden">Endast dolda</option>
+                      </select>
+                    </label>
+                    <label className="text-xs flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg cursor-pointer select-none hover:bg-accent/60">
+                      <Switch checked={listCompact} onCheckedChange={setListCompact} aria-label="Kompakt vy" />
+                      <span className="text-foreground">Kompakt vy</span>
+                    </label>
+                    {listFiltersActive && (
+                      <button
+                        type="button"
+                        onClick={() => { setListQuery(""); setListKind("all"); setListVisibility("all"); }}
+                        className="text-xs text-muted-foreground hover:text-foreground underline"
+                      >Rensa filter</button>
+                    )}
+                  </div>
+
                   <div className="flex items-center gap-3 px-4 py-2 text-xs text-muted-foreground">
                     <input
                       type="checkbox"
-                      aria-label="Markera alla"
-                      checked={spaces.length > 0 && selectedIds.size === spaces.length}
+                      aria-label="Markera alla synliga"
+                      checked={filteredSpaces.length > 0 && filteredSpaces.every((s) => selectedIds.has(s.id))}
                       ref={(el) => {
-                        if (el) el.indeterminate = selectedIds.size > 0 && selectedIds.size < spaces.length;
+                        if (el) {
+                          const sel = filteredSpaces.filter((s) => selectedIds.has(s.id)).length;
+                          el.indeterminate = sel > 0 && sel < filteredSpaces.length;
+                        }
                       }}
-                      onChange={(e) => { if (e.target.checked) selectAll(); else clearSelection(); }}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedIds((prev) => {
+                            const next = new Set(prev);
+                            filteredSpaces.forEach((s) => next.add(s.id));
+                            return next;
+                          });
+                        } else {
+                          setSelectedIds((prev) => {
+                            const next = new Set(prev);
+                            filteredSpaces.forEach((s) => next.delete(s.id));
+                            return next;
+                          });
+                        }
+                      }}
                     />
-                    <span>Markera alla · {spaces.length} lokaler/ytor</span>
+                    <span>
+                      {listFiltersActive
+                        ? `Markera alla ${filteredSpaces.length} träffar`
+                        : `Markera alla · ${spaces.length} lokaler/ytor`}
+                    </span>
                   </div>
-                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSpacesDragEnd}>
-                    <SortableContext items={spaces.map((s) => s.id)} strategy={verticalListSortingStrategy}>
-                      <ul className="space-y-2 list-none">
-                        {spaces.map((s) => (
-                          <SortableSpaceRow
-                            key={s.id}
-                            space={s}
-                            selected={selectedIds.has(s.id)}
-                            onToggleSelected={() => toggleSelected(s.id)}
-                            onEdit={() => openEdit(s)}
-                            onToggleHidden={() => toggleHidden.mutate({ id: s.id, hidden: !s.hidden })}
-                            onDelete={() => {
-                              if (!s.hidden) {
-                                toast.error("Dölj lokalen först innan du kan radera den.");
-                                return;
-                              }
-                              if (confirm(`Ta bort "${s.name}"? Detta går inte att ångra.`)) del.mutate(s.id);
-                            }}
-                          />
-                        ))}
-                      </ul>
-                    </SortableContext>
-                  </DndContext>
+
+                  {listFiltersActive && (
+                    <div className="text-xs text-muted-foreground px-4 py-1.5 rounded-lg bg-muted/40 border border-dashed border-border">
+                      Filter är aktivt — omordning är inaktiverad. Rensa filter för att sortera om listan.
+                    </div>
+                  )}
+
+                  {filteredSpaces.length === 0 ? (
+                    <div className="bg-card rounded-2xl border border-border p-8 text-center text-muted-foreground text-sm">
+                      Inga lokaler matchar dina filter.
+                    </div>
+                  ) : (
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSpacesDragEnd}>
+                      <SortableContext items={filteredSpaces.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+                        <ul className={cn("list-none", listCompact ? "space-y-1" : "space-y-2")}>
+                          {filteredSpaces.map((s) => (
+                            <SortableSpaceRow
+                              key={s.id}
+                              space={s}
+                              selected={selectedIds.has(s.id)}
+                              compact={listCompact}
+                              dragDisabled={listFiltersActive}
+                              onToggleSelected={() => toggleSelected(s.id)}
+                              onEdit={() => openEdit(s)}
+                              onToggleHidden={() => toggleHidden.mutate({ id: s.id, hidden: !s.hidden })}
+                              onDelete={() => {
+                                if (!s.hidden) {
+                                  toast.error("Dölj lokalen först innan du kan radera den.");
+                                  return;
+                                }
+                                if (confirm(`Ta bort "${s.name}"? Detta går inte att ångra.`)) del.mutate(s.id);
+                              }}
+                            />
+                          ))}
+                        </ul>
+                      </SortableContext>
+                    </DndContext>
+                  )}
                 </>
               )}
             </div>
@@ -2144,16 +2294,19 @@ function ContentBadges({ space }: { space: Space }) {
 
 
 function SortableSpaceRow({
-  space, selected, onToggleSelected, onEdit, onDelete, onToggleHidden,
+  space, selected, compact = false, dragDisabled = false,
+  onToggleSelected, onEdit, onDelete, onToggleHidden,
 }: {
   space: Space;
   selected: boolean;
+  compact?: boolean;
+  dragDisabled?: boolean;
   onToggleSelected: () => void;
   onEdit: () => void;
   onDelete: () => void;
   onToggleHidden: () => void;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: space.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: space.id, disabled: dragDisabled });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -2184,6 +2337,21 @@ function SortableSpaceRow({
   const typeChips = space.lokaltyp ?? [];
   const noiseChips = space.noise ?? [];
 
+  const thumbRawUrl = space.images?.[0] ?? space.image_url ?? null;
+  const thumbSize = compact ? 40 : 64;
+  const thumbUrl = thumbRawUrl ? optimizedImageUrl(thumbRawUrl, thumbSize * 2) : null;
+
+  // Stop propagation so clicks on interactive elements inside the card
+  // don't also trigger the card's onEdit.
+  const stop = (e: React.MouseEvent | React.KeyboardEvent) => e.stopPropagation();
+
+  const handleCardKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onEdit();
+    }
+  };
+
   return (
     <li
       ref={setNodeRef}
@@ -2191,25 +2359,64 @@ function SortableSpaceRow({
       className={cn(
         "bg-card rounded-2xl border transition-colors",
         space.hidden && "opacity-60",
-        selected ? "border-primary/60 ring-1 ring-primary/40" : "border-border hover:border-border/80",
+        selected ? "border-primary/60 ring-1 ring-primary/40" : "border-border hover:border-primary/40",
       )}
     >
-      <div className="flex items-stretch gap-2 p-3 sm:p-4">
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={onEdit}
+        onKeyDown={handleCardKey}
+        aria-label={`Redigera ${space.name}`}
+        className={cn(
+          "flex items-stretch gap-2 rounded-2xl cursor-pointer hover:bg-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          compact ? "p-2" : "p-3 sm:p-4",
+        )}
+      >
         {/* Left rail: drag + select */}
-        <div className="flex flex-col items-center gap-1 pt-1">
+        <div className="flex flex-col items-center gap-1 pt-1" onClick={stop}>
           <button
             {...attributes} {...listeners}
             type="button"
-            className="h-8 w-8 inline-flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent cursor-grab active:cursor-grabbing touch-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            aria-label={`Dra för att flytta ${space.name}`}
+            disabled={dragDisabled}
+            onClick={stop}
+            className={cn(
+              "h-8 w-8 inline-flex items-center justify-center rounded-md text-muted-foreground touch-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              dragDisabled
+                ? "opacity-30 cursor-not-allowed"
+                : "hover:bg-accent cursor-grab active:cursor-grabbing",
+            )}
+            aria-label={dragDisabled ? "Omordning inaktiverad med aktivt filter" : `Dra för att flytta ${space.name}`}
+            title={dragDisabled ? "Rensa filter för att sortera om" : undefined}
           ><GripVertical className="h-4 w-4" aria-hidden="true" /></button>
           <input
             type="checkbox"
             aria-label={`Markera ${space.name}`}
             checked={selected}
+            onClick={stop}
             onChange={onToggleSelected}
             className="h-4 w-4"
           />
+        </div>
+
+        {/* Thumbnail */}
+        <div
+          className={cn(
+            "shrink-0 overflow-hidden rounded-lg bg-muted border border-border flex items-center justify-center",
+            compact ? "h-10 w-10" : "h-16 w-16",
+          )}
+          aria-hidden="true"
+        >
+          {thumbUrl ? (
+            <img
+              src={thumbUrl}
+              alt=""
+              loading="lazy"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <ImageOff className={cn("text-muted-foreground/60", compact ? "h-4 w-4" : "h-5 w-5")} aria-hidden="true" />
+          )}
         </div>
 
         {/* Main content */}
@@ -2217,7 +2424,10 @@ function SortableSpaceRow({
           <div className="flex items-start justify-between gap-3 flex-wrap">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-base font-semibold text-foreground truncate">{space.name}</h3>
+                <h3 className={cn(
+                  "font-semibold text-foreground break-words",
+                  compact ? "text-sm" : "text-lg leading-snug",
+                )}>{space.name}</h3>
                 <span className={cn(
                   "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium",
                   kindMeta.cls,
@@ -2231,15 +2441,14 @@ function SortableSpaceRow({
                 )}
               </div>
               {(locationBits.length > 0 || space.slug !== undefined) && (
-                <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-                  <span className="text-[11px] uppercase tracking-wide text-muted-foreground/80 mr-1">Plats</span>
+                <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
                   {locationBits.map((b, i) => (
                     <span key={i} className="inline-flex items-center gap-1">
                       {i > 0 && <span aria-hidden="true" className="opacity-40">·</span>}
                       {b}
                     </span>
                   ))}
-                  {space.slug ? (
+                  {!compact && (space.slug ? (
                     <span className="inline-flex items-center gap-1">
                       {locationBits.length > 0 && <span aria-hidden="true" className="opacity-40">·</span>}
                       slug: <code className="bg-secondary px-1 py-0.5 rounded font-mono text-[11px]">{space.slug}</code>
@@ -2249,12 +2458,11 @@ function SortableSpaceRow({
                       {locationBits.length > 0 && <span aria-hidden="true" className="opacity-40">·</span>}
                       ingen slug
                     </span>
-                  )}
+                  ))}
                 </div>
               )}
-              {(typeChips.length > 0 || noiseChips.length > 0) && (
+              {!compact && (typeChips.length > 0 || noiseChips.length > 0) && (
                 <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                  <span className="text-[11px] uppercase tracking-wide text-muted-foreground mr-1">Typ</span>
                   {typeChips.map((t) => (
                     <span
                       key={`type-${t}`}
@@ -2277,19 +2485,10 @@ function SortableSpaceRow({
             </div>
 
 
-            <div className="flex items-center gap-1 shrink-0">
+            <div className="flex items-center gap-1 shrink-0" onClick={stop}>
               <button
                 type="button"
-                onClick={onEdit}
-                className="min-h-9 min-w-9 inline-flex items-center justify-center rounded-md hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                aria-label={`Redigera ${space.name}`}
-                title="Redigera"
-              >
-                <Pencil className="h-4 w-4" aria-hidden="true" />
-              </button>
-              <button
-                type="button"
-                onClick={onToggleHidden}
+                onClick={(e) => { stop(e); onToggleHidden(); }}
                 className="min-h-9 min-w-9 inline-flex items-center justify-center rounded-md hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label={space.hidden ? `Visa ${space.name} igen` : `Dölj ${space.name}`}
                 title={space.hidden ? "Visa igen" : "Dölj lokalen"}
@@ -2300,7 +2499,7 @@ function SortableSpaceRow({
               </button>
               <button
                 type="button"
-                onClick={onDelete}
+                onClick={(e) => { stop(e); onDelete(); }}
                 disabled={!space.hidden}
                 className={cn(
                   "min-h-9 min-w-9 inline-flex items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
@@ -2316,12 +2515,13 @@ function SortableSpaceRow({
             </div>
           </div>
 
-          <ContentBadges space={space} />
+          {!compact && <ContentBadges space={space} />}
         </div>
       </div>
     </li>
   );
 }
+
 
 function SortableImageRow({
   id, url, index, altSv, altEn, uploadedAt, onAltSv, onAltEn, onRemove,
