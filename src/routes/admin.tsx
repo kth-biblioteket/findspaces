@@ -695,6 +695,27 @@ function AdminPage() {
     }
   }, [open, form.images.length, fetchImageDates]);
 
+  // Filtered spaces for the admin list — search + kind + visibility.
+  const listFiltersActive =
+    listQuery.trim() !== "" || listKind !== "all" || listVisibility !== "all";
+  const filteredSpaces = useMemo(() => {
+    const q = listQuery.trim().toLowerCase();
+    return spaces.filter((s) => {
+      if (listKind !== "all" && (s.space_kind ?? "study") !== listKind) return false;
+      if (listVisibility === "visible" && s.hidden) return false;
+      if (listVisibility === "hidden" && !s.hidden) return false;
+      if (q) {
+        const hay = [
+          s.name, s.name_en ?? "", s.slug ?? "",
+          s.floor ?? "", s.located_in ?? "",
+        ].join(" ").toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [spaces, listQuery, listKind, listVisibility]);
+
+
   if (!authChecked) {
     return (
       <div className="min-h-dvh flex items-center justify-center text-sm text-muted-foreground">
