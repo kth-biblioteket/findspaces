@@ -473,6 +473,29 @@ function AdminPage() {
 
   const [bulkCategory, setBulkCategory] = useState<string>("lokaltyp");
 
+  // List UI state (persisted in localStorage) — search, filters, compact view.
+  const [listQuery, setListQuery] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    return window.localStorage.getItem("admin.spaces.query") ?? "";
+  });
+  const [listKind, setListKind] = useState<string>(() => {
+    if (typeof window === "undefined") return "all";
+    return window.localStorage.getItem("admin.spaces.kind") ?? "all";
+  });
+  const [listVisibility, setListVisibility] = useState<"all" | "visible" | "hidden">(() => {
+    if (typeof window === "undefined") return "all";
+    const v = window.localStorage.getItem("admin.spaces.visibility");
+    return v === "visible" || v === "hidden" ? v : "all";
+  });
+  const [listCompact, setListCompact] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("admin.spaces.compact") === "1";
+  });
+  useEffect(() => { window.localStorage.setItem("admin.spaces.query", listQuery); }, [listQuery]);
+  useEffect(() => { window.localStorage.setItem("admin.spaces.kind", listKind); }, [listKind]);
+  useEffect(() => { window.localStorage.setItem("admin.spaces.visibility", listVisibility); }, [listVisibility]);
+  useEffect(() => { window.localStorage.setItem("admin.spaces.compact", listCompact ? "1" : "0"); }, [listCompact]);
+
   const applyBulk = async () => {
     if (selectedIds.size === 0) return;
     const meta = BULK_ACTIONS.find((a) => a.value === bulkAction);
