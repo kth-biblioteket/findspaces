@@ -1,13 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect, useCallback, useId, isValidElement, cloneElement, Children, type ReactElement } from "react";
+import { useState, useEffect, useMemo, useCallback, useId, isValidElement, cloneElement, Children, type ReactElement } from "react";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus, Pencil, Trash2, ArrowLeft, Upload, X, Settings2, GripVertical,
   ChevronDown, AlertTriangle, Info, MapPin, CalendarClock, Users, Zap, ImageIcon,
+  ImageOff, Search,
   Armchair, Monitor, Eye, EyeOff,
 } from "lucide-react";
 import { TableChairIcon } from "@/components/icons/TableChairIcon";
+import { optimizedImageUrl } from "@/lib/imageUrl";
 
 import { supabase } from "@/integrations/supabase/client";
 import {
