@@ -456,7 +456,8 @@ export function SpaceCard({
               title={selected ? t("chips.remove_aria", { label: c.label }) : c.label}
             >
               {content}
-            </span>
+            </button>
+
           ) : (
             <span key={c.key} title={c.label} className={cn(chipBase, chipUnselected)}>
               {content}
