@@ -471,48 +471,76 @@ export function SpaceCard({
         const knownCats = new Set<string>(groupOrder);
         const grouped: Record<string, CategoryChip[]> = {};
         for (const c of categoryChips) {
-          const bucket = knownCats.has(c.category) ? c.category : "other";
+          const bucket = knownCats.has(c.category) ? c.category : c.category || "other";
           (grouped[bucket] ??= []).push(c);
         }
 
-        const groups: React.ReactNode[] = [];
+        const catByKey = new Map(filterCategories.map((c) => [c.key, c]));
+        const titleFor = (key: string): string | null => {
+          const cat = catByKey.get(key);
+          if (!cat) return null;
+          const localized = lang === "en" && cat.title_en?.trim() ? cat.title_en : cat.title;
+          return localized || null;
+        };
+        const intentTitle =
+          filterCategories.find((c) => c.special_kind === "arbetssatt") ?? null;
+        const intentHeader =
+          intentTitle
+            ? (lang === "en" && intentTitle.title_en?.trim()
+                ? intentTitle.title_en
+                : intentTitle.title)
+            : null;
+
+        type Group = { key: string; header: string | null; node: React.ReactNode };
+        const groups: Group[] = [];
+
         if (intentChips.length > 0) {
-          groups.push(
-            <div key="g-intent" className="flex flex-wrap items-center gap-1.5">
-              {intentChips.map(renderIntentChip)}
-            </div>,
-          );
+          groups.push({
+            key: "intent",
+            header: intentHeader,
+            node: (
+              <div className="flex flex-wrap items-center gap-1.5">
+                {intentChips.map(renderIntentChip)}
+              </div>
+            ),
+          });
         }
-        for (const key of groupOrder) {
+
+        // Preserve DB category order for known groups + trailing tag categories.
+        const orderedKeys: string[] = [];
+        for (const cat of filterCategories) {
+          if (grouped[cat.key] && grouped[cat.key].length > 0) orderedKeys.push(cat.key);
+        }
+        for (const key of Object.keys(grouped)) {
+          if (!orderedKeys.includes(key) && grouped[key].length > 0) orderedKeys.push(key);
+        }
+
+        for (const key of orderedKeys) {
           const items = grouped[key];
           if (!items || items.length === 0) continue;
-          groups.push(
-            <div key={`g-${key}`} className="flex flex-wrap items-center gap-1.5">
-              {items.map(renderCategoryChip)}
-            </div>,
-          );
-        }
-        if (grouped.other && grouped.other.length > 0) {
-          groups.push(
-            <div key="g-other" className="flex flex-wrap items-center gap-1.5">
-              {grouped.other.map(renderCategoryChip)}
-            </div>,
-          );
+          groups.push({
+            key,
+            header: titleFor(key),
+            node: (
+              <div className="flex flex-wrap items-center gap-1.5">
+                {items.map(renderCategoryChip)}
+              </div>
+            ),
+          });
         }
 
         if (groups.length === 0) return null;
 
         return (
-          <div key="chips" className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
-            {groups.map((g, i) => (
-              <div key={i} className="flex items-center gap-x-3">
-                {i > 0 && (
-                  <span
-                    aria-hidden="true"
-                    className="h-4 w-px bg-border/70 self-center"
-                  />
+          <div key="chips" className="mt-2 flex flex-col gap-2.5">
+            {groups.map((g) => (
+              <div key={g.key} className="flex flex-col gap-1">
+                {g.header && (
+                  <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
+                    {g.header}
+                  </div>
                 )}
-                {g}
+                {g.node}
               </div>
             ))}
           </div>
