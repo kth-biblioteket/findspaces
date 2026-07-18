@@ -114,7 +114,7 @@ export function ActiveFilterChips({
           type="button"
           onClick={c.onRemove}
           aria-label={t("chips.remove_aria", { label: c.label })}
-          className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground border border-primary pl-3 pr-2 py-1 text-xs font-medium hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+          className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground border border-primary pl-3 pr-2 py-1 text-xs font-semibold hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
         >
           <span>{c.label}</span>
           <X className="h-3.5 w-3.5" aria-hidden="true" />
