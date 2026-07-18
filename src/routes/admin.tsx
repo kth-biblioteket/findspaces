@@ -693,6 +693,7 @@ function AdminPage() {
     fetchImageDates(f.images);
   };
   const openNew = () => { setForm(emptyForm); setOriginalForm(emptyForm); setImageDates({}); setEditTab("basic"); setOpen(true); };
+  const isDirty = useMemo(() => JSON.stringify(form) !== JSON.stringify(originalForm), [form, originalForm]);
 
 
   useEffect(() => {
