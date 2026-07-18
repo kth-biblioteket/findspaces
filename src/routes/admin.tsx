@@ -26,6 +26,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { SpaceCard } from "@/components/SpaceCard";
 import {
   useCardLayout, useSaveCardLayout,
