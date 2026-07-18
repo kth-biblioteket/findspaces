@@ -2146,6 +2146,40 @@ function FilterOptionDialog({
   );
 }
 
+function LinkSyntaxHelp({ slug }: { slug?: string }) {
+  const example = slug || "maxwell";
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="inline-flex items-center gap-1 text-[11px] font-normal text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+          aria-label="Visa länksyntax"
+        >
+          <Info className="h-3 w-3" /> Länksyntax
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-80 text-xs leading-relaxed">
+        <div className="space-y-2">
+          <div>
+            <div className="font-semibold mb-1">Länk till annat kort</div>
+            <code className="block bg-secondary rounded px-2 py-1 font-mono text-[11px] whitespace-pre-wrap break-all">[[{example}|valfri text]]</code>
+          </div>
+          <div>
+            <div className="font-semibold mb-1">Länk till webbsida</div>
+            <code className="block bg-secondary rounded px-2 py-1 font-mono text-[11px] whitespace-pre-wrap break-all">{`<a href="https://kth.se">KTH</a>`}</code>
+            <p className="mt-1 text-muted-foreground">Länkar öppnas i ny flik automatiskt.</p>
+          </div>
+          <div className="text-muted-foreground">
+            Tillåtna taggar: <code>&lt;a&gt;</code>, <code>&lt;b&gt;</code>, <code>&lt;strong&gt;</code>, <code>&lt;i&gt;</code>, <code>&lt;em&gt;</code>, <code>&lt;br&gt;</code>, <code>&lt;p&gt;</code>, <code>&lt;ul&gt;</code>, <code>&lt;ol&gt;</code>, <code>&lt;li&gt;</code>.
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+
 function Field({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
   const id = useId();
   const arr = Children.toArray(children);
