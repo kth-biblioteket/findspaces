@@ -685,11 +685,14 @@ function AdminPage() {
   const openEdit = (s: Space) => {
     const f = spaceToForm(s);
     setForm(f);
+    setOriginalForm(f);
     setImageDates({});
+    setEditTab("basic");
     setOpen(true);
     fetchImageDates(f.images);
   };
-  const openNew = () => { setForm(emptyForm); setImageDates({}); setOpen(true); };
+  const openNew = () => { setForm(emptyForm); setOriginalForm(emptyForm); setImageDates({}); setEditTab("basic"); setOpen(true); };
+
 
   useEffect(() => {
     if (open && form.images.length > 0) {
