@@ -2146,7 +2146,7 @@ function FilterOptionDialog({
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
   const id = useId();
   const arr = Children.toArray(children);
   const onlyChild = arr.length === 1 ? arr[0] : null;
