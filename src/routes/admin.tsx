@@ -787,7 +787,7 @@ function AdminPage() {
                     <DialogTitle className="flex items-center gap-2 flex-wrap text-lg">
                       <span>{form.id ? "Redigera lokal" : "Ny lokal"}</span>
                       {form.name && <span className="text-muted-foreground font-normal">— {form.name}</span>}
-                      {form.id && form.hidden && (
+                      {form.id && form.id && (spaces.find((s) => s.id === form.id)?.hidden) && (
                         <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border font-normal">Dold</span>
                       )}
                       {isDirty && (
