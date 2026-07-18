@@ -445,7 +445,7 @@ export function SpaceCard({
           const selected = isCategorySelected(c.category, c.value);
           const content = (
             <>
-              <OptionIcon option={opt} className="h-4 w-4 shrink-0" />
+              <OptionIcon option={opt} className="h-3.5 w-3.5 shrink-0" />
               <span className="break-words">{c.label}</span>
             </>
           );
