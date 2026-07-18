@@ -24,7 +24,7 @@ import { type Filters } from "./FilterPanel";
 import { parseSpaceLinks } from "@/lib/spaceLinks";
 
 
-type IntentValue = "enskilt" | "tillsammans";
+type IntentValue = "enskilt" | "tillsammans" | "grupprum";
 
 export function SpaceCard({
   space,
@@ -181,15 +181,16 @@ export function SpaceCard({
     (space.lokaltyp ?? []).includes("Grupprum") ||
     (space.intent ?? []).includes("grupprum");
 
-  // Intent chips on the card: enskilt / tillsammans only (skip on grupprum cards)
-  const intentChips: { value: IntentValue; label: string }[] = !isGrupprum
-    ? (space.intent ?? [])
+  // Intent chips on the card: enskilt / tillsammans for regular spaces,
+  // "I grupprum" for group-room spaces. Noise level always joins this row.
+  const intentChips: { value: IntentValue; label: string }[] = isGrupprum
+    ? [{ value: "grupprum", label: t("filters.intent_grupprum") }]
+    : (space.intent ?? [])
         .filter((v): v is IntentValue => v === "enskilt" || v === "tillsammans")
         .map((v) => ({
           value: v,
           label: v === "enskilt" ? t("filters.intent_enskilt") : t("filters.intent_tillsammans"),
-        }))
-    : [];
+        }));
 
   type CategoryChip = { category: string; value: string; key: string; label: string };
   const categoryChips: CategoryChip[] = [
@@ -210,6 +211,9 @@ export function SpaceCard({
           })),
     ),
   ];
+
+  const noiseChips = categoryChips.filter((c) => c.category === "noise");
+  const otherCategoryChips = categoryChips.filter((c) => c.category !== "noise");
 
 
   const isIntentSelected = (v: IntentValue) => filters?.workMode === v;
@@ -459,7 +463,6 @@ export function SpaceCard({
             >
               {content}
             </button>
-
           ) : (
             <span key={c.key} title={c.label} className={cn(chipBase, chipUnselected)}>
               {content}
@@ -467,82 +470,28 @@ export function SpaceCard({
           );
         };
 
-        const groupOrder = ["noise", "equipment", "facility"] as const;
-        const knownCats = new Set<string>(groupOrder);
-        const grouped: Record<string, CategoryChip[]> = {};
-        for (const c of categoryChips) {
-          const bucket = knownCats.has(c.category) ? c.category : c.category || "other";
-          (grouped[bucket] ??= []).push(c);
-        }
+        // Top row: work mode + group room + noise level.
+        // Bottom row: all remaining category chips.
+        const topRow = [
+          ...intentChips.map(renderIntentChip),
+          ...noiseChips.map(renderCategoryChip),
+        ].filter(Boolean);
+        const bottomRow = otherCategoryChips.map(renderCategoryChip).filter(Boolean);
 
-        const catByKey = new Map(filterCategories.map((c) => [c.key, c]));
-        const titleFor = (key: string): string | null => {
-          const cat = catByKey.get(key);
-          if (!cat) return null;
-          const localized = lang === "en" && cat.title_en?.trim() ? cat.title_en : cat.title;
-          return localized || null;
-        };
-        const intentTitle =
-          filterCategories.find((c) => c.special_kind === "arbetssatt") ?? null;
-        const intentHeader =
-          intentTitle
-            ? (lang === "en" && intentTitle.title_en?.trim()
-                ? intentTitle.title_en
-                : intentTitle.title)
-            : null;
-
-        type Group = { key: string; header: string | null; node: React.ReactNode };
-        const groups: Group[] = [];
-
-        if (intentChips.length > 0) {
-          groups.push({
-            key: "intent",
-            header: intentHeader,
-            node: (
-              <div className="flex flex-wrap items-center gap-1.5">
-                {intentChips.map(renderIntentChip)}
-              </div>
-            ),
-          });
-        }
-
-        // Preserve DB category order for known groups + trailing tag categories.
-        const orderedKeys: string[] = [];
-        for (const cat of filterCategories) {
-          if (grouped[cat.key] && grouped[cat.key].length > 0) orderedKeys.push(cat.key);
-        }
-        for (const key of Object.keys(grouped)) {
-          if (!orderedKeys.includes(key) && grouped[key].length > 0) orderedKeys.push(key);
-        }
-
-        for (const key of orderedKeys) {
-          const items = grouped[key];
-          if (!items || items.length === 0) continue;
-          groups.push({
-            key,
-            header: titleFor(key),
-            node: (
-              <div className="flex flex-wrap items-center gap-1.5">
-                {items.map(renderCategoryChip)}
-              </div>
-            ),
-          });
-        }
-
-        if (groups.length === 0) return null;
+        if (topRow.length === 0 && bottomRow.length === 0) return null;
 
         return (
-          <div key="chips" className="mt-2 flex flex-col gap-2.5">
-            {groups.map((g) => (
-              <div key={g.key} className="flex flex-col gap-1">
-                {g.header && (
-                  <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
-                    {g.header}
-                  </div>
-                )}
-                {g.node}
+          <div key="chips" className="mt-2 flex flex-col gap-1.5">
+            {topRow.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                {topRow}
               </div>
-            ))}
+            )}
+            {bottomRow.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                {bottomRow}
+              </div>
+            )}
           </div>
         );
       }
