@@ -257,7 +257,7 @@ export function SpaceCard({
 
 
   const chipBase =
-    "inline-flex items-center gap-1.5 text-xs font-semibold rounded-md px-3 py-2 max-w-full transition-colors";
+    "inline-flex items-center gap-1.5 text-xs font-semibold rounded-full px-2 py-1 max-w-full transition-colors";
   const chipUnselected = "text-muted-foreground bg-secondary/60 hover:bg-accent";
   const chipSelected =
     "bg-[var(--kth-blue)] text-white hover:bg-[var(--kth-blue)]/90 [&_img]:brightness-0 [&_img]:invert";
@@ -414,7 +414,7 @@ export function SpaceCard({
           const Icon = c.value === "enskilt" ? User : Users;
           const content = (
             <>
-              <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
               <span className="break-words">{c.label}</span>
             </>
           );
@@ -445,7 +445,7 @@ export function SpaceCard({
           const selected = isCategorySelected(c.category, c.value);
           const content = (
             <>
-              <OptionIcon option={opt} className="h-4 w-4 shrink-0" />
+              <OptionIcon option={opt} className="h-3.5 w-3.5 shrink-0" />
               <span className="break-words">{c.label}</span>
             </>
           );
