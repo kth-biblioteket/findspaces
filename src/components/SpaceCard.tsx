@@ -321,6 +321,8 @@ export function SpaceCard({
                       <span className="inline-flex w-4 justify-center">
                         {capacityIconUrl ? (
                           <img src={capacityIconUrl} alt="" className="h-4 w-4 object-contain" />
+                        ) : capacityIconPending ? (
+                          <span className="h-4 w-4" aria-hidden="true" />
                         ) : (
                           <TableChairIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                         )}
