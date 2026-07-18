@@ -24,7 +24,7 @@ import { type Filters } from "./FilterPanel";
 import { parseSpaceLinks } from "@/lib/spaceLinks";
 
 
-type IntentValue = "enskilt" | "tillsammans";
+type IntentValue = "enskilt" | "tillsammans" | "grupprum";
 
 export function SpaceCard({
   space,
@@ -181,15 +181,16 @@ export function SpaceCard({
     (space.lokaltyp ?? []).includes("Grupprum") ||
     (space.intent ?? []).includes("grupprum");
 
-  // Intent chips on the card: enskilt / tillsammans only (skip on grupprum cards)
-  const intentChips: { value: IntentValue; label: string }[] = !isGrupprum
-    ? (space.intent ?? [])
+  // Intent chips on the card: enskilt / tillsammans for regular spaces,
+  // "I grupprum" for group-room spaces. Noise level always joins this row.
+  const intentChips: { value: IntentValue; label: string }[] = isGrupprum
+    ? [{ value: "grupprum", label: t("filters.intent_grupprum") }]
+    : (space.intent ?? [])
         .filter((v): v is IntentValue => v === "enskilt" || v === "tillsammans")
         .map((v) => ({
           value: v,
           label: v === "enskilt" ? t("filters.intent_enskilt") : t("filters.intent_tillsammans"),
-        }))
-    : [];
+        }));
 
   type CategoryChip = { category: string; value: string; key: string; label: string };
   const categoryChips: CategoryChip[] = [
@@ -210,6 +211,9 @@ export function SpaceCard({
           })),
     ),
   ];
+
+  const noiseChips = categoryChips.filter((c) => c.category === "noise");
+  const otherCategoryChips = categoryChips.filter((c) => c.category !== "noise");
 
 
   const isIntentSelected = (v: IntentValue) => filters?.workMode === v;
