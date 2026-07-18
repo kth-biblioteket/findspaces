@@ -6,6 +6,7 @@ import { TableChairIcon } from "./icons/TableChairIcon";
 
 import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
+import { useFilterCategories } from "@/lib/useFilterCategories";
 import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
 import { useCapacityIcon } from "@/lib/useCapacityIcon";
 import { useLiveSpaceStatus, type LiveOccupancy, type LiveGroupRoom } from "@/lib/useLiveSpaceStatus";
