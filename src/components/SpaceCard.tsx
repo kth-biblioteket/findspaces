@@ -257,7 +257,7 @@ export function SpaceCard({
 
 
   const chipBase =
-    "inline-flex items-center gap-1.5 text-xs font-semibold rounded-md px-2.5 py-1.5 max-w-full transition-colors";
+    "inline-flex items-center gap-1.5 text-xs font-semibold rounded-md px-3 py-2 max-w-full transition-colors";
   const chipUnselected = "text-muted-foreground bg-secondary/60 hover:bg-accent";
   const chipSelected =
     "bg-[var(--kth-blue)] text-white hover:bg-[var(--kth-blue)]/90 [&_img]:brightness-0 [&_img]:invert";
