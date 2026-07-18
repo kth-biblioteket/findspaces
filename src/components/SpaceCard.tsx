@@ -291,10 +291,10 @@ export function SpaceCard({
                 )}
               </div>
               {hasMeta && (
-                <div className="text-sm text-foreground leading-snug">
+                <div className="mt-1 text-sm text-muted-foreground leading-snug">
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                     {floorPart && (
-                      <span className="inline-flex items-center gap-1.5 text-foreground">
+                      <span className="inline-flex items-center gap-1.5">
                         <span className="inline-flex w-4 justify-center">
                           <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                         </span>
@@ -302,20 +302,20 @@ export function SpaceCard({
                       </span>
                     )}
                     {floorPart && locatedInPart && (
-                      <span className="text-foreground/40" aria-hidden="true">|</span>
+                      <span className="text-muted-foreground/50" aria-hidden="true">|</span>
                     )}
-                    {locatedInPart && <span className="text-foreground">{locatedInPart}</span>}
+                    {locatedInPart && <span>{locatedInPart}</span>}
                     {(floorPart || locatedInPart) && lokaltypParts.length > 0 && (
-                      <span className="text-foreground/40" aria-hidden="true">|</span>
+                      <span className="text-muted-foreground/50" aria-hidden="true">|</span>
                     )}
                     {lokaltypParts.length > 0 && (
-                      <span className="text-foreground">{lokaltypParts.join(" • ")}</span>
+                      <span>{lokaltypParts.join(" • ")}</span>
                     )}
                   </div>
                 </div>
               )}
               {(showCapacity || (space.informal_seat_count ?? 0) > 0 || (space.computer_count ?? 0) > 0) && (
-                <div className="flex flex-wrap items-end gap-x-4 gap-y-1 text-sm text-foreground">
+                <div className="mt-1.5 flex flex-wrap items-end gap-x-4 gap-y-1 text-sm text-foreground">
                   {showCapacity && (
                     <p className="inline-flex items-end gap-1.5">
                       <span className="inline-flex w-4 justify-center">
@@ -324,39 +324,41 @@ export function SpaceCard({
                         ) : capacityIconPending ? (
                           <span className="h-4 w-4" aria-hidden="true" />
                         ) : (
-                          <TableChairIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                          <TableChairIcon className="h-4 w-4 text-foreground/70" aria-hidden="true" />
                         )}
                       </span>
                       <span className="leading-none">
                         <span className="sr-only">{t("card.study_seats_sr")} </span>
-                        {space.capacity} {t("card.study_seats_label", { count: space.capacity ?? 0 })}
+                        <span className="font-medium">{space.capacity}</span> {t("card.study_seats_label", { count: space.capacity ?? 0 })}
                       </span>
                     </p>
                   )}
                   {(space.informal_seat_count ?? 0) > 0 && (
                     <p className="inline-flex items-end gap-1.5">
                       <span className="inline-flex w-4 justify-center">
-                        <Armchair className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                        <Armchair className="h-4 w-4 text-foreground/70" aria-hidden="true" />
                       </span>
                       <span className="leading-none">
                         <span className="sr-only">{t("card.informal_seats_sr")} </span>
-                        {space.informal_seat_count} {t("card.informal_seats_label", { count: space.informal_seat_count ?? 0 })}
+                        <span className="font-medium">{space.informal_seat_count}</span> {t("card.informal_seats_label", { count: space.informal_seat_count ?? 0 })}
                       </span>
                     </p>
                   )}
                   {(space.computer_count ?? 0) > 0 && (
                     <p className="inline-flex items-end gap-1.5">
                       <span className="inline-flex w-4 justify-center">
-                        <Monitor className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                        <Monitor className="h-4 w-4 text-foreground/70" aria-hidden="true" />
                       </span>
                       <span className="leading-none">
                         <span className="sr-only">{t("card.computers_sr")} </span>
-                        {space.computer_count} {t("card.computers_label", { count: space.computer_count ?? 0 })}
+                        <span className="font-medium">{space.computer_count}</span> {t("card.computers_label", { count: space.computer_count ?? 0 })}
                       </span>
                     </p>
                   )}
                 </div>
               )}
+
+
 
             </div>
 
