@@ -399,7 +399,8 @@ export function SpaceCard({
       case "chips":
         if (intentChips.length === 0 && categoryChips.length === 0) return null;
         return (
-          <div key="chips" className="flex flex-wrap items-center gap-2">
+          <div key="chips" className="flex flex-wrap items-center gap-2 mt-2">
+
             {intentChips.map((c) => {
               const selected = isIntentSelected(c.value);
               const Icon = c.value === "enskilt" ? User : Users;
