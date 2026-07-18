@@ -62,7 +62,7 @@ export function SpaceCard({
   const [highlighted, setHighlighted] = useState(false);
   const { data: options = [] } = useFilterOptions();
   const { data: layoutFromDb = ["header", "notice", "info", "chips", "button_map", "button_group_booking", "button_booking"] } = useCardLayout();
-  const { data: capacityIconUrl } = useCapacityIcon();
+  const { data: capacityIconUrl, isPending: capacityIconPending } = useCapacityIcon();
   const { occupancy, groupRoom } = useLiveSpaceStatus(space, {
     occupancy: previewOccupancy,
     groupRoom: previewGroupRoom,
