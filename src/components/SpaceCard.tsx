@@ -414,7 +414,7 @@ export function SpaceCard({
           const Icon = c.value === "enskilt" ? User : Users;
           const content = (
             <>
-              <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
               <span className="break-words">{c.label}</span>
             </>
           );
