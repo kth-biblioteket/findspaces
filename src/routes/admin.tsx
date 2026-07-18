@@ -256,6 +256,8 @@ function AdminPage() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
+  const [originalForm, setOriginalForm] = useState<FormState>(emptyForm);
+  const [editTab, setEditTab] = useState<"basic" | "filter" | "text" | "media" | "advanced">("basic");
   const [imageDates, setImageDates] = useState<Record<string, string | null>>({});
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkAction, setBulkAction] = useState<BulkAction>("set_floor");
