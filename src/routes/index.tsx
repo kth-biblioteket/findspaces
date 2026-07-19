@@ -349,10 +349,11 @@ function SpaceFinder() {
           <div
             className={
               inIframe
-                ? "bg-card rounded-xl shadow-[0_4px_16px_-2px_rgba(15,23,42,0.12),0_2px_6px_-2px_rgba(15,23,42,0.08)] flex flex-col"
-                : "sticky top-4 bg-card rounded-xl shadow-[0_4px_16px_-2px_rgba(15,23,42,0.12),0_2px_6px_-2px_rgba(15,23,42,0.08)] flex flex-col max-h-[calc(100vh-2rem)]"
+                ? "bg-card rounded-xl shadow-sm flex flex-col"
+                : "sticky top-4 bg-card rounded-xl shadow-sm flex flex-col max-h-[calc(100vh-2rem)]"
             }
           >
+
             <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
               <h2 className="text-sm font-semibold m-0">{t("filters.title")}</h2>
               {hasActiveFilter && (
@@ -385,7 +386,7 @@ function SpaceFinder() {
 
 
         <main id="main" tabIndex={-1} className="focus-visible:outline-none" aria-busy={isLoading}>
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
             <span
               className="text-xs text-muted-foreground lg:hidden"
               aria-live="polite"
@@ -419,12 +420,13 @@ function SpaceFinder() {
                   <SelectTrigger
                     id="sort-select"
                     aria-label={t("results.sort_label")}
-                    className="h-auto min-h-9 w-auto gap-1.5 border-0 bg-transparent shadow-none px-2 py-2 text-xs text-muted-foreground hover:text-foreground focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 [&>svg]:opacity-100"
+                    className="h-auto min-h-9 w-auto gap-2 border-0 bg-transparent shadow-none rounded-lg px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-accent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 transition-colors [&>svg]:opacity-100"
                   >
                     <ArrowUpDown className="h-3.5 w-3.5" aria-hidden="true" />
-                    <span className="mr-1">{t("results.sort_label")}:</span>
+                    <span className="mr-0.5">{t("results.sort_label")}:</span>
                     <SelectValue placeholder={t("results.sort_placeholder")} />
                   </SelectTrigger>
+
                   <SelectContent align="end">
                     <SelectItem value="name_asc">{t("results.sort_name_asc")}</SelectItem>
                     <SelectItem value="name_desc">{t("results.sort_name_desc")}</SelectItem>
@@ -465,7 +467,7 @@ function SpaceFinder() {
 
 
           {isLoading && (
-            <div className="space-y-3 md:space-y-5" role="status" aria-label={t("results.loading")}>
+            <div className="space-y-4 md:space-y-6" role="status" aria-label={t("results.loading")}>
               {Array.from({ length: 3 }).map((_, i) => (
                 <SpaceCardSkeleton key={i} />
               ))}
@@ -545,7 +547,7 @@ function SpaceFinder() {
               <h2 id="results-heading" className="sr-only">
                 {t("results.heading")}
               </h2>
-              <ul role="list" className="space-y-3 md:space-y-5 list-none pl-0">
+              <ul role="list" className="space-y-4 md:space-y-6 list-none pl-0">
                 {sortedFiltered.map((s, i) => (
                   <li key={s.id}>
                     <SpaceCard space={s} filters={filters} onFiltersChange={setFilters} onSpaceLink={handleSpaceLink} highlightId={search.highlight} highlightTick={highlightTick} spaces={spaces} priority={i < 2} />

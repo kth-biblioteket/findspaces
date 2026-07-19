@@ -257,10 +257,11 @@ export function SpaceCard({
 
 
   const chipBase =
-    "inline-flex items-center gap-1.5 text-xs rounded-full px-2 py-1 max-w-full transition-colors";
+    "inline-flex items-center gap-1.5 text-xs rounded-full px-2 py-1 max-w-full transition-all duration-150 active:scale-95";
   const chipUnselected = "text-muted-foreground bg-secondary/60 hover:bg-accent";
   const chipSelected =
     "bg-[var(--kth-blue)] text-white hover:bg-[var(--kth-blue)]/90 [&_img]:brightness-0 [&_img]:invert";
+
 
   const renderSection = (key: CardSectionKey) => {
     switch (key) {
@@ -581,24 +582,35 @@ export function SpaceCard({
       id={`space-${space.id}`}
       aria-labelledby={`space-${space.id}-title`}
       className={cn(
-        "bg-card rounded-2xl shadow-[0_4px_16px_-2px_rgba(15,23,42,0.12),0_2px_6px_-2px_rgba(15,23,42,0.08)] hover:shadow-[0_8px_24px_-4px_rgba(15,23,42,0.16),0_4px_10px_-3px_rgba(15,23,42,0.1)] overflow-hidden transition-shadow",
+        "bg-card rounded-2xl shadow-sm hover:shadow-md overflow-hidden transition-all duration-200",
         highlighted && "space-highlight",
       )}
+
     >
         <div className="flex flex-col md:grid md:grid-cols-[2fr_3fr] items-stretch gap-0">
           <div className="order-2 md:order-1 min-w-0 flex flex-col gap-4 md:gap-5 p-3 md:p-6">
           {layout.map((k) => renderSection(k))}
 
-          {sanitizedDescription && (space.description_inline || aboutOpen) && (
+          {sanitizedDescription && (
             <div
-              id={`space-${space.id}-about`}
               className={cn(
-                "text-sm text-foreground/90 leading-relaxed space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line",
-                !space.description_inline && "border-t border-border pt-4",
+                "grid transition-[grid-template-rows] duration-300 ease-out",
+                (space.description_inline || aboutOpen) ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
               )}
-              dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
-            />
+            >
+              <div className="overflow-hidden">
+                <div
+                  id={`space-${space.id}-about`}
+                  className={cn(
+                    "text-sm text-foreground/90 leading-relaxed space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line",
+                    !space.description_inline && "border-t border-border pt-4",
+                  )}
+                  dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+                />
+              </div>
+            </div>
           )}
+
 
           {renderedButtons.length > 0 && (
             <div className="mt-auto flex flex-wrap items-center gap-2 justify-end">
