@@ -349,8 +349,8 @@ function SpaceFinder() {
           <div
             className={
               inIframe
-                ? "bg-card rounded-xl shadow-sm flex flex-col"
-                : "sticky top-4 bg-card rounded-xl shadow-sm flex flex-col max-h-[calc(100vh-2rem)]"
+                ? "bg-card rounded-xl card-shadow flex flex-col"
+                : "sticky top-4 bg-card rounded-xl card-shadow flex flex-col max-h-[calc(100vh-2rem)]"
             }
           >
 
