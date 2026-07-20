@@ -29,7 +29,7 @@ export function SpaceCardSkeleton() {
             <Skeleton className="h-8 w-28 rounded-full" />
           </div>
         </div>
-        <div className="order-1 md:order-2 w-full shrink-0 self-stretch aspect-[3/2] md:aspect-auto md:h-full md:min-h-[22rem]">
+        <div className="order-1 md:order-2 w-full shrink-0 self-stretch aspect-[3/2] md:aspect-auto md:h-full md:min-h-[28rem]">
           <Skeleton className="h-full w-full rounded-none" />
         </div>
       </div>
