@@ -101,15 +101,11 @@ export function ImageCarousel({
         aria-label={t("gallery.open_full")}
       >
         <img
-          key={list[idx]}
           src={optimizedImageUrl(list[idx], 960)}
           srcSet={optimizedImageSrcSet(list[idx])}
           sizes="(min-width: 768px) 60vw, 100vw"
           alt={alts[idx]?.trim() || alt}
-          className={cn(
-            "w-full h-full object-cover transition-opacity duration-300",
-            isLoaded ? "opacity-100" : "opacity-0"
-          )}
+          className="w-full h-full object-cover"
           loading={priority ? "eager" : "lazy"}
           // @ts-expect-error -- fetchpriority is valid HTML, not yet in React types
           fetchpriority={priority ? "high" : "auto"}
