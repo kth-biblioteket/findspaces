@@ -707,15 +707,16 @@ function AdminPage() {
     }
   }, [open, form.images.length, fetchImageDates]);
 
-  // Filtered spaces for the admin list — search + kind + visibility.
+  // Filtered spaces for the admin list — search + kind + visibility + lokaltyp.
   const listFiltersActive =
-    listQuery.trim() !== "" || listKind !== "all" || listVisibility !== "all";
+    listQuery.trim() !== "" || listKind !== "all" || listVisibility !== "all" || listLokaltyp !== "all";
   const filteredSpaces = useMemo(() => {
     const q = listQuery.trim().toLowerCase();
     return spaces.filter((s) => {
       if (listKind !== "all" && (s.space_kind ?? "study") !== listKind) return false;
       if (listVisibility === "visible" && s.hidden) return false;
       if (listVisibility === "hidden" && !s.hidden) return false;
+      if (listLokaltyp !== "all" && !(s.lokaltyp ?? []).includes(listLokaltyp)) return false;
       if (q) {
         const hay = [
           s.name, s.name_en ?? "", s.slug ?? "",
@@ -725,7 +726,7 @@ function AdminPage() {
       }
       return true;
     });
-  }, [spaces, listQuery, listKind, listVisibility]);
+  }, [spaces, listQuery, listKind, listVisibility, listLokaltyp]);
 
 
   if (!authChecked) {
