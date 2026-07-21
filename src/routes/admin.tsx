@@ -490,6 +490,10 @@ function AdminPage() {
     const v = window.localStorage.getItem("admin.spaces.visibility");
     return v === "visible" || v === "hidden" ? v : "all";
   });
+  const [listLokaltyp, setListLokaltyp] = useState<string>(() => {
+    if (typeof window === "undefined") return "all";
+    return window.localStorage.getItem("admin.spaces.lokaltyp") ?? "all";
+  });
   const [listCompact, setListCompact] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     return window.localStorage.getItem("admin.spaces.compact") === "1";
@@ -497,6 +501,7 @@ function AdminPage() {
   useEffect(() => { window.localStorage.setItem("admin.spaces.query", listQuery); }, [listQuery]);
   useEffect(() => { window.localStorage.setItem("admin.spaces.kind", listKind); }, [listKind]);
   useEffect(() => { window.localStorage.setItem("admin.spaces.visibility", listVisibility); }, [listVisibility]);
+  useEffect(() => { window.localStorage.setItem("admin.spaces.lokaltyp", listLokaltyp); }, [listLokaltyp]);
   useEffect(() => { window.localStorage.setItem("admin.spaces.compact", listCompact ? "1" : "0"); }, [listCompact]);
 
   const applyBulk = async () => {
@@ -702,15 +707,16 @@ function AdminPage() {
     }
   }, [open, form.images.length, fetchImageDates]);
 
-  // Filtered spaces for the admin list — search + kind + visibility.
+  // Filtered spaces for the admin list — search + kind + visibility + lokaltyp.
   const listFiltersActive =
-    listQuery.trim() !== "" || listKind !== "all" || listVisibility !== "all";
+    listQuery.trim() !== "" || listKind !== "all" || listVisibility !== "all" || listLokaltyp !== "all";
   const filteredSpaces = useMemo(() => {
     const q = listQuery.trim().toLowerCase();
     return spaces.filter((s) => {
       if (listKind !== "all" && (s.space_kind ?? "study") !== listKind) return false;
       if (listVisibility === "visible" && s.hidden) return false;
       if (listVisibility === "hidden" && !s.hidden) return false;
+      if (listLokaltyp !== "all" && !(s.lokaltyp ?? []).includes(listLokaltyp)) return false;
       if (q) {
         const hay = [
           s.name, s.name_en ?? "", s.slug ?? "",
@@ -720,7 +726,7 @@ function AdminPage() {
       }
       return true;
     });
-  }, [spaces, listQuery, listKind, listVisibility]);
+  }, [spaces, listQuery, listKind, listVisibility, listLokaltyp]);
 
 
   if (!authChecked) {
@@ -1415,6 +1421,20 @@ function AdminPage() {
                       </select>
                     </label>
                     <label className="text-xs text-muted-foreground flex items-center gap-1.5">
+                      <span className="sr-only">Lokaltyp</span>
+                      <select
+                        value={listLokaltyp}
+                        onChange={(e) => setListLokaltyp(e.target.value)}
+                        aria-label="Filtrera på lokaltyp"
+                        className="rounded-lg border border-border bg-background px-2 py-1.5 text-sm text-foreground"
+                      >
+                        <option value="all">Alla lokaltyper</option>
+                        {(byKey["lokaltyp"] ?? []).filter((o) => !o.hidden).map((o) => (
+                          <option key={o.id} value={o.label}>{o.label}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="text-xs text-muted-foreground flex items-center gap-1.5">
                       <span className="sr-only">Synlighet</span>
                       <select
                         value={listVisibility}
@@ -1434,7 +1454,7 @@ function AdminPage() {
                     {listFiltersActive && (
                       <button
                         type="button"
-                        onClick={() => { setListQuery(""); setListKind("all"); setListVisibility("all"); }}
+                        onClick={() => { setListQuery(""); setListKind("all"); setListVisibility("all"); setListLokaltyp("all"); }}
                         className="text-xs text-muted-foreground hover:text-foreground underline"
                       >Rensa filter</button>
                     )}
