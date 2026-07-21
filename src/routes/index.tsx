@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { SlidersHorizontal, Settings, X, ArrowUpDown } from "lucide-react";
+import { SlidersHorizontal, Settings, X, ArrowUpDown, SearchX, AlertTriangle } from "lucide-react";
 import {
   Select,
   SelectContent,
