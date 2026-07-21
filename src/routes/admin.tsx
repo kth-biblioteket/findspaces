@@ -490,6 +490,10 @@ function AdminPage() {
     const v = window.localStorage.getItem("admin.spaces.visibility");
     return v === "visible" || v === "hidden" ? v : "all";
   });
+  const [listLokaltyp, setListLokaltyp] = useState<string>(() => {
+    if (typeof window === "undefined") return "all";
+    return window.localStorage.getItem("admin.spaces.lokaltyp") ?? "all";
+  });
   const [listCompact, setListCompact] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     return window.localStorage.getItem("admin.spaces.compact") === "1";
@@ -497,6 +501,7 @@ function AdminPage() {
   useEffect(() => { window.localStorage.setItem("admin.spaces.query", listQuery); }, [listQuery]);
   useEffect(() => { window.localStorage.setItem("admin.spaces.kind", listKind); }, [listKind]);
   useEffect(() => { window.localStorage.setItem("admin.spaces.visibility", listVisibility); }, [listVisibility]);
+  useEffect(() => { window.localStorage.setItem("admin.spaces.lokaltyp", listLokaltyp); }, [listLokaltyp]);
   useEffect(() => { window.localStorage.setItem("admin.spaces.compact", listCompact ? "1" : "0"); }, [listCompact]);
 
   const applyBulk = async () => {
