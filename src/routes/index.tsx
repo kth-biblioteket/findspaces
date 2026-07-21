@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { SlidersHorizontal, Settings, X, ArrowUpDown } from "lucide-react";
+import { SlidersHorizontal, Settings, X, ArrowUpDown, SearchX, AlertTriangle } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -477,18 +477,21 @@ function SpaceFinder() {
           {!isLoading && isError && (
             <div
               role="alert"
-              className="bg-card rounded-2xl shadow-sm p-8 text-left"
+              className="bg-card rounded-2xl card-shadow p-8 text-center flex flex-col items-center animate-fade-in"
             >
-              <p className="text-base font-semibold text-foreground mb-2">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+                <AlertTriangle className="h-7 w-7" aria-hidden="true" />
+              </div>
+              <p className="text-lg font-semibold text-foreground mb-2">
                 {t("results.error_title")}
               </p>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-sm text-muted-foreground mb-5 max-w-md">
                 {t("results.error_body")}
               </p>
               <button
                 type="button"
                 onClick={() => { void refetch(); }}
-                className="inline-flex items-center rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                className="inline-flex items-center rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium shadow-sm transition-all hover:opacity-90 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
               >
                 {t("results.error_retry")}
               </button>
@@ -496,23 +499,26 @@ function SpaceFinder() {
           )}
 
           {!isLoading && !isError && sortedFiltered.length === 0 && (
-            <div className="bg-card rounded-2xl shadow-sm p-8 text-left">
-              <p className="text-base font-semibold text-foreground mb-2 whitespace-pre-line">
+            <div className="bg-card rounded-2xl card-shadow p-8 md:p-10 text-center flex flex-col items-center animate-fade-in">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[color:var(--kth-blue)]/10 text-[color:var(--kth-blue)]">
+                <SearchX className="h-7 w-7" aria-hidden="true" />
+              </div>
+              <p className="text-lg font-semibold text-foreground mb-2 whitespace-pre-line">
                 {emptyTitle}
               </p>
               {narrowest && narrowest.wouldMatch > 0 ? (
                 <>
-                  <p className="text-sm text-muted-foreground mb-4 whitespace-pre-line">
+                  <p className="text-sm text-muted-foreground mb-5 max-w-md whitespace-pre-line">
                     {formatSuggestTemplate(emptySuggestTemplate ?? "", {
                       label: narrowest.label,
                       count: narrowest.wouldMatch,
                     }, lang)}
                   </p>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap justify-center gap-2">
                     <button
                       type="button"
                       onClick={() => setFilters(narrowest.remove(filters))}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                      className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium shadow-sm transition-all hover:opacity-90 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                     >
                       <X className="h-4 w-4" aria-hidden="true" />
                       {t("results.remove_filter", { label: narrowest.label })}
@@ -520,7 +526,7 @@ function SpaceFinder() {
                     <button
                       type="button"
                       onClick={() => setFilters(emptyFilters)}
-                      className="inline-flex items-center rounded-full border border-border bg-card text-foreground px-4 py-2 text-sm font-medium hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                      className="inline-flex items-center rounded-full border border-border bg-card text-foreground px-5 py-2.5 text-sm font-medium transition-all hover:bg-accent active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                     >
                       {t("results.clear_all_filters")}
                     </button>
@@ -528,13 +534,13 @@ function SpaceFinder() {
                 </>
               ) : (
                 <>
-                  <p className="text-sm text-muted-foreground mb-4 whitespace-pre-line">
+                  <p className="text-sm text-muted-foreground mb-5 max-w-md whitespace-pre-line">
                     {emptyFallback}
                   </p>
                   <button
                     type="button"
                     onClick={() => setFilters(emptyFilters)}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium shadow-sm transition-all hover:opacity-90 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                   >
                     {t("results.clear_all_filters")}
                   </button>
@@ -542,6 +548,7 @@ function SpaceFinder() {
               )}
             </div>
           )}
+
           {!isLoading && sortedFiltered.length > 0 && (
             <section aria-labelledby="results-heading">
               <h2 id="results-heading" className="sr-only">
