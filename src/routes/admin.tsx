@@ -1421,6 +1421,20 @@ function AdminPage() {
                       </select>
                     </label>
                     <label className="text-xs text-muted-foreground flex items-center gap-1.5">
+                      <span className="sr-only">Lokaltyp</span>
+                      <select
+                        value={listLokaltyp}
+                        onChange={(e) => setListLokaltyp(e.target.value)}
+                        aria-label="Filtrera på lokaltyp"
+                        className="rounded-lg border border-border bg-background px-2 py-1.5 text-sm text-foreground"
+                      >
+                        <option value="all">Alla lokaltyper</option>
+                        {(byKey["lokaltyp"] ?? []).filter((o) => !o.hidden).map((o) => (
+                          <option key={o.id} value={o.label}>{o.label}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="text-xs text-muted-foreground flex items-center gap-1.5">
                       <span className="sr-only">Synlighet</span>
                       <select
                         value={listVisibility}
@@ -1440,7 +1454,7 @@ function AdminPage() {
                     {listFiltersActive && (
                       <button
                         type="button"
-                        onClick={() => { setListQuery(""); setListKind("all"); setListVisibility("all"); }}
+                        onClick={() => { setListQuery(""); setListKind("all"); setListVisibility("all"); setListLokaltyp("all"); }}
                         className="text-xs text-muted-foreground hover:text-foreground underline"
                       >Rensa filter</button>
                     )}
