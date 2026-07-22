@@ -1,0 +1,117 @@
+{
+  "header": {
+    "title": "Hitta studieplats på KTH Biblioteket",
+    "subtitle": "DEMO",
+    "prototype_badge": "Prototyp",
+    "admin": "Admin",
+    "language": "Språk"
+  },
+  "announcement": {
+    "dismiss": "Stäng meddelande"
+  },
+  "filters": {
+    "title": "Filter",
+    "open": "Filter",
+    "clear_all": "Rensa alla",
+    "clear": "Rensa",
+    "show_results": "Visa resultat",
+    "show_results_count": "Visa resultat ({{count}})",
+    "search_placeholder": "Sök på lokal...",
+    "search_sr": "Sök på lokal",
+    "intent_default_title": "Hur vill du arbeta?",
+    "intent_enskilt": "Enskilt",
+    "intent_tillsammans": "Tillsammans",
+    "intent_grupprum": "I grupprum",
+    "mode_group_label": "Vad letar du efter?",
+    "mode_study": "En studieplats",
+    "mode_service": "Service & faciliteter",
+    "mode_creative": "Skapande & paus",
+    "group_size_label": "Gruppstorlek",
+    "group_size_2_4": "2–4 pers",
+    "group_size_5plus": "5+ pers",
+    "free_only": "Visa bara lediga just nu"
+  },
+
+  "results": {
+    "heading": "Studieplatser",
+    "heading_service": "Service & faciliteter",
+    "loading": "Laddar...",
+    "error_title": "Kunde inte ladda lokaler",
+    "error_body": "Något gick fel när listan skulle hämtas. Kontrollera din anslutning och försök igen.",
+    "error_retry": "Försök igen",
+    "count_filtered": "{{filtered}} av {{total}} matchar dina filter",
+    "count_total_one": "{{count}} lokal",
+    "count_total_other": "{{count}} lokaler",
+    "count_hits_one": "{{count}} träff",
+    "count_hits_other": "{{count}} träffar",
+    "count_filtered_hits": "{{filtered}} av {{total}} matchar dina filter",
+
+    "remove_filter": "Ta bort {{label}}",
+    "clear_all_filters": "Rensa alla filter",
+    "sort_label": "Sortera",
+    "sort_placeholder": "Standard",
+    "sort_seats_desc": "Flest platser först",
+    "sort_seats_asc": "Minst antal platser först",
+    "no_free_rooms_notice": "Just nu finns inga lediga grupprum bland träffarna. Listan visas i vanlig ordning.",
+    "sort_floor_asc": "Våningsplan (lägst först)",
+    "sort_floor_desc": "Våningsplan (högst först)",
+    "sort_name_asc": "Namn (A–Ö)",
+    "sort_name_desc": "Namn (Ö–A)",
+    "sort_free_now": "Lediga just nu",
+    "sort_reset": "Återställ sortering"
+  },
+  "chips": {
+    "search_label": "Sök: \"{{query}}\"",
+    "remove_aria": "Ta bort filter: {{label}}",
+    "active_filters": "Aktiva filter"
+  },
+  "card": {
+    "capacity_sr": "Kapacitet:",
+    "capacity_seats": "platser",
+    "study_seats_sr": "Antal studieplatser:",
+    "study_seats_label_one": "studieplats",
+    "study_seats_label_other": "studieplatser",
+    "informal_seats_sr": "Antal nedslagsplatser:",
+    "informal_seats_label_one": "nedslagsplats",
+    "informal_seats_label_other": "nedslagsplatser",
+    "computers_sr": "Antal datorplatser:",
+    "computers_label_one": "datorplats",
+    "computers_label_other": "datorplatser",
+    "notice_sr": "Viktigt meddelande:",
+    "button_map": "Visa på karta",
+    "button_group_booking": "Boka grupprum",
+    "button_booking": "Se schema",
+    "about_button": "Om lokalen",
+    "book_now": "Boka nu",
+    "opens_new_tab_sr": "(öppnas i en ny flik)"
+
+  },
+  "occupancy": {
+    "right_now": "Just nu",
+    "free": "Gott om plats",
+    "moderate": "Halvfullt",
+    "busy": "Mycket folk"
+  },
+  "group_room": {
+    "right_now": "Just nu",
+    "free": "Ledigt",
+    "busy": "Upptaget",
+    "tentative": "Bokat – ej bekräftat"
+  },
+  "gallery": {
+    "label": "Bildgalleri",
+    "open_full": "Öppna bild i full storlek",
+    "prev": "Föregående bild",
+    "next": "Nästa bild",
+    "close": "Stäng bildgalleri",
+    "go_to": "Gå till bild {{n}}",
+    "image_number": "Bild {{n}}"
+  },
+  "languages": {
+    "sv": "Svenska",
+    "en": "Engelska"
+  },
+  "a11y": {
+    "skip_to_content": "Hoppa till innehållet"
+  }
+}

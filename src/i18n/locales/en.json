@@ -1,0 +1,117 @@
+{
+  "header": {
+    "title": "Find a study space at KTH Library",
+    "subtitle": "DEMO",
+    "prototype_badge": "Prototype",
+    "admin": "Admin",
+    "language": "Language"
+  },
+  "announcement": {
+    "dismiss": "Dismiss announcement"
+  },
+  "filters": {
+    "title": "Filters",
+    "open": "Filters",
+    "clear_all": "Clear all",
+    "clear": "Clear",
+    "show_results": "Show results",
+    "show_results_count": "Show results ({{count}})",
+    "search_placeholder": "Search for a space...",
+    "search_sr": "Search for a space",
+    "intent_default_title": "How do you want to work?",
+    "intent_enskilt": "Alone",
+    "intent_tillsammans": "Together",
+    "intent_grupprum": "In a group room",
+    "mode_group_label": "What are you looking for?",
+    "mode_study": "A study space",
+    "mode_service": "Services & facilities",
+    "mode_creative": "Creativity & breaks",
+    "group_size_label": "Group size",
+    "group_size_2_4": "2–4 people",
+    "group_size_5plus": "5+ people",
+    "free_only": "Show only free right now"
+  },
+
+  "results": {
+    "heading": "Study spaces",
+    "heading_service": "Services & facilities",
+    "loading": "Loading...",
+    "error_title": "Couldn't load spaces",
+    "error_body": "Something went wrong while fetching the list. Check your connection and try again.",
+    "error_retry": "Try again",
+    "count_filtered": "{{filtered}} of {{total}} matching your filters",
+    "count_total_one": "{{count}} space",
+    "count_total_other": "{{count}} spaces",
+    "count_hits_one": "{{count}} hit",
+    "count_hits_other": "{{count}} hits",
+    "count_filtered_hits": "{{filtered}} of {{total}} matching your filters",
+
+    "remove_filter": "Remove {{label}}",
+    "clear_all_filters": "Clear all filters",
+    "sort_label": "Sort",
+    "sort_placeholder": "Default",
+    "sort_seats_desc": "Most seats first",
+    "sort_seats_asc": "Fewest seats first",
+    "no_free_rooms_notice": "No group rooms are free right now among the results. Showing the list in default order.",
+    "sort_floor_asc": "Floor (lowest first)",
+    "sort_floor_desc": "Floor (highest first)",
+    "sort_name_asc": "Name (A–Ö)",
+    "sort_name_desc": "Name (Ö–A)",
+    "sort_free_now": "Free right now",
+    "sort_reset": "Reset sort"
+  },
+  "chips": {
+    "search_label": "Search: \"{{query}}\"",
+    "remove_aria": "Remove filter: {{label}}",
+    "active_filters": "Active filters"
+  },
+  "card": {
+    "capacity_sr": "Capacity:",
+    "capacity_seats": "seats",
+    "study_seats_sr": "Number of study seats:",
+    "study_seats_label_one": "study seat",
+    "study_seats_label_other": "study seats",
+    "informal_seats_sr": "Number of informal seats:",
+    "informal_seats_label_one": "informal seat",
+    "informal_seats_label_other": "informal seats",
+    "computers_sr": "Number of computer workstations:",
+    "computers_label_one": "computer workstation",
+    "computers_label_other": "computer workstations",
+    "notice_sr": "Important notice:",
+    "button_map": "Show on map",
+    "button_group_booking": "Book group room",
+    "button_booking": "See schedule",
+    "about_button": "About this space",
+    "book_now": "Book now",
+    "opens_new_tab_sr": "(opens in a new tab)"
+
+  },
+  "occupancy": {
+    "right_now": "Right now",
+    "free": "Plenty of space",
+    "moderate": "Moderately busy",
+    "busy": "Very busy"
+  },
+  "group_room": {
+    "right_now": "Right now",
+    "free": "Free",
+    "busy": "Booked",
+    "tentative": "Booked – unconfirmed"
+  },
+  "gallery": {
+    "label": "Image gallery",
+    "open_full": "Open image full size",
+    "prev": "Previous image",
+    "next": "Next image",
+    "close": "Close image gallery",
+    "go_to": "Go to image {{n}}",
+    "image_number": "Image {{n}}"
+  },
+  "languages": {
+    "sv": "Swedish",
+    "en": "English"
+  },
+  "a11y": {
+    "skip_to_content": "Skip to content"
+  }
+}

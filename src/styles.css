@@ -1,0 +1,146 @@
+@import "tailwindcss" source(none);
+@import "@fontsource-variable/figtree";
+@source "../src";
+@import "tw-animate-css";
+
+
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: 'Figtree', system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-kth-navy: var(--kth-navy);
+  --color-kth-blue: var(--kth-blue);
+  --color-kth-sand: var(--kth-sand);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.75rem;
+
+  /* KTH brand */
+  --kth-navy: oklch(0.22 0.16 269);   /* #000061 */
+  --kth-blue: oklch(0.43 0.16 260);   /* #1954a6 */
+  --kth-sand: oklch(0.965 0 0);       /* #F5F5F5 */
+
+  --background: oklch(1 0 0);                    /* white for embedding */
+  --foreground: oklch(0 0 0);                    /* black body text */
+  --card: oklch(1 0 0);                          /* white card surface */
+  --card-foreground: oklch(0 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0 0 0);
+  --primary: oklch(0.43 0.16 260);               /* KTH blue */
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.94 0.005 250);
+  --secondary-foreground: oklch(0 0 0);
+  --muted: oklch(0.94 0.005 250);
+  --muted-foreground: oklch(0 0 0);
+  --accent: oklch(0.93 0.02 260);
+  --accent-foreground: oklch(0 0 0);
+  --destructive: oklch(0.55 0.22 27);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.87 0.005 260);
+  --input: oklch(0.92 0.005 260);
+  --ring: oklch(0.43 0.16 260);
+
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0 0 0);
+  --sidebar-primary: oklch(0.43 0.16 260);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.94 0.005 250);
+  --sidebar-accent-foreground: oklch(0.22 0.16 269);
+  --sidebar-border: oklch(0.9 0.005 260);
+  --sidebar-ring: oklch(0.43 0.16 260);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 { color: var(--kth-navy); font-weight: 700; letter-spacing: -0.01em; }
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+@utility card-shadow {
+  box-shadow: 0 -6px 18px -4px rgba(0, 0, 0, 0.07), 0 2px 6px -2px rgba(0, 0, 0, 0.04);
+}
+
+@utility card-shadow-hover {
+  box-shadow: 0 -8px 24px -4px rgba(0, 0, 0, 0.1), 0 4px 8px -2px rgba(0, 0, 0, 0.05);
+}
+
+@keyframes space-highlight-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(25, 84, 166, 0.6); }
+  50% { box-shadow: 0 0 0 6px rgba(25, 84, 166, 0.15); }
+  100% { box-shadow: 0 0 0 0 rgba(25, 84, 166, 0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .space-highlight {
+    animation: space-highlight-pulse 1.5s ease-out;
+  }
+}
+
+/* Respect users who prefer reduced motion — disable non-essential
+   animations/transitions app-wide. Preserves opacity fades that are
+   used purely to hide loading state. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Highlight-outline for the space that the user just jumped to — replaces
+   the animated pulse for reduced-motion users so the affordance is not lost. */
+@media (prefers-reduced-motion: reduce) {
+  .space-highlight {
+    outline: 2px solid var(--kth-blue);
+    outline-offset: 2px;
+  }
+}

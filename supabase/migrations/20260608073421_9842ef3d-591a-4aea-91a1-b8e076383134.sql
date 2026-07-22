@@ -1,0 +1,1 @@
+UPDATE public.filter_options SET default_icon = 'VolumeOff' WHERE category = 'noise' AND label = 'Tyst';

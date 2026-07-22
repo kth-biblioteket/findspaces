@@ -1,0 +1,79 @@
+import { pickLocalized, type Lang } from "@/i18n";
+import { type Space } from "@/lib/spaces";
+import { type ReactNode } from "react";
+import DOMPurify from "dompurify";
+
+const SPACE_LINK_RE = /\[\[\s*([^|\]\n]+?)\s*(?:\|\s*([^|\]\n]+?)\s*)?\]\]/g;
+
+function renderTextSegment(text: string, allowHtml: boolean, keyPrefix: string): ReactNode {
+  if (!allowHtml) return text;
+  let clean = DOMPurify.sanitize(text, {
+    ALLOWED_TAGS: ["a", "b", "strong", "i", "em", "br", "span"],
+    ALLOWED_ATTR: ["href", "target", "rel", "title"],
+  });
+  if (typeof window !== "undefined") {
+    const tmp = document.createElement("div");
+    tmp.innerHTML = clean;
+    tmp.querySelectorAll("a").forEach((a) => {
+      a.setAttribute("target", "_blank");
+      a.setAttribute("rel", "noopener noreferrer");
+      a.classList.add(
+        "font-medium",
+        "text-[var(--kth-blue)]",
+        "underline",
+        "hover:opacity-80",
+      );
+    });
+    clean = tmp.innerHTML;
+  }
+  return <span key={keyPrefix} dangerouslySetInnerHTML={{ __html: clean }} />;
+}
+
+export function parseSpaceLinks(
+  text: string,
+  spaces: Space[],
+  lang: Lang,
+  onClick: (id: string) => void,
+  options: { allowHtml?: boolean } = {},
+): ReactNode[] {
+  const allowHtml = options.allowHtml === true;
+  const byId = new Map(spaces.map((s) => [s.id, s]));
+  const bySlug = new Map(
+    spaces.filter((s) => s.slug).map((s) => [s.slug as string, s]),
+  );
+  const resolve = (key: string) => bySlug.get(key) ?? byId.get(key);
+  const out: ReactNode[] = [];
+  let last = 0;
+  let match: RegExpExecArray | null;
+  SPACE_LINK_RE.lastIndex = 0;
+
+  while ((match = SPACE_LINK_RE.exec(text)) !== null) {
+    if (match.index > last) {
+      out.push(renderTextSegment(text.slice(last, match.index), allowHtml, `t-${last}`));
+    }
+    const rawId = match[1].trim();
+    const customText = match[2]?.trim();
+    const target = resolve(rawId);
+    const label = customText || (target ? pickLocalized(target, "name", lang) : rawId);
+
+    out.push(
+      <button
+        key={`space-link-${match.index}`}
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick(rawId);
+        }}
+        className="inline font-medium text-[var(--kth-blue)] underline hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary rounded"
+      >
+        {label}
+      </button>,
+    );
+    last = match.index + match[0].length;
+  }
+
+  if (last < text.length) {
+    out.push(renderTextSegment(text.slice(last), allowHtml, `t-${last}`));
+  }
+  return out;
+}
