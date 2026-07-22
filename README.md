@@ -2,6 +2,21 @@
 
 Detta är ett verktyg för att söka platser på biblioteket.
 
+##
+actions fix:
+
+- name: Build and push Docker image 
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true 
+          tags: ${{ steps.meta.outputs.tags }} 
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VITE_SUPABASE_URL=https://apps-ref.lib.kth.se/api
+            VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_60Bb-qHXzLofE7g3QT2EN0_A1pWxHEy
+            VITE_SUPABASE_PROJECT_ID=lobuiecijreciwgkkcml
+
 ### Licens / License
 
 Copyright (C) 2026 KTH Biblioteket
