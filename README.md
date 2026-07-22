@@ -19,10 +19,21 @@ Github actions fix:
           tags: ${{ steps.meta.outputs.tags }} 
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            VITE_SUPABASE_URL=https://apps-ref.lib.kth.se/api
+            VITE_SUPABASE_URL=https://findspaces-ref.lib.kth.se/api
             VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_60Bb-qHXzLofE7g3QT2EN0_A1pWxHEy
             VITE_SUPABASE_PROJECT_ID=lobuiecijreciwgkkcml
 
+### Skapa användare
+
+curl -X POST 'https://findspaces-ref.lib.kth.se/api/auth/v1/signup' \
+  -H "apikey: xxxx" \
+  -H "Authorization: Bearer xxxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "tholind@kth.se",
+    "password": "xxxxxx",
+    "email_confirm": false
+  }'
 ### Licens / License
 
 Copyright (C) 2026 KTH Biblioteket
