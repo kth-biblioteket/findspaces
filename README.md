@@ -2,8 +2,14 @@
 
 Detta är ett verktyg för att söka platser på biblioteket.
 
-##
-actions fix:
+## Install
+
+- Skapa lokal folder (sudo mkdir findspaces)
+- Skapa docker-composer.yml och uppdatera från repot
+- Skapa .env med allt som behövs
+- Skapa och kör prepare.sh (chmod +x prepare.sh)
+
+Github actions fix:
 
 - name: Build and push Docker image 
         uses: docker/build-push-action@v3
