@@ -12,6 +12,7 @@
   "filters": {
     "title": "Filter",
     "open": "Filter",
+    "close": "Stäng filter",
     "clear_all": "Rensa alla",
     "clear": "Rensa",
     "show_results": "Visa resultat",
