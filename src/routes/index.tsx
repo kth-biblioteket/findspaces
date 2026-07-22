@@ -619,26 +619,31 @@ function MobileFilterSheet({
           <SlidersHorizontal className="h-4 w-4" aria-hidden="true" /> {t("filters.open")}
         </button>
       </SheetTrigger>
-      <SheetContent side="bottom" className="h-[85vh] p-0 flex flex-col overflow-hidden gap-0">
-        <SheetHeader className="px-6 pt-6 pb-2 shrink-0">
-          <SheetTitle>{t("filters.title")}</SheetTitle>
-        </SheetHeader>
+      <SheetContent side="bottom" hideClose className="h-[85vh] p-0 flex flex-col overflow-hidden gap-0">
+        <div className="shrink-0 px-4 pt-4 pb-2 flex items-center justify-between">
+          <SheetClose
+            aria-label={t("filters.close")}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+          >
+            <X className="h-5 w-5" aria-hidden="true" />
+          </SheetClose>
+          <button
+            type="button"
+            onClick={() => setDraft(emptyFilters)}
+            className="px-4 py-2 text-sm font-medium text-foreground hover:bg-accent rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+          >
+            {t("filters.clear")}
+          </button>
+        </div>
         <div className="flex-1 overflow-y-auto min-h-0 flex flex-col">
-          <div className="px-6 pb-6 pt-4">
+          <div className="px-6 pb-6 pt-2">
             <FilterPanel filters={draft} onChange={setDraft} />
           </div>
-          <div className="sticky bottom-0 mt-auto border-t border-border bg-card p-4 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setDraft(emptyFilters)}
-              className="px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
-            >
-              {t("filters.clear")}
-            </button>
+          <div className="sticky bottom-0 mt-auto border-t border-border bg-card p-4">
             <button
               type="button"
               onClick={apply}
-              className="flex-1 rounded-full bg-primary text-primary-foreground px-4 py-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+              className="w-full rounded-full bg-primary text-primary-foreground px-4 py-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
             >
               {t("filters.show_results_count", { count: draftCount })}
             </button>
