@@ -25,7 +25,7 @@ import { useFilterOptions } from "@/lib/useFilterOptions";
 import { getGroupRoomAvailability } from "@/lib/groupRoomAvailability.functions";
 import { track, usePageView, useDebouncedTrack } from "@/lib/analytics";
 
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import type { FilterCategoryRow } from "@/lib/spaces";
 
