@@ -17,11 +17,14 @@ createServer(async (req, res) => {
   // 1. Statiska filer
   const ext = path.extname(pathname);
   if (STATIC_EXTENSIONS.includes(ext)) {
+    /*
     const relativePath = pathname.startsWith('/findrooms/') 
       ? pathname.replace('/findrooms/', '/') 
       : pathname;
     
     const filePath = path.join(CLIENT_DIR, relativePath);
+    */
+    const filePath = path.join(CLIENT_DIR, pathname);
     if (fs.existsSync(filePath)) {
       if (ext === '.png') res.setHeader('Content-Type', 'image/png');
       if (ext === '.js') res.setHeader('Content-Type', 'application/javascript');

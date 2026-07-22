@@ -4,13 +4,7 @@ services:
   # ─── Din Applikation ──────────────────────────────────────
   app:
     container_name: findspaces
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        - VITE_SUPABASE_URL=https://${DOMAIN_NAME}/api
-        - VITE_SUPABASE_PUBLISHABLE_KEY=${ANON_KEY}
-        - VITE_SUPABASE_PROJECT_ID=default
+    image: ghcr.io/kth-biblioteket/findspaces:${REPO_TYPE}
     restart: unless-stopped
     networks:
       - apps-net
@@ -18,7 +12,7 @@ services:
       kong: { condition: service_healthy }
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.findspaces.rule=Host(`${DOMAIN_NAME}`) && PathPrefix(`${PATHPREFIX}`)"
+      - "traefik.http.routers.findspaces.rule=Host(`${DOMAIN_NAME}`)"
       - "traefik.http.routers.findspaces.entrypoints=websecure"
       - "traefik.http.routers.findspaces.tls=true"
       - "traefik.http.routers.findspaces.tls.certresolver=myresolver"
