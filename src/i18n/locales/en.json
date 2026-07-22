@@ -12,6 +12,7 @@
   "filters": {
     "title": "Filters",
     "open": "Filters",
+    "close": "Close filters",
     "clear_all": "Clear all",
     "clear": "Clear",
     "show_results": "Show results",
