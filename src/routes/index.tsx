@@ -345,7 +345,7 @@ function SpaceFinder() {
 
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 lg:grid lg:grid-cols-[320px_1fr] lg:gap-6">
-        <aside className="hidden lg:block" aria-label={t("filters.title")}>
+        <aside className="hidden lg:block lg:mt-11" aria-label={t("filters.title")}>
           <div
             className={
               inIframe
