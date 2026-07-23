@@ -354,8 +354,11 @@ function SpaceFinder() {
             }
           >
 
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
-              <h2 className="text-sm font-semibold m-0">{t("filters.title")}</h2>
+            <div className="flex items-center justify-between gap-2 px-3 min-h-9 shrink-0">
+              <h2 className="inline-flex items-center gap-1.5 text-xs text-muted-foreground m-0 font-normal">
+                <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" />
+                {t("filters.title")}
+              </h2>
               {hasActiveFilter && (
                 <button
                   type="button"
@@ -367,7 +370,7 @@ function SpaceFinder() {
                 </button>
               )}
             </div>
-            <div className={inIframe ? "px-4 py-4" : "overflow-y-auto px-4 py-4 min-h-0"}>
+            <div className={inIframe ? "px-4 pb-4 pt-1" : "overflow-y-auto px-4 pb-4 pt-1 min-h-0"}>
               <FilterPanel filters={filters} onChange={setFilters} />
             </div>
           </div>
