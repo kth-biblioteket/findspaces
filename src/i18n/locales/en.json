@@ -14,7 +14,7 @@
     "open": "Filters",
     "close": "Close filters",
     "clear_all": "Clear all",
-    "clear": "Clear",
+    "clear": "Clear filters",
     "show_results": "Show results",
     "show_results_count": "Show results ({{count}})",
     "search_placeholder": "Search for a space...",
