@@ -389,7 +389,7 @@ function SpaceFinder() {
 
 
         <main id="main" tabIndex={-1} className="focus-visible:outline-none" aria-busy={isLoading}>
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-2 min-h-9">
             <span
               className="text-xs text-muted-foreground lg:hidden"
               aria-live="polite"
