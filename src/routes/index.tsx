@@ -370,8 +370,8 @@ function SpaceFinder() {
         </aside>
 
 
-        <div className="lg:hidden fixed bottom-4 left-4 right-4 z-40 pointer-events-none">
-          <div className="pointer-events-auto">
+        <main id="main" tabIndex={-1} className="focus-visible:outline-none" aria-busy={isLoading}>
+          <div className="lg:hidden mb-3">
             <MobileFilterSheet
               filters={filters}
               onApply={setFilters}
@@ -380,11 +380,7 @@ function SpaceFinder() {
               availability={availability}
             />
           </div>
-        </div>
 
-
-
-        <main id="main" tabIndex={-1} className="focus-visible:outline-none pb-24 lg:pb-0" aria-busy={isLoading}>
           <div className="flex flex-wrap items-center justify-between gap-3 mb-2 min-h-9">
             <span
               className="text-xs text-muted-foreground lg:hidden"
