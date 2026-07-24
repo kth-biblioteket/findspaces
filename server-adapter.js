@@ -9,7 +9,6 @@ const CLIENT_DIR = path.join(__dirname, '.output', 'public');
 const STATIC_EXTENSIONS = ['.js', '.css', '.png', '.jpg', '.jpeg', '.svg', '.ico', '.woff', '.woff2'];
 
 createServer(async (req, res) => {
-  // Fix: Bygg en fullständig URL även för rot-sökvägar
   const fullUrl = `http://${req.headers.host}${req.url}`;
   const url = new URL(fullUrl);
   const pathname = url.pathname;
@@ -17,13 +16,6 @@ createServer(async (req, res) => {
   // 1. Statiska filer
   const ext = path.extname(pathname);
   if (STATIC_EXTENSIONS.includes(ext)) {
-    /*
-    const relativePath = pathname.startsWith('/findrooms/') 
-      ? pathname.replace('/findrooms/', '/') 
-      : pathname;
-    
-    const filePath = path.join(CLIENT_DIR, relativePath);
-    */
     const filePath = path.join(CLIENT_DIR, pathname);
     if (fs.existsSync(filePath)) {
       if (ext === '.png') res.setHeader('Content-Type', 'image/png');
@@ -33,19 +25,24 @@ createServer(async (req, res) => {
     }
   }
 
-  // 2. SSR via din handler
+  // 2. SSR via din handler med Cloudflare-kontext mockad
   try {
-    // TanStack/h3 förväntar sig ofta ett Request-objekt.
-    // Vi konverterar Node-requesten till ett standard-Web Request-objekt
     const webRequest = new Request(fullUrl, {
       method: req.method,
       headers: new Headers(req.headers),
       body: req.method !== 'GET' ? req : null,
     });
 
-    const response = await handler.fetch(webRequest);
+    // Skicka med ett tomt/mockat Cloudflare-objekt (ersätter saknade ASSETS-bindningar)
+    const env = process.env;
+    const ctx = {
+      waitUntil: (promise) => Promise.resolve(promise),
+      passThroughOnException: () => {},
+    };
+
+    // TanStack Start / Nitro Cloudflare-modul tar emot (request, env, ctx)
+    const response = await handler.fetch(webRequest, env, ctx);
     
-    // Skicka tillbaka svaret
     for (const [key, value] of response.headers.entries()) {
       res.setHeader(key, value);
     }

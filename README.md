@@ -43,7 +43,9 @@ curl -X POST 'https://findspaces-ref.lib.kth.se/api/auth/v1/signup' \
 - Hantera eventuella konflikter
 - Hantera package-lock
   - npm install
-
+- Hantera anpassningar för eventuella förändringar.
+ - t ex ny folder vid bygge
+ 
 ### Licens / License
 
 Copyright (C) 2026 KTH Biblioteket
