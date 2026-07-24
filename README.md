@@ -34,6 +34,13 @@ curl -X POST 'https://findspaces-ref.lib.kth.se/api/auth/v1/signup' \
     "password": "xxxxxx",
     "email_confirm": false
   }'
+
+### Uppdatera från lovable-repo
+- git remote add upstream https://github.com/sofieseo/kth-rummet-hitta.git
+- git fetch upstream
+- git checkout ref
+- git merge upstream/main --allow-unrelated-histories
+- Hantera eventuella konflikter
 ### Licens / License
 
 Copyright (C) 2026 KTH Biblioteket
