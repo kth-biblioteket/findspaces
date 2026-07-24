@@ -614,9 +614,10 @@ function MobileFilterSheet({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <button className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2.5 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary">
+        <button className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-3 text-sm font-semibold shadow-lg shadow-black/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary transition-transform active:scale-95">
           <SlidersHorizontal className="h-4 w-4" aria-hidden="true" /> {t("filters.open")}
         </button>
+
       </SheetTrigger>
       <SheetContent side="bottom" hideClose className="h-[85vh] p-0 flex flex-col overflow-hidden gap-0 rounded-t-2xl border-t">
         <div className="shrink-0 px-4 pt-4 pb-2 flex items-center justify-between">
