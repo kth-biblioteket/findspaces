@@ -370,18 +370,21 @@ function SpaceFinder() {
         </aside>
 
 
-        <div className="lg:hidden mb-4">
-          <MobileFilterSheet
-            filters={filters}
-            onApply={setFilters}
-            spaces={spaces}
-            categories={categories}
-            availability={availability}
-          />
+        <div className="lg:hidden fixed bottom-4 left-4 right-4 z-40 pointer-events-none">
+          <div className="pointer-events-auto">
+            <MobileFilterSheet
+              filters={filters}
+              onApply={setFilters}
+              spaces={spaces}
+              categories={categories}
+              availability={availability}
+            />
+          </div>
         </div>
 
 
-        <main id="main" tabIndex={-1} className="focus-visible:outline-none" aria-busy={isLoading}>
+
+        <main id="main" tabIndex={-1} className="focus-visible:outline-none pb-24 lg:pb-0" aria-busy={isLoading}>
           <div className="flex flex-wrap items-center justify-between gap-3 mb-2 min-h-9">
             <span
               className="text-xs text-muted-foreground lg:hidden"
@@ -611,9 +614,10 @@ function MobileFilterSheet({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <button className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2.5 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary">
+        <button className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-3 text-sm font-semibold shadow-lg shadow-black/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary transition-transform active:scale-95">
           <SlidersHorizontal className="h-4 w-4" aria-hidden="true" /> {t("filters.open")}
         </button>
+
       </SheetTrigger>
       <SheetContent side="bottom" hideClose className="h-[85vh] p-0 flex flex-col overflow-hidden gap-0 rounded-t-2xl border-t">
         <div className="shrink-0 px-4 pt-4 pb-2 flex items-center justify-between">
