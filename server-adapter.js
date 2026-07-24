@@ -2,7 +2,7 @@ import { createServer } from 'http';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import handler from './.output/server/server.js';
+import handler from './.output/server/index.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CLIENT_DIR = path.join(__dirname, '.output', 'public');
