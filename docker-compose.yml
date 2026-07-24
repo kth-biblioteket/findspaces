@@ -9,7 +9,9 @@ services:
     networks:
       - apps-net
     depends_on:
-      kong: { condition: service_healthy }
+      kong:
+        condition: service_healthy
+        required: true
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.findspaces.rule=Host(`${DOMAIN_NAME}`)"
@@ -35,9 +37,10 @@ services:
       db: { condition: service_healthy }
     healthcheck:
       test: ["CMD", "kong", "health"]
-      interval: 5s
+      interval: 3s
       timeout: 5s
-      retries: 5
+      retries: 15
+      start_period: 10s
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.supabase-api.rule=Host(`${DOMAIN_NAME}`) && PathPrefix(`/api`)"
