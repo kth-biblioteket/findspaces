@@ -41,6 +41,9 @@ curl -X POST 'https://findspaces-ref.lib.kth.se/api/auth/v1/signup' \
 - git checkout ref
 - git merge upstream/main --allow-unrelated-histories
 - Hantera eventuella konflikter
+- Hantera package-lock
+  - npm install
+
 ### Licens / License
 
 Copyright (C) 2026 KTH Biblioteket

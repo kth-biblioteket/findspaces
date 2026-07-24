@@ -2,10 +2,10 @@ import { createServer } from 'http';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import handler from './dist/server/server.js';
+import handler from './.output/server/server.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const CLIENT_DIR = path.join(__dirname, 'dist', 'client');
+const CLIENT_DIR = path.join(__dirname, '.output', 'public');
 const STATIC_EXTENSIONS = ['.js', '.css', '.png', '.jpg', '.jpeg', '.svg', '.ico', '.woff', '.woff2'];
 
 createServer(async (req, res) => {

@@ -28,7 +28,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # Kopiera bara det som behövs för att köra appen
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/.output ./.output
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/node_modules ./node_modules
 
