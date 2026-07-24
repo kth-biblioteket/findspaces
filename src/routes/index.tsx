@@ -370,15 +370,18 @@ function SpaceFinder() {
         </aside>
 
 
-        <div className="lg:hidden mb-4">
-          <MobileFilterSheet
-            filters={filters}
-            onApply={setFilters}
-            spaces={spaces}
-            categories={categories}
-            availability={availability}
-          />
+        <div className="lg:hidden fixed bottom-4 left-4 right-4 z-40 pointer-events-none">
+          <div className="pointer-events-auto">
+            <MobileFilterSheet
+              filters={filters}
+              onApply={setFilters}
+              spaces={spaces}
+              categories={categories}
+              availability={availability}
+            />
+          </div>
         </div>
+
 
 
         <main id="main" tabIndex={-1} className="focus-visible:outline-none" aria-busy={isLoading}>
