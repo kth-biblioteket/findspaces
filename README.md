@@ -23,6 +23,8 @@ Github actions fix:
             VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_60Bb-qHXzLofE7g3QT2EN0_A1pWxHEy
             VITE_SUPABASE_PROJECT_ID=lobuiecijreciwgkkcml
 
+- en server-adapter.js används för att köra själva appen i en node-container
+
 ### Skapa användare
 
 curl -X POST 'https://findspaces-ref.lib.kth.se/api/auth/v1/signup' \
@@ -35,6 +37,8 @@ curl -X POST 'https://findspaces-ref.lib.kth.se/api/auth/v1/signup' \
     "email_confirm": false
   }'
 
+
+
 ### Uppdatera från lovable-repo
 - git remote add upstream https://github.com/sofieseo/kth-rummet-hitta.git
 - git fetch upstream
@@ -45,7 +49,7 @@ curl -X POST 'https://findspaces-ref.lib.kth.se/api/auth/v1/signup' \
   - npm install
 - Hantera anpassningar för eventuella förändringar.
  - t ex ny folder vid bygge
- 
+
 ### Licens / License
 
 Copyright (C) 2026 KTH Biblioteket
