@@ -25,7 +25,7 @@ import { useFilterOptions } from "@/lib/useFilterOptions";
 import { getGroupRoomAvailability } from "@/lib/groupRoomAvailability.functions";
 import { track, usePageView, useDebouncedTrack } from "@/lib/analytics";
 
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import type { FilterCategoryRow } from "@/lib/spaces";
 
@@ -131,10 +131,8 @@ function SpaceFinder() {
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/" });
   const filters = useMemo(() => searchToFilters(search), [search]);
-  const [inIframe, setInIframe] = useState(false);
-  useEffect(() => {
-    try { setInIframe(window.self !== window.top); } catch { setInIframe(true); }
-  }, []);
+
+
 
 
   const sort: SortKey = search.sort ?? "recommended";
@@ -345,17 +343,14 @@ function SpaceFinder() {
 
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 lg:grid lg:grid-cols-[320px_1fr] lg:gap-6">
-        <aside className="hidden lg:block" aria-label={t("filters.title")}>
-          <div
-            className={
-              inIframe
-                ? "bg-card rounded-xl card-shadow flex flex-col"
-                : "sticky top-4 bg-card rounded-xl card-shadow flex flex-col max-h-[calc(100vh-2rem)]"
-            }
-          >
+        <aside className="hidden lg:block lg:mt-11" aria-label={t("filters.title")}>
+          <div className="study-place-filter-panel bg-card rounded-xl card-shadow flex flex-col">
 
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
-              <h2 className="text-sm font-semibold m-0">{t("filters.title")}</h2>
+            <div className="flex items-center justify-between gap-2 px-3 min-h-9 shrink-0">
+              <h2 className="inline-flex items-center gap-1.5 text-xs text-muted-foreground m-0 font-normal">
+                <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" />
+                {t("filters.title")}
+              </h2>
               {hasActiveFilter && (
                 <button
                   type="button"
@@ -367,26 +362,26 @@ function SpaceFinder() {
                 </button>
               )}
             </div>
-            <div className={inIframe ? "px-4 py-4" : "overflow-y-auto px-4 py-4 min-h-0"}>
+            <div className="study-place-filter-content px-4 pb-4 pt-1">
               <FilterPanel filters={filters} onChange={setFilters} />
             </div>
           </div>
+
         </aside>
 
 
-        <div className="lg:hidden mb-4">
-          <MobileFilterSheet
-            filters={filters}
-            onApply={setFilters}
-            spaces={spaces}
-            categories={categories}
-            availability={availability}
-          />
-        </div>
-
-
         <main id="main" tabIndex={-1} className="focus-visible:outline-none" aria-busy={isLoading}>
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+          <div className="lg:hidden mb-3">
+            <MobileFilterSheet
+              filters={filters}
+              onApply={setFilters}
+              spaces={spaces}
+              categories={categories}
+              availability={availability}
+            />
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-2 min-h-9">
             <span
               className="text-xs text-muted-foreground lg:hidden"
               aria-live="polite"
@@ -615,30 +610,36 @@ function MobileFilterSheet({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <button className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2.5 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary">
+        <button className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-3 text-sm font-semibold shadow-lg shadow-black/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary transition-transform active:scale-95">
           <SlidersHorizontal className="h-4 w-4" aria-hidden="true" /> {t("filters.open")}
         </button>
+
       </SheetTrigger>
-      <SheetContent side="bottom" className="h-[85vh] p-0 flex flex-col overflow-hidden gap-0">
-        <SheetHeader className="px-6 pt-6 pb-2 shrink-0">
-          <SheetTitle>{t("filters.title")}</SheetTitle>
-        </SheetHeader>
+      <SheetContent side="bottom" hideClose className="h-[85vh] p-0 flex flex-col overflow-hidden gap-0 rounded-t-2xl border-t">
+        <div className="shrink-0 px-4 pt-4 pb-2 flex items-center justify-between">
+          <SheetClose
+            aria-label={t("filters.close")}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+          >
+            <X className="h-5 w-5" aria-hidden="true" />
+          </SheetClose>
+          <button
+            type="button"
+            onClick={() => setDraft(emptyFilters)}
+            className="px-4 py-2 text-sm font-medium text-foreground hover:bg-accent rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+          >
+            {t("filters.clear")}
+          </button>
+        </div>
         <div className="flex-1 overflow-y-auto min-h-0 flex flex-col">
-          <div className="px-6 pb-6 pt-4">
+          <div className="px-6 pb-6 pt-2">
             <FilterPanel filters={draft} onChange={setDraft} />
           </div>
-          <div className="sticky bottom-0 mt-auto border-t border-border bg-card p-4 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setDraft(emptyFilters)}
-              className="px-4 py-2.5 text-sm font-medium text-foreground hover:bg-accent rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
-            >
-              {t("filters.clear")}
-            </button>
+          <div className="sticky bottom-0 mt-auto border-t border-border bg-card p-4">
             <button
               type="button"
               onClick={apply}
-              className="flex-1 rounded-full bg-primary text-primary-foreground px-4 py-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+              className="w-full rounded-full bg-primary text-primary-foreground px-4 py-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
             >
               {t("filters.show_results_count", { count: draftCount })}
             </button>

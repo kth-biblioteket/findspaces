@@ -12,8 +12,9 @@
   "filters": {
     "title": "Filter",
     "open": "Filter",
+    "close": "Stäng filter",
     "clear_all": "Rensa alla",
-    "clear": "Rensa",
+    "clear": "Rensa filter",
     "show_results": "Visa resultat",
     "show_results_count": "Visa resultat ({{count}})",
     "search_placeholder": "Sök på lokal...",
