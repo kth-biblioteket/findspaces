@@ -113,7 +113,7 @@
 @media (min-width: 1024px) {
   .study-place-filter-panel {
     position: sticky;
-    top: 1rem;
+    top: var(--filter-panel-top, 1rem);
     display: flex;
     flex-direction: column;
     height: var(--filter-panel-height, calc(100dvh - 2rem));

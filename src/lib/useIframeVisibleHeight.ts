@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 
+export type FilterViewport = { top: number; height: number };
+
 /**
- * Measures the height available inside the browser viewport for a sticky
- * desktop panel, even when the app is embedded in an iframe that extends
- * beyond the visible area of the host page.
+ * Measures both the sticky top offset and the height available inside the
+ * browser viewport for a sticky desktop panel, even when the app is embedded
+ * in an iframe that extends beyond the visible area of the host page.
  *
  * Uses an invisible fixed probe observed with IntersectionObserver so that
  * `intersectionRect` reveals which vertical slice of the iframe is currently
@@ -12,9 +14,9 @@ import { useEffect, useRef, useState } from "react";
 export function useIframeVisibleHeight(
   panelRef: React.RefObject<HTMLElement | null>,
   minHeight = 240,
-  bottomGap = 16,
+  gap = 16,
 ) {
-  const [height, setHeight] = useState<number | null>(null);
+  const [viewport, setViewport] = useState<FilterViewport | null>(null);
   const probeRef = useRef<HTMLDivElement | null>(null);
   const lastRectRef = useRef<{ top: number; bottom: number } | null>(null);
 
@@ -32,12 +34,28 @@ export function useIframeVisibleHeight(
       const rect = lastRectRef.current;
       const panel = panelRef.current;
       if (!rect || !panel) return;
-      const panelTop = panel.getBoundingClientRect().top;
-      const available = Math.max(
+
+      // Read the panel's normal (non-sticky) layout position from the
+      // enclosing <aside>. Using the panel itself would fold its own sticky
+      // top back into the calculation and cause feedback.
+      const aside = panel.closest("aside");
+      const normalPanelTop =
+        aside?.getBoundingClientRect().top ??
+        panel.getBoundingClientRect().top ??
+        0;
+
+      const stickyTop = Math.floor(rect.top + gap);
+      const effectivePanelTop = Math.max(normalPanelTop, stickyTop);
+      const panelHeight = Math.max(
         minHeight,
-        Math.floor(rect.bottom - Math.max(panelTop, rect.top) - bottomGap),
+        Math.floor(rect.bottom - effectivePanelTop - gap),
       );
-      setHeight((prev) => (prev === available ? prev : available));
+
+      setViewport((prev) =>
+        prev && prev.top === stickyTop && prev.height === panelHeight
+          ? prev
+          : { top: stickyTop, height: panelHeight },
+      );
     };
 
     const io = new IntersectionObserver(
@@ -68,7 +86,7 @@ export function useIframeVisibleHeight(
       probe.remove();
       probeRef.current = null;
     };
-  }, [panelRef, minHeight, bottomGap]);
+  }, [panelRef, minHeight, gap]);
 
-  return height;
+  return viewport;
 }
