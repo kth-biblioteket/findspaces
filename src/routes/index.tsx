@@ -350,7 +350,7 @@ function SpaceFinder() {
           <div
             ref={filterPanelRef}
             className="study-place-filter-panel bg-card rounded-xl card-shadow flex flex-col"
-            style={filterPanelHeight ? ({ ["--filter-panel-height" as string]: `${filterPanelHeight}px` } as React.CSSProperties) : undefined}
+            style={filterViewport ? ({ ["--filter-panel-top" as string]: `${filterViewport.top}px`, ["--filter-panel-height" as string]: `${filterViewport.height}px` } as React.CSSProperties) : undefined}
           >
 
             <div className="flex items-center justify-between gap-2 px-3 min-h-9 shrink-0">
