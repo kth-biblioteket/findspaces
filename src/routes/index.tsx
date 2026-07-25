@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
+import { useIframeVisibleHeight } from "@/lib/useIframeVisibleHeight";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { SlidersHorizontal, Settings, X, ArrowUpDown, SearchX, AlertTriangle } from "lucide-react";
@@ -131,6 +132,8 @@ function SpaceFinder() {
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/" });
   const filters = useMemo(() => searchToFilters(search), [search]);
+  const filterPanelRef = useRef<HTMLDivElement | null>(null);
+  const filterPanelHeight = useIframeVisibleHeight(filterPanelRef);
 
 
 
@@ -344,7 +347,11 @@ function SpaceFinder() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 lg:grid lg:grid-cols-[320px_1fr] lg:gap-6">
         <aside className="hidden lg:block lg:mt-11" aria-label={t("filters.title")}>
-          <div className="study-place-filter-panel bg-card rounded-xl card-shadow flex flex-col">
+          <div
+            ref={filterPanelRef}
+            className="study-place-filter-panel bg-card rounded-xl card-shadow flex flex-col"
+            style={filterPanelHeight ? ({ ["--filter-panel-height" as string]: `${filterPanelHeight}px` } as React.CSSProperties) : undefined}
+          >
 
             <div className="flex items-center justify-between gap-2 px-3 min-h-9 shrink-0">
               <h2 className="inline-flex items-center gap-1.5 text-xs text-muted-foreground m-0 font-normal">
