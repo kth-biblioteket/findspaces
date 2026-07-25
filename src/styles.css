@@ -114,9 +114,10 @@
   .study-place-filter-panel {
     position: sticky;
     top: 1rem;
-    max-height: calc(100dvh - 2rem);
     display: flex;
     flex-direction: column;
+    height: var(--filter-panel-height, calc(100dvh - 2rem));
+    max-height: var(--filter-panel-height, calc(100dvh - 2rem));
     overflow: hidden;
   }
 
@@ -125,6 +126,7 @@
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
+    scrollbar-gutter: stable;
   }
 }
 
