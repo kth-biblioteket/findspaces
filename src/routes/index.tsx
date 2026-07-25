@@ -377,15 +377,17 @@ function SpaceFinder() {
         </aside>
 
 
-        <main id="main" tabIndex={-1} className="focus-visible:outline-none" aria-busy={isLoading}>
-          <div className="lg:hidden mb-3">
-            <MobileFilterSheet
-              filters={filters}
-              onApply={setFilters}
-              spaces={spaces}
-              categories={categories}
-              availability={availability}
-            />
+        <main id="main" tabIndex={-1} className="mobile-filter-main focus-visible:outline-none" aria-busy={isLoading}>
+          <div className="mobile-filter-dock lg:hidden">
+            <div className="mobile-filter-dock-inner">
+              <MobileFilterSheet
+                filters={filters}
+                onApply={setFilters}
+                spaces={spaces}
+                categories={categories}
+                availability={availability}
+              />
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3 mb-2 min-h-9">
@@ -622,7 +624,7 @@ function MobileFilterSheet({
         </button>
 
       </SheetTrigger>
-      <SheetContent side="bottom" hideClose className="h-[85vh] p-0 flex flex-col overflow-hidden gap-0 rounded-t-2xl border-t">
+      <SheetContent side="bottom" hideClose className="mobile-filter-sheet p-0 flex flex-col overflow-hidden gap-0 rounded-t-2xl border-t">
         <div className="shrink-0 px-4 pt-4 pb-2 flex items-center justify-between">
           <SheetClose
             aria-label={t("filters.close")}
