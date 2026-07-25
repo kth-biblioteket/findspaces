@@ -377,15 +377,17 @@ function SpaceFinder() {
         </aside>
 
 
-        <main id="main" tabIndex={-1} className="focus-visible:outline-none" aria-busy={isLoading}>
-          <div className="lg:hidden mb-3">
-            <MobileFilterSheet
-              filters={filters}
-              onApply={setFilters}
-              spaces={spaces}
-              categories={categories}
-              availability={availability}
-            />
+        <main id="main" tabIndex={-1} className="mobile-filter-main focus-visible:outline-none" aria-busy={isLoading}>
+          <div className="mobile-filter-dock lg:hidden">
+            <div className="mobile-filter-dock-inner">
+              <MobileFilterSheet
+                filters={filters}
+                onApply={setFilters}
+                spaces={spaces}
+                categories={categories}
+                availability={availability}
+              />
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3 mb-2 min-h-9">
