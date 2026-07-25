@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
+import { useIframeVisibleHeight } from "@/lib/useIframeVisibleHeight";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { SlidersHorizontal, Settings, X, ArrowUpDown, SearchX, AlertTriangle } from "lucide-react";
