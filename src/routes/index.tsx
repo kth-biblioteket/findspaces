@@ -133,7 +133,7 @@ function SpaceFinder() {
   const navigate = useNavigate({ from: "/" });
   const filters = useMemo(() => searchToFilters(search), [search]);
   const filterPanelRef = useRef<HTMLDivElement | null>(null);
-  const filterPanelHeight = useIframeVisibleHeight(filterPanelRef);
+  const filterViewport = useIframeVisibleHeight(filterPanelRef);
 
 
 
