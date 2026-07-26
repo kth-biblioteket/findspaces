@@ -16,8 +16,8 @@ export function LanguageSwitcher({ className = "" }: { className?: string }) {
     <button
       type="button"
       onClick={() => i18n.changeLanguage(other)}
-      aria-label={`${t("header.language")}: ${LANGUAGE_LABELS[current]}`}
-      lang={current}
+      aria-label={`${t("header.language")}: ${LANGUAGE_LABELS[other]}`}
+      lang={other}
       className={
         "inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground " +
         "hover:text-foreground transition-colors focus-visible:outline-none " +
@@ -26,7 +26,7 @@ export function LanguageSwitcher({ className = "" }: { className?: string }) {
       }
     >
       <Globe aria-hidden="true" size={16} />
-      <span>{LANGUAGE_LABELS[current]}</span>
+      <span>{LANGUAGE_LABELS[other]}</span>
     </button>
   );
 }
