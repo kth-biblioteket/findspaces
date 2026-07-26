@@ -17,6 +17,8 @@ export type SanitizeOptions = {
   allowedAttr: string[];
   /** Force target="_blank" + rel="noopener noreferrer" on anchors. */
   hardenLinks?: boolean;
+  /** Class names applied to anchors (keeps link styling identical everywhere). */
+  linkClass?: string;
 };
 
 /** Tags whose *content* is dropped as well, not just the tag itself. */
@@ -66,6 +68,7 @@ function buildAttributes(
   raw: string,
   allowedAttr: Set<string>,
   hardenLinks: boolean,
+  linkClass?: string,
 ): string {
   const attrs = new Map<string, string>();
   ATTR_RE.lastIndex = 0;
@@ -82,6 +85,9 @@ function buildAttributes(
   if (tag === "a" && hardenLinks && attrs.has("href")) {
     attrs.set("target", "_blank");
     attrs.set("rel", "noopener noreferrer");
+  }
+  if (tag === "a" && linkClass) {
+    attrs.set("class", linkClass);
   }
 
   let out = "";
@@ -153,7 +159,7 @@ export function sanitizeHtml(input: string, options: SanitizeOptions): string {
     }
 
     const selfClosing = /\/\s*$/.test(rawAttrs) || VOID_TAGS.has(tag);
-    out += `<${tag}${buildAttributes(tag, rawAttrs, allowedAttr, hardenLinks)}`;
+    out += `<${tag}${buildAttributes(tag, rawAttrs, allowedAttr, hardenLinks, options.linkClass)}`;
     out += selfClosing ? " />" : ">";
     if (!selfClosing) open.push(tag);
   }
@@ -172,4 +178,5 @@ export const DESCRIPTION_SANITIZE_OPTIONS: SanitizeOptions = {
 export const INLINE_SANITIZE_OPTIONS: SanitizeOptions = {
   allowedTags: ["a", "b", "strong", "i", "em", "br", "span"],
   allowedAttr: ["href", "target", "rel", "title"],
+  linkClass: "font-medium text-[var(--kth-blue)] underline hover:opacity-80",
 };
