@@ -1,6 +1,8 @@
 {
   "header": {
     "title": "Find a study space at KTH Library",
+    "title_line1": "Find a study space",
+    "title_line2": "at KTH Library",
     "subtitle": "DEMO",
     "prototype_badge": "Prototype",
     "admin": "Admin",
