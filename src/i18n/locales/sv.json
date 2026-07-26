@@ -1,6 +1,8 @@
 {
   "header": {
     "title": "Hitta studieplats på KTH Biblioteket",
+    "title_line1": "Hitta studieplats",
+    "title_line2": "på KTH Biblioteket",
     "subtitle": "DEMO",
     "prototype_badge": "Prototyp",
     "admin": "Admin",
