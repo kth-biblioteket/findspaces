@@ -96,6 +96,8 @@ export function useIframeVisibleHeight(
       vv?.removeEventListener("scroll", onResize);
       probe.remove();
       probeRef.current = null;
+      document.documentElement.style.removeProperty("--iframe-hidden-bottom");
+      document.documentElement.style.removeProperty("--iframe-visible-height");
     };
   }, [panelRef, minHeight, gap]);
 
