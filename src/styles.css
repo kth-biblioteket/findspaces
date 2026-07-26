@@ -139,8 +139,10 @@
     position: fixed;
     z-index: 40;
     right: max(1rem, env(safe-area-inset-right, 0px));
-    bottom: max(1rem, env(safe-area-inset-bottom, 0px));
     left: max(1rem, env(safe-area-inset-left, 0px));
+    bottom: calc(
+      var(--iframe-hidden-bottom, 0px) + max(1rem, env(safe-area-inset-bottom, 0px))
+    );
     margin: 0;
     pointer-events: none;
   }
@@ -151,9 +153,12 @@
     pointer-events: auto;
   }
 
-  .mobile-filter-sheet {
-    height: min(85dvh, calc(100dvh - 0.75rem));
-    max-height: calc(100dvh - 0.75rem);
+  /* Higher specificity so it wins over the Radix sheet's own bottom: 0 / height. */
+  .mobile-filter-sheet.mobile-filter-sheet {
+    top: auto;
+    bottom: var(--iframe-hidden-bottom, 0px);
+    height: min(85dvh, calc(var(--iframe-visible-height, 100dvh) - 0.75rem));
+    max-height: calc(var(--iframe-visible-height, 100dvh) - 0.75rem);
     padding-bottom: env(safe-area-inset-bottom, 0px);
     overscroll-behavior: contain;
   }

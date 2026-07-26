@@ -32,8 +32,19 @@ export function useIframeVisibleHeight(
 
     const recompute = () => {
       const rect = lastRectRef.current;
+      if (!rect) return;
+
+      // Expose the iframe's visible slice as CSS variables on <html> so that
+      // portalled content (Radix Sheet) and fixed overlays can position
+      // themselves against the *visible* part of the iframe.
+      const hiddenBottom = Math.max(0, window.innerHeight - rect.bottom);
+      const visibleHeight = Math.max(0, rect.bottom - rect.top);
+      const root = document.documentElement;
+      root.style.setProperty("--iframe-hidden-bottom", `${hiddenBottom}px`);
+      root.style.setProperty("--iframe-visible-height", `${visibleHeight}px`);
+
       const panel = panelRef.current;
-      if (!rect || !panel) return;
+      if (!panel) return;
 
       // Read the panel's normal (non-sticky) layout position from the
       // enclosing <aside>. Using the panel itself would fold its own sticky
@@ -85,6 +96,8 @@ export function useIframeVisibleHeight(
       vv?.removeEventListener("scroll", onResize);
       probe.remove();
       probeRef.current = null;
+      document.documentElement.style.removeProperty("--iframe-hidden-bottom");
+      document.documentElement.style.removeProperty("--iframe-visible-height");
     };
   }, [panelRef, minHeight, gap]);
 
