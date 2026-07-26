@@ -325,9 +325,12 @@ function SpaceFinder() {
 
   return (
     <div className="min-h-dvh bg-background">
-      <header className="bg-card border-b border-border">
+      <header className="bg-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between">
-          <h1 className="text-sm font-semibold leading-tight">{t("header.title")}</h1>
+          <h1 className="text-sm font-semibold leading-tight">
+            <span className="whitespace-nowrap">{t("header.title_line1")}</span>{" "}
+            <span className="whitespace-nowrap">{t("header.title_line2")}</span>
+          </h1>
           <div className="flex items-center gap-3 ml-3 sm:ml-4">
             <LanguageSwitcher />
             <Link
