@@ -6,9 +6,9 @@
  * fix this threw "DOMPurify.sanitize is not a function", which is what made a
  * plain GET of the start page fall back to client rendering.
  *
- * Run with: bunx playwright test  (e2e)  /  bun test  (this file)
+ * Run with: bunx vitest run src/components/SpaceCard.ssr.test.tsx
  */
-import { expect, test } from "bun:test";
+import { expect, test } from "vitest";
 import { renderToString } from "react-dom/server";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SpaceCard } from "@/components/SpaceCard";
