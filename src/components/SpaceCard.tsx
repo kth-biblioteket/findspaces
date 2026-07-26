@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
-import DOMPurify from "dompurify";
+import { sanitizeHtml, DESCRIPTION_SANITIZE_OPTIONS } from "@/lib/sanitizeHtml";
 import { MapPin, Calendar, Info, Users, User, AlertTriangle, ChevronDown, Monitor, Armchair } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { TableChairIcon } from "./icons/TableChairIcon";
