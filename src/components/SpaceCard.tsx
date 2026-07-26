@@ -156,21 +156,14 @@ export function SpaceCard({
     return parseSpaceLinks(localizedInfo, spaces, lang, handleSpaceLink, { allowHtml: true });
   }, [localizedInfo, spaces, lang, handleSpaceLink]);
 
-  const sanitizedDescription = useMemo(() => {
-    if (!localizedDescription) return "";
-    const clean = DOMPurify.sanitize(localizedDescription, {
-      ALLOWED_TAGS: ["a", "b", "strong", "i", "em", "br", "p", "ul", "ol", "li", "span"],
-      ALLOWED_ATTR: ["href", "target", "rel", "title"],
-    });
-    if (typeof window === "undefined") return clean;
-    const tmp = document.createElement("div");
-    tmp.innerHTML = clean;
-    tmp.querySelectorAll("a").forEach((a) => {
-      a.setAttribute("target", "_blank");
-      a.setAttribute("rel", "noopener noreferrer");
-    });
-    return tmp.innerHTML;
-  }, [localizedDescription]);
+  const sanitizedDescription = useMemo(
+    () =>
+      localizedDescription
+        ? sanitizeHtml(localizedDescription, DESCRIPTION_SANITIZE_OPTIONS)
+        : "",
+    [localizedDescription],
+  );
+
 
   const localizeChip = (category: string, value: string): string => {
     const opt = lookup.get(`${category}:${value}`);
