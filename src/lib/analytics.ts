@@ -33,7 +33,8 @@ function detectDevice(): "mobile" | "tablet" | "desktop" {
   if (typeof window === "undefined") return "desktop";
   const ua = navigator.userAgent || "";
   const w = window.innerWidth;
-  if (/iPad|Tablet|PlayBook|Silk/i.test(ua) || (w >= 768 && w < 1024 && /Mobi|Android/i.test(ua))) return "tablet";
+  if (/iPad|Tablet|PlayBook|Silk/i.test(ua) || (w >= 768 && w < 1024 && /Mobi|Android/i.test(ua)))
+    return "tablet";
   if (/Mobi|Android|iPhone|iPod/i.test(ua) || w < 768) return "mobile";
   return "desktop";
 }
@@ -60,10 +61,7 @@ function getContextPayload(event: AnalyticsEvent): Record<string, unknown> {
   return out;
 }
 
-export function track(
-  event: AnalyticsEvent,
-  payload: Record<string, unknown> = {},
-): void {
+export function track(event: AnalyticsEvent, payload: Record<string, unknown> = {}): void {
   if (typeof window === "undefined") return;
   const session_id = getSessionId();
   const path = window.location.pathname;

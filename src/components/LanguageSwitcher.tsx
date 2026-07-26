@@ -30,4 +30,3 @@ export function LanguageSwitcher({ className = "" }: { className?: string }) {
     </button>
   );
 }
-

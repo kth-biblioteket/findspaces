@@ -20,17 +20,26 @@ import { SpaceCard } from "@/components/SpaceCard";
 import { SpaceCardSkeleton } from "@/components/SpaceCardSkeleton";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useUiText, formatSuggestTemplate } from "@/lib/useUiText";
-import { matchesSpace } from "@/lib/filterMatch";
 import { useNarrowestFilter } from "@/lib/useNarrowestFilter";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { getGroupRoomAvailability } from "@/lib/groupRoomAvailability.functions";
 import { track, usePageView, useDebouncedTrack } from "@/lib/analytics";
+import { countSpacesForKind, filterSpaces, type AvailabilitySnapshot } from "@/lib/filterSpaces";
+import { hasActiveFilters } from "@/lib/filterState";
 
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import type { FilterCategoryRow } from "@/lib/spaces";
 
-type SortKey = "recommended" | "seats_desc" | "seats_asc" | "floor_asc" | "floor_desc" | "name_asc" | "name_desc" | "free_now";
+type SortKey =
+  | "recommended"
+  | "seats_desc"
+  | "seats_asc"
+  | "floor_asc"
+  | "floor_desc"
+  | "name_asc"
+  | "name_desc"
+  | "free_now";
 
 type SearchParams = {
   q: string;
@@ -61,16 +70,31 @@ function validateSearch(input: Record<string, unknown>): SearchParams {
     }
   }
   const sortRaw = input.sort;
-  const validSorts: SortKey[] = ["recommended", "seats_desc", "seats_asc", "floor_asc", "floor_desc", "name_asc", "name_desc", "free_now"];
-  const sort: SortKey | undefined = validSorts.includes(sortRaw as SortKey) ? (sortRaw as SortKey) : undefined;
+  const validSorts: SortKey[] = [
+    "recommended",
+    "seats_desc",
+    "seats_asc",
+    "floor_asc",
+    "floor_desc",
+    "name_asc",
+    "name_desc",
+    "free_now",
+  ];
+  const sort: SortKey | undefined = validSorts.includes(sortRaw as SortKey)
+    ? (sortRaw as SortKey)
+    : undefined;
   return { q, kind, mode, size, free, highlight, cats, sort };
 }
-
 
 const spacesQueryOptions = queryOptions({
   queryKey: ["spaces"],
   queryFn: async (): Promise<Space[]> => {
-    const { data, error } = await supabase.from("spaces").select("*").eq("hidden", false).order("sort_order").order("name");
+    const { data, error } = await supabase
+      .from("spaces")
+      .select("*")
+      .eq("hidden", false)
+      .order("sort_order")
+      .order("name");
     if (error) throw error;
     return data as unknown as Space[];
   },
@@ -125,7 +149,6 @@ function filtersToSearch(f: Filters, highlight?: string) {
   };
 }
 
-
 function SpaceFinder() {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage ?? "sv") as "sv" | "en";
@@ -134,9 +157,6 @@ function SpaceFinder() {
   const filters = useMemo(() => searchToFilters(search), [search]);
   const filterPanelRef = useRef<HTMLDivElement | null>(null);
   const filterViewport = useIframeVisibleHeight(filterPanelRef);
-
-
-
 
   const sort: SortKey = search.sort ?? "recommended";
   const canSortFree = filters.workMode === "grupprum";
@@ -151,26 +171,26 @@ function SpaceFinder() {
           ? "seats_asc"
           : sort;
 
-
   const setFilters = (next: Filters) => {
     const nextSearch = filtersToSearch(next, search.highlight) as Record<string, unknown>;
     const nextMode = next.workMode;
     if (sort && sort !== "recommended" && !(sort === "free_now" && nextMode !== "grupprum")) {
       nextSearch.sort = sort;
     }
-    navigate({ search: nextSearch as never, replace: true });
+    navigate({ search: nextSearch as never, replace: true, resetScroll: false });
   };
 
   const setSort = (next: SortKey) => {
     navigate({
-      search: (prev: SearchParams) => ({
-        ...prev,
-        sort: next === "recommended" ? undefined : next,
-      }) as never,
+      search: (prev: SearchParams) =>
+        ({
+          ...prev,
+          sort: next === "recommended" ? undefined : next,
+        }) as never,
       replace: true,
+      resetScroll: false,
     });
   };
-
 
   const [highlightTick, setHighlightTick] = useState(0);
 
@@ -179,9 +199,17 @@ function SpaceFinder() {
     const target = spaces.find((s) => s.id === id || s.slug === id);
     const visible = target ? filtered.some((s) => s.id === target.id) : false;
     if (target && !visible) {
-      navigate({ search: { q: "", highlight: id, cats: {} } as never, replace: true });
+      navigate({
+        search: { q: "", highlight: id, cats: {} } as never,
+        replace: true,
+        resetScroll: false,
+      });
     } else {
-      navigate({ search: (prev: SearchParams) => ({ ...prev, highlight: id }) as never, replace: true });
+      navigate({
+        search: (prev: SearchParams) => ({ ...prev, highlight: id }) as never,
+        replace: true,
+        resetScroll: false,
+      });
     }
   };
 
@@ -192,10 +220,7 @@ function SpaceFinder() {
   const { data: emptySuggestTemplate } = useUiText("empty_suggest_template");
   const { data: emptyFallback } = useUiText("empty_fallback");
 
-  const hasActiveFilter =
-    filters.query.trim().length > 0 ||
-    filters.workMode !== null ||
-    Object.values(filters.byCategory).some((arr) => arr.length > 0);
+  const hasActiveFilter = hasActiveFilters(filters);
 
   const { data: availability } = useQuery({
     queryKey: ["group-room-availability"],
@@ -208,20 +233,15 @@ function SpaceFinder() {
       (filters.workMode === "grupprum" && effectiveSort === "free_now"),
   });
 
-  const filtered = useMemo(() => {
-    const kindMatched = spaces.filter((s) => (s.space_kind ?? "study") === filters.spaceKind);
-    const base = kindMatched.filter((s) => matchesSpace(s, filters, categories));
-    if (filters.workMode === "grupprum" && filters.freeOnly) {
-      const rooms = availability?.rooms ?? {};
-      return base.filter((s) => {
-        const num = s.booking_room_number;
-        if (num == null) return false;
-        const r = rooms[String(num)];
-        return r && !r.disabled && r.status === "free";
-      });
-    }
-    return base;
-  }, [spaces, filters, categories, availability]);
+  const selectedKindTotal = useMemo(
+    () => countSpacesForKind(spaces, filters.spaceKind),
+    [spaces, filters.spaceKind],
+  );
+
+  const filtered = useMemo(
+    () => filterSpaces(spaces, filters, categories, availability),
+    [spaces, filters, categories, availability],
+  );
 
   const sortedFiltered = useMemo(() => {
     const arr = [...filtered];
@@ -242,7 +262,8 @@ function SpaceFinder() {
       });
     } else if (effectiveSort === "floor_asc") {
       arr.sort((a, b) => {
-        const av = floorNum(a); const bv = floorNum(b);
+        const av = floorNum(a);
+        const bv = floorNum(b);
         if (isNaN(av) && isNaN(bv)) return 0;
         if (isNaN(av)) return 1;
         if (isNaN(bv)) return -1;
@@ -250,7 +271,8 @@ function SpaceFinder() {
       });
     } else if (effectiveSort === "floor_desc") {
       arr.sort((a, b) => {
-        const av = floorNum(a); const bv = floorNum(b);
+        const av = floorNum(a);
+        const bv = floorNum(b);
         if (isNaN(av) && isNaN(bv)) return 0;
         if (isNaN(av)) return 1;
         if (isNaN(bv)) return -1;
@@ -288,32 +310,25 @@ function SpaceFinder() {
     });
   }, [effectiveSort, canSortFree, availability, sortedFiltered]);
 
-
-
-
   const { data: filterOptions = [] } = useFilterOptions();
-  const narrowest = useNarrowestFilter(spaces, filters, categories, filterOptions);
+  const narrowest = useNarrowestFilter(spaces, filters, categories, filterOptions, availability);
 
   usePageView("home");
 
-  useDebouncedTrack(
-    "filter_change",
-    filters,
-    (f) => ({
-      query: f.query.trim() || undefined,
-      workMode: f.workMode ?? undefined,
-      groupSize: f.groupSize ?? undefined,
-      freeOnly: f.freeOnly || undefined,
-      categories: Object.fromEntries(
-        Object.entries(f.byCategory).filter(([, v]) => v.length > 0),
-      ),
-    }),
-  );
+  useDebouncedTrack("filter_change", filters, (f) => ({
+    query: f.query.trim() || undefined,
+    spaceKind: f.spaceKind,
+    workMode: f.workMode ?? undefined,
+    groupSize: f.groupSize ?? undefined,
+    freeOnly: f.freeOnly || undefined,
+    categories: Object.fromEntries(Object.entries(f.byCategory).filter(([, v]) => v.length > 0)),
+  }));
 
   useEffect(() => {
     if (!isLoading && hasActiveFilter && filtered.length === 0) {
       track("empty_results", {
         query: filters.query.trim() || undefined,
+        spaceKind: filters.spaceKind,
         workMode: filters.workMode ?? undefined,
         categories: Object.fromEntries(
           Object.entries(filters.byCategory).filter(([, v]) => v.length > 0),
@@ -346,16 +361,20 @@ function SpaceFinder() {
 
       <AnnouncementBanner />
 
-
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 lg:grid lg:grid-cols-[320px_1fr] lg:gap-6">
         <aside className="hidden lg:block lg:mt-11" aria-label={t("filters.title")}>
           <div
             ref={filterPanelRef}
             className="study-place-filter-panel bg-card rounded-xl card-shadow flex flex-col"
-            style={filterViewport ? ({ ["--filter-panel-top" as string]: `${filterViewport.top}px`, ["--filter-panel-height" as string]: `${filterViewport.height}px` } as React.CSSProperties) : undefined}
+            style={
+              filterViewport
+                ? ({
+                    ["--filter-panel-top" as string]: `${filterViewport.top}px`,
+                    ["--filter-panel-height" as string]: `${filterViewport.height}px`,
+                  } as React.CSSProperties)
+                : undefined
+            }
           >
-
             <div className="flex items-center justify-between gap-2 px-3 min-h-9 shrink-0">
               <h2 className="inline-flex items-center gap-1.5 text-xs text-muted-foreground m-0 font-normal">
                 <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" />
@@ -376,11 +395,14 @@ function SpaceFinder() {
               <FilterPanel filters={filters} onChange={setFilters} />
             </div>
           </div>
-
         </aside>
 
-
-        <main id="main" tabIndex={-1} className="mobile-filter-main focus-visible:outline-none" aria-busy={isLoading}>
+        <main
+          id="main"
+          tabIndex={-1}
+          className="mobile-filter-main focus-visible:outline-none"
+          aria-busy={isLoading}
+        >
           <div className="mobile-filter-dock lg:hidden">
             <div className="mobile-filter-dock-inner">
               <MobileFilterSheet
@@ -404,7 +426,10 @@ function SpaceFinder() {
                 : filters.spaceKind !== "study"
                   ? t("results.count_hits", { count: sortedFiltered.length })
                   : hasActiveFilter
-                    ? t("results.count_filtered", { filtered: sortedFiltered.length, total: spaces.length })
+                    ? t("results.count_filtered", {
+                        filtered: sortedFiltered.length,
+                        total: selectedKindTotal,
+                      })
                     : t("results.count_total", { count: sortedFiltered.length })}
             </span>
             {!isLoading && (
@@ -417,7 +442,10 @@ function SpaceFinder() {
                   {filters.spaceKind !== "study"
                     ? t("results.count_hits", { count: sortedFiltered.length })
                     : hasActiveFilter
-                      ? t("results.count_filtered", { filtered: sortedFiltered.length, total: spaces.length })
+                      ? t("results.count_filtered", {
+                          filtered: sortedFiltered.length,
+                          total: selectedKindTotal,
+                        })
                       : t("results.count_total", { count: sortedFiltered.length })}
                 </span>
                 <Select
@@ -453,12 +481,9 @@ function SpaceFinder() {
                     )}
                   </SelectContent>
                 </Select>
-
               </div>
             )}
           </div>
-
-
 
           <ActiveFilterChips filters={filters} onChange={setFilters} />
 
@@ -470,8 +495,6 @@ function SpaceFinder() {
               {t("results.no_free_rooms_notice")}
             </div>
           )}
-
-
 
           {isLoading && (
             <div className="space-y-4 md:space-y-6" role="status" aria-label={t("results.loading")}>
@@ -497,7 +520,9 @@ function SpaceFinder() {
               </p>
               <button
                 type="button"
-                onClick={() => { void refetch(); }}
+                onClick={() => {
+                  void refetch();
+                }}
                 className="inline-flex items-center rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium shadow-sm transition-all hover:opacity-90 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
               >
                 {t("results.error_retry")}
@@ -516,10 +541,14 @@ function SpaceFinder() {
               {narrowest && narrowest.wouldMatch > 0 ? (
                 <>
                   <p className="text-sm text-muted-foreground mb-5 max-w-md whitespace-pre-line">
-                    {formatSuggestTemplate(emptySuggestTemplate ?? "", {
-                      label: narrowest.label,
-                      count: narrowest.wouldMatch,
-                    }, lang)}
+                    {formatSuggestTemplate(
+                      emptySuggestTemplate ?? "",
+                      {
+                        label: narrowest.label,
+                        count: narrowest.wouldMatch,
+                      },
+                      lang,
+                    )}
                   </p>
                   <div className="flex flex-wrap justify-center gap-2">
                     <button
@@ -564,13 +593,21 @@ function SpaceFinder() {
               <ul role="list" className="space-y-4 md:space-y-6 list-none pl-0">
                 {sortedFiltered.map((s, i) => (
                   <li key={s.id}>
-                    <SpaceCard space={s} filters={filters} onFiltersChange={setFilters} onSpaceLink={handleSpaceLink} highlightId={search.highlight} highlightTick={highlightTick} spaces={spaces} priority={i < 2} />
+                    <SpaceCard
+                      space={s}
+                      filters={filters}
+                      onFiltersChange={setFilters}
+                      onSpaceLink={handleSpaceLink}
+                      highlightId={search.highlight}
+                      highlightTick={highlightTick}
+                      spaces={spaces}
+                      priority={i < 2}
+                    />
                   </li>
                 ))}
               </ul>
             </section>
           )}
-
         </main>
       </div>
     </div>
@@ -588,7 +625,7 @@ function MobileFilterSheet({
   onApply: (f: Filters) => void;
   spaces: Space[];
   categories: FilterCategoryRow[];
-  availability: { rooms: Record<string, { status: string; disabled?: boolean }> } | undefined;
+  availability: AvailabilitySnapshot | undefined;
 }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -599,19 +636,7 @@ function MobileFilterSheet({
   }, [open, filters]);
 
   const draftCount = useMemo(() => {
-    const cats = categories ?? [];
-    const kindMatched = spaces.filter((s) => (s.space_kind ?? "study") === draft.spaceKind);
-    const base = kindMatched.filter((s) => matchesSpace(s, draft, cats));
-    if (draft.workMode === "grupprum" && draft.freeOnly) {
-      const rooms = availability?.rooms ?? {};
-      return base.filter((s) => {
-        const num = s.booking_room_number;
-        if (num == null) return false;
-        const r = rooms[String(num)];
-        return r && !r.disabled && r.status === "free";
-      }).length;
-    }
-    return base.length;
+    return filterSpaces(spaces, draft, categories, availability).length;
   }, [spaces, draft, categories, availability]);
 
   const apply = () => {
@@ -625,9 +650,12 @@ function MobileFilterSheet({
         <button className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-3 text-sm font-semibold shadow-lg shadow-black/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary transition-transform active:scale-95">
           <SlidersHorizontal className="h-4 w-4" aria-hidden="true" /> {t("filters.open")}
         </button>
-
       </SheetTrigger>
-      <SheetContent side="bottom" hideClose className="mobile-filter-sheet p-0 flex flex-col overflow-hidden gap-0 rounded-t-2xl border-t">
+      <SheetContent
+        side="bottom"
+        hideClose
+        className="mobile-filter-sheet p-0 flex flex-col overflow-hidden gap-0 rounded-t-2xl border-t"
+      >
         <div className="shrink-0 px-4 pt-4 pb-2 flex items-center justify-between">
           <SheetClose
             aria-label={t("filters.close")}
@@ -661,4 +689,3 @@ function MobileFilterSheet({
     </Sheet>
   );
 }
-

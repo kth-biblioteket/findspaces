@@ -31,14 +31,17 @@ export const emptyFilters: Filters = {
   byCategory: {},
 };
 
-
 function toggle(arr: string[], v: string) {
   return arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
 }
 
 export function FilterPanel({
-  filters, onChange,
-}: { filters: Filters; onChange: (f: Filters) => void }) {
+  filters,
+  onChange,
+}: {
+  filters: Filters;
+  onChange: (f: Filters) => void;
+}) {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
   const { data: options = [] } = useFilterOptions();
@@ -85,15 +88,16 @@ export function FilterPanel({
     onChange({ ...filters, freeOnly: v });
   };
 
-
   // Read the two "special" categories from the DB. Labels, icons and order
   // are edited in admin; if a row is missing we silently omit the section.
   const spaceKindCat = categories.find((c) => c.special_kind === "space_kind");
   const arbetssattCat = categories.find((c) => c.special_kind === "arbetssatt");
-  const spaceKindOpts = (spaceKindCat ? byKey[spaceKindCat.key] ?? [] : [])
-    .filter((o) => !o.hidden && o.value_key);
-  const arbetssattOpts = (arbetssattCat ? byKey[arbetssattCat.key] ?? [] : [])
-    .filter((o) => !o.hidden && o.value_key);
+  const spaceKindOpts = (spaceKindCat ? (byKey[spaceKindCat.key] ?? []) : []).filter(
+    (o) => !o.hidden && o.value_key,
+  );
+  const arbetssattOpts = (arbetssattCat ? (byKey[arbetssattCat.key] ?? []) : []).filter(
+    (o) => !o.hidden && o.value_key,
+  );
 
   const isStudy = filters.spaceKind === "study";
   const isNonStudy = !isStudy;
@@ -103,7 +107,10 @@ export function FilterPanel({
       <div>
         <label className="relative block">
           <span className="sr-only">{t("filters.search_sr")}</span>
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+            aria-hidden="true"
+          />
           <input
             value={filters.query}
             onChange={(e) => onChange({ ...filters, query: e.target.value })}
@@ -115,7 +122,9 @@ export function FilterPanel({
 
       {spaceKindCat && spaceKindOpts.length > 0 && (
         <div>
-          <h3 className="text-sm font-semibold mb-3">{pickLocalized(spaceKindCat, "title", lang)}</h3>
+          <h3 className="text-sm font-semibold mb-3">
+            {pickLocalized(spaceKindCat, "title", lang)}
+          </h3>
           <div className="flex flex-wrap gap-2">
             {spaceKindOpts.map((o) => (
               <PillToggle
@@ -132,7 +141,9 @@ export function FilterPanel({
 
       {!isNonStudy && arbetssattCat && arbetssattOpts.length > 0 && (
         <div>
-          <h3 className="text-sm font-semibold mb-3">{pickLocalized(arbetssattCat, "title", lang)}</h3>
+          <h3 className="text-sm font-semibold mb-3">
+            {pickLocalized(arbetssattCat, "title", lang)}
+          </h3>
           <div className="flex flex-wrap gap-2">
             {arbetssattOpts.map((o) => (
               <PillToggle
@@ -145,11 +156,12 @@ export function FilterPanel({
             ))}
           </div>
 
-
           {filters.workMode === "grupprum" && (
             <div className="mt-3 space-y-3">
               <div>
-                <p className="text-xs text-muted-foreground mb-2">{t("filters.group_size_label")}</p>
+                <p className="text-xs text-muted-foreground mb-2">
+                  {t("filters.group_size_label")}
+                </p>
                 <div className="flex flex-wrap gap-2">
                   <PillToggle
                     label={t("filters.group_size_2_4")}
@@ -174,10 +186,8 @@ export function FilterPanel({
               </label>
             </div>
           )}
-
         </div>
       )}
-
 
       {categories.map((cat) => {
         if (cat.special_kind) return null;
@@ -189,25 +199,26 @@ export function FilterPanel({
 
         if (opts.length === 0) return null;
         const selected = filters.byCategory[cat.key] ?? [];
-        const inner = cat.style === "list" ? (
-          <ListGroup
-            cat={cat}
-            options={opts}
-            selected={selected}
-            onToggle={(v) => setSelected(cat.key, toggle(selected, v))}
-            lang={lang}
-            hideTitle
-          />
-        ) : (
-          <PillGroup
-            cat={cat}
-            options={opts}
-            selected={selected}
-            onToggle={(v) => setSelected(cat.key, toggle(selected, v))}
-            lang={lang}
-            hideTitle
-          />
-        );
+        const inner =
+          cat.style === "list" ? (
+            <ListGroup
+              cat={cat}
+              options={opts}
+              selected={selected}
+              onToggle={(v) => setSelected(cat.key, toggle(selected, v))}
+              lang={lang}
+              hideTitle
+            />
+          ) : (
+            <PillGroup
+              cat={cat}
+              options={opts}
+              selected={selected}
+              onToggle={(v) => setSelected(cat.key, toggle(selected, v))}
+              lang={lang}
+              hideTitle
+            />
+          );
 
         // Noise stays always visible alongside intent; everything else is collapsible.
         if (cat.key === "noise") {
@@ -235,7 +246,10 @@ export function FilterPanel({
 }
 
 function CollapsibleSection({
-  title, defaultOpen = false, badgeCount = 0, children,
+  title,
+  defaultOpen = false,
+  badgeCount = 0,
+  children,
 }: {
   title: string;
   defaultOpen?: boolean;
@@ -268,15 +282,18 @@ function CollapsibleSection({
           aria-hidden="true"
         />
       </CollapsibleTrigger>
-      <CollapsibleContent className="pt-3">
-        {children}
-      </CollapsibleContent>
+      <CollapsibleContent className="pt-3">{children}</CollapsibleContent>
     </Collapsible>
   );
 }
 
 function ListGroup({
-  cat, options, selected, onToggle, lang, hideTitle = false,
+  cat,
+  options,
+  selected,
+  onToggle,
+  lang,
+  hideTitle = false,
 }: {
   cat: FilterCategoryRow;
   options: FilterOption[];
@@ -287,7 +304,9 @@ function ListGroup({
 }) {
   return (
     <div>
-      {!hideTitle && <h3 className="text-sm font-semibold mb-3">{pickLocalized(cat, "title", lang)}</h3>}
+      {!hideTitle && (
+        <h3 className="text-sm font-semibold mb-3">{pickLocalized(cat, "title", lang)}</h3>
+      )}
       <ul className="space-y-1">
         {options.map((opt) => {
           const isSelected = selected.includes(opt.label);
@@ -303,16 +322,11 @@ function ListGroup({
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary",
                   isSelected
                     ? "bg-primary text-primary-foreground [&_img]:brightness-0 [&_img]:invert"
-                    : "hover:bg-accent text-foreground"
+                    : "hover:bg-accent text-foreground",
                 )}
               >
                 <span className="inline-flex h-4 w-4 items-center justify-center shrink-0">
-                  <Check
-                    className={cn(
-                      "h-4 w-4",
-                      isSelected ? "opacity-100" : "opacity-25"
-                    )}
-                  />
+                  <Check className={cn("h-4 w-4", isSelected ? "opacity-100" : "opacity-25")} />
                 </span>
 
                 <OptionIcon option={opt} className="h-4 w-4" />
@@ -327,7 +341,12 @@ function ListGroup({
 }
 
 function PillGroup({
-  cat, options, selected, onToggle, lang, hideTitle = false,
+  cat,
+  options,
+  selected,
+  onToggle,
+  lang,
+  hideTitle = false,
 }: {
   cat: FilterCategoryRow;
   options: FilterOption[];
@@ -338,7 +357,9 @@ function PillGroup({
 }) {
   return (
     <div>
-      {!hideTitle && <h3 className="text-sm font-semibold mb-3">{pickLocalized(cat, "title", lang)}</h3>}
+      {!hideTitle && (
+        <h3 className="text-sm font-semibold mb-3">{pickLocalized(cat, "title", lang)}</h3>
+      )}
       <div className="flex flex-wrap gap-2">
         {options.map((o) => (
           <PillToggle

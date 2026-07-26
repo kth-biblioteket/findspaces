@@ -1,8 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { setResponseHeader } from "@tanstack/react-start/server";
 
-const API_URL =
-  "https://apps.lib.kth.se/smartsigntools/api/v1/imas/realtime";
+const API_URL = "https://apps.lib.kth.se/smartsigntools/api/v1/imas/realtime";
 
 export type ZoneOccupancy = {
   inside: number;
@@ -78,9 +77,7 @@ export const getRealtimeOccupancy = createServerFn({ method: "GET" }).handler(
         zones,
         lastUpdated: json.lastUpdated ?? null,
         location: json.location ?? null,
-        hours: json.hours
-          ? { from: json.hours.from ?? null, to: json.hours.until ?? null }
-          : null,
+        hours: json.hours ? { from: json.hours.from ?? null, to: json.hours.until ?? null } : null,
         httpStatus: res.status,
         fetchedAt,
         apiUrl: API_URL,

@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { FilterCategoryRow } from "./spaces";
+import { toast } from "sonner";
+import { errorMessage, runSupabaseBatch } from "@/lib/supabaseBatch";
 
 const db = supabase as unknown as { from: (t: string) => any };
 
@@ -8,10 +10,7 @@ export function useFilterCategories() {
   return useQuery({
     queryKey: ["filter_categories"],
     queryFn: async (): Promise<FilterCategoryRow[]> => {
-      const { data, error } = await db
-        .from("filter_categories")
-        .select("*")
-        .order("sort_order");
+      const { data, error } = await db.from("filter_categories").select("*").order("sort_order");
       if (error) throw error;
       return (data ?? []) as FilterCategoryRow[];
     },
@@ -53,10 +52,13 @@ export function useReorderCategories() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (ordered: FilterCategoryRow[]) => {
-      await Promise.all(
+      await runSupabaseBatch(
         ordered.map((c, i) =>
-          db.from("filter_categories").update({ sort_order: (i + 1) * 10 }).eq("id", c.id)
-        )
+          db
+            .from("filter_categories")
+            .update({ sort_order: (i + 1) * 10 })
+            .eq("id", c.id),
+        ),
       );
     },
     onMutate: async (ordered) => {
@@ -65,8 +67,9 @@ export function useReorderCategories() {
       qc.setQueryData<FilterCategoryRow[]>(["filter_categories"], ordered);
       return { previous };
     },
-    onError: (_e, _v, ctx) => {
+    onError: (error, _variables, ctx) => {
       if (ctx?.previous) qc.setQueryData(["filter_categories"], ctx.previous);
+      toast.error(errorMessage(error, "Kunde inte ändra ordningen på filterkategorierna"));
     },
     onSettled: () => qc.invalidateQueries({ queryKey: ["filter_categories"] }),
   });
@@ -74,11 +77,15 @@ export function useReorderCategories() {
 
 /** Generate a stable, URL-safe key from a Swedish title. */
 export function slugifyKey(input: string): string {
-  return input
-    .toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/[åä]/g, "a").replace(/ö/g, "o")
-    .replace(/[^a-z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "")
-    .slice(0, 40) || "kategori";
+  return (
+    input
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[åä]/g, "a")
+      .replace(/ö/g, "o")
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "")
+      .slice(0, 40) || "kategori"
+  );
 }

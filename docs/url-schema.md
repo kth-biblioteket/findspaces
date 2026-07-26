@@ -6,16 +6,16 @@ All parsning sker i `validateSearch` i `src/routes/index.tsx`. Okända värden i
 
 ## Parametrar
 
-| Param | Typ | Värden | Beskrivning |
-|---|---|---|---|
-| `q` | string | fri text | Sökterm som matchas mot lokalens namn. Tom sträng = ingen sökning. |
-| `kind` | string | `service`, `creative`, … | Vilken typ av lokal. `study` är default och skrivs **aldrig** i URL:en. |
-| `mode` | string | `enskilt`, `tillsammans`, `grupprum` | Hur användaren vill arbeta. Endast relevant när `kind` saknas (dvs. `study`). |
-| `size` | enum | `2-4`, `5+` | Gruppstorlek. Endast relevant när `mode=grupprum`. |
-| `free` | boolean | `1` / true | Visa bara grupprum som är lediga just nu. Endast med `mode=grupprum`. |
-| `cats` | objekt | `{ "categorySlug": ["optionSlug", …] }` | Valda filteralternativ per kategori. URL-kodas som JSON-liknande objekt av TanStack Router. |
-| `sort` | enum | se nedan | Aktiv sortering. `recommended` är default och skrivs **aldrig** i URL:en. |
-| `highlight` | string | space-id eller slug | Pulserar/scrollar till angiven lokal vid inladdning. Sätts av "Visa på karta"-länkar mellan lokaler. |
+| Param       | Typ     | Värden                                  | Beskrivning                                                                                          |
+| ----------- | ------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `q`         | string  | fri text                                | Sökterm som matchas mot lokalens namn. Tom sträng = ingen sökning.                                   |
+| `kind`      | string  | `service`, `creative`, …                | Vilken typ av lokal. `study` är default och skrivs **aldrig** i URL:en.                              |
+| `mode`      | string  | `enskilt`, `tillsammans`, `grupprum`    | Hur användaren vill arbeta. Endast relevant när `kind` saknas (dvs. `study`).                        |
+| `size`      | enum    | `2-4`, `5+`                             | Gruppstorlek. Endast relevant när `mode=grupprum`.                                                   |
+| `free`      | boolean | `1` / true                              | Visa bara grupprum som är lediga just nu. Endast med `mode=grupprum`.                                |
+| `cats`      | objekt  | `{ "categorySlug": ["optionSlug", …] }` | Valda filteralternativ per kategori. URL-kodas som JSON-liknande objekt av TanStack Router.          |
+| `sort`      | enum    | se nedan                                | Aktiv sortering. `recommended` är default och skrivs **aldrig** i URL:en.                            |
+| `highlight` | string  | space-id eller slug                     | Pulserar/scrollar till angiven lokal vid inladdning. Sätts av "Visa på karta"-länkar mellan lokaler. |
 
 ### Giltiga `sort`-värden
 
@@ -42,7 +42,7 @@ Ogiltiga kombinationer (t.ex. `sort=free_now` utan `mode=grupprum`) faller autom
 ## Konventioner
 
 - **Defaultvärden skrivs aldrig i URL:en.** `kind=study`, `sort=recommended`, tomt `q`, tom `cats` etc. utelämnas så att baseline-länken alltid är `/`.
-- **Byten är `replace: true`.** Filter- och sorterings-updates ersätter historian istället för att pusha, så webbläsarens bakåt-knapp bär tillbaka till föregående *sida*, inte till varje filtertryck.
+- **Byten är `replace: true`.** Filter- och sorterings-updates ersätter historian istället för att pusha, så webbläsarens bakåt-knapp bär tillbaka till föregående _sida_, inte till varje filtertryck.
 - **Persistens över filterbyten.** Aktiv `sort` behålls när användaren byter filter så länge sorteringen fortfarande är giltig (t.ex. `sort=free_now` nollställs om `mode` inte längre är `grupprum`).
 
 ## För kth.se-embed

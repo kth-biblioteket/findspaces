@@ -46,8 +46,7 @@ export const UI_TEXT_META: Record<
 > = {
   empty_title: {
     title: "Tomt resultat – rubrik",
-    description:
-      "Visas överst när inga lokaler matchar de valda filtren.",
+    description: "Visas överst när inga lokaler matchar de valda filtren.",
     rows: 2,
   },
   empty_suggest_template: {
@@ -70,8 +69,7 @@ export const UI_TEXT_META: Record<
   },
   hide_description: {
     title: "Lokalkort – dölj beskrivning",
-    description:
-      "Etikett på knappen som fäller ihop beskrivningen på ett lokalkort.",
+    description: "Etikett på knappen som fäller ihop beskrivningen på ett lokalkort.",
     rows: 2,
   },
   about_button: {
@@ -82,24 +80,20 @@ export const UI_TEXT_META: Record<
   },
   occupancy_free: {
     title: "Beläggning – gott om plats",
-    description:
-      "Visas i beläggningsmätaren på lokalkortet när det är lugnt (lägsta nivån).",
+    description: "Visas i beläggningsmätaren på lokalkortet när det är lugnt (lägsta nivån).",
     rows: 2,
   },
   occupancy_moderate: {
     title: "Beläggning – halvfullt",
-    description:
-      "Visas i beläggningsmätaren på lokalkortet vid mellannivån.",
+    description: "Visas i beläggningsmätaren på lokalkortet vid mellannivån.",
     rows: 2,
   },
   occupancy_busy: {
     title: "Beläggning – mycket folk",
-    description:
-      "Visas i beläggningsmätaren på lokalkortet vid högsta nivån.",
+    description: "Visas i beläggningsmätaren på lokalkortet vid högsta nivån.",
     rows: 2,
   },
 };
-
 
 const SETTING_PREFIX_SV = "ui_text:";
 const SETTING_PREFIX_EN = "ui_text:en:";
@@ -150,7 +144,15 @@ export function useUiText(key: UiTextKey) {
 export function useSaveUiText() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ key, value, lang = "sv" }: { key: UiTextKey; value: string; lang?: Lang }) => {
+    mutationFn: async ({
+      key,
+      value,
+      lang = "sv",
+    }: {
+      key: UiTextKey;
+      value: string;
+      lang?: Lang;
+    }) => {
       const { error } = await supabase
         .from("app_settings")
         .upsert({ key: settingKey(key, lang), value });

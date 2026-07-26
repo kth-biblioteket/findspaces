@@ -4,6 +4,7 @@ import { emptyFilters, type Filters } from "./FilterPanel";
 import { useFilterCategories } from "@/lib/useFilterCategories";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { pickLocalized, type Lang } from "@/i18n";
+import { resetSpaceKind } from "@/lib/filterState";
 
 type Chip = { key: string; label: string; onRemove: () => void };
 
@@ -19,6 +20,13 @@ export function ActiveFilterChips({
   const { data: categories = [] } = useFilterCategories();
   const { data: options = [] } = useFilterOptions();
   const optLookup = new Map(options.map((o) => [`${o.category}:${o.label}`, o]));
+
+  const spaceKindCat = categories.find((c) => c.special_kind === "space_kind");
+  const spaceKindByKey = new Map(
+    (spaceKindCat ? options.filter((option) => option.category === spaceKindCat.key) : [])
+      .filter((option) => option.value_key)
+      .map((option) => [option.value_key as string, option]),
+  );
 
   // Look up work-mode chip labels via the DB-backed "arbetssatt" category
   // (falls back to i18n if the DB row is missing).
@@ -52,6 +60,15 @@ export function ActiveFilterChips({
     });
   }
 
+  if (filters.spaceKind !== "study") {
+    const option = spaceKindByKey.get(filters.spaceKind);
+    chips.push({
+      key: "spaceKind",
+      label: option ? pickLocalized(option, "label", lang) : filters.spaceKind,
+      onRemove: () => onChange(resetSpaceKind(filters)),
+    });
+  }
+
   if (filters.workMode) {
     chips.push({
       key: "workMode",
@@ -76,7 +93,6 @@ export function ActiveFilterChips({
     });
   }
 
-
   for (const [catKey, values] of Object.entries(filters.byCategory)) {
     if (!values || values.length === 0) continue;
     for (const v of values) {
@@ -98,9 +114,6 @@ export function ActiveFilterChips({
   }
 
   if (chips.length === 0) return null;
-
-  // Reference categories so hook isn't unused if no by-category chips
-  void categories;
 
   return (
     <div
@@ -133,4 +146,3 @@ export function ActiveFilterChips({
     </div>
   );
 }
-

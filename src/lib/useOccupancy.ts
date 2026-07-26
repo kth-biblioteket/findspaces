@@ -31,8 +31,7 @@ export function useOccupancy(sensorId: string | null | undefined): Occupancy | n
 
   const ratio = zone.inside / zone.threshold;
   const level: 1 | 2 | 3 = ratio < 0.5 ? 1 : ratio < 0.85 ? 2 : 3;
-  const status: OccupancyStatus =
-    level === 1 ? "free" : level === 2 ? "moderate" : "busy";
+  const status: OccupancyStatus = level === 1 ? "free" : level === 2 ? "moderate" : "busy";
 
   return {
     level,

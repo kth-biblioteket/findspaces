@@ -9,7 +9,7 @@ function Placeholder({ className }: { className?: string }) {
     <div
       className={cn(
         "relative w-full h-full bg-muted-foreground/25 flex items-center justify-center",
-        className
+        className,
       )}
       aria-hidden="true"
     >
@@ -19,12 +19,26 @@ function Placeholder({ className }: { className?: string }) {
 }
 
 export function ImageCarousel({
-  images, alt, alts = [], className, onImageClick, priority = false,
-}: { images: string[]; alt: string; alts?: string[]; className?: string; onImageClick?: (index: number) => void; priority?: boolean }) {
+  images,
+  alt,
+  alts = [],
+  className,
+  onImageClick,
+  priority = false,
+}: {
+  images: string[];
+  alt: string;
+  alts?: string[];
+  className?: string;
+  onImageClick?: (index: number) => void;
+  priority?: boolean;
+}) {
   const { t } = useTranslation();
   const [idx, setIdx] = useState(0);
   const [loaded, setLoaded] = useState<Record<number, boolean>>({});
-  const touchRef = useRef<{ x: number; y: number; moved: boolean; pointerType: string } | null>(null);
+  const touchRef = useRef<{ x: number; y: number; moved: boolean; pointerType: string } | null>(
+    null,
+  );
   const swipedRef = useRef(false);
   const list = images.filter(Boolean);
   const count = list.length;
@@ -52,7 +66,6 @@ export function ImageCarousel({
     }
   };
 
-
   // Preload neighboring images for snappier paging
   useEffect(() => {
     if (count <= 1) return;
@@ -78,13 +91,17 @@ export function ImageCarousel({
 
   return (
     <div
-      className={cn("relative w-full h-full overflow-hidden bg-muted group touch-pan-y select-none", className)}
+      className={cn(
+        "relative w-full h-full overflow-hidden bg-muted group touch-pan-y select-none",
+        className,
+      )}
       onPointerDown={pointerDown}
       onPointerMove={pointerMove}
       onPointerUp={pointerUp}
-      onPointerCancel={() => { touchRef.current = null; }}
+      onPointerCancel={() => {
+        touchRef.current = null;
+      }}
     >
-
       {/* Subtle shimmer skeleton — no icon, so it doesn't flash a fake placeholder */}
       {!isLoaded && (
         <div className="absolute inset-0 z-0 animate-pulse bg-gradient-to-br from-muted via-muted/60 to-muted" />
@@ -95,7 +112,10 @@ export function ImageCarousel({
         className="relative z-[1] w-full h-full p-0 m-0 border-0 bg-transparent cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         onClick={(e) => {
           e.stopPropagation();
-          if (swipedRef.current) { swipedRef.current = false; return; }
+          if (swipedRef.current) {
+            swipedRef.current = false;
+            return;
+          }
           onImageClick?.(idx);
         }}
         aria-label={t("gallery.open_full")}
@@ -120,7 +140,6 @@ export function ImageCarousel({
         <>
           {/* image counter intentionally removed */}
 
-
           <button
             type="button"
             onClick={(e) => go(-1, e)}
@@ -144,7 +163,10 @@ export function ImageCarousel({
               <button
                 key={i}
                 type="button"
-                onClick={(e) => { e.stopPropagation(); setIdx(i); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIdx(i);
+                }}
                 aria-label={t("gallery.go_to", { n: i + 1 })}
                 aria-current={i === idx ? "true" : undefined}
                 className="h-6 w-6 inline-flex items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
@@ -152,7 +174,7 @@ export function ImageCarousel({
                 <span
                   className={cn(
                     "block h-2 w-2 rounded-full transition-all",
-                    i === idx ? "bg-white" : "bg-white/55 hover:bg-white/80"
+                    i === idx ? "bg-white" : "bg-white/55 hover:bg-white/80",
                   )}
                   aria-hidden="true"
                 />

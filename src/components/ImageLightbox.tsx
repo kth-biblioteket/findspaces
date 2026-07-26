@@ -63,7 +63,7 @@ export function ImageLightbox({
     (delta: number) => {
       setIdx((i) => (i + delta + count) % count);
     },
-    [count]
+    [count],
   );
 
   useEffect(() => {
@@ -80,7 +80,7 @@ export function ImageLightbox({
         const root = dialogRef.current;
         if (!root) return;
         const focusable = root.querySelectorAll<HTMLElement>(
-          'button, [href], input, [tabindex]:not([tabindex="-1"])'
+          'button, [href], input, [tabindex]:not([tabindex="-1"])',
         );
         if (focusable.length === 0) return;
         const first = focusable[0];
@@ -137,7 +137,10 @@ export function ImageLightbox({
         onClick={(e) => e.stopPropagation()}
       >
         {!imgLoaded && (
-          <Loader2 className="absolute h-10 w-10 text-foreground/60 animate-spin" aria-hidden="true" />
+          <Loader2
+            className="absolute h-10 w-10 text-foreground/60 animate-spin"
+            aria-hidden="true"
+          />
         )}
         <img
           key={list[idx]}
@@ -146,7 +149,7 @@ export function ImageLightbox({
           onLoad={() => setImgLoaded(true)}
           className={cn(
             "max-w-full max-h-[85vh] object-contain transition-opacity duration-200",
-            imgLoaded ? "opacity-100" : "opacity-0"
+            imgLoaded ? "opacity-100" : "opacity-0",
           )}
         />
       </div>
@@ -191,7 +194,7 @@ export function ImageLightbox({
                 aria-current={i === idx ? "true" : undefined}
                 className={cn(
                   "h-2 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-                  i === idx ? "w-6 bg-foreground" : "w-2 bg-foreground/30 hover:bg-foreground/50"
+                  i === idx ? "w-6 bg-foreground" : "w-2 bg-foreground/30 hover:bg-foreground/50",
                 )}
               />
             ))}

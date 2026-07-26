@@ -67,7 +67,7 @@ export function AnalyticsTab() {
     return { from: new Date(Date.now() - p.hours * 3600 * 1000), to: new Date() };
   }, [preset, customFrom, customTo]);
 
-  const periodValid = from <= to && (to.getTime() - from.getTime()) <= 365 * 24 * 3600 * 1000;
+  const periodValid = from <= to && to.getTime() - from.getTime() <= 365 * 24 * 3600 * 1000;
 
   const prevRange = useMemo(() => {
     const span = to.getTime() - from.getTime();
@@ -106,9 +106,8 @@ export function AnalyticsTab() {
     refetchInterval: 30_000,
   });
 
-  const rows = data?.current ?? [];
-  const prevRows = data?.previous ?? [];
-
+  const rows = useMemo(() => data?.current ?? [], [data]);
+  const prevRows = useMemo(() => data?.previous ?? [], [data]);
 
   const computeTotals = (src: Row[]) => {
     const byType: Record<string, number> = {};
@@ -132,11 +131,13 @@ export function AnalyticsTab() {
   const totals = useMemo(() => computeTotals(rows), [rows]);
   const prevTotals = useMemo(() => computeTotals(prevRows), [prevRows]);
 
-
   const timeSeries = useMemo(() => {
     const spanHours = (to.getTime() - from.getTime()) / 3600 / 1000;
     const byHour = spanHours <= 48;
-    const buckets = new Map<string, { label: string; views: number; expands: number; bookings: number }>();
+    const buckets = new Map<
+      string,
+      { label: string; views: number; expands: number; bookings: number }
+    >();
     for (const r of rows) {
       const d = new Date(r.created_at);
       const key = byHour
@@ -163,7 +164,10 @@ export function AnalyticsTab() {
       const name = String((r.payload as { name?: string } | null)?.name ?? id);
       counts[id] = { name, count: (counts[id]?.count ?? 0) + 1 };
     }
-    return Object.entries(counts).map(([id, v]) => ({ id, ...v })).sort((a, b) => b.count - a.count).slice(0, 10);
+    return Object.entries(counts)
+      .map(([id, v]) => ({ id, ...v }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
   }, [rows]);
 
   const topFilters = useMemo(() => {
@@ -172,25 +176,35 @@ export function AnalyticsTab() {
       if (r.event_type !== "filter_change") continue;
       const p = (r.payload ?? {}) as Record<string, unknown>;
       if (p.query) counts["sökord"] = (counts["sökord"] ?? 0) + 1;
-      if (p.workMode) counts[`läge: ${String(p.workMode)}`] = (counts[`läge: ${String(p.workMode)}`] ?? 0) + 1;
-      if (p.groupSize) counts[`storlek: ${String(p.groupSize)}`] = (counts[`storlek: ${String(p.groupSize)}`] ?? 0) + 1;
-      if (p.freeOnly) counts["endast lediga grupprum"] = (counts["endast lediga grupprum"] ?? 0) + 1;
+      if (p.workMode)
+        counts[`läge: ${String(p.workMode)}`] = (counts[`läge: ${String(p.workMode)}`] ?? 0) + 1;
+      if (p.groupSize)
+        counts[`storlek: ${String(p.groupSize)}`] =
+          (counts[`storlek: ${String(p.groupSize)}`] ?? 0) + 1;
+      if (p.freeOnly)
+        counts["endast lediga grupprum"] = (counts["endast lediga grupprum"] ?? 0) + 1;
       const cats = (p.categories ?? {}) as Record<string, string[]>;
       for (const [cat, vals] of Object.entries(cats)) {
         for (const v of vals ?? []) counts[`${cat}: ${v}`] = (counts[`${cat}: ${v}`] ?? 0) + 1;
       }
     }
-    return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 15);
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 15);
   }, [rows]);
 
   const topQueries = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const r of rows) {
       if (r.event_type !== "filter_change") continue;
-      const q = String((r.payload as { query?: string } | null)?.query ?? "").trim().toLowerCase();
+      const q = String((r.payload as { query?: string } | null)?.query ?? "")
+        .trim()
+        .toLowerCase();
       if (q) counts[q] = (counts[q] ?? 0) + 1;
     }
-    return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10);
   }, [rows]);
 
   const trafficByHour = useMemo(() => {
@@ -248,7 +262,9 @@ export function AnalyticsTab() {
       const key = parts.length ? parts.sort().join(" · ") : "(inga filter)";
       counts[key] = (counts[key] ?? 0) + 1;
     }
-    return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10);
   }, [rows]);
 
   const deviceBreakdown = useMemo(() => {
@@ -259,7 +275,12 @@ export function AnalyticsTab() {
       counts[d] = (counts[d] ?? 0) + 1;
     }
     const total = Object.values(counts).reduce((a, b) => a + b, 0);
-    const labels: Record<string, string> = { mobile: "Mobil", desktop: "Desktop", tablet: "Surfplatta", okänd: "Okänd" };
+    const labels: Record<string, string> = {
+      mobile: "Mobil",
+      desktop: "Desktop",
+      tablet: "Surfplatta",
+      okänd: "Okänd",
+    };
     return Object.entries(counts)
       .map(([k, v]) => ({ key: k, label: labels[k] ?? k, count: v, pct: total ? v / total : 0 }))
       .sort((a, b) => b.count - a.count);
@@ -275,7 +296,9 @@ export function AnalyticsTab() {
       const key = utm ?? ref ?? "direkt";
       counts[key] = (counts[key] ?? 0) + 1;
     }
-    return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10);
   }, [rows]);
 
   const heatmap = useMemo(() => {
@@ -291,7 +314,6 @@ export function AnalyticsTab() {
     for (const row of grid) for (const v of row) if (v > max) max = v;
     return { grid, max };
   }, [rows]);
-
 
   return (
     <div className="space-y-6">
@@ -327,15 +349,14 @@ export function AnalyticsTab() {
           <DatePicker label="Från" value={customFrom} onChange={setCustomFrom} />
           <DatePicker label="Till" value={customTo} onChange={setCustomTo} />
           {!periodValid && (
-            <p className="text-sm text-destructive">
-              Ogiltig period (max 365 dagar, från ≤ till).
-            </p>
+            <p className="text-sm text-destructive">Ogiltig period (max 365 dagar, från ≤ till).</p>
           )}
         </div>
       )}
 
       <p className="text-sm text-muted-foreground">
-        Vald period: {format(from, "d MMM yyyy HH:mm", { locale: sv })} – {format(to, "d MMM yyyy HH:mm", { locale: sv })}
+        Vald period: {format(from, "d MMM yyyy HH:mm", { locale: sv })} –{" "}
+        {format(to, "d MMM yyyy HH:mm", { locale: sv })}
       </p>
 
       {isLoading ? (
@@ -345,25 +366,59 @@ export function AnalyticsTab() {
       ) : (
         <>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Stat label="Sidvisningar" value={totals.byType.page_view ?? 0} prev={prevTotals.byType.page_view ?? 0} />
+            <Stat
+              label="Sidvisningar"
+              value={totals.byType.page_view ?? 0}
+              prev={prevTotals.byType.page_view ?? 0}
+            />
             <Stat label="Unika sessioner" value={totals.sessions} prev={prevTotals.sessions} />
-            <Stat label="Kortklick (expand)" value={totals.byType.card_expand ?? 0} prev={prevTotals.byType.card_expand ?? 0} />
-            <Stat label="Bokningsklick" value={totals.byType.booking_link_click ?? 0} prev={prevTotals.byType.booking_link_click ?? 0} />
-            <Stat label="Kartklick" value={totals.byType.map_link_click ?? 0} prev={prevTotals.byType.map_link_click ?? 0} />
-            <Stat label="Länkklick lokalsida" value={totals.byType.space_link_click ?? 0} prev={prevTotals.byType.space_link_click ?? 0} />
-            <Stat label="Filterändringar" value={totals.byType.filter_change ?? 0} prev={prevTotals.byType.filter_change ?? 0} />
-            <Stat label="Sök utan träff" value={totals.byType.empty_results ?? 0} prev={prevTotals.byType.empty_results ?? 0} />
+            <Stat
+              label="Kortklick (expand)"
+              value={totals.byType.card_expand ?? 0}
+              prev={prevTotals.byType.card_expand ?? 0}
+            />
+            <Stat
+              label="Bokningsklick"
+              value={totals.byType.booking_link_click ?? 0}
+              prev={prevTotals.byType.booking_link_click ?? 0}
+            />
+            <Stat
+              label="Kartklick"
+              value={totals.byType.map_link_click ?? 0}
+              prev={prevTotals.byType.map_link_click ?? 0}
+            />
+            <Stat
+              label="Länkklick lokalsida"
+              value={totals.byType.space_link_click ?? 0}
+              prev={prevTotals.byType.space_link_click ?? 0}
+            />
+            <Stat
+              label="Filterändringar"
+              value={totals.byType.filter_change ?? 0}
+              prev={prevTotals.byType.filter_change ?? 0}
+            />
+            <Stat
+              label="Sök utan träff"
+              value={totals.byType.empty_results ?? 0}
+              prev={prevTotals.byType.empty_results ?? 0}
+            />
           </div>
 
           <p className="text-xs text-muted-foreground -mt-2">
-            Jämförelse mot föregående period: {format(prevRange.prevFrom, "d MMM", { locale: sv })} – {format(prevRange.prevTo, "d MMM yyyy", { locale: sv })}
+            Jämförelse mot föregående period: {format(prevRange.prevFrom, "d MMM", { locale: sv })}{" "}
+            – {format(prevRange.prevTo, "d MMM yyyy", { locale: sv })}
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Stat label="Sessioner som expanderade kort" value={`${(totals.expandRate * 100).toFixed(1)}%`} />
-            <Stat label="Sessioner med bokningsklick" value={`${(totals.bookRate * 100).toFixed(1)}%`} />
+            <Stat
+              label="Sessioner som expanderade kort"
+              value={`${(totals.expandRate * 100).toFixed(1)}%`}
+            />
+            <Stat
+              label="Sessioner med bokningsklick"
+              value={`${(totals.bookRate * 100).toFixed(1)}%`}
+            />
           </div>
-
 
           <Section title="Aktivitet över tid">
             <div className="h-64">
@@ -410,7 +465,9 @@ export function AnalyticsTab() {
           </div>
 
           <Section title="Mest engagerande lokaler">
-            {topCards.length === 0 ? <Empty /> : (
+            {topCards.length === 0 ? (
+              <Empty />
+            ) : (
               <ol className="divide-y divide-border">
                 {topCards.map((c) => (
                   <li key={c.id} className="flex items-center justify-between py-2 text-sm">
@@ -424,7 +481,9 @@ export function AnalyticsTab() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Section title="Mest använda filter">
-              {topFilters.length === 0 ? <Empty /> : (
+              {topFilters.length === 0 ? (
+                <Empty />
+              ) : (
                 <ol className="divide-y divide-border">
                   {topFilters.map(([label, count]) => (
                     <li key={label} className="flex items-center justify-between py-2 text-sm">
@@ -436,7 +495,9 @@ export function AnalyticsTab() {
               )}
             </Section>
             <Section title="Vanligaste sökord">
-              {topQueries.length === 0 ? <Empty /> : (
+              {topQueries.length === 0 ? (
+                <Empty />
+              ) : (
                 <ol className="divide-y divide-border">
                   {topQueries.map(([q, count]) => (
                     <li key={q} className="flex items-center justify-between py-2 text-sm">
@@ -450,14 +511,22 @@ export function AnalyticsTab() {
           </div>
 
           <Section title="Sökningar utan träff (senaste 30)">
-            {emptySearches.length === 0 ? <Empty /> : (
+            {emptySearches.length === 0 ? (
+              <Empty />
+            ) : (
               <ul className="divide-y divide-border">
                 {emptySearches.map((e, i) => (
                   <li key={i} className="py-2 text-sm">
                     <div className="text-xs text-muted-foreground">{e.when}</div>
                     <div className="truncate">
-                      {e.query ? <span className="font-medium">"{e.query}"</span> : <span className="italic text-muted-foreground">ingen sökterm</span>}
-                      {e.workMode && <span className="text-muted-foreground"> · läge: {e.workMode}</span>}
+                      {e.query ? (
+                        <span className="font-medium">"{e.query}"</span>
+                      ) : (
+                        <span className="italic text-muted-foreground">ingen sökterm</span>
+                      )}
+                      {e.workMode && (
+                        <span className="text-muted-foreground"> · läge: {e.workMode}</span>
+                      )}
                       {e.cats && <span className="text-muted-foreground"> · {e.cats}</span>}
                     </div>
                   </li>
@@ -467,7 +536,9 @@ export function AnalyticsTab() {
           </Section>
 
           <Section title="Filterkombinationer som ger 0 träffar (topp 10)">
-            {emptyCombos.length === 0 ? <Empty /> : (
+            {emptyCombos.length === 0 ? (
+              <Empty />
+            ) : (
               <ol className="divide-y divide-border">
                 {emptyCombos.map(([label, count]) => (
                   <li key={label} className="flex items-center justify-between py-2 text-sm gap-3">
@@ -481,7 +552,9 @@ export function AnalyticsTab() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Section title="Enhet (sidvisningar)">
-              {deviceBreakdown.length === 0 ? <Empty /> : (
+              {deviceBreakdown.length === 0 ? (
+                <Empty />
+              ) : (
                 <ul className="space-y-2">
                   {deviceBreakdown.map((d) => (
                     <li key={d.key} className="text-sm">
@@ -500,7 +573,9 @@ export function AnalyticsTab() {
               )}
             </Section>
             <Section title="Källor (referrer / UTM)">
-              {sourceBreakdown.length === 0 ? <Empty /> : (
+              {sourceBreakdown.length === 0 ? (
+                <Empty />
+              ) : (
                 <ol className="divide-y divide-border">
                   {sourceBreakdown.map(([label, count]) => (
                     <li key={label} className="flex items-center justify-between py-2 text-sm">
@@ -517,7 +592,6 @@ export function AnalyticsTab() {
             <Heatmap grid={heatmap.grid} max={heatmap.max} />
           </Section>
         </>
-
       )}
     </div>
   );
@@ -540,7 +614,10 @@ function DatePicker({
           <Button
             variant="outline"
             size="sm"
-            className={cn("w-[200px] justify-start text-left font-normal", !value && "text-muted-foreground")}
+            className={cn(
+              "w-[200px] justify-start text-left font-normal",
+              !value && "text-muted-foreground",
+            )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {value ? format(value, "d MMM yyyy", { locale: sv }) : <span>Välj datum</span>}
@@ -572,7 +649,11 @@ function Stat({ label, value, prev }: { label: string; value: number | string; p
     }
   }
   const deltaColor =
-    delta?.dir === "up" ? "text-emerald-600" : delta?.dir === "down" ? "text-red-600" : "text-muted-foreground";
+    delta?.dir === "up"
+      ? "text-emerald-600"
+      : delta?.dir === "down"
+        ? "text-red-600"
+        : "text-muted-foreground";
   const arrow = delta?.dir === "up" ? "▲" : delta?.dir === "down" ? "▼" : "→";
   return (
     <div className="rounded-xl border border-border bg-card p-4">
@@ -582,13 +663,13 @@ function Stat({ label, value, prev }: { label: string; value: number | string; p
       </div>
       {delta && (
         <div className={cn("text-xs mt-1 tabular-nums", deltaColor)}>
-          {arrow} {delta.pct > 0 ? "+" : ""}{delta.pct.toFixed(1)}% jmf föregående
+          {arrow} {delta.pct > 0 ? "+" : ""}
+          {delta.pct.toFixed(1)}% jmf föregående
         </div>
       )}
     </div>
   );
 }
-
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -609,7 +690,10 @@ function Heatmap({ grid, max }: { grid: number[][]; max: number }) {
   return (
     <div className="overflow-x-auto">
       <div className="inline-block min-w-full">
-        <div className="grid" style={{ gridTemplateColumns: "auto repeat(24, minmax(14px, 1fr))", gap: "2px" }}>
+        <div
+          className="grid"
+          style={{ gridTemplateColumns: "auto repeat(24, minmax(14px, 1fr))", gap: "2px" }}
+        >
           <div />
           {Array.from({ length: 24 }).map((_, h) => (
             <div key={h} className="text-[9px] text-muted-foreground text-center">
@@ -637,4 +721,3 @@ function Heatmap({ grid, max }: { grid: number[][]; max: number }) {
     </div>
   );
 }
-
