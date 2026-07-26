@@ -1,33 +1,17 @@
 import { pickLocalized, type Lang } from "@/i18n";
 import { type Space } from "@/lib/spaces";
 import { type ReactNode } from "react";
-import DOMPurify from "dompurify";
+import { sanitizeHtml, INLINE_SANITIZE_OPTIONS } from "@/lib/sanitizeHtml";
 
 const SPACE_LINK_RE = /\[\[\s*([^|\]\n]+?)\s*(?:\|\s*([^|\]\n]+?)\s*)?\]\]/g;
 
 function renderTextSegment(text: string, allowHtml: boolean, keyPrefix: string): ReactNode {
   if (!allowHtml) return text;
-  let clean = DOMPurify.sanitize(text, {
-    ALLOWED_TAGS: ["a", "b", "strong", "i", "em", "br", "span"],
-    ALLOWED_ATTR: ["href", "target", "rel", "title"],
-  });
-  if (typeof window !== "undefined") {
-    const tmp = document.createElement("div");
-    tmp.innerHTML = clean;
-    tmp.querySelectorAll("a").forEach((a) => {
-      a.setAttribute("target", "_blank");
-      a.setAttribute("rel", "noopener noreferrer");
-      a.classList.add(
-        "font-medium",
-        "text-[var(--kth-blue)]",
-        "underline",
-        "hover:opacity-80",
-      );
-    });
-    clean = tmp.innerHTML;
-  }
+  // Same sanitizer on server and in the browser — no DOM APIs during SSR.
+  const clean = sanitizeHtml(text, INLINE_SANITIZE_OPTIONS);
   return <span key={keyPrefix} dangerouslySetInnerHTML={{ __html: clean }} />;
 }
+
 
 export function parseSpaceLinks(
   text: string,
