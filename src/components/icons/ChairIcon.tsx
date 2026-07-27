@@ -1,6 +1,9 @@
 import type { SVGProps } from "react";
 
-export function ChairIcon({ size = 24, ...props }: SVGProps<SVGSVGElement> & { size?: number }) {
+export function ChairIcon({
+  size = 24,
+  ...props
+}: SVGProps<SVGSVGElement> & { size?: number }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -27,3 +30,5 @@ export function ChairIcon({ size = 24, ...props }: SVGProps<SVGSVGElement> & { s
     </svg>
   );
 }
+
+

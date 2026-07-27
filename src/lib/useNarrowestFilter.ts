@@ -2,9 +2,8 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { type Space, type FilterCategoryRow, type FilterOption } from "@/lib/spaces";
 import { emptyFilters, type Filters } from "@/components/FilterPanel";
+import { matchesSpace } from "@/lib/filterMatch";
 import { pickLocalized, type Lang } from "@/i18n";
-import { filterSpaces, type AvailabilitySnapshot } from "@/lib/filterSpaces";
-import { resetSpaceKind } from "@/lib/filterState";
 
 export type FilterDimension = {
   id: string;
@@ -23,7 +22,6 @@ export function useNarrowestFilter(
   filters: Filters,
   categories: FilterCategoryRow[],
   options: FilterOption[] = [],
-  availability?: AvailabilitySnapshot,
 ): FilterDimension | null {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
@@ -37,23 +35,6 @@ export function useNarrowestFilter(
         id: "query",
         label: t("chips.search_label", { query: filters.query.trim() }),
         remove: (f) => ({ ...f, query: "" }),
-      });
-    }
-    if (filters.spaceKind !== "study") {
-      const spaceKindCategory = categories.find(
-        (category) => category.special_kind === "space_kind",
-      );
-      const option = spaceKindCategory
-        ? options.find(
-            (candidate) =>
-              candidate.category === spaceKindCategory.key &&
-              candidate.value_key === filters.spaceKind,
-          )
-        : undefined;
-      dimensions.push({
-        id: "spaceKind",
-        label: option ? pickLocalized(option, "label", lang) : filters.spaceKind,
-        remove: resetSpaceKind,
       });
     }
     if (filters.workMode) {
@@ -71,8 +52,7 @@ export function useNarrowestFilter(
     if (filters.groupSize) {
       dimensions.push({
         id: "groupSize",
-        label:
-          filters.groupSize === "2-4" ? t("filters.group_size_2_4") : t("filters.group_size_5plus"),
+        label: filters.groupSize === "2-4" ? t("filters.group_size_2_4") : t("filters.group_size_5plus"),
         remove: (f) => ({ ...f, groupSize: null }),
       });
     }
@@ -107,14 +87,14 @@ export function useNarrowestFilter(
 
     const scored: FilterDimension[] = dimensions.map((d) => {
       const next = d.remove(filters);
-      const count = filterSpaces(spaces, next, categories, availability).length;
+      const count = spaces.filter((s) => matchesSpace(s, next, categories)).length;
       return { ...d, wouldMatch: count };
     });
 
     // Pick dimension whose removal yields most matches; tie-break by id stability
     scored.sort((a, b) => b.wouldMatch - a.wouldMatch);
     return scored[0] ?? null;
-  }, [spaces, filters, categories, options, availability, t, lang]);
+  }, [spaces, filters, categories, options, t, lang]);
 }
 
 export { emptyFilters };

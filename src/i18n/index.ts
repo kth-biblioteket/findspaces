@@ -39,11 +39,10 @@ export default i18n;
  * Pick a localized field from a DB row. Falls back to the Swedish field
  * if the English variant is missing/empty.
  */
-export function pickLocalized<T extends Record<string, unknown>, K extends keyof T & string>(
-  row: T | null | undefined,
-  field: K,
-  lang: Lang,
-): string {
+export function pickLocalized<
+  T extends Record<string, unknown>,
+  K extends keyof T & string,
+>(row: T | null | undefined, field: K, lang: Lang): string {
   if (!row) return "";
   if (lang === "en") {
     const en = row[(field + "_en") as keyof T];

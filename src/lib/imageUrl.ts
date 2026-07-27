@@ -35,5 +35,7 @@ export function optimizedImageSrcSet(
   widths: number[] = [400, 640, 960, 1280],
 ): string {
   if (!url) return "";
-  return widths.map((w) => `${optimizedImageUrl(url, w)} ${w}w`).join(", ");
+  return widths
+    .map((w) => `${optimizedImageUrl(url, w)} ${w}w`)
+    .join(", ");
 }

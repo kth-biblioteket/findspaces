@@ -10,7 +10,7 @@ export const CARD_SECTION_KEYS = [
   "button_group_booking",
   "button_booking",
 ] as const;
-export type CardSectionKey = (typeof CARD_SECTION_KEYS)[number];
+export type CardSectionKey = typeof CARD_SECTION_KEYS[number];
 
 export const CARD_SECTION_LABELS: Record<CardSectionKey, string> = {
   header: "Rubrik (namn, våning, lokaltyp, kapacitet, beläggning)",

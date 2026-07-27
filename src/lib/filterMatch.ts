@@ -3,15 +3,11 @@ import { type Filters } from "@/components/FilterPanel";
 
 export function matchesSpace(s: Space, filters: Filters, categories: FilterCategoryRow[]): boolean {
   const q = filters.query.trim().toLowerCase();
-  const matchesQuery =
-    s.name.toLowerCase().includes(q) ||
-    (s.name_en ?? "").toLowerCase().includes(q) ||
-    (s.lokaltyp ?? []).some((label) => label.toLowerCase().includes(q));
-  if (q && !matchesQuery) return false;
+  if (q && !s.name.toLowerCase().includes(q) && !(s.lokaltyp ?? []).some((l) => l.toLowerCase().includes(q)))
+    return false;
 
   if (filters.workMode === "grupprum") {
-    if (!(s.lokaltyp ?? []).includes("Grupprum") && !(s.intent ?? []).includes("grupprum"))
-      return false;
+    if (!(s.lokaltyp ?? []).includes("Grupprum") && !(s.intent ?? []).includes("grupprum")) return false;
     if (filters.groupSize === "5+") {
       const cap = s.capacity ?? 0;
       if (cap < 5) return false;

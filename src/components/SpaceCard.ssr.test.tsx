@@ -44,6 +44,8 @@ const space: Space = {
   booking_url_en: null,
   group_booking_url: null,
   group_booking_url_en: null,
+  group_booking_label: null,
+  group_booking_label_en: null,
   book_now_url: null,
   book_now_url_en: null,
   sort_order: 1,
@@ -92,7 +94,7 @@ test("server-renders a card with an HTML description without DOMPurify errors", 
 
 test("sanitizer keeps the allowed tags and drops everything else", () => {
   const out = sanitizeHtml(
-    "<p>a<b>b</b><i>c</i><em>d</em><strong>e</strong><br><ul><li>f</li></ul>" +
+    '<p>a<b>b</b><i>c</i><em>d</em><strong>e</strong><br><ul><li>f</li></ul>' +
       '<span title="t">g</span><h1>h</h1><img src="x.png" onerror="x()">' +
       '<a href="javascript:alert(1)">bad</a><a href="/karta">ok</a></p>',
     DESCRIPTION_SANITIZE_OPTIONS,

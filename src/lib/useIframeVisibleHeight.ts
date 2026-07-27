@@ -25,7 +25,8 @@ export function useIframeVisibleHeight(
 
     const probe = document.createElement("div");
     probe.setAttribute("aria-hidden", "true");
-    probe.style.cssText = "position:fixed;inset:0;pointer-events:none;opacity:0;z-index:-1;";
+    probe.style.cssText =
+      "position:fixed;inset:0;pointer-events:none;opacity:0;z-index:-1;";
     document.body.appendChild(probe);
     probeRef.current = probe;
 
@@ -50,11 +51,16 @@ export function useIframeVisibleHeight(
       // top back into the calculation and cause feedback.
       const aside = panel.closest("aside");
       const normalPanelTop =
-        aside?.getBoundingClientRect().top ?? panel.getBoundingClientRect().top ?? 0;
+        aside?.getBoundingClientRect().top ??
+        panel.getBoundingClientRect().top ??
+        0;
 
       const stickyTop = Math.floor(rect.top + gap);
       const effectivePanelTop = Math.max(normalPanelTop, stickyTop);
-      const panelHeight = Math.max(minHeight, Math.floor(rect.bottom - effectivePanelTop - gap));
+      const panelHeight = Math.max(
+        minHeight,
+        Math.floor(rect.bottom - effectivePanelTop - gap),
+      );
 
       setViewport((prev) =>
         prev && prev.top === stickyTop && prev.height === panelHeight

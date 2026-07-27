@@ -7,9 +7,6 @@ export type UiTextKey =
   | "empty_title"
   | "empty_suggest_template"
   | "empty_fallback"
-  | "show_description"
-  | "hide_description"
-  | "about_button"
   | "occupancy_free"
   | "occupancy_moderate"
   | "occupancy_busy";
@@ -19,9 +16,6 @@ export const UI_TEXT_DEFAULTS: Record<UiTextKey, string> = {
   empty_suggest_template:
     "Filtret {label} verkar smalast — om du tar bort det hittar vi {count} {lokal}.",
   empty_fallback: "Prova att rensa filtren och börja om.",
-  show_description: "Visa beskrivning",
-  hide_description: "Dölj beskrivning",
-  about_button: "Om lokalen",
   occupancy_free: "Gott om plats",
   occupancy_moderate: "Halvfullt",
   occupancy_busy: "Mycket folk",
@@ -32,9 +26,6 @@ export const UI_TEXT_DEFAULTS_EN: Record<UiTextKey, string> = {
   empty_suggest_template:
     "The filter {label} seems narrowest — if you remove it we find {count} {lokal}.",
   empty_fallback: "Try clearing the filters and start over.",
-  show_description: "Show description",
-  hide_description: "Hide description",
-  about_button: "About this space",
   occupancy_free: "Plenty of space",
   occupancy_moderate: "Moderately busy",
   occupancy_busy: "Very busy",
@@ -46,7 +37,8 @@ export const UI_TEXT_META: Record<
 > = {
   empty_title: {
     title: "Tomt resultat – rubrik",
-    description: "Visas överst när inga lokaler matchar de valda filtren.",
+    description:
+      "Visas överst när inga lokaler matchar de valda filtren.",
     rows: 2,
   },
   empty_suggest_template: {
@@ -61,39 +53,26 @@ export const UI_TEXT_META: Record<
       "Visas när inget enskilt filter kan föreslås (t.ex. när inga filter alls hjälper).",
     rows: 2,
   },
-  show_description: {
-    title: "Lokalkort – visa beskrivning",
-    description:
-      "Etikett på knappen som fäller ut beskrivningen på ett lokalkort. Visas endast när lokalen har en beskrivning.",
-    rows: 2,
-  },
-  hide_description: {
-    title: "Lokalkort – dölj beskrivning",
-    description: "Etikett på knappen som fäller ihop beskrivningen på ett lokalkort.",
-    rows: 2,
-  },
-  about_button: {
-    title: "Lokalkort – knapp för beskrivning",
-    description:
-      "Etikett på knappen som öppnar lokalens beskrivning i en popup. Visas endast när lokalen har en beskrivning.",
-    rows: 2,
-  },
   occupancy_free: {
     title: "Beläggning – gott om plats",
-    description: "Visas i beläggningsmätaren på lokalkortet när det är lugnt (lägsta nivån).",
+    description:
+      "Visas i beläggningsmätaren på lokalkortet när det är lugnt (lägsta nivån).",
     rows: 2,
   },
   occupancy_moderate: {
     title: "Beläggning – halvfullt",
-    description: "Visas i beläggningsmätaren på lokalkortet vid mellannivån.",
+    description:
+      "Visas i beläggningsmätaren på lokalkortet vid mellannivån.",
     rows: 2,
   },
   occupancy_busy: {
     title: "Beläggning – mycket folk",
-    description: "Visas i beläggningsmätaren på lokalkortet vid högsta nivån.",
+    description:
+      "Visas i beläggningsmätaren på lokalkortet vid högsta nivån.",
     rows: 2,
   },
 };
+
 
 const SETTING_PREFIX_SV = "ui_text:";
 const SETTING_PREFIX_EN = "ui_text:en:";
@@ -144,15 +123,7 @@ export function useUiText(key: UiTextKey) {
 export function useSaveUiText() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({
-      key,
-      value,
-      lang = "sv",
-    }: {
-      key: UiTextKey;
-      value: string;
-      lang?: Lang;
-    }) => {
+    mutationFn: async ({ key, value, lang = "sv" }: { key: UiTextKey; value: string; lang?: Lang }) => {
       const { error } = await supabase
         .from("app_settings")
         .upsert({ key: settingKey(key, lang), value });

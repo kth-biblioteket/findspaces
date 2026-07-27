@@ -1,29 +1,15 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { sanitizeHtml, DESCRIPTION_SANITIZE_OPTIONS } from "@/lib/sanitizeHtml";
-import {
-  MapPin,
-  Calendar,
-  Info,
-  Users,
-  User,
-  AlertTriangle,
-  ChevronDown,
-  Monitor,
-  Armchair,
-} from "lucide-react";
+import { MapPin, Calendar, Info, Users, User, AlertTriangle, ChevronDown, Monitor, Armchair } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { TableChairIcon } from "./icons/TableChairIcon";
 
 import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
+import { useFilterCategories } from "@/lib/useFilterCategories";
 import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
 import { useCapacityIcon } from "@/lib/useCapacityIcon";
-import {
-  useLiveSpaceStatus,
-  type LiveOccupancy,
-  type LiveGroupRoom,
-} from "@/lib/useLiveSpaceStatus";
-import { useUiText } from "@/lib/useUiText";
+import { useLiveSpaceStatus, type LiveOccupancy, type LiveGroupRoom } from "@/lib/useLiveSpaceStatus";
 
 import { pickLocalized, type Lang } from "@/i18n";
 import { OptionIcon } from "./OptionIcon";
@@ -35,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { useSpaceAnalytics } from "@/lib/useSpaceAnalytics";
 import { type Filters } from "./FilterPanel";
 import { parseSpaceLinks } from "@/lib/spaceLinks";
+
 
 type IntentValue = "enskilt" | "tillsammans" | "grupprum";
 
@@ -74,24 +61,15 @@ export function SpaceCard({
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [highlighted, setHighlighted] = useState(false);
   const { data: options = [] } = useFilterOptions();
-  const {
-    data: layoutFromDb = [
-      "header",
-      "notice",
-      "info",
-      "chips",
-      "button_map",
-      "button_group_booking",
-      "button_booking",
-    ],
-  } = useCardLayout();
+  const { data: filterCategories = [] } = useFilterCategories();
+  const { data: layoutFromDb = ["header", "notice", "info", "chips", "button_map", "button_group_booking", "button_booking"] } = useCardLayout();
   const { data: capacityIconUrl, isPending: capacityIconPending } = useCapacityIcon();
   const { occupancy, groupRoom } = useLiveSpaceStatus(space, {
     occupancy: previewOccupancy,
     groupRoom: previewGroupRoom,
   });
-  const { data: aboutButtonLabel } = useUiText("about_button");
   const layout = layoutOverride ?? layoutFromDb;
+
 
   useEffect(() => {
     if (highlightId && (highlightId === space.id || highlightId === space.slug)) {
@@ -113,8 +91,8 @@ export function SpaceCard({
     space.images && space.images.length > 0
       ? space.images
       : space.image_url
-        ? [space.image_url]
-        : [];
+      ? [space.image_url]
+      : [];
 
   const localizedName = pickLocalized(space, "name", lang);
   const localizedDescription = pickLocalized(space, "description", lang);
@@ -124,28 +102,31 @@ export function SpaceCard({
   const localizedLocatedIn = pickLocalized(space, "located_in", lang);
   const localizedGroupBookingUrl =
     pickLocalized(space, "group_booking_url", lang) || space.group_booking_url || "";
-  const localizedMapUrl = pickLocalized(space, "map_url", lang) || space.map_url || "";
-  const localizedBookingUrl = pickLocalized(space, "booking_url", lang) || space.booking_url || "";
+  const groupBookingLabel =
+    pickLocalized(space, "group_booking_label", lang).trim() ||
+    (space.group_booking_label ?? "").trim() ||
+    t("card.button_group_booking");
+  const localizedMapUrl =
+    pickLocalized(space, "map_url", lang) || space.map_url || "";
+  const localizedBookingUrl =
+    pickLocalized(space, "booking_url", lang) || space.booking_url || "";
 
   const bookNowUrl = useMemo(() => {
     const template =
-      lang === "en" && space.book_now_url_en?.trim()
+      (lang === "en" && space.book_now_url_en?.trim())
         ? space.book_now_url_en
-        : (space.book_now_url ?? "");
+        : space.book_now_url ?? "";
     if (!template) return "";
     if (template.includes("{room}") && space.booking_room_number == null) return "";
     const now = new Date();
     return template
-      .replaceAll(
-        "{room}",
-        space.booking_room_number != null ? String(space.booking_room_number) : "",
-      )
+      .replaceAll("{room}", space.booking_room_number != null ? String(space.booking_room_number) : "")
       .replaceAll("{year}", String(now.getFullYear()))
       .replaceAll("{month}", String(now.getMonth() + 1))
       .replaceAll("{day}", String(now.getDate()))
       .replaceAll("{hour}", String(now.getHours()))
       .replaceAll("{minute}", "0");
-  }, [lang, space.book_now_url, space.book_now_url_en, space.booking_room_number]);
+  }, [lang, space.book_now_url, space.book_now_url_en, space.booking_room_number, groupRoom?.status]);
 
   const localizedAlts = useMemo(() => {
     const sv = space.image_alts ?? [];
@@ -170,18 +151,21 @@ export function SpaceCard({
   const linkedNotice = useMemo(() => {
     if (!localizedNotice || !spaces || !onSpaceLink) return localizedNotice;
     return parseSpaceLinks(localizedNotice, spaces, lang, handleSpaceLink, { allowHtml: true });
-  }, [localizedNotice, spaces, onSpaceLink, lang, handleSpaceLink]);
+  }, [localizedNotice, spaces, lang, handleSpaceLink]);
 
   const linkedInfo = useMemo(() => {
     if (!localizedInfo || !spaces || !onSpaceLink) return localizedInfo;
     return parseSpaceLinks(localizedInfo, spaces, lang, handleSpaceLink, { allowHtml: true });
-  }, [localizedInfo, spaces, onSpaceLink, lang, handleSpaceLink]);
+  }, [localizedInfo, spaces, lang, handleSpaceLink]);
 
   const sanitizedDescription = useMemo(
     () =>
-      localizedDescription ? sanitizeHtml(localizedDescription, DESCRIPTION_SANITIZE_OPTIONS) : "",
+      localizedDescription
+        ? sanitizeHtml(localizedDescription, DESCRIPTION_SANITIZE_OPTIONS)
+        : "",
     [localizedDescription],
   );
+
 
   const localizeChip = (category: string, value: string): string => {
     const opt = lookup.get(`${category}:${value}`);
@@ -189,7 +173,8 @@ export function SpaceCard({
   };
 
   const isGrupprum =
-    (space.lokaltyp ?? []).includes("Grupprum") || (space.intent ?? []).includes("grupprum");
+    (space.lokaltyp ?? []).includes("Grupprum") ||
+    (space.intent ?? []).includes("grupprum");
 
   // Intent chips on the card: enskilt / tillsammans for regular spaces,
   // "I grupprum" for group-room spaces. Noise level always joins this row.
@@ -205,37 +190,26 @@ export function SpaceCard({
   type CategoryChip = { category: string; value: string; key: string; label: string };
   const categoryChips: CategoryChip[] = [
     ...(space.noise ?? []).map((n) => ({
-      category: "noise",
-      value: n,
-      key: `noise:${n}`,
-      label: localizeChip("noise", n),
+      category: "noise", value: n, key: `noise:${n}`, label: localizeChip("noise", n),
     })),
     ...space.equipment.map((e) => ({
-      category: "equipment",
-      value: e,
-      key: `equipment:${e}`,
-      label: localizeChip("equipment", e),
+      category: "equipment", value: e, key: `equipment:${e}`, label: localizeChip("equipment", e),
     })),
     ...space.facilities.map((f) => ({
-      category: "facility",
-      value: f,
-      key: `facility:${f}`,
-      label: localizeChip("facility", f),
+      category: "facility", value: f, key: `facility:${f}`, label: localizeChip("facility", f),
     })),
     ...Object.entries(space.tags ?? {}).flatMap(([cat, values]) =>
       cat === "vaningsplan"
         ? []
         : (Array.isArray(values) ? values : []).map((v) => ({
-            category: cat,
-            value: v,
-            key: `${cat}:${v}`,
-            label: localizeChip(cat, v),
+            category: cat, value: v, key: `${cat}:${v}`, label: localizeChip(cat, v),
           })),
     ),
   ];
 
   const noiseChips = categoryChips.filter((c) => c.category === "noise");
   const otherCategoryChips = categoryChips.filter((c) => c.category !== "noise");
+
 
   const isIntentSelected = (v: IntentValue) => filters?.workMode === v;
   const isCategorySelected = (cat: string, v: string) =>
@@ -268,19 +242,21 @@ export function SpaceCard({
     .map((l) => localizeChip("lokaltyp", l))
     .filter((s): s is string => Boolean(s && s.length > 0));
 
-  const floorRowParts = [floorPart, locatedInPart].filter((s): s is string =>
-    Boolean(s && s.length > 0),
+  const floorRowParts = [floorPart, locatedInPart].filter(
+    (s): s is string => Boolean(s && s.length > 0),
   );
 
   const hasMeta = floorRowParts.length > 0 || lokaltypParts.length > 0;
 
   const showCapacity = (space.capacity ?? 0) > 0;
 
+
   const chipBase =
     "inline-flex items-center gap-1.5 text-xs rounded-full px-2 py-1 max-w-full transition-all duration-150 active:scale-95";
   const chipUnselected = "text-muted-foreground bg-secondary/60 hover:bg-accent";
   const chipSelected =
     "bg-[var(--kth-blue)] text-white hover:bg-[var(--kth-blue)]/90 [&_img]:brightness-0 [&_img]:invert";
+
 
   const renderSection = (key: CardSectionKey) => {
     switch (key) {
@@ -289,10 +265,7 @@ export function SpaceCard({
           <div key="header" className="flex flex-col gap-4 md:gap-5">
             <div className="flex flex-col gap-1">
               <div className="flex items-baseline gap-1.5">
-                <h3
-                  id={`space-${space.id}-title`}
-                  className="text-lg md:text-xl font-semibold leading-none"
-                >
+                <h3 id={`space-${space.id}-title`} className="text-lg md:text-xl font-semibold leading-none">
                   {localizedName}
                 </h3>
                 {sanitizedDescription && !space.description_inline && (
@@ -307,8 +280,8 @@ export function SpaceCard({
                     }}
                     aria-expanded={aboutOpen}
                     aria-controls={`space-${space.id}-about`}
-                    aria-label={aboutButtonLabel ?? t("card.about_button")}
-                    title={aboutButtonLabel ?? t("card.about_button")}
+                    aria-label={aboutOpen ? t("card.hide_description") : t("card.about_button")}
+                    title={aboutOpen ? t("card.hide_description") : t("card.about_button")}
                     className="inline-flex h-8 min-w-8 items-center justify-center gap-0.5 px-1.5 -my-1 rounded-md text-foreground hover:text-[var(--kth-blue)] hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-primary"
                   >
                     <Info className="h-4 w-4" aria-hidden="true" />
@@ -331,23 +304,19 @@ export function SpaceCard({
                       </span>
                     )}
                     {floorPart && locatedInPart && (
-                      <span className="text-muted-foreground/50" aria-hidden="true">
-                        |
-                      </span>
+                      <span className="text-muted-foreground/50" aria-hidden="true">|</span>
                     )}
                     {locatedInPart && <span>{locatedInPart}</span>}
                     {(floorPart || locatedInPart) && lokaltypParts.length > 0 && (
-                      <span className="text-muted-foreground/50" aria-hidden="true">
-                        |
-                      </span>
+                      <span className="text-muted-foreground/50" aria-hidden="true">|</span>
                     )}
-                    {lokaltypParts.length > 0 && <span>{lokaltypParts.join(" • ")}</span>}
+                    {lokaltypParts.length > 0 && (
+                      <span>{lokaltypParts.join(" • ")}</span>
+                    )}
                   </div>
                 </div>
               )}
-              {(showCapacity ||
-                (space.informal_seat_count ?? 0) > 0 ||
-                (space.computer_count ?? 0) > 0) && (
+              {(showCapacity || (space.informal_seat_count ?? 0) > 0 || (space.computer_count ?? 0) > 0) && (
                 <div className="mt-1.5 flex flex-wrap items-end gap-x-4 gap-y-1 text-sm text-foreground">
                   {showCapacity && (
                     <p className="inline-flex items-end gap-1.5">
@@ -357,16 +326,12 @@ export function SpaceCard({
                         ) : capacityIconPending ? (
                           <span className="h-4 w-4" aria-hidden="true" />
                         ) : (
-                          <TableChairIcon
-                            className="h-4 w-4 text-foreground/70"
-                            aria-hidden="true"
-                          />
+                          <TableChairIcon className="h-4 w-4 text-foreground/70" aria-hidden="true" />
                         )}
                       </span>
                       <span className="leading-none">
                         <span className="sr-only">{t("card.study_seats_sr")} </span>
-                        <span className="font-medium">{space.capacity}</span>{" "}
-                        {t("card.study_seats_label", { count: space.capacity ?? 0 })}
+                        <span className="font-medium">{space.capacity}</span> {t("card.study_seats_label", { count: space.capacity ?? 0 })}
                       </span>
                     </p>
                   )}
@@ -377,8 +342,7 @@ export function SpaceCard({
                       </span>
                       <span className="leading-none">
                         <span className="sr-only">{t("card.informal_seats_sr")} </span>
-                        <span className="font-medium">{space.informal_seat_count}</span>{" "}
-                        {t("card.informal_seats_label", { count: space.informal_seat_count ?? 0 })}
+                        <span className="font-medium">{space.informal_seat_count}</span> {t("card.informal_seats_label", { count: space.informal_seat_count ?? 0 })}
                       </span>
                     </p>
                   )}
@@ -389,20 +353,27 @@ export function SpaceCard({
                       </span>
                       <span className="leading-none">
                         <span className="sr-only">{t("card.computers_sr")} </span>
-                        <span className="font-medium">{space.computer_count}</span>{" "}
-                        {t("card.computers_label", { count: space.computer_count ?? 0 })}
+                        <span className="font-medium">{space.computer_count}</span> {t("card.computers_label", { count: space.computer_count ?? 0 })}
                       </span>
                     </p>
                   )}
                 </div>
               )}
+
+
+
             </div>
 
             {(occupancy || groupRoom) && (
               <div className="flex flex-col gap-2">
-                {occupancy && <OccupancyBadge level={occupancy.level} status={occupancy.status} />}
+                {occupancy && (
+                  <OccupancyBadge level={occupancy.level} status={occupancy.status} />
+                )}
                 {groupRoom && (
-                  <GroupRoomBadge status={groupRoom.status} bookingUrl={bookNowUrl || null} />
+                  <GroupRoomBadge
+                    status={groupRoom.status}
+                    bookingUrl={bookNowUrl || null}
+                  />
                 )}
               </div>
             )}
@@ -427,10 +398,7 @@ export function SpaceCard({
         if (!linkedInfo) return null;
         return (
           <div key="info" className="flex items-start gap-1.5 text-sm text-foreground/80">
-            <Info
-              className="h-3.5 w-3.5 mt-0.5 shrink-0 text-muted-foreground"
-              aria-hidden="true"
-            />
+            <Info className="h-3.5 w-3.5 mt-0.5 shrink-0 text-muted-foreground" aria-hidden="true" />
             <span className="whitespace-pre-line">{linkedInfo}</span>
           </div>
         );
@@ -511,10 +479,14 @@ export function SpaceCard({
         return (
           <div key="chips" className="mt-2 flex flex-col gap-1.5">
             {topRow.length > 0 && (
-              <div className="flex flex-wrap items-center gap-1.5">{topRow}</div>
+              <div className="flex flex-wrap items-center gap-1.5">
+                {topRow}
+              </div>
             )}
             {bottomRow.length > 0 && (
-              <div className="flex flex-wrap items-center gap-1.5">{bottomRow}</div>
+              <div className="flex flex-wrap items-center gap-1.5">
+                {bottomRow}
+              </div>
             )}
           </div>
         );
@@ -526,6 +498,7 @@ export function SpaceCard({
         return null;
     }
   };
+
 
   const buttonClass =
     "inline-flex items-center gap-1.5 rounded-full bg-[var(--kth-blue)] text-white px-4 py-1.5 text-xs font-semibold hover:bg-[var(--kth-blue)]/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary transition-colors";
@@ -566,7 +539,7 @@ export function SpaceCard({
             className={buttonClass}
           >
             <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>{t("card.button_group_booking")}</span>
+            <span>{groupBookingLabel}</span>
             <span className="sr-only">{t("card.opens_new_tab_sr")}</span>
           </a>
         );
@@ -594,9 +567,8 @@ export function SpaceCard({
     }
   };
 
-  const buttonKeys = layout.filter(
-    (k): k is CardSectionKey =>
-      k === "button_map" || k === "button_group_booking" || k === "button_booking",
+  const buttonKeys = layout.filter((k): k is CardSectionKey =>
+    k === "button_map" || k === "button_group_booking" || k === "button_booking"
   );
   const renderedButtons = buttonKeys.map(renderButton).filter(Boolean);
 
@@ -608,16 +580,17 @@ export function SpaceCard({
         "bg-card rounded-2xl card-shadow hover:card-shadow-hover overflow-hidden transition-all duration-200",
         highlighted && "space-highlight",
       )}
+
     >
-      <div className="flex flex-col md:grid md:grid-cols-[2fr_3fr] items-stretch gap-0">
-        <div className="order-2 md:order-1 min-w-0 flex flex-col gap-4 md:gap-5 p-3 md:p-6">
+        <div className="flex flex-col md:grid md:grid-cols-[2fr_3fr] items-stretch gap-0">
+          <div className="order-2 md:order-1 min-w-0 flex flex-col gap-4 md:gap-5 p-3 md:p-6">
           {layout.map((k) => renderSection(k))}
 
           {sanitizedDescription && (
             <div
               className={cn(
                 "grid transition-[grid-template-rows] duration-300 ease-out",
-                space.description_inline || aboutOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+                (space.description_inline || aboutOpen) ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
               )}
             >
               <div className="overflow-hidden">
@@ -633,12 +606,15 @@ export function SpaceCard({
             </div>
           )}
 
+
           {renderedButtons.length > 0 && (
             <div className="mt-auto flex flex-wrap items-center gap-2 justify-end">
               {renderedButtons}
             </div>
           )}
         </div>
+
+
 
         <div className="order-1 md:order-2 w-full shrink-0 self-stretch aspect-[3/2] md:aspect-auto md:h-full md:min-h-[28rem] overflow-hidden rounded-t-2xl md:rounded-t-none md:rounded-l-none md:rounded-r-2xl">
           <ImageCarousel
@@ -661,6 +637,8 @@ export function SpaceCard({
         open={lightboxOpen}
         onClose={() => setLightboxOpen(false)}
       />
+
     </article>
   );
 }
+

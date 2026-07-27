@@ -45,20 +45,13 @@ export function exportAnalyticsToExcel(rows: Row[], from: Date, to: Date): void 
     ["Sök utan träff", byType.empty_results ?? 0],
     ["Totalt händelser", rows.length],
     [],
-    [
-      "Andel sessioner som expanderade kort",
-      `${((sessionsExpanded.size / totalSessions) * 100).toFixed(1)}%`,
-    ],
-    [
-      "Andel sessioner med bokningsklick",
-      `${((sessionsBooked.size / totalSessions) * 100).toFixed(1)}%`,
-    ],
+    ["Andel sessioner som expanderade kort", `${((sessionsExpanded.size / totalSessions) * 100).toFixed(1)}%`],
+    ["Andel sessioner med bokningsklick", `${((sessionsBooked.size / totalSessions) * 100).toFixed(1)}%`],
   ];
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summary), "Sammanfattning");
 
   // Lokaler
-  const locCounts: Record<string, { name: string; expand: number; booking: number; map: number }> =
-    {};
+  const locCounts: Record<string, { name: string; expand: number; booking: number; map: number }> = {};
   for (const r of rows) {
     if (!["card_expand", "booking_link_click", "map_link_click"].includes(r.event_type)) continue;
     const id = String((r.payload as { space_id?: string } | null)?.space_id ?? "");
@@ -89,18 +82,12 @@ export function exportAnalyticsToExcel(rows: Row[], from: Date, to: Date): void 
       const q = String(p.query).trim().toLowerCase();
       if (q) queryCounts[q] = (queryCounts[q] ?? 0) + 1;
     }
-    if (p.workMode)
-      filterCounts[`läge: ${String(p.workMode)}`] =
-        (filterCounts[`läge: ${String(p.workMode)}`] ?? 0) + 1;
-    if (p.groupSize)
-      filterCounts[`storlek: ${String(p.groupSize)}`] =
-        (filterCounts[`storlek: ${String(p.groupSize)}`] ?? 0) + 1;
-    if (p.freeOnly)
-      filterCounts["endast lediga grupprum"] = (filterCounts["endast lediga grupprum"] ?? 0) + 1;
+    if (p.workMode) filterCounts[`läge: ${String(p.workMode)}`] = (filterCounts[`läge: ${String(p.workMode)}`] ?? 0) + 1;
+    if (p.groupSize) filterCounts[`storlek: ${String(p.groupSize)}`] = (filterCounts[`storlek: ${String(p.groupSize)}`] ?? 0) + 1;
+    if (p.freeOnly) filterCounts["endast lediga grupprum"] = (filterCounts["endast lediga grupprum"] ?? 0) + 1;
     const cats = (p.categories ?? {}) as Record<string, string[]>;
     for (const [cat, vals] of Object.entries(cats)) {
-      for (const v of vals ?? [])
-        filterCounts[`${cat}: ${v}`] = (filterCounts[`${cat}: ${v}`] ?? 0) + 1;
+      for (const v of vals ?? []) filterCounts[`${cat}: ${v}`] = (filterCounts[`${cat}: ${v}`] ?? 0) + 1;
     }
   }
   const filterRows = [
@@ -155,16 +142,7 @@ export function exportAnalyticsToExcel(rows: Row[], from: Date, to: Date): void 
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(comboRows), "Filter utan träff");
 
   // Källor
-  const srcCounts: Record<
-    string,
-    {
-      referrer: string;
-      utm_source: string;
-      utm_medium: string;
-      utm_campaign: string;
-      count: number;
-    }
-  > = {};
+  const srcCounts: Record<string, { referrer: string; utm_source: string; utm_medium: string; utm_campaign: string; count: number }> = {};
   const deviceCounts: Record<string, number> = {};
   for (const r of rows) {
     if (r.event_type !== "page_view") continue;
@@ -180,9 +158,7 @@ export function exportAnalyticsToExcel(rows: Row[], from: Date, to: Date): void 
     const dev = String(p.device ?? "okänd");
     deviceCounts[dev] = (deviceCounts[dev] ?? 0) + 1;
   }
-  const srcRows: (string | number)[][] = [
-    ["Referrer", "utm_source", "utm_medium", "utm_campaign", "Sidvisningar"],
-  ];
+  const srcRows: (string | number)[][] = [["Referrer", "utm_source", "utm_medium", "utm_campaign", "Sidvisningar"]];
   for (const v of Object.values(srcCounts).sort((a, b) => b.count - a.count)) {
     srcRows.push([v.referrer, v.utm_source, v.utm_medium, v.utm_campaign, v.count]);
   }
@@ -191,6 +167,7 @@ export function exportAnalyticsToExcel(rows: Row[], from: Date, to: Date): void 
     srcRows.push([d, c]);
   }
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(srcRows), "Källor");
+
 
   // Råhändelser
   const rawRows: (string | number)[][] = [["Tid", "Typ", "Path", "Session", "Payload"]];

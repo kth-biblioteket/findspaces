@@ -4,10 +4,7 @@ import { cn } from "@/lib/utils";
 import { useUiText } from "@/lib/useUiText";
 import type { OccupancyStatus } from "@/lib/useOccupancy";
 
-const OCCUPANCY_TEXT_KEYS: Record<
-  OccupancyStatus,
-  "occupancy_free" | "occupancy_moderate" | "occupancy_busy"
-> = {
+const OCCUPANCY_TEXT_KEYS: Record<OccupancyStatus, "occupancy_free" | "occupancy_moderate" | "occupancy_busy"> = {
   free: "occupancy_free",
   moderate: "occupancy_moderate",
   busy: "occupancy_busy",
@@ -41,8 +38,7 @@ export function OccupancyBadge({ level, status }: { level: 1 | 2 | 3; status: Oc
       <Users className="h-4 w-4 text-foreground" aria-hidden="true" />
       <OccupancyBlocks level={level} />
       <span className="text-sm text-foreground">
-        <span className="text-muted-foreground">{t("occupancy.right_now")}:</span>{" "}
-        <strong>{label}</strong>
+        <span className="text-muted-foreground">{t("occupancy.right_now")}:</span> <strong>{label}</strong>
       </span>
     </div>
   );

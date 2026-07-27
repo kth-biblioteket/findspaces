@@ -12,6 +12,7 @@ function renderTextSegment(text: string, allowHtml: boolean, keyPrefix: string):
   return <span key={keyPrefix} dangerouslySetInnerHTML={{ __html: clean }} />;
 }
 
+
 export function parseSpaceLinks(
   text: string,
   spaces: Space[],
@@ -21,7 +22,9 @@ export function parseSpaceLinks(
 ): ReactNode[] {
   const allowHtml = options.allowHtml === true;
   const byId = new Map(spaces.map((s) => [s.id, s]));
-  const bySlug = new Map(spaces.filter((s) => s.slug).map((s) => [s.slug as string, s]));
+  const bySlug = new Map(
+    spaces.filter((s) => s.slug).map((s) => [s.slug as string, s]),
+  );
   const resolve = (key: string) => bySlug.get(key) ?? byId.get(key);
   const out: ReactNode[] = [];
   let last = 0;

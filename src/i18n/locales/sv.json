@@ -34,7 +34,6 @@
     "group_size_5plus": "5+ pers",
     "free_only": "Visa bara lediga just nu"
   },
-
   "results": {
     "heading": "Studieplatser",
     "heading_service": "Service & faciliteter",
@@ -48,7 +47,6 @@
     "count_hits_one": "{{count}} träff",
     "count_hits_other": "{{count}} träffar",
     "count_filtered_hits": "{{filtered}} av {{total}} matchar dina filter",
-
     "remove_filter": "Ta bort {{label}}",
     "clear_all_filters": "Rensa alla filter",
     "sort_label": "Sortera",
@@ -86,7 +84,8 @@
     "button_booking": "Se schema",
     "about_button": "Om lokalen",
     "book_now": "Boka nu",
-    "opens_new_tab_sr": "(öppnas i en ny flik)"
+    "opens_new_tab_sr": "(öppnas i en ny flik)",
+    "hide_description": "Dölj text"
   },
   "occupancy": {
     "right_now": "Just nu",

@@ -35,20 +35,8 @@ const DROP_CONTENT_TAGS = new Set([
 ]);
 
 const VOID_TAGS = new Set([
-  "area",
-  "base",
-  "br",
-  "col",
-  "embed",
-  "hr",
-  "img",
-  "input",
-  "link",
-  "meta",
-  "param",
-  "source",
-  "track",
-  "wbr",
+  "area", "base", "br", "col", "embed", "hr", "img", "input",
+  "link", "meta", "param", "source", "track", "wbr",
 ]);
 
 const SAFE_URL_RE = /^(?:https?:|mailto:|tel:|\/|#|\.\/|\.\.\/)/i;
@@ -65,16 +53,15 @@ function escapeAttr(value: string): string {
 }
 
 function isSafeUrl(value: string): boolean {
-  const v = Array.from(value.trim())
-    .filter((character) => character.charCodeAt(0) > 0x20)
-    .join("");
+  const v = value.trim().replace(/[\u0000-\u0020]/g, "");
   if (v === "") return false;
   // Reject scheme-relative trickery like "java\nscript:alert(1)" implicitly:
   // only an explicit allowlist of prefixes passes.
   return SAFE_URL_RE.test(v);
 }
 
-const ATTR_RE = /([a-zA-Z_:][-a-zA-Z0-9_:.]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
+const ATTR_RE =
+  /([a-zA-Z_:][-a-zA-Z0-9_:.]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
 
 function buildAttributes(
   tag: string,

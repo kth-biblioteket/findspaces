@@ -12,7 +12,7 @@ let serverEntryPromise: Promise<ServerEntry> | undefined;
 async function getServerEntry(): Promise<ServerEntry> {
   if (!serverEntryPromise) {
     serverEntryPromise = import("@tanstack/react-start/server-entry").then(
-      (m) => (m as { default?: ServerEntry }).default ?? (m as unknown as ServerEntry),
+      (m) => ((m as { default?: ServerEntry }).default ?? (m as unknown as ServerEntry)),
     );
   }
   return serverEntryPromise;
@@ -89,7 +89,10 @@ function applySecurityHeaders(response: Response): Response {
   headers.set("Content-Security-Policy", CSP);
   headers.set("X-Content-Type-Options", "nosniff");
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()");
+  headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=(), payment=()",
+  );
   if (!headers.has("X-Frame-Options")) {
     // Some proxies still respect this even though CSP frame-ancestors supersedes.
     // Omit it entirely so iframe embedding under kth.se works.
@@ -113,3 +116,4 @@ export default {
     }
   },
 };
+

@@ -8,13 +8,8 @@ export const WEEKDAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as con
 export type Weekday = (typeof WEEKDAYS)[number];
 
 export const WEEKDAY_LABELS_SV: Record<Weekday, string> = {
-  mon: "Måndag",
-  tue: "Tisdag",
-  wed: "Onsdag",
-  thu: "Torsdag",
-  fri: "Fredag",
-  sat: "Lördag",
-  sun: "Söndag",
+  mon: "Måndag", tue: "Tisdag", wed: "Onsdag", thu: "Torsdag",
+  fri: "Fredag", sat: "Lördag", sun: "Söndag",
 };
 
 export type DaySchedule = { enabled: boolean; from: string; to: string };

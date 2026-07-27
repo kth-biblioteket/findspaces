@@ -54,10 +54,7 @@ export async function processImageToWebp(file: File): Promise<ProcessedImage> {
   // Center-crop to 3:2 aspect ratio.
   const srcRatio = img.naturalWidth / img.naturalHeight;
   const targetRatio = TARGET_W / TARGET_H;
-  let sx = 0,
-    sy = 0,
-    sw = img.naturalWidth,
-    sh = img.naturalHeight;
+  let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
   if (srcRatio > targetRatio) {
     // Source is wider — crop sides.
     sw = Math.round(img.naturalHeight * targetRatio);

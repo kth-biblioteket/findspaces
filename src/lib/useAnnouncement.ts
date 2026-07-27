@@ -41,7 +41,10 @@ export function useAnnouncement() {
     queryFn: fetchAnnouncement,
     select: (data) => {
       if (!data.enabled) return { message: null as string | null, hash: "" };
-      const message = lang === "en" ? data.en.trim() || data.sv.trim() : data.sv.trim();
+      const message =
+        lang === "en"
+          ? data.en.trim() || data.sv.trim()
+          : data.sv.trim();
       if (!message) return { message: null, hash: "" };
       // Simple hash so dismissed-state resets when text changes.
       const raw = `${data.enabled ? 1 : 0}|${data.sv}|${data.en}`;
@@ -67,7 +70,9 @@ export function useAnnouncementAdmin() {
 export function useSaveAnnouncement() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (patch: { enabled?: boolean; sv?: string; en?: string }) => {
+    mutationFn: async (
+      patch: { enabled?: boolean; sv?: string; en?: string },
+    ) => {
       const rows: { key: string; value: string }[] = [];
       if (patch.enabled !== undefined)
         rows.push({ key: KEY_ENABLED, value: patch.enabled ? "true" : "false" });
