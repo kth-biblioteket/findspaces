@@ -56,6 +56,7 @@ export function SpaceCard({
 }) {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
+  const [aboutOpen, setAboutOpen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [highlighted, setHighlighted] = useState(false);
@@ -267,8 +268,30 @@ export function SpaceCard({
                 <h3 id={`space-${space.id}-title`} className="text-lg md:text-xl font-semibold leading-none">
                   {localizedName}
                 </h3>
+                {sanitizedDescription && !space.description_inline && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setAboutOpen((v) => {
+                        if (!v) analytics.trackExpand();
+                        return !v;
+                      });
+                    }}
+                    aria-expanded={aboutOpen}
+                    aria-controls={`space-${space.id}-about`}
+                    aria-label={aboutOpen ? t("card.hide_description") : t("card.about_button")}
+                    title={aboutOpen ? t("card.hide_description") : t("card.about_button")}
+                    className="inline-flex h-8 min-w-8 items-center justify-center gap-0.5 px-1.5 -my-1 rounded-md text-foreground hover:text-[var(--kth-blue)] hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-primary"
+                  >
+                    <Info className="h-4 w-4" aria-hidden="true" />
+                    <ChevronDown
+                      className={cn("h-4 w-4 transition-transform", aboutOpen && "rotate-180")}
+                      aria-hidden="true"
+                    />
+                  </button>
+                )}
               </div>
-
               {hasMeta && (
                 <div className="mt-1 text-sm text-muted-foreground leading-snug">
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
@@ -565,11 +588,23 @@ export function SpaceCard({
 
           {sanitizedDescription && (
             <div
-              className="text-sm text-foreground/90 leading-relaxed space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
-              dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
-            />
+              className={cn(
+                "grid transition-[grid-template-rows] duration-300 ease-out",
+                (space.description_inline || aboutOpen) ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+              )}
+            >
+              <div className="overflow-hidden">
+                <div
+                  id={`space-${space.id}-about`}
+                  className={cn(
+                    "text-sm text-foreground/90 leading-relaxed space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line",
+                    !space.description_inline && "border-t border-border pt-4",
+                  )}
+                  dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+                />
+              </div>
+            </div>
           )}
-
 
 
           {renderedButtons.length > 0 && (

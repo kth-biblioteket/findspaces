@@ -82,8 +82,10 @@
     "button_map": "Visa på karta",
     "button_group_booking": "Boka grupprum",
     "button_booking": "Se schema",
+    "about_button": "Om lokalen",
     "book_now": "Boka nu",
-    "opens_new_tab_sr": "(öppnas i en ny flik)"
+    "opens_new_tab_sr": "(öppnas i en ny flik)",
+    "hide_description": "Dölj text"
   },
   "occupancy": {
     "right_now": "Just nu",
