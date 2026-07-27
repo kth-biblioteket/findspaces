@@ -1021,21 +1021,6 @@ function AdminPage() {
                           </Field>
                         </div>
 
-                        <label className="flex items-start gap-2 text-sm cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={form.description_inline}
-                            onChange={(e) => setForm({ ...form, description_inline: e.target.checked })}
-                            className="mt-0.5"
-                          />
-                          <span>
-                            <span className="font-medium">Visa beskrivningen direkt på kortet</span>
-                            <span className="block text-xs text-muted-foreground">
-                              När ikryssad visas beskrivningen alltid på kortet istället för att gömmas bakom en i-ikon.
-                            </span>
-                          </span>
-                        </label>
-
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <Field label={<span className="flex items-center gap-2">Tillfällig notis, gul ruta (SV) <LinkSyntaxHelp slug={form.slug} /></span>}>
                             <textarea
