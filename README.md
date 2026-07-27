@@ -49,6 +49,8 @@ curl -X POST 'https://findspaces-ref.lib.kth.se/api/auth/v1/signup' \
   - npm install
 - Hantera anpassningar för eventuella förändringar.
  - t ex ny folder vid bygge
+- Hantera eventuella databasuppdateringar
+ - Tabeller, fält etc
 
 ### Licens / License
 
