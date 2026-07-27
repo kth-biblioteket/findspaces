@@ -1,6 +1,8 @@
 {
   "header": {
     "title": "Find a study space at KTH Library",
+    "title_line1": "Find a study space",
+    "title_line2": "at KTH Library",
     "subtitle": "DEMO",
     "prototype_badge": "Prototype",
     "admin": "Admin",
@@ -32,7 +34,6 @@
     "group_size_5plus": "5+ people",
     "free_only": "Show only free right now"
   },
-
   "results": {
     "heading": "Study spaces",
     "heading_service": "Services & facilities",
@@ -46,7 +47,6 @@
     "count_hits_one": "{{count}} hit",
     "count_hits_other": "{{count}} hits",
     "count_filtered_hits": "{{filtered}} of {{total}} matching your filters",
-
     "remove_filter": "Remove {{label}}",
     "clear_all_filters": "Clear all filters",
     "sort_label": "Sort",
@@ -82,10 +82,8 @@
     "button_map": "Show on map",
     "button_group_booking": "Book group room",
     "button_booking": "See schedule",
-    "about_button": "About this space",
     "book_now": "Book now",
     "opens_new_tab_sr": "(opens in a new tab)"
-
   },
   "occupancy": {
     "right_now": "Right now",

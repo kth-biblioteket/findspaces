@@ -169,6 +169,8 @@ export type Database = {
           facilities: string[]
           floor: string | null
           floor_en: string | null
+          group_booking_label: string | null
+          group_booking_label_en: string | null
           group_booking_url: string | null
           group_booking_url_en: string | null
           hidden: boolean
@@ -218,6 +220,8 @@ export type Database = {
           facilities?: string[]
           floor?: string | null
           floor_en?: string | null
+          group_booking_label?: string | null
+          group_booking_label_en?: string | null
           group_booking_url?: string | null
           group_booking_url_en?: string | null
           hidden?: boolean
@@ -267,6 +271,8 @@ export type Database = {
           facilities?: string[]
           floor?: string | null
           floor_en?: string | null
+          group_booking_label?: string | null
+          group_booking_label_en?: string | null
           group_booking_url?: string | null
           group_booking_url_en?: string | null
           hidden?: boolean

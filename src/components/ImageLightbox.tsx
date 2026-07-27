@@ -107,7 +107,7 @@ export function ImageLightbox({
       role="dialog"
       aria-modal="true"
       aria-label={t("gallery.label")}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-white"
       onClick={onClose}
     >
       {/* Close button */}
@@ -119,14 +119,14 @@ export function ImageLightbox({
           onClose();
         }}
         aria-label={t("gallery.close")}
-        className="absolute top-4 right-4 z-10 h-11 w-11 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+        className="absolute top-4 right-4 z-10 h-11 w-11 rounded-full bg-black/5 hover:bg-black/10 text-foreground flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       >
         <X className="h-5 w-5" aria-hidden="true" />
       </button>
 
       {/* Image counter */}
       {count > 1 && (
-        <div className="absolute top-4 left-4 z-10 rounded-full bg-black/50 text-white px-3 py-1 text-sm font-medium font-sans">
+        <div className="absolute top-4 left-4 z-10 rounded-full bg-black/5 text-foreground px-3 py-1 text-sm font-medium font-sans">
           {idx + 1} / {count}
         </div>
       )}
@@ -137,7 +137,7 @@ export function ImageLightbox({
         onClick={(e) => e.stopPropagation()}
       >
         {!imgLoaded && (
-          <Loader2 className="absolute h-10 w-10 text-white/80 animate-spin" aria-hidden="true" />
+          <Loader2 className="absolute h-10 w-10 text-foreground/60 animate-spin" aria-hidden="true" />
         )}
         <img
           key={list[idx]}
@@ -161,7 +161,7 @@ export function ImageLightbox({
               go(-1);
             }}
             aria-label={t("gallery.prev")}
-            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 h-11 w-11 md:h-12 md:w-12 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 h-11 w-11 md:h-12 md:w-12 rounded-full bg-black/5 hover:bg-black/10 text-foreground flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <ChevronLeft className="h-5 w-5 md:h-6 md:w-6" aria-hidden="true" />
           </button>
@@ -172,7 +172,7 @@ export function ImageLightbox({
               go(1);
             }}
             aria-label={t("gallery.next")}
-            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 h-11 w-11 md:h-12 md:w-12 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 h-11 w-11 md:h-12 md:w-12 rounded-full bg-black/5 hover:bg-black/10 text-foreground flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <ChevronRight className="h-5 w-5 md:h-6 md:w-6" aria-hidden="true" />
           </button>
@@ -190,8 +190,8 @@ export function ImageLightbox({
                 aria-label={t("gallery.go_to", { n: i + 1 })}
                 aria-current={i === idx ? "true" : undefined}
                 className={cn(
-                  "h-2 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
-                  i === idx ? "w-6 bg-white" : "w-2 bg-white/50 hover:bg-white/70"
+                  "h-2 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                  i === idx ? "w-6 bg-foreground" : "w-2 bg-foreground/30 hover:bg-foreground/50"
                 )}
               />
             ))}

@@ -113,10 +113,11 @@
 @media (min-width: 1024px) {
   .study-place-filter-panel {
     position: sticky;
-    top: 1rem;
-    max-height: calc(100dvh - 2rem);
+    top: var(--filter-panel-top, 1rem);
     display: flex;
     flex-direction: column;
+    height: var(--filter-panel-height, calc(100dvh - 2rem));
+    max-height: var(--filter-panel-height, calc(100dvh - 2rem));
     overflow: hidden;
   }
 
@@ -124,6 +125,41 @@
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+  }
+}
+
+@media (max-width: 1023px) {
+  .mobile-filter-main {
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .mobile-filter-dock {
+    position: fixed;
+    z-index: 40;
+    right: max(1rem, env(safe-area-inset-right, 0px));
+    left: max(1rem, env(safe-area-inset-left, 0px));
+    bottom: calc(
+      var(--iframe-hidden-bottom, 0px) + max(1rem, env(safe-area-inset-bottom, 0px))
+    );
+    margin: 0;
+    pointer-events: none;
+  }
+
+  .mobile-filter-dock-inner {
+    width: min(100%, 32rem);
+    margin-inline: auto;
+    pointer-events: auto;
+  }
+
+  /* Higher specificity so it wins over the Radix sheet's own bottom: 0 / height. */
+  .mobile-filter-sheet.mobile-filter-sheet {
+    top: auto;
+    bottom: var(--iframe-hidden-bottom, 0px);
+    height: min(85dvh, calc(var(--iframe-visible-height, 100dvh) - 0.75rem));
+    max-height: calc(var(--iframe-visible-height, 100dvh) - 0.75rem);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     overscroll-behavior: contain;
   }
 }

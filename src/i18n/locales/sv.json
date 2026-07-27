@@ -1,6 +1,8 @@
 {
   "header": {
     "title": "Hitta studieplats på KTH Biblioteket",
+    "title_line1": "Hitta studieplats",
+    "title_line2": "på KTH Biblioteket",
     "subtitle": "DEMO",
     "prototype_badge": "Prototyp",
     "admin": "Admin",
@@ -32,7 +34,6 @@
     "group_size_5plus": "5+ pers",
     "free_only": "Visa bara lediga just nu"
   },
-
   "results": {
     "heading": "Studieplatser",
     "heading_service": "Service & faciliteter",
@@ -46,7 +47,6 @@
     "count_hits_one": "{{count}} träff",
     "count_hits_other": "{{count}} träffar",
     "count_filtered_hits": "{{filtered}} av {{total}} matchar dina filter",
-
     "remove_filter": "Ta bort {{label}}",
     "clear_all_filters": "Rensa alla filter",
     "sort_label": "Sortera",
@@ -82,10 +82,8 @@
     "button_map": "Visa på karta",
     "button_group_booking": "Boka grupprum",
     "button_booking": "Se schema",
-    "about_button": "Om lokalen",
     "book_now": "Boka nu",
     "opens_new_tab_sr": "(öppnas i en ny flik)"
-
   },
   "occupancy": {
     "right_now": "Just nu",

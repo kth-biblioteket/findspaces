@@ -19,7 +19,6 @@ export type Space = {
   category: string;
   description: string;
   description_en: string | null;
-  description_inline: boolean;
   intent: string[];
   noise: string[];
   equipment: string[];
@@ -35,6 +34,8 @@ export type Space = {
   booking_url_en: string | null;
   group_booking_url: string | null;
   group_booking_url_en: string | null;
+  group_booking_label: string | null;
+  group_booking_label_en: string | null;
   book_now_url: string | null;
   book_now_url_en: string | null;
 

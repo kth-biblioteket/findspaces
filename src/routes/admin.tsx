@@ -114,7 +114,6 @@ type FormState = {
   name_en: string;
   description: string;
   description_en: string;
-  description_inline: boolean;
   floor: string;
   floor_en: string;
   located_in: string;
@@ -141,6 +140,8 @@ type FormState = {
   booking_url_en: string;
   group_booking_url: string;
   group_booking_url_en: string;
+  group_booking_label: string;
+  group_booking_label_en: string;
   book_now_url: string;
   book_now_url_en: string;
   notice: string;
@@ -155,7 +156,6 @@ const emptyForm: FormState = {
   slug: "",
   name: "", name_en: "",
   description: "", description_en: "",
-  description_inline: false,
   floor: "", floor_en: "",
   located_in: "", located_in_en: "",
   capacity: "",
@@ -167,7 +167,7 @@ const emptyForm: FormState = {
   booking_room_number: "",
   intent: [], noise: [], equipment: [], facilities: [], lokaltyp: [],
   tags: {},
-  images: [], image_alts: [], image_alts_en: [], map_url: "", map_url_en: "", booking_url: "", booking_url_en: "", group_booking_url: "", group_booking_url_en: "", book_now_url: "", book_now_url_en: "",
+  images: [], image_alts: [], image_alts_en: [], map_url: "", map_url_en: "", booking_url: "", booking_url_en: "", group_booking_url: "", group_booking_url_en: "", group_booking_label: "", group_booking_label_en: "", book_now_url: "", book_now_url_en: "",
   notice: "", notice_en: "",
   info: "", info_en: "",
   sort_order: 999,
@@ -191,7 +191,6 @@ function spaceToForm(s: Space): FormState {
     name_en: s.name_en ?? "",
     description: s.description,
     description_en: s.description_en ?? "",
-    description_inline: s.description_inline ?? false,
     floor: s.floor ?? "",
     floor_en: s.floor_en ?? "",
     located_in: s.located_in ?? "",
@@ -211,6 +210,8 @@ function spaceToForm(s: Space): FormState {
     map_url: s.map_url ?? "", map_url_en: s.map_url_en ?? "", booking_url: s.booking_url ?? "", booking_url_en: s.booking_url_en ?? "",
     group_booking_url: s.group_booking_url ?? "",
     group_booking_url_en: s.group_booking_url_en ?? "",
+    group_booking_label: s.group_booking_label ?? "",
+    group_booking_label_en: s.group_booking_label_en ?? "",
     book_now_url: s.book_now_url ?? "",
     book_now_url_en: s.book_now_url_en ?? "",
     notice: s.notice ?? "",
@@ -388,7 +389,6 @@ function AdminPage() {
         name_en: f.name_en.trim() || null,
         description: f.description,
         description_en: f.description_en.trim() || null,
-        description_inline: f.description_inline,
         floor: f.floor?.trim() ? f.floor.trim() : null,
         floor_en: f.floor_en?.trim() ? f.floor_en.trim() : null,
         located_in: f.located_in?.trim() ? f.located_in.trim() : null,
@@ -416,6 +416,8 @@ function AdminPage() {
         booking_url_en: f.booking_url_en.trim() || null,
         group_booking_url: f.group_booking_url.trim() || null,
         group_booking_url_en: f.group_booking_url_en.trim() || null,
+        group_booking_label: f.group_booking_label.trim() || null,
+        group_booking_label_en: f.group_booking_label_en.trim() || null,
         book_now_url: f.book_now_url.trim() || null,
         book_now_url_en: f.book_now_url_en.trim() || null,
         notice: f.notice.trim() || null,
@@ -1015,21 +1017,6 @@ function AdminPage() {
                           </Field>
                         </div>
 
-                        <label className="flex items-start gap-2 text-sm cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={form.description_inline}
-                            onChange={(e) => setForm({ ...form, description_inline: e.target.checked })}
-                            className="mt-0.5"
-                          />
-                          <span>
-                            <span className="font-medium">Visa beskrivningen direkt på kortet</span>
-                            <span className="block text-xs text-muted-foreground">
-                              När ikryssad visas beskrivningen alltid på kortet istället för att gömmas bakom en i-ikon.
-                            </span>
-                          </span>
-                        </label>
-
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <Field label={<span className="flex items-center gap-2">Tillfällig notis, gul ruta (SV) <LinkSyntaxHelp slug={form.slug} /></span>}>
                             <textarea
@@ -1183,6 +1170,25 @@ function AdminPage() {
                                 type="url"
                                 value={form.group_booking_url_en}
                                 onChange={(e) => setForm({ ...form, group_booking_url_en: e.target.value })}
+                                placeholder="Lämna tomt = SV fallback"
+                                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                              />
+                            </Field>
+                            <Field label="Knapptext för länken (SV)">
+                              <input
+                                type="text"
+                                value={form.group_booking_label}
+                                onChange={(e) => setForm({ ...form, group_booking_label: e.target.value })}
+                                placeholder="Boka grupprum"
+                                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                              />
+                              <p className="mt-1 text-xs text-muted-foreground">Lämna tomt = "Boka grupprum". Skriv t.ex. "Boka resursrum" för resursrum.</p>
+                            </Field>
+                            <Field label="Button label (EN)">
+                              <input
+                                type="text"
+                                value={form.group_booking_label_en}
+                                onChange={(e) => setForm({ ...form, group_booking_label_en: e.target.value })}
                                 placeholder="Lämna tomt = SV fallback"
                                 className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                               />
@@ -2938,6 +2944,8 @@ const DUMMY_SPACE: Space = {
   booking_url_en: null,
   group_booking_url: "#",
   group_booking_url_en: null,
+  group_booking_label: null,
+  group_booking_label_en: null,
   book_now_url: null,
   book_now_url_en: null,
   sort_order: 0,
@@ -2956,7 +2964,6 @@ const DUMMY_SPACE: Space = {
   info: "Exempel på informationsruta – t.ex. öppettider eller praktisk info.",
   info_en: null,
   show_capacity_publicly: true,
-  description_inline: false,
 
   show_occupancy: true,
   countmatters_sensor_id: null,
@@ -3261,7 +3268,7 @@ function LangPairEditor({
 }
 
 function LandingMessageTab() {
-  const uiKeys: UiTextKey[] = ["empty_title", "empty_suggest_template", "empty_fallback", "show_description", "hide_description", "about_button", "occupancy_free", "occupancy_moderate", "occupancy_busy"];
+  const uiKeys: UiTextKey[] = ["empty_title", "empty_suggest_template", "empty_fallback", "occupancy_free", "occupancy_moderate", "occupancy_busy"];
 
   return (
     <div className="space-y-6 max-w-4xl">

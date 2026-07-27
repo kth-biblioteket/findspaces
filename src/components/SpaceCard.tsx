@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
-import DOMPurify from "dompurify";
+import { sanitizeHtml, DESCRIPTION_SANITIZE_OPTIONS } from "@/lib/sanitizeHtml";
 import { MapPin, Calendar, Info, Users, User, AlertTriangle, ChevronDown, Monitor, Armchair } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { TableChairIcon } from "./icons/TableChairIcon";
@@ -10,7 +10,6 @@ import { useFilterCategories } from "@/lib/useFilterCategories";
 import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
 import { useCapacityIcon } from "@/lib/useCapacityIcon";
 import { useLiveSpaceStatus, type LiveOccupancy, type LiveGroupRoom } from "@/lib/useLiveSpaceStatus";
-import { useUiText } from "@/lib/useUiText";
 
 import { pickLocalized, type Lang } from "@/i18n";
 import { OptionIcon } from "./OptionIcon";
@@ -57,7 +56,6 @@ export function SpaceCard({
 }) {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
-  const [aboutOpen, setAboutOpen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [highlighted, setHighlighted] = useState(false);
@@ -69,7 +67,6 @@ export function SpaceCard({
     occupancy: previewOccupancy,
     groupRoom: previewGroupRoom,
   });
-  const { data: aboutButtonLabel } = useUiText("about_button");
   const layout = layoutOverride ?? layoutFromDb;
 
 
@@ -104,6 +101,10 @@ export function SpaceCard({
   const localizedLocatedIn = pickLocalized(space, "located_in", lang);
   const localizedGroupBookingUrl =
     pickLocalized(space, "group_booking_url", lang) || space.group_booking_url || "";
+  const groupBookingLabel =
+    pickLocalized(space, "group_booking_label", lang).trim() ||
+    (space.group_booking_label ?? "").trim() ||
+    t("card.button_group_booking");
   const localizedMapUrl =
     pickLocalized(space, "map_url", lang) || space.map_url || "";
   const localizedBookingUrl =
@@ -156,21 +157,14 @@ export function SpaceCard({
     return parseSpaceLinks(localizedInfo, spaces, lang, handleSpaceLink, { allowHtml: true });
   }, [localizedInfo, spaces, lang, handleSpaceLink]);
 
-  const sanitizedDescription = useMemo(() => {
-    if (!localizedDescription) return "";
-    const clean = DOMPurify.sanitize(localizedDescription, {
-      ALLOWED_TAGS: ["a", "b", "strong", "i", "em", "br", "p", "ul", "ol", "li", "span"],
-      ALLOWED_ATTR: ["href", "target", "rel", "title"],
-    });
-    if (typeof window === "undefined") return clean;
-    const tmp = document.createElement("div");
-    tmp.innerHTML = clean;
-    tmp.querySelectorAll("a").forEach((a) => {
-      a.setAttribute("target", "_blank");
-      a.setAttribute("rel", "noopener noreferrer");
-    });
-    return tmp.innerHTML;
-  }, [localizedDescription]);
+  const sanitizedDescription = useMemo(
+    () =>
+      localizedDescription
+        ? sanitizeHtml(localizedDescription, DESCRIPTION_SANITIZE_OPTIONS)
+        : "",
+    [localizedDescription],
+  );
+
 
   const localizeChip = (category: string, value: string): string => {
     const opt = lookup.get(`${category}:${value}`);
@@ -273,30 +267,8 @@ export function SpaceCard({
                 <h3 id={`space-${space.id}-title`} className="text-lg md:text-xl font-semibold leading-none">
                   {localizedName}
                 </h3>
-                {sanitizedDescription && !space.description_inline && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setAboutOpen((v) => {
-                        if (!v) analytics.trackExpand();
-                        return !v;
-                      });
-                    }}
-                    aria-expanded={aboutOpen}
-                    aria-controls={`space-${space.id}-about`}
-                    aria-label={aboutButtonLabel ?? t("card.about_button")}
-                    title={aboutButtonLabel ?? t("card.about_button")}
-                    className="inline-flex h-8 min-w-8 items-center justify-center gap-0.5 px-1.5 -my-1 rounded-md text-foreground hover:text-[var(--kth-blue)] hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-primary"
-                  >
-                    <Info className="h-4 w-4" aria-hidden="true" />
-                    <ChevronDown
-                      className={cn("h-4 w-4 transition-transform", aboutOpen && "rotate-180")}
-                      aria-hidden="true"
-                    />
-                  </button>
-                )}
               </div>
+
               {hasMeta && (
                 <div className="mt-1 text-sm text-muted-foreground leading-snug">
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
@@ -544,7 +516,7 @@ export function SpaceCard({
             className={buttonClass}
           >
             <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>{t("card.button_group_booking")}</span>
+            <span>{groupBookingLabel}</span>
             <span className="sr-only">{t("card.opens_new_tab_sr")}</span>
           </a>
         );
@@ -593,23 +565,11 @@ export function SpaceCard({
 
           {sanitizedDescription && (
             <div
-              className={cn(
-                "grid transition-[grid-template-rows] duration-300 ease-out",
-                (space.description_inline || aboutOpen) ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
-              )}
-            >
-              <div className="overflow-hidden">
-                <div
-                  id={`space-${space.id}-about`}
-                  className={cn(
-                    "text-sm text-foreground/90 leading-relaxed space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line",
-                    !space.description_inline && "border-t border-border pt-4",
-                  )}
-                  dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
-                />
-              </div>
-            </div>
+              className="text-sm text-foreground/90 leading-relaxed space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
+              dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+            />
           )}
+
 
 
           {renderedButtons.length > 0 && (

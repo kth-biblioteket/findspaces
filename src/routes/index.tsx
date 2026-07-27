@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
+import { useIframeVisibleHeight } from "@/lib/useIframeVisibleHeight";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { SlidersHorizontal, Settings, X, ArrowUpDown, SearchX, AlertTriangle } from "lucide-react";
@@ -131,6 +132,8 @@ function SpaceFinder() {
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/" });
   const filters = useMemo(() => searchToFilters(search), [search]);
+  const filterPanelRef = useRef<HTMLDivElement | null>(null);
+  const filterViewport = useIframeVisibleHeight(filterPanelRef);
 
 
 
@@ -322,10 +325,13 @@ function SpaceFinder() {
 
   return (
     <div className="min-h-dvh bg-background">
-      <header className="bg-card border-b border-border">
+      <header className="bg-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between">
-          <h1 className="text-sm font-semibold leading-tight">{t("header.title")}</h1>
-          <div className="flex items-center gap-3">
+          <h1 className="text-sm font-semibold leading-tight">
+            <span className="whitespace-nowrap">{t("header.title_line1")}</span>{" "}
+            <span className="whitespace-nowrap">{t("header.title_line2")}</span>
+          </h1>
+          <div className="flex items-center gap-3 ml-3 sm:ml-4">
             <LanguageSwitcher />
             <Link
               to="/admin"
@@ -344,7 +350,11 @@ function SpaceFinder() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 lg:grid lg:grid-cols-[320px_1fr] lg:gap-6">
         <aside className="hidden lg:block lg:mt-11" aria-label={t("filters.title")}>
-          <div className="study-place-filter-panel bg-card rounded-xl card-shadow flex flex-col">
+          <div
+            ref={filterPanelRef}
+            className="study-place-filter-panel bg-card rounded-xl card-shadow flex flex-col"
+            style={filterViewport ? ({ ["--filter-panel-top" as string]: `${filterViewport.top}px`, ["--filter-panel-height" as string]: `${filterViewport.height}px` } as React.CSSProperties) : undefined}
+          >
 
             <div className="flex items-center justify-between gap-2 px-3 min-h-9 shrink-0">
               <h2 className="inline-flex items-center gap-1.5 text-xs text-muted-foreground m-0 font-normal">
@@ -370,15 +380,17 @@ function SpaceFinder() {
         </aside>
 
 
-        <main id="main" tabIndex={-1} className="focus-visible:outline-none" aria-busy={isLoading}>
-          <div className="lg:hidden mb-3">
-            <MobileFilterSheet
-              filters={filters}
-              onApply={setFilters}
-              spaces={spaces}
-              categories={categories}
-              availability={availability}
-            />
+        <main id="main" tabIndex={-1} className="mobile-filter-main focus-visible:outline-none" aria-busy={isLoading}>
+          <div className="mobile-filter-dock lg:hidden">
+            <div className="mobile-filter-dock-inner">
+              <MobileFilterSheet
+                filters={filters}
+                onApply={setFilters}
+                spaces={spaces}
+                categories={categories}
+                availability={availability}
+              />
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3 mb-2 min-h-9">
@@ -615,7 +627,7 @@ function MobileFilterSheet({
         </button>
 
       </SheetTrigger>
-      <SheetContent side="bottom" hideClose className="h-[85vh] p-0 flex flex-col overflow-hidden gap-0 rounded-t-2xl border-t">
+      <SheetContent side="bottom" hideClose className="mobile-filter-sheet p-0 flex flex-col overflow-hidden gap-0 rounded-t-2xl border-t">
         <div className="shrink-0 px-4 pt-4 pb-2 flex items-center justify-between">
           <SheetClose
             aria-label={t("filters.close")}
