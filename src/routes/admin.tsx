@@ -141,6 +141,8 @@ type FormState = {
   booking_url_en: string;
   group_booking_url: string;
   group_booking_url_en: string;
+  group_booking_label: string;
+  group_booking_label_en: string;
   book_now_url: string;
   book_now_url_en: string;
   notice: string;
@@ -167,7 +169,7 @@ const emptyForm: FormState = {
   booking_room_number: "",
   intent: [], noise: [], equipment: [], facilities: [], lokaltyp: [],
   tags: {},
-  images: [], image_alts: [], image_alts_en: [], map_url: "", map_url_en: "", booking_url: "", booking_url_en: "", group_booking_url: "", group_booking_url_en: "", book_now_url: "", book_now_url_en: "",
+  images: [], image_alts: [], image_alts_en: [], map_url: "", map_url_en: "", booking_url: "", booking_url_en: "", group_booking_url: "", group_booking_url_en: "", group_booking_label: "", group_booking_label_en: "", book_now_url: "", book_now_url_en: "",
   notice: "", notice_en: "",
   info: "", info_en: "",
   sort_order: 999,
@@ -211,6 +213,8 @@ function spaceToForm(s: Space): FormState {
     map_url: s.map_url ?? "", map_url_en: s.map_url_en ?? "", booking_url: s.booking_url ?? "", booking_url_en: s.booking_url_en ?? "",
     group_booking_url: s.group_booking_url ?? "",
     group_booking_url_en: s.group_booking_url_en ?? "",
+    group_booking_label: s.group_booking_label ?? "",
+    group_booking_label_en: s.group_booking_label_en ?? "",
     book_now_url: s.book_now_url ?? "",
     book_now_url_en: s.book_now_url_en ?? "",
     notice: s.notice ?? "",
@@ -416,6 +420,8 @@ function AdminPage() {
         booking_url_en: f.booking_url_en.trim() || null,
         group_booking_url: f.group_booking_url.trim() || null,
         group_booking_url_en: f.group_booking_url_en.trim() || null,
+        group_booking_label: f.group_booking_label.trim() || null,
+        group_booking_label_en: f.group_booking_label_en.trim() || null,
         book_now_url: f.book_now_url.trim() || null,
         book_now_url_en: f.book_now_url_en.trim() || null,
         notice: f.notice.trim() || null,
@@ -3261,7 +3267,7 @@ function LangPairEditor({
 }
 
 function LandingMessageTab() {
-  const uiKeys: UiTextKey[] = ["empty_title", "empty_suggest_template", "empty_fallback", "show_description", "hide_description", "about_button", "occupancy_free", "occupancy_moderate", "occupancy_busy"];
+  const uiKeys: UiTextKey[] = ["empty_title", "empty_suggest_template", "empty_fallback", "occupancy_free", "occupancy_moderate", "occupancy_busy"];
 
   return (
     <div className="space-y-6 max-w-4xl">

@@ -35,6 +35,8 @@ export type Space = {
   booking_url_en: string | null;
   group_booking_url: string | null;
   group_booking_url_en: string | null;
+  group_booking_label: string | null;
+  group_booking_label_en: string | null;
   book_now_url: string | null;
   book_now_url_en: string | null;
 

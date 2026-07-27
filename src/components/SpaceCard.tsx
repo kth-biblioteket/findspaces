@@ -10,7 +10,6 @@ import { useFilterCategories } from "@/lib/useFilterCategories";
 import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
 import { useCapacityIcon } from "@/lib/useCapacityIcon";
 import { useLiveSpaceStatus, type LiveOccupancy, type LiveGroupRoom } from "@/lib/useLiveSpaceStatus";
-import { useUiText } from "@/lib/useUiText";
 
 import { pickLocalized, type Lang } from "@/i18n";
 import { OptionIcon } from "./OptionIcon";
@@ -69,7 +68,6 @@ export function SpaceCard({
     occupancy: previewOccupancy,
     groupRoom: previewGroupRoom,
   });
-  const { data: aboutButtonLabel } = useUiText("about_button");
   const layout = layoutOverride ?? layoutFromDb;
 
 
@@ -104,6 +102,10 @@ export function SpaceCard({
   const localizedLocatedIn = pickLocalized(space, "located_in", lang);
   const localizedGroupBookingUrl =
     pickLocalized(space, "group_booking_url", lang) || space.group_booking_url || "";
+  const groupBookingLabel =
+    pickLocalized(space, "group_booking_label", lang).trim() ||
+    (space.group_booking_label ?? "").trim() ||
+    t("card.button_group_booking");
   const localizedMapUrl =
     pickLocalized(space, "map_url", lang) || space.map_url || "";
   const localizedBookingUrl =
@@ -278,8 +280,8 @@ export function SpaceCard({
                     }}
                     aria-expanded={aboutOpen}
                     aria-controls={`space-${space.id}-about`}
-                    aria-label={aboutButtonLabel ?? t("card.about_button")}
-                    title={aboutButtonLabel ?? t("card.about_button")}
+                    aria-label={aboutOpen ? t("card.hide_description") : t("card.about_button")}
+                    title={aboutOpen ? t("card.hide_description") : t("card.about_button")}
                     className="inline-flex h-8 min-w-8 items-center justify-center gap-0.5 px-1.5 -my-1 rounded-md text-foreground hover:text-[var(--kth-blue)] hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-primary"
                   >
                     <Info className="h-4 w-4" aria-hidden="true" />
@@ -537,7 +539,7 @@ export function SpaceCard({
             className={buttonClass}
           >
             <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>{t("card.button_group_booking")}</span>
+            <span>{groupBookingLabel}</span>
             <span className="sr-only">{t("card.opens_new_tab_sr")}</span>
           </a>
         );
