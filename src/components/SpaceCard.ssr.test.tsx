@@ -44,6 +44,8 @@ const space: Space = {
   booking_url_en: null,
   group_booking_url: null,
   group_booking_url_en: null,
+  group_booking_label: null,
+  group_booking_label_en: null,
   book_now_url: null,
   book_now_url_en: null,
   sort_order: 1,

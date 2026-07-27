@@ -1193,6 +1193,25 @@ function AdminPage() {
                                 className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                               />
                             </Field>
+                            <Field label="Knapptext för länken (SV)">
+                              <input
+                                type="text"
+                                value={form.group_booking_label}
+                                onChange={(e) => setForm({ ...form, group_booking_label: e.target.value })}
+                                placeholder="Boka grupprum"
+                                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                              />
+                              <p className="mt-1 text-xs text-muted-foreground">Lämna tomt = "Boka grupprum". Skriv t.ex. "Boka resursrum" för resursrum.</p>
+                            </Field>
+                            <Field label="Button label (EN)">
+                              <input
+                                type="text"
+                                value={form.group_booking_label_en}
+                                onChange={(e) => setForm({ ...form, group_booking_label_en: e.target.value })}
+                                placeholder="Lämna tomt = SV fallback"
+                                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+                              />
+                            </Field>
                             <Field label='"Boka nu" – ledigt grupprum (SV)'>
                               <input
                                 type="text"
@@ -2944,6 +2963,8 @@ const DUMMY_SPACE: Space = {
   booking_url_en: null,
   group_booking_url: "#",
   group_booking_url_en: null,
+  group_booking_label: null,
+  group_booking_label_en: null,
   book_now_url: null,
   book_now_url_en: null,
   sort_order: 0,
