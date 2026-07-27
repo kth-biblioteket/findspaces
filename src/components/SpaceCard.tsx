@@ -566,23 +566,11 @@ export function SpaceCard({
 
           {sanitizedDescription && (
             <div
-              className={cn(
-                "grid transition-[grid-template-rows] duration-300 ease-out",
-                (space.description_inline || aboutOpen) ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
-              )}
-            >
-              <div className="overflow-hidden">
-                <div
-                  id={`space-${space.id}-about`}
-                  className={cn(
-                    "text-sm text-foreground/90 leading-relaxed space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line",
-                    !space.description_inline && "border-t border-border pt-4",
-                  )}
-                  dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
-                />
-              </div>
-            </div>
+              className="text-sm text-foreground/90 leading-relaxed space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
+              dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+            />
           )}
+
 
 
           {renderedButtons.length > 0 && (
