@@ -75,6 +75,7 @@ export function ImageCarousel({
   };
 
   const isLoaded = !!loaded[idx];
+  const Wrapper = (onImageClick ? "button" : "div") as "button";
 
   return (
     <div
