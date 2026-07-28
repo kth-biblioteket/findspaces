@@ -24,6 +24,7 @@ import { matchesSpace } from "@/lib/filterMatch";
 import { useNarrowestFilter } from "@/lib/useNarrowestFilter";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { getGroupRoomAvailability } from "@/lib/groupRoomAvailability.functions";
+import { useOccupancySettings, isWithinSchedule, DEFAULT_SCHEDULE } from "@/lib/useOccupancySettings";
 import { track, usePageView, useDebouncedTrack } from "@/lib/analytics";
 
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
@@ -139,7 +140,12 @@ function SpaceFinder() {
 
 
   const sort: SortKey = search.sort ?? "recommended";
-  const canSortFree = filters.workMode === "grupprum";
+  const { data: occSettings } = useOccupancySettings();
+  // Live group-room data is only meaningful within opening hours.
+  const liveActive =
+    (occSettings?.enabled ?? true) &&
+    isWithinSchedule(occSettings?.schedule ?? DEFAULT_SCHEDULE, new Date());
+  const canSortFree = filters.workMode === "grupprum" && liveActive;
   const canSortSeats = filters.spaceKind === "study";
   const autoSeatsAsc = filters.workMode === "grupprum" && filters.groupSize === "2-4";
   const effectiveSort: SortKey =
@@ -204,8 +210,9 @@ function SpaceFinder() {
     staleTime: 30_000,
     refetchOnWindowFocus: false,
     enabled:
-      (filters.workMode === "grupprum" && filters.freeOnly) ||
-      (filters.workMode === "grupprum" && effectiveSort === "free_now"),
+      liveActive &&
+      filters.workMode === "grupprum" &&
+      (filters.freeOnly || effectiveSort === "free_now"),
   });
 
   const kindTotal = useMemo(
@@ -216,7 +223,7 @@ function SpaceFinder() {
   const filtered = useMemo(() => {
     const kindMatched = spaces.filter((s) => (s.space_kind ?? "study") === filters.spaceKind);
     const base = kindMatched.filter((s) => matchesSpace(s, filters, categories));
-    if (filters.workMode === "grupprum" && filters.freeOnly) {
+    if (filters.workMode === "grupprum" && filters.freeOnly && liveActive) {
       const rooms = availability?.rooms ?? {};
       return base.filter((s) => {
         const num = s.booking_room_number;
@@ -226,7 +233,7 @@ function SpaceFinder() {
       });
     }
     return base;
-  }, [spaces, filters, categories, availability]);
+  }, [spaces, filters, categories, availability, liveActive]);
 
   const sortedFiltered = useMemo(() => {
     const arr = [...filtered];
@@ -295,6 +302,9 @@ function SpaceFinder() {
 
 
 
+
+  const noFreeRoomsEmpty =
+    filters.workMode === "grupprum" && filters.freeOnly && liveActive && sortedFiltered.length === 0;
 
   const { data: filterOptions = [] } = useFilterOptions();
   const narrowest = useNarrowestFilter(spaces, filters, categories, filterOptions);
@@ -518,7 +528,23 @@ function SpaceFinder() {
               <p className="text-lg font-semibold text-foreground mb-2 whitespace-pre-line">
                 {emptyTitle}
               </p>
-              {narrowest && narrowest.wouldMatch > 0 ? (
+              {noFreeRoomsEmpty ? (
+                <>
+                  <p className="text-sm text-muted-foreground mb-5 max-w-md whitespace-pre-line">
+                    {t("results.no_free_rooms_empty")}
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setFilters({ ...filters, freeOnly: false })}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium shadow-sm transition-all hover:opacity-90 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                    >
+                      <X className="h-4 w-4" aria-hidden="true" />
+                      {t("results.remove_free_only")}
+                    </button>
+                  </div>
+                </>
+              ) : narrowest && narrowest.wouldMatch > 0 ? (
                 <>
                   <p className="text-sm text-muted-foreground mb-5 max-w-md whitespace-pre-line">
                     {formatSuggestTemplate(emptySuggestTemplate ?? "", {
