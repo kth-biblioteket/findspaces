@@ -208,6 +208,11 @@ function SpaceFinder() {
       (filters.workMode === "grupprum" && effectiveSort === "free_now"),
   });
 
+  const kindTotal = useMemo(
+    () => spaces.filter((s) => (s.space_kind ?? "study") === filters.spaceKind).length,
+    [spaces, filters.spaceKind],
+  );
+
   const filtered = useMemo(() => {
     const kindMatched = spaces.filter((s) => (s.space_kind ?? "study") === filters.spaceKind);
     const base = kindMatched.filter((s) => matchesSpace(s, filters, categories));
@@ -404,7 +409,7 @@ function SpaceFinder() {
                 : filters.spaceKind !== "study"
                   ? t("results.count_hits", { count: sortedFiltered.length })
                   : hasActiveFilter
-                    ? t("results.count_filtered", { filtered: sortedFiltered.length, total: spaces.length })
+                    ? t("results.count_filtered", { filtered: sortedFiltered.length, total: kindTotal })
                     : t("results.count_total", { count: sortedFiltered.length })}
             </span>
             {!isLoading && (
@@ -417,7 +422,7 @@ function SpaceFinder() {
                   {filters.spaceKind !== "study"
                     ? t("results.count_hits", { count: sortedFiltered.length })
                     : hasActiveFilter
-                      ? t("results.count_filtered", { filtered: sortedFiltered.length, total: spaces.length })
+                      ? t("results.count_filtered", { filtered: sortedFiltered.length, total: kindTotal })
                       : t("results.count_total", { count: sortedFiltered.length })}
                 </span>
                 <Select
