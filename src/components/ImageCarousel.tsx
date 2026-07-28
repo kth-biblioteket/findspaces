@@ -90,15 +90,23 @@ export function ImageCarousel({
         <div className="absolute inset-0 z-0 animate-pulse bg-gradient-to-br from-muted via-muted/60 to-muted" />
       )}
 
-      <button
-        type="button"
-        className="relative z-[1] w-full h-full p-0 m-0 border-0 bg-transparent cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        onClick={(e) => {
-          e.stopPropagation();
-          if (swipedRef.current) { swipedRef.current = false; return; }
-          onImageClick?.(idx);
-        }}
-        aria-label={t("gallery.open_full")}
+      {/* Without a click handler (mobile) the image is plain content, not a control. */}
+      <Wrapper
+        {...(onImageClick
+          ? {
+              type: "button" as const,
+              onClick: (e: React.MouseEvent) => {
+                e.stopPropagation();
+                if (swipedRef.current) { swipedRef.current = false; return; }
+                onImageClick(idx);
+              },
+              "aria-label": t("gallery.open_full"),
+            }
+          : {})}
+        className={cn(
+          "relative z-[1] w-full h-full p-0 m-0 border-0 bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+          onImageClick && "cursor-pointer",
+        )}
       >
         <img
           src={optimizedImageUrl(list[idx], 960)}
@@ -112,7 +120,7 @@ export function ImageCarousel({
           decoding="async"
           onLoad={() => setLoaded((prev) => ({ ...prev, [idx]: true }))}
         />
-      </button>
+      </Wrapper>
 
       {/* All UI overlays appear only after the image is visible, so users never see
           chrome floating over an empty placeholder. */}
