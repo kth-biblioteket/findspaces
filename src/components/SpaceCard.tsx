@@ -15,6 +15,7 @@ import { pickLocalized, type Lang } from "@/i18n";
 import { OptionIcon } from "./OptionIcon";
 import { ImageCarousel } from "./ImageCarousel";
 import { ImageLightbox } from "./ImageLightbox";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { OccupancyBadge } from "./OccupancyBadge";
 import { GroupRoomBadge } from "./GroupRoomBadge";
 import { cn } from "@/lib/utils";
@@ -60,6 +61,8 @@ export function SpaceCard({
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [highlighted, setHighlighted] = useState(false);
+  // Lightbox adds nothing on small screens, so it is disabled there.
+  const isMobile = useIsMobile();
   const { data: options = [] } = useFilterOptions();
   const { data: filterCategories = [] } = useFilterCategories();
   const { data: layoutFromDb = ["header", "notice", "info", "chips", "button_map", "button_group_booking", "button_booking"] } = useCardLayout();
@@ -622,7 +625,7 @@ export function SpaceCard({
             alts={localizedAlts}
             alt={localizedName}
             priority={priority}
-            onImageClick={(i) => {
+            onImageClick={isMobile ? undefined : (i) => {
               setLightboxIndex(i);
               setLightboxOpen(true);
             }}
@@ -630,6 +633,7 @@ export function SpaceCard({
         </div>
       </div>
 
+      {!isMobile && (
       <ImageLightbox
         images={images}
         alts={localizedAlts}
@@ -637,6 +641,7 @@ export function SpaceCard({
         open={lightboxOpen}
         onClose={() => setLightboxOpen(false)}
       />
+      )}
 
     </article>
   );
