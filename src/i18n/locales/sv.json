@@ -59,7 +59,9 @@
     "sort_name_asc": "Namn (A–Ö)",
     "sort_name_desc": "Namn (Ö–A)",
     "sort_free_now": "Lediga just nu",
-    "sort_reset": "Återställ sortering"
+    "sort_reset": "Återställ sortering",
+    "no_free_rooms_empty": "Just nu finns inga lediga grupprum. Prova att ta bort valet ”Visa bara lediga just nu”.",
+    "remove_free_only": "Ta bort ”Visa bara lediga just nu”"
   },
   "chips": {
     "search_label": "Sök: \"{{query}}\"",
