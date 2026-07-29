@@ -158,6 +158,21 @@ function SpaceFinder() {
           : sort;
 
 
+  // Keep the URL honest: a sort that can't apply in the current context
+  // (seats outside study spaces, "free now" outside opening hours) is dropped
+  // instead of lingering and silently switching back on later.
+  useEffect(() => {
+    const invalid =
+      (search.sort === "free_now" && !canSortFree) ||
+      ((search.sort === "seats_desc" || search.sort === "seats_asc") && !canSortSeats);
+    if (invalid) {
+      navigate({
+        search: (prev: SearchParams) => ({ ...prev, sort: undefined }) as never,
+        replace: true,
+      });
+    }
+  }, [search.sort, canSortFree, canSortSeats, navigate]);
+
   const setFilters = (next: Filters) => {
     const nextSearch = filtersToSearch(next, search.highlight) as Record<string, unknown>;
     const nextMode = next.workMode;
