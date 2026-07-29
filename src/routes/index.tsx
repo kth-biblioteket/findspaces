@@ -158,6 +158,21 @@ function SpaceFinder() {
           : sort;
 
 
+  // Keep the URL honest: a sort that can't apply in the current context
+  // (seats outside study spaces, "free now" outside opening hours) is dropped
+  // instead of lingering and silently switching back on later.
+  useEffect(() => {
+    const invalid =
+      (search.sort === "free_now" && !canSortFree) ||
+      ((search.sort === "seats_desc" || search.sort === "seats_asc") && !canSortSeats);
+    if (invalid) {
+      navigate({
+        search: (prev: SearchParams) => ({ ...prev, sort: undefined }) as never,
+        replace: true,
+      });
+    }
+  }, [search.sort, canSortFree, canSortSeats, navigate]);
+
   const setFilters = (next: Filters) => {
     const nextSearch = filtersToSearch(next, search.highlight) as Record<string, unknown>;
     const nextMode = next.workMode;
@@ -201,6 +216,8 @@ function SpaceFinder() {
   const hasActiveFilter =
     filters.query.trim().length > 0 ||
     filters.workMode !== null ||
+    filters.groupSize !== null ||
+    filters.freeOnly ||
     Object.values(filters.byCategory).some((arr) => arr.length > 0);
 
   const { data: availability } = useQuery({
@@ -209,11 +226,21 @@ function SpaceFinder() {
     refetchInterval: 60_000,
     staleTime: 30_000,
     refetchOnWindowFocus: false,
-    enabled:
-      liveActive &&
-      filters.workMode === "grupprum" &&
-      (filters.freeOnly || effectiveSort === "free_now"),
+    // Enabled throughout opening hours: the same query key backs the card
+    // badges, the mobile draft count and the "free right now" sort, so gating
+    // it on the *applied* filters made the draft count read 0.
+    enabled: liveActive,
   });
+
+  const isFreeNow = useMemo(() => {
+    const rooms = availability?.rooms ?? {};
+    return (s: Space) => {
+      const num = s.booking_room_number;
+      if (num == null) return false;
+      const r = rooms[String(num)];
+      return Boolean(r && !r.disabled && r.status === "free");
+    };
+  }, [availability]);
 
   const kindTotal = useMemo(
     () => spaces.filter((s) => (s.space_kind ?? "study") === filters.spaceKind).length,
@@ -222,24 +249,19 @@ function SpaceFinder() {
 
   const filtered = useMemo(() => {
     const kindMatched = spaces.filter((s) => (s.space_kind ?? "study") === filters.spaceKind);
-    const base = kindMatched.filter((s) => matchesSpace(s, filters, categories));
-    if (filters.workMode === "grupprum" && filters.freeOnly && liveActive) {
-      const rooms = availability?.rooms ?? {};
-      return base.filter((s) => {
-        const num = s.booking_room_number;
-        if (num == null) return false;
-        const r = rooms[String(num)];
-        return r && !r.disabled && r.status === "free";
-      });
-    }
-    return base;
-  }, [spaces, filters, categories, availability, liveActive]);
+    return kindMatched.filter((s) =>
+      matchesSpace(s, filters, categories, liveActive ? { isFree: isFreeNow } : {}),
+    );
+  }, [spaces, filters, categories, isFreeNow, liveActive]);
 
   const sortedFiltered = useMemo(() => {
     const arr = [...filtered];
     // Space names are Swedish, so Swedish alphabetical order (Å, Ä, Ö at the
     // end) must apply even when the UI is in English.
     const collator = new Intl.Collator("sv", { sensitivity: "base", numeric: true });
+    // Sort on the name the user actually sees.
+    const displayName = (s: Space): string =>
+      (lang === "en" ? (s.name_en ?? s.name) : s.name) ?? "";
     const floorNum = (s: Space): number => {
       const m = s.floor?.match(/-?\d+/);
       return m ? parseInt(m[0], 10) : Number.NaN;
@@ -269,9 +291,9 @@ function SpaceFinder() {
         return bv - av;
       });
     } else if (effectiveSort === "name_asc") {
-      arr.sort((a, b) => collator.compare(a.name ?? "", b.name ?? ""));
+      arr.sort((a, b) => collator.compare(displayName(a), displayName(b)));
     } else if (effectiveSort === "name_desc") {
-      arr.sort((a, b) => collator.compare(b.name ?? "", a.name ?? ""));
+      arr.sort((a, b) => collator.compare(displayName(b), displayName(a)));
     } else if (effectiveSort === "free_now" && canSortFree) {
       const rooms = availability?.rooms ?? {};
       const rank = (s: Space) => {
@@ -287,7 +309,7 @@ function SpaceFinder() {
       arr.sort((a, b) => rank(a) - rank(b));
     }
     return arr;
-  }, [filtered, effectiveSort, canSortFree, availability]);
+  }, [filtered, effectiveSort, canSortFree, availability, lang]);
 
   const noFreeRoomsForSort = useMemo(() => {
     if (effectiveSort !== "free_now" || !canSortFree) return false;
@@ -307,7 +329,21 @@ function SpaceFinder() {
     filters.workMode === "grupprum" && filters.freeOnly && liveActive && sortedFiltered.length === 0;
 
   const { data: filterOptions = [] } = useFilterOptions();
-  const narrowest = useNarrowestFilter(spaces, filters, categories, filterOptions);
+  const kindSpaces = useMemo(
+    () => spaces.filter((s) => (s.space_kind ?? "study") === filters.spaceKind),
+    [spaces, filters.spaceKind],
+  );
+  const narrowestMatchOptions = useMemo(
+    () => (liveActive ? { isFree: isFreeNow } : {}),
+    [liveActive, isFreeNow],
+  );
+  const narrowest = useNarrowestFilter(
+    kindSpaces,
+    filters,
+    categories,
+    filterOptions,
+    narrowestMatchOptions,
+  );
 
   usePageView("home");
 
@@ -403,7 +439,8 @@ function SpaceFinder() {
                 onApply={setFilters}
                 spaces={spaces}
                 categories={categories}
-                availability={availability}
+                isFreeNow={isFreeNow}
+                liveActive={liveActive}
               />
             </div>
           </div>
@@ -613,13 +650,15 @@ function MobileFilterSheet({
   onApply,
   spaces,
   categories,
-  availability,
+  isFreeNow,
+  liveActive,
 }: {
   filters: Filters;
   onApply: (f: Filters) => void;
   spaces: Space[];
   categories: FilterCategoryRow[];
-  availability: { rooms: Record<string, { status: string; disabled?: boolean }> } | undefined;
+  isFreeNow: (s: Space) => boolean;
+  liveActive: boolean;
 }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -632,18 +671,10 @@ function MobileFilterSheet({
   const draftCount = useMemo(() => {
     const cats = categories ?? [];
     const kindMatched = spaces.filter((s) => (s.space_kind ?? "study") === draft.spaceKind);
-    const base = kindMatched.filter((s) => matchesSpace(s, draft, cats));
-    if (draft.workMode === "grupprum" && draft.freeOnly) {
-      const rooms = availability?.rooms ?? {};
-      return base.filter((s) => {
-        const num = s.booking_room_number;
-        if (num == null) return false;
-        const r = rooms[String(num)];
-        return r && !r.disabled && r.status === "free";
-      }).length;
-    }
-    return base.length;
-  }, [spaces, draft, categories, availability]);
+    return kindMatched.filter((s) =>
+      matchesSpace(s, draft, cats, liveActive ? { isFree: isFreeNow } : {}),
+    ).length;
+  }, [spaces, draft, categories, isFreeNow, liveActive]);
 
   const apply = () => {
     onApply(draft);

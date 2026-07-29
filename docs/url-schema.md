@@ -8,7 +8,7 @@ All parsning sker i `validateSearch` i `src/routes/index.tsx`. Okända värden i
 
 | Param | Typ | Värden | Beskrivning |
 |---|---|---|---|
-| `q` | string | fri text | Sökterm som matchas mot lokalens namn. Tom sträng = ingen sökning. |
+| `q` | string | fri text | Sökterm som matchas mot lokalens namn (svenskt och engelskt) samt lokaltyp. Tom sträng = ingen sökning. |
 | `kind` | string | `service`, `creative`, … | Vilken typ av lokal. `study` är default och skrivs **aldrig** i URL:en. |
 | `mode` | string | `enskilt`, `tillsammans`, `grupprum` | Hur användaren vill arbeta. Endast relevant när `kind` saknas (dvs. `study`). |
 | `size` | enum | `2-4`, `5+` | Gruppstorlek. Endast relevant när `mode=grupprum`. |
@@ -25,7 +25,9 @@ All parsning sker i `validateSearch` i `src/routes/index.tsx`. Okända värden i
 - `name_asc` / `name_desc`
 - `free_now` — kräver `mode=grupprum`
 
-Ogiltiga kombinationer (t.ex. `sort=free_now` utan `mode=grupprum`) faller automatiskt tillbaka till `recommended` utan att kasta.
+Ogiltiga kombinationer (t.ex. `sort=free_now` utan `mode=grupprum`, eller `seats_*` utanför `kind=study`) faller tillbaka till `recommended` och parametern rensas ur URL:en.
+
+`name_asc` / `name_desc` sorterar på det namn som visas för aktivt språk, alltid med svensk kollation (Å, Ä, Ö sist).
 
 ## Exempel
 

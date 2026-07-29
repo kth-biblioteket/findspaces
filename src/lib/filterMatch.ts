@@ -1,9 +1,29 @@
 import { type Space, getSpaceValues, type FilterCategoryRow } from "@/lib/spaces";
 import { type Filters } from "@/components/FilterPanel";
 
-export function matchesSpace(s: Space, filters: Filters, categories: FilterCategoryRow[]): boolean {
+export type MatchOptions = {
+  /**
+   * Live "free right now" predicate. When provided and the filters ask for
+   * free group rooms only, spaces failing this check are excluded. Passing it
+   * lets callers (result list, mobile draft count, "remove filter" suggestions)
+   * share one matcher instead of re-implementing availability filtering.
+   */
+  isFree?: (s: Space) => boolean;
+};
+
+export function matchesSpace(
+  s: Space,
+  filters: Filters,
+  categories: FilterCategoryRow[],
+  opts: MatchOptions = {},
+): boolean {
   const q = filters.query.trim().toLowerCase();
-  if (q && !s.name.toLowerCase().includes(q) && !(s.lokaltyp ?? []).some((l) => l.toLowerCase().includes(q)))
+  if (
+    q &&
+    !s.name.toLowerCase().includes(q) &&
+    !(s.name_en ?? "").toLowerCase().includes(q) &&
+    !(s.lokaltyp ?? []).some((l) => l.toLowerCase().includes(q))
+  )
     return false;
 
   if (filters.workMode === "grupprum") {
@@ -13,6 +33,7 @@ export function matchesSpace(s: Space, filters: Filters, categories: FilterCateg
       if (cap < 5) return false;
     }
     // For "2-4": show all group rooms; ranking is handled by sort (seats asc).
+    if (filters.freeOnly && opts.isFree && !opts.isFree(s)) return false;
   } else if (filters.workMode === "enskilt" || filters.workMode === "tillsammans") {
     if (!(s.intent ?? []).includes(filters.workMode)) return false;
   }
