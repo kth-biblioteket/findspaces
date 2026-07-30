@@ -141,7 +141,7 @@ export function ImageLightbox({
         )}
         <img
           key={list[idx]}
-          src={optimizedImageUrl(list[idx], 1600, { resize: "contain", quality: 85 })}
+          src={optimizedImageUrl(list[idx], 1600, { resize: "contain", quality: 85, aspect: null })}
           alt={alts[idx]?.trim() || t("gallery.image_number", { n: idx + 1 })}
           onLoad={() => setImgLoaded(true)}
           className={cn(
