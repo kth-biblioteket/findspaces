@@ -690,10 +690,9 @@ function MobileFilterSheet({
   const draftCount = useMemo(() => {
     const cats = categories ?? [];
     const kindMatched = spaces.filter((s) => (s.space_kind ?? "study") === draft.spaceKind);
-    return kindMatched.filter((s) =>
-      matchesSpace(s, draft, cats, liveActive ? { isFree: isFreeNow } : {}),
-    ).length;
-  }, [spaces, draft, categories, isFreeNow, liveActive]);
+    return kindMatched.filter((s) => matchesSpace(s, draft, cats, matchOptions)).length;
+  }, [spaces, draft, categories, matchOptions]);
+
 
   const apply = () => {
     onApply(draft);
