@@ -20,7 +20,7 @@ import { SpaceCard } from "@/components/SpaceCard";
 import { SpaceCardSkeleton } from "@/components/SpaceCardSkeleton";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useUiText, formatSuggestTemplate } from "@/lib/useUiText";
-import { matchesSpace } from "@/lib/filterMatch";
+import { matchesSpace, type MatchOptions } from "@/lib/filterMatch";
 import { useNarrowestFilter } from "@/lib/useNarrowestFilter";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { getGroupRoomAvailability } from "@/lib/groupRoomAvailability.functions";
