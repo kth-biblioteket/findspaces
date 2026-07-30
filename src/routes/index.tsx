@@ -356,6 +356,14 @@ function SpaceFinder() {
   const noFreeRoomsEmpty =
     filters.workMode === "grupprum" && filters.freeOnly && liveActive && sortedFiltered.length === 0;
 
+  const resultCountText =
+    filters.spaceKind !== "study"
+      ? t("results.count_hits", { count: sortedFiltered.length })
+      : hasActiveFilter
+        ? t("results.count_filtered", { filtered: sortedFiltered.length, total: kindTotal })
+        : t("results.count_total", { count: sortedFiltered.length });
+
+
   const kindSpaces = useMemo(
     () => spaces.filter((s) => (s.space_kind ?? "study") === filters.spaceKind),
     [spaces, filters.spaceKind],
