@@ -143,14 +143,14 @@ function SpaceFinder() {
 
 
   const sort: SortKey = search.sort ?? "recommended";
-  const { data: occSettings } = useOccupancySettings();
   // Live group-room data is only meaningful within opening hours.
-  const liveActive =
-    (occSettings?.enabled ?? true) &&
-    isWithinSchedule(occSettings?.schedule ?? DEFAULT_SCHEDULE, new Date());
+  const liveActive = useLiveActive();
   const canSortFree = filters.workMode === "grupprum" && liveActive;
   const canSortSeats = filters.spaceKind === "study";
-  const autoSeatsAsc = filters.workMode === "grupprum" && filters.groupSize === "2-4";
+  // Auto-rank small group rooms first, but only until the user picks a sort
+  // themselves — an explicit "Standard" must stay standard.
+  const autoSeatsAsc =
+    search.sort == null && filters.workMode === "grupprum" && filters.groupSize === "2-4";
   const effectiveSort: SortKey =
     sort === "free_now" && !canSortFree
       ? "recommended"
@@ -159,6 +159,7 @@ function SpaceFinder() {
         : sort === "recommended" && autoSeatsAsc
           ? "seats_asc"
           : sort;
+
 
 
   // Keep the URL honest: a sort that can't apply in the current context
