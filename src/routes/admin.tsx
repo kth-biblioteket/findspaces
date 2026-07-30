@@ -3602,7 +3602,7 @@ function OccupancyDiagnosticsPanel({
 }) {
   const { data: realtime, isFetching, refetch, dataUpdatedAt } = useRealtimeOccupancy();
   const { data: spacesData } = useQuery({
-    queryKey: ["spaces"],
+    queryKey: ["spaces", "occupancy-sensors"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("spaces")
