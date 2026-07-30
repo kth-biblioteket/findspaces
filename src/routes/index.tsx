@@ -670,15 +670,14 @@ function MobileFilterSheet({
   onApply,
   spaces,
   categories,
-  isFreeNow,
-  liveActive,
+  matchOptions,
 }: {
   filters: Filters;
   onApply: (f: Filters) => void;
   spaces: Space[];
   categories: FilterCategoryRow[];
-  isFreeNow: (s: Space) => boolean;
-  liveActive: boolean;
+  matchOptions: MatchOptions;
+
 }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
