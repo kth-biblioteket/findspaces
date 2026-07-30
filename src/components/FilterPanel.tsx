@@ -9,7 +9,7 @@ import { useFilterCategories } from "@/lib/useFilterCategories";
 import { type FilterOption, type FilterCategoryRow, type SpaceKind } from "@/lib/spaces";
 import { pickLocalized, type Lang } from "@/i18n";
 import { cn } from "@/lib/utils";
-import { useOccupancySettings, isWithinSchedule, DEFAULT_SCHEDULE } from "@/lib/useOccupancySettings";
+import { useLiveActive } from "@/lib/useLiveActive";
 
 export type WorkMode = string | null;
 export type GroupSize = "2-4" | "5+" | null;
@@ -44,12 +44,10 @@ export function FilterPanel({
   const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
   const { data: options = [] } = useFilterOptions();
   const { data: categories = [] } = useFilterCategories();
-  const { data: occSettings } = useOccupancySettings();
   // "Free right now" relies on live booking data, which is only shown
   // within the configured opening hours.
-  const liveActive =
-    (occSettings?.enabled ?? true) &&
-    isWithinSchedule(occSettings?.schedule ?? DEFAULT_SCHEDULE, new Date());
+  const liveActive = useLiveActive();
+
   const byKey = groupOptionsByKey(options);
 
   const setSelected = (key: string, values: string[]) => {

@@ -9,6 +9,11 @@ export type MatchOptions = {
    * share one matcher instead of re-implementing availability filtering.
    */
   isFree?: (s: Space) => boolean;
+  /**
+   * Extra haystack for free-text search, e.g. English room-type labels and
+   * location metadata, so searching in English finds the same spaces.
+   */
+  extraSearchText?: (s: Space) => string;
 };
 
 export function matchesSpace(
@@ -18,13 +23,22 @@ export function matchesSpace(
   opts: MatchOptions = {},
 ): boolean {
   const q = filters.query.trim().toLowerCase();
-  if (
-    q &&
-    !s.name.toLowerCase().includes(q) &&
-    !(s.name_en ?? "").toLowerCase().includes(q) &&
-    !(s.lokaltyp ?? []).some((l) => l.toLowerCase().includes(q))
-  )
-    return false;
+  if (q) {
+    const haystack = [
+      s.name,
+      s.name_en ?? "",
+      ...(s.lokaltyp ?? []),
+      s.floor ?? "",
+      s.floor_en ?? "",
+      s.located_in ?? "",
+      s.located_in_en ?? "",
+      opts.extraSearchText?.(s) ?? "",
+    ]
+      .join(" ")
+      .toLowerCase();
+    if (!haystack.includes(q)) return false;
+  }
+
 
   if (filters.workMode === "grupprum") {
     if (!(s.lokaltyp ?? []).includes("Grupprum") && !(s.intent ?? []).includes("grupprum")) return false;
