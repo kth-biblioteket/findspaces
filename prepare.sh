@@ -3,6 +3,13 @@ mkdir -p volumes/api
 curl -o volumes/api/kong.yml \
   https://raw.githubusercontent.com/supabase/supabase/master/docker/volumes/api/kong.yml
 
+# Lägg till /api/-prefix (Traefik routar /api/* till Kong)
+sed -i \
+  -e 's#- /auth/v1/#- /api/auth/v1/#' \
+  -e 's#- /rest/v1/#- /api/rest/v1/#' \
+  -e 's#- /storage/v1/#- /api/storage/v1/#' \
+  volumes/api/kong.yml
+
 mkdir -p volumes/db/data volumes/db/init volumes/storage
 
 curl -o volumes/api/kong-entrypoint.sh \

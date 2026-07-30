@@ -198,6 +198,7 @@ CREATE POLICY "Authenticated can delete spaces"
   ON public.spaces FOR DELETE TO authenticated USING (true);
 
 INSERT INTO storage.buckets (id, name, public) VALUES ('space-images', 'space-images', true);
+INSERT INTO storage.buckets (id, name, public) VALUES ('filter-icons', 'filter-icons', true);
 
 ALTER TABLE public.spaces
   ADD COLUMN IF NOT EXISTS book_now_url text,
@@ -544,3 +545,7 @@ REVOKE EXECUTE ON FUNCTION public.rename_filter_option(text, text, text) FROM PU
 GRANT EXECUTE ON FUNCTION public.rename_filter_option(text, text, text) TO service_role;
 
 GRANT EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) TO authenticated;
+
+ALTER TABLE public.spaces
+  ADD COLUMN IF NOT EXISTS group_booking_label text,
+  ADD COLUMN IF NOT EXISTS group_booking_label_en text;

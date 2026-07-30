@@ -1,6 +1,7 @@
 version: "3.8"
 
 services:
+# ─── Applikation ──────────────────────────────────────
   app:
     container_name: findspaces
     image: ghcr.io/kth-biblioteket/findspaces:${REPO_TYPE}
@@ -23,6 +24,8 @@ services:
       - VITE_SUPABASE_PUBLISHABLE_KEY=${SUPABASE_PUBLISHABLE_KEY}
       - SUPABASE_URL=https://${DOMAIN_NAME}/api
       - SUPABASE_PUBLISHABLE_KEY=${ANON_KEY}
+      ## För server-adapter.js
+      - SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}
 
   # ─── API Gateway (Kong) ──────────────────────────────────
   kong:
@@ -43,7 +46,8 @@ services:
       start_period: 10s
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.supabase-api.rule=Host(`${DOMAIN_NAME}`) && PathPrefix(`/api`)"
+      # token för att login via api.lib.kth.se/login ska fungera
+      - "traefik.http.routers.supabase-api.rule=Host(`${DOMAIN_NAME}`) && PathPrefix(`/api`) && !Path(`/api/auth/v1/token`)"
       - "traefik.http.routers.supabase-api.entrypoints=websecure"
       - "traefik.http.routers.supabase-api.tls=true"
       - "traefik.http.routers.supabase-api.tls.certresolver=myresolver"
@@ -190,6 +194,7 @@ services:
     depends_on:
       db: { condition: service_healthy }
       rest: { condition: service_started }
+      imgproxy: { condition: service_started }
     environment:
       ANON_KEY: ${ANON_KEY}
       SERVICE_KEY: ${SERVICE_ROLE_KEY}
@@ -208,6 +213,20 @@ services:
       IMGPROXY_URL: http://imgproxy:5001
       S3_PROTOCOL_ACCESS_KEY_ID: ${S3_PROTOCOL_ACCESS_KEY_ID}
       S3_PROTOCOL_ACCESS_KEY_SECRET: ${S3_PROTOCOL_ACCESS_KEY_SECRET}
+    volumes:
+      - /local/docker/findspaces/volumes/storage:/var/lib/storage:z
+
+  imgproxy:
+    container_name: supabase-imgproxy
+    image: darthsim/imgproxy:v3.8
+    restart: unless-stopped
+    networks:
+      - apps-net
+    environment:
+      IMGPROXY_BIND: ":5001"
+      IMGPROXY_LOCAL_FILESYSTEM_ROOT: /
+      IMGPROXY_USE_ETAG: "true"
+      IMGPROXY_ENABLE_WEBP_DETECTION: "true"
     volumes:
       - /local/docker/findspaces/volumes/storage:/var/lib/storage:z
 
