@@ -24,7 +24,7 @@ import { matchesSpace } from "@/lib/filterMatch";
 import { useNarrowestFilter } from "@/lib/useNarrowestFilter";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { getGroupRoomAvailability } from "@/lib/groupRoomAvailability.functions";
-import { useOccupancySettings, isWithinSchedule, DEFAULT_SCHEDULE } from "@/lib/useOccupancySettings";
+import { useLiveActive } from "@/lib/useLiveActive";
 import { track, usePageView, useDebouncedTrack } from "@/lib/analytics";
 
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
@@ -104,7 +104,9 @@ function searchToFilters(s: SearchParams): Filters {
     workMode: isStudy ? (s.mode ?? null) : null,
     groupSize: isStudy && s.mode === "grupprum" ? (s.size ?? null) : null,
     freeOnly: isStudy && s.mode === "grupprum" ? Boolean(s.free) : false,
-    byCategory: s.cats ?? {},
+    // Category filters have no UI outside study spaces, so a shared link must
+    // not silently narrow the service / creative lists.
+    byCategory: isStudy ? (s.cats ?? {}) : {},
   };
 }
 
@@ -122,9 +124,10 @@ function filtersToSearch(f: Filters, highlight?: string) {
     size: isStudy && f.workMode === "grupprum" && f.groupSize ? f.groupSize : undefined,
     free: isStudy && f.workMode === "grupprum" && f.freeOnly ? true : undefined,
     highlight,
-    cats: Object.keys(cats).length > 0 ? cats : undefined,
+    cats: isStudy && Object.keys(cats).length > 0 ? cats : undefined,
   };
 }
+
 
 
 function SpaceFinder() {
