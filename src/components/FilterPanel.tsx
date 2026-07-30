@@ -192,7 +192,7 @@ export function FilterPanel({
         // remaining browse UX is intentionally minimal.
         if (isNonStudy) return null;
 
-        const opts = byKey[cat.key] ?? [];
+        const opts = (byKey[cat.key] ?? []).filter((option) => !option.hidden);
 
         if (opts.length === 0) return null;
         const selected = filters.byCategory[cat.key] ?? [];

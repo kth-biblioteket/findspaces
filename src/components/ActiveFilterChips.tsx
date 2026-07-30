@@ -23,14 +23,23 @@ export function ActiveFilterChips({
   // show a chip that suggests it is narrowing the results.
   const liveActive = useLiveActive();
 
-  const optLookup = new Map(options.map((o) => [`${o.category}:${o.label}`, o]));
+  const visibleOptions = options.filter((option) => !option.hidden);
+  const optLookup = new Map(
+    visibleOptions.map((option) => [
+      `${option.category}:${option.label}`,
+      option,
+    ]),
+  );
 
   // Look up work-mode chip labels via the DB-backed "arbetssatt" category
   // (falls back to i18n if the DB row is missing).
   const arbetssattCat = categories.find((c) => c.special_kind === "arbetssatt");
   const arbetssattByKey = new Map(
-    (arbetssattCat ? options.filter((o) => o.category === arbetssattCat.key) : [])
-      .filter((o) => o.value_key)
+    (arbetssattCat
+      ? visibleOptions.filter((option) => option.category === arbetssattCat.key)
+      : []
+    )
+      .filter((option) => option.value_key)
       .map((o) => [o.value_key as string, o]),
   );
   const fallbackWorkMode: Record<string, string> = {
@@ -40,7 +49,9 @@ export function ActiveFilterChips({
   };
   const workModeLabel = (key: string) => {
     const opt = arbetssattByKey.get(key);
-    return opt ? pickLocalized(opt, "label", lang) : (fallbackWorkMode[key] ?? key);
+    if (opt) return pickLocalized(opt, "label", lang);
+    if (arbetssattCat) return null;
+    return fallbackWorkMode[key] ?? key;
   };
   const groupSizeLabel: Record<NonNullable<Filters["groupSize"]>, string> = {
     "2-4": t("filters.group_size_2_4"),
@@ -58,11 +69,20 @@ export function ActiveFilterChips({
   }
 
   if (filters.workMode) {
-    chips.push({
-      key: "workMode",
-      label: workModeLabel(filters.workMode),
-      onRemove: () => onChange({ ...filters, workMode: null, groupSize: null, freeOnly: false }),
-    });
+    const label = workModeLabel(filters.workMode);
+    if (label) {
+      chips.push({
+        key: "workMode",
+        label,
+        onRemove: () =>
+          onChange({
+            ...filters,
+            workMode: null,
+            groupSize: null,
+            freeOnly: false,
+          }),
+      });
+    }
   }
 
   if (filters.groupSize) {
@@ -86,7 +106,8 @@ export function ActiveFilterChips({
     if (!values || values.length === 0) continue;
     for (const v of values) {
       const opt = optLookup.get(`${catKey}:${v}`);
-      const display = opt ? pickLocalized(opt, "label", lang) : v;
+      if (!opt) continue;
+      const display = pickLocalized(opt, "label", lang);
       chips.push({
         key: `${catKey}:${v}`,
         label: display,
@@ -138,4 +159,3 @@ export function ActiveFilterChips({
     </div>
   );
 }
-
