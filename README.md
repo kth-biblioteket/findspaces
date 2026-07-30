@@ -48,6 +48,7 @@ curl -X POST 'https://findspaces-ref.lib.kth.se/api/auth/v1/signup' \
   - git commit
 - Hantera eventuell ändring i package.json -- package-lock
   - npm install
+  - npm install --legacy-peer-deps
 - Hantera anpassningar för eventuella förändringar.
  - t ex ny folder vid bygge
 - Hantera eventuella databasuppdateringar
