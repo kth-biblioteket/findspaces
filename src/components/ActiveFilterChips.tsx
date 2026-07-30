@@ -4,7 +4,7 @@ import { emptyFilters, type Filters } from "./FilterPanel";
 import { useFilterCategories } from "@/lib/useFilterCategories";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { pickLocalized, type Lang } from "@/i18n";
-import { useOccupancySettings, isWithinSchedule, DEFAULT_SCHEDULE } from "@/lib/useOccupancySettings";
+import { useLiveActive } from "@/lib/useLiveActive";
 
 type Chip = { key: string; label: string; onRemove: () => void };
 
@@ -19,12 +19,10 @@ export function ActiveFilterChips({
   const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
   const { data: categories = [] } = useFilterCategories();
   const { data: options = [] } = useFilterOptions();
-  const { data: occSettings } = useOccupancySettings();
   // Outside opening hours the "free right now" filter is ignored, so don't
   // show a chip that suggests it is narrowing the results.
-  const liveActive =
-    (occSettings?.enabled ?? true) &&
-    isWithinSchedule(occSettings?.schedule ?? DEFAULT_SCHEDULE, new Date());
+  const liveActive = useLiveActive();
+
   const optLookup = new Map(options.map((o) => [`${o.category}:${o.label}`, o]));
 
   // Look up work-mode chip labels via the DB-backed "arbetssatt" category

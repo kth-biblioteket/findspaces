@@ -96,7 +96,8 @@ export function useNarrowestFilter(
     scored.sort((a, b) => b.wouldMatch - a.wouldMatch);
     return scored[0] ?? null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [spaces, filters, categories, options, t, lang, matchOptions.isFree]);
+  }, [spaces, filters, categories, options, t, lang, matchOptions.isFree, matchOptions.extraSearchText]);
+
 }
 
 export { emptyFilters };
