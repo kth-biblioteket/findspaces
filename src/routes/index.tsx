@@ -180,21 +180,21 @@ function SpaceFinder() {
   const setFilters = (next: Filters) => {
     const nextSearch = filtersToSearch(next, search.highlight) as Record<string, unknown>;
     const nextMode = next.workMode;
-    if (sort && sort !== "recommended" && !(sort === "free_now" && nextMode !== "grupprum")) {
-      nextSearch.sort = sort;
+    if (search.sort && !(search.sort === "free_now" && nextMode !== "grupprum")) {
+      nextSearch.sort = search.sort;
     }
     navigate({ search: nextSearch as never, replace: true });
   };
 
   const setSort = (next: SortKey) => {
     navigate({
-      search: (prev: SearchParams) => ({
-        ...prev,
-        sort: next === "recommended" ? undefined : next,
-      }) as never,
+      // "recommended" stays in the URL: it marks an explicit user choice and
+      // switches off the automatic "fewest seats first" ranking.
+      search: (prev: SearchParams) => ({ ...prev, sort: next }) as never,
       replace: true,
     });
   };
+
 
 
   const [highlightTick, setHighlightTick] = useState(0);
