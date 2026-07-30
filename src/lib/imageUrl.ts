@@ -8,7 +8,7 @@
 export function optimizedImageUrl(
   url: string | null | undefined,
   width: number,
-  opts?: { quality?: number; resize?: "cover" | "contain" | "fill" },
+  opts?: { quality?: number; resize?: "cover" | "contain" | "fill"; aspect?: number | null },
 ): string {
   if (!url) return "";
   // Only rewrite Supabase Storage public URLs; leave everything else alone.
@@ -19,7 +19,13 @@ export function optimizedImageUrl(
 
   const base = url.slice(0, i) + "/storage/v1/render/image/public/" + url.slice(i + marker.length);
   const params = new URLSearchParams();
-  params.set("width", String(Math.round(width)));
+  const w = Math.round(width);
+  params.set("width", String(w));
+  // The transformer keeps the source height when only `width` is given, so the
+  // delivered file ends up in a different aspect ratio than the layout box and
+  // looks vertically cropped. Pin the height so every variant is exactly 3:2.
+  const aspect = opts?.aspect === undefined ? 3 / 2 : opts.aspect;
+  if (aspect) params.set("height", String(Math.round(w / aspect)));
   params.set("resize", opts?.resize ?? "cover");
   params.set("quality", String(opts?.quality ?? 75));
   const sep = base.includes("?") ? "&" : "?";
