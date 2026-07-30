@@ -463,39 +463,27 @@ function SpaceFinder() {
                 onApply={setFilters}
                 spaces={spaces}
                 categories={categories}
-                isFreeNow={isFreeNow}
-                liveActive={liveActive}
+                matchOptions={matchOptions}
               />
             </div>
           </div>
 
+          {/* One live region for both breakpoints: the visible counters are
+              duplicated for layout, so they stay hidden from screen readers. */}
+          <span className="sr-only" aria-live="polite" aria-atomic="true">
+            {isLoading ? t("results.loading") : resultCountText}
+          </span>
+
           <div className="flex flex-wrap items-center justify-between gap-3 mb-2 min-h-9">
-            <span
-              className="text-xs text-muted-foreground lg:hidden"
-              aria-live="polite"
-              aria-atomic="true"
-            >
-              {isLoading
-                ? t("results.loading")
-                : filters.spaceKind !== "study"
-                  ? t("results.count_hits", { count: sortedFiltered.length })
-                  : hasActiveFilter
-                    ? t("results.count_filtered", { filtered: sortedFiltered.length, total: kindTotal })
-                    : t("results.count_total", { count: sortedFiltered.length })}
+            <span className="text-xs text-muted-foreground lg:hidden" aria-hidden="true">
+              {isLoading ? t("results.loading") : resultCountText}
             </span>
             {!isLoading && (
               <div className="flex items-center gap-3 ml-auto">
-                <span
-                  className="hidden lg:inline text-xs text-muted-foreground"
-                  aria-live="polite"
-                  aria-atomic="true"
-                >
-                  {filters.spaceKind !== "study"
-                    ? t("results.count_hits", { count: sortedFiltered.length })
-                    : hasActiveFilter
-                      ? t("results.count_filtered", { filtered: sortedFiltered.length, total: kindTotal })
-                      : t("results.count_total", { count: sortedFiltered.length })}
+                <span className="hidden lg:inline text-xs text-muted-foreground" aria-hidden="true">
+                  {resultCountText}
                 </span>
+
                 <Select
                   value={effectiveSort === "recommended" ? "" : effectiveSort}
                   onValueChange={(v) => setSort((v || "recommended") as SortKey)}
