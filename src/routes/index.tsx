@@ -26,47 +26,19 @@ import { useFilterOptions } from "@/lib/useFilterOptions";
 import { getGroupRoomAvailability } from "@/lib/groupRoomAvailability.functions";
 import { useLiveActive } from "@/lib/useLiveActive";
 import { track, usePageView, useDebouncedTrack } from "@/lib/analytics";
+import {
+  canonicalizeSearch,
+  filtersToSearch,
+  searchParamsEqual,
+  searchToFilters,
+  validateSearchInput,
+  type SearchParams,
+  type SortKey,
+} from "@/lib/filterSearch";
 
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import type { FilterCategoryRow } from "@/lib/spaces";
-
-type SortKey = "recommended" | "seats_desc" | "seats_asc" | "floor_asc" | "floor_desc" | "name_asc" | "name_desc" | "free_now";
-
-type SearchParams = {
-  q: string;
-  kind?: string;
-  mode?: string;
-  size?: "2-4" | "5+";
-  free?: boolean;
-  highlight?: string;
-  cats: Record<string, string[]>;
-  sort?: SortKey;
-};
-
-function validateSearch(input: Record<string, unknown>): SearchParams {
-  const q = typeof input.q === "string" ? input.q : "";
-  const kindRaw = typeof input.kind === "string" ? input.kind : undefined;
-  // "study" is the implicit default and never appears in the URL.
-  const kind = kindRaw && kindRaw !== "study" ? kindRaw : undefined;
-  const modeRaw = typeof input.mode === "string" ? input.mode : undefined;
-  const mode = modeRaw || undefined;
-  const sizeRaw = input.size;
-  const size = sizeRaw === "2-4" || sizeRaw === "5+" ? sizeRaw : undefined;
-  const free = input.free === true || input.free === "1" || input.free === 1 ? true : undefined;
-  const highlight = typeof input.highlight === "string" ? input.highlight : undefined;
-  const cats: Record<string, string[]> = {};
-  if (input.cats && typeof input.cats === "object" && !Array.isArray(input.cats)) {
-    for (const [k, v] of Object.entries(input.cats as Record<string, unknown>)) {
-      if (Array.isArray(v)) cats[k] = v.filter((x): x is string => typeof x === "string");
-    }
-  }
-  const sortRaw = input.sort;
-  const validSorts: SortKey[] = ["recommended", "seats_desc", "seats_asc", "floor_asc", "floor_desc", "name_asc", "name_desc", "free_now"];
-  const sort: SortKey | undefined = validSorts.includes(sortRaw as SortKey) ? (sortRaw as SortKey) : undefined;
-  return { q, kind, mode, size, free, highlight, cats, sort };
-}
-
 
 const spacesQueryOptions = queryOptions({
   queryKey: ["spaces"],
@@ -85,7 +57,7 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Hitta rätt studieplats på KTH Biblioteket." },
     ],
   }),
-  validateSearch,
+  validateSearch: validateSearchInput,
   loader: ({ context }) => {
     // Prime the cache so the first paint has data available (no fetch waterfall
     // through useQuery). Fire-and-forget — the component keeps its own useQuery
@@ -95,52 +67,44 @@ export const Route = createFileRoute("/")({
   component: SpaceFinder,
 });
 
-function searchToFilters(s: SearchParams): Filters {
-  const kind = s.kind ?? "study";
-  const isStudy = kind === "study";
-  return {
-    query: s.q ?? "",
-    spaceKind: kind,
-    workMode: isStudy ? (s.mode ?? null) : null,
-    groupSize: isStudy && s.mode === "grupprum" ? (s.size ?? null) : null,
-    freeOnly: isStudy && s.mode === "grupprum" ? Boolean(s.free) : false,
-    // Category filters have no UI outside study spaces, so a shared link must
-    // not silently narrow the service / creative lists.
-    byCategory: isStudy ? (s.cats ?? {}) : {},
-  };
-}
-
-function filtersToSearch(f: Filters, highlight?: string) {
-  const cats: Record<string, string[]> = {};
-  for (const [k, v] of Object.entries(f.byCategory)) {
-    if (v && v.length > 0) cats[k] = v;
-  }
-  const isStudy = f.spaceKind === "study";
-  const kind = f.spaceKind && f.spaceKind !== "study" ? f.spaceKind : undefined;
-  return {
-    q: f.query.trim() ? f.query : undefined,
-    kind,
-    mode: isStudy ? (f.workMode ?? undefined) : undefined,
-    size: isStudy && f.workMode === "grupprum" && f.groupSize ? f.groupSize : undefined,
-    free: isStudy && f.workMode === "grupprum" && f.freeOnly ? true : undefined,
-    highlight,
-    cats: isStudy && Object.keys(cats).length > 0 ? cats : undefined,
-  };
-}
-
-
-
 function SpaceFinder() {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage ?? "sv") as "sv" | "en";
-  const search = Route.useSearch();
+  const routeSearch = Route.useSearch();
   const navigate = useNavigate({ from: "/" });
+  const {
+    data: categories = [],
+    isLoading: categoriesLoading,
+    isError: categoriesError,
+    isSuccess: categoriesReady,
+  } = useFilterCategories();
+  const {
+    data: filterOptions = [],
+    isLoading: filterOptionsLoading,
+    isError: filterOptionsError,
+    isSuccess: filterOptionsReady,
+  } = useFilterOptions();
+  const filterMetadataReady = categoriesReady && filterOptionsReady;
+  const search = useMemo(
+    () =>
+      filterMetadataReady
+        ? canonicalizeSearch(routeSearch, categories, filterOptions)
+        : routeSearch,
+    [filterMetadataReady, routeSearch, categories, filterOptions],
+  );
   const filters = useMemo(() => searchToFilters(search), [search]);
   const filterPanelRef = useRef<HTMLDivElement | null>(null);
   const filterViewport = useIframeVisibleHeight(filterPanelRef);
 
-
-
+  useEffect(() => {
+    if (!filterMetadataReady) return;
+    if (searchParamsEqual(routeSearch, search)) return;
+    navigate({
+      search: search as never,
+      replace: true,
+      resetScroll: false,
+    });
+  }, [filterMetadataReady, routeSearch, search, navigate]);
 
   const sort: SortKey = search.sort ?? "recommended";
   // Live group-room data is only meaningful within opening hours.
@@ -173,6 +137,7 @@ function SpaceFinder() {
       navigate({
         search: (prev: SearchParams) => ({ ...prev, sort: undefined }) as never,
         replace: true,
+        resetScroll: false,
       });
     }
   }, [search.sort, canSortFree, canSortSeats, navigate]);
@@ -183,7 +148,7 @@ function SpaceFinder() {
     if (search.sort && !(search.sort === "free_now" && nextMode !== "grupprum")) {
       nextSearch.sort = search.sort;
     }
-    navigate({ search: nextSearch as never, replace: true });
+    navigate({ search: nextSearch as never, replace: true, resetScroll: false });
   };
 
   const setSort = (next: SortKey) => {
@@ -192,6 +157,7 @@ function SpaceFinder() {
       // switches off the automatic "fewest seats first" ranking.
       search: (prev: SearchParams) => ({ ...prev, sort: next }) as never,
       replace: true,
+      resetScroll: false,
     });
   };
 
@@ -204,25 +170,40 @@ function SpaceFinder() {
     const target = spaces.find((s) => s.id === id || s.slug === id);
     const visible = target ? filtered.some((s) => s.id === target.id) : false;
     if (target && !visible) {
-      navigate({ search: { q: "", highlight: id, cats: {} } as never, replace: true });
+      navigate({
+        search: { highlight: id } as never,
+        replace: true,
+        resetScroll: false,
+      });
     } else {
-      navigate({ search: (prev: SearchParams) => ({ ...prev, highlight: id }) as never, replace: true });
+      navigate({
+        search: (prev: SearchParams) => ({ ...prev, highlight: id }) as never,
+        replace: true,
+        resetScroll: false,
+      });
     }
   };
 
-  const { data: spaces = [], isLoading, isError, refetch } = useQuery(spacesQueryOptions);
-
-  const { data: categories = [] } = useFilterCategories();
+  const {
+    data: spaces = [],
+    isLoading: spacesLoading,
+    isError: spacesError,
+    refetch,
+  } = useQuery(spacesQueryOptions);
+  const isLoading =
+    spacesLoading || categoriesLoading || filterOptionsLoading;
+  const isError = spacesError || categoriesError || filterOptionsError;
   const { data: emptyTitle } = useUiText("empty_title");
   const { data: emptySuggestTemplate } = useUiText("empty_suggest_template");
   const { data: emptyFallback } = useUiText("empty_fallback");
 
   const hasActiveFilter =
-    filters.query.trim().length > 0 ||
-    filters.workMode !== null ||
-    filters.groupSize !== null ||
-    filters.freeOnly ||
-    Object.values(filters.byCategory).some((arr) => arr.length > 0);
+    filterMetadataReady &&
+    (filters.query.trim().length > 0 ||
+      filters.workMode !== null ||
+      filters.groupSize !== null ||
+      filters.freeOnly ||
+      Object.values(filters.byCategory).some((arr) => arr.length > 0));
 
   const { data: availability } = useQuery({
     queryKey: ["group-room-availability"],
@@ -245,8 +226,6 @@ function SpaceFinder() {
       return Boolean(r && !r.disabled && r.status === "free");
     };
   }, [availability]);
-
-  const { data: filterOptions = [] } = useFilterOptions();
 
   // English labels for room types so a search in English matches the Swedish
   // values stored on the space (e.g. "group room" -> "Grupprum").
@@ -532,7 +511,9 @@ function SpaceFinder() {
 
 
 
-          <ActiveFilterChips filters={filters} onChange={setFilters} />
+          {filterMetadataReady && (
+            <ActiveFilterChips filters={filters} onChange={setFilters} />
+          )}
 
           {!isLoading && noFreeRoomsForSort && sortedFiltered.length > 0 && (
             <div
@@ -741,4 +722,3 @@ function MobileFilterSheet({
     </Sheet>
   );
 }
-
