@@ -246,6 +246,25 @@ function SpaceFinder() {
     };
   }, [availability]);
 
+  const { data: filterOptions = [] } = useFilterOptions();
+
+  // English labels for room types so a search in English matches the Swedish
+  // values stored on the space (e.g. "group room" -> "Grupprum").
+  const extraSearchText = useMemo(() => {
+    const enByLabel = new Map(
+      filterOptions
+        .filter((o) => o.category === "lokaltyp" && o.label_en)
+        .map((o) => [o.label, o.label_en as string]),
+    );
+    return (s: Space) =>
+      (s.lokaltyp ?? []).map((l) => enByLabel.get(l) ?? "").join(" ");
+  }, [filterOptions]);
+
+  const matchOptions = useMemo(
+    () => (liveActive ? { isFree: isFreeNow, extraSearchText } : { extraSearchText }),
+    [liveActive, isFreeNow, extraSearchText],
+  );
+
   const kindTotal = useMemo(
     () => spaces.filter((s) => (s.space_kind ?? "study") === filters.spaceKind).length,
     [spaces, filters.spaceKind],
@@ -253,10 +272,8 @@ function SpaceFinder() {
 
   const filtered = useMemo(() => {
     const kindMatched = spaces.filter((s) => (s.space_kind ?? "study") === filters.spaceKind);
-    return kindMatched.filter((s) =>
-      matchesSpace(s, filters, categories, liveActive ? { isFree: isFreeNow } : {}),
-    );
-  }, [spaces, filters, categories, isFreeNow, liveActive]);
+    return kindMatched.filter((s) => matchesSpace(s, filters, categories, matchOptions));
+  }, [spaces, filters, categories, matchOptions]);
 
   const sortedFiltered = useMemo(() => {
     const arr = [...filtered];
@@ -270,15 +287,22 @@ function SpaceFinder() {
       const m = s.floor?.match(/-?\d+/);
       return m ? parseInt(m[0], 10) : Number.NaN;
     };
+    // The cards show three seat types, so "number of seats" ranks on their sum.
+    const seatTotal = (s: Space): number | null => {
+      const parts = [s.capacity, s.informal_seat_count, s.computer_count];
+      if (parts.every((p) => p == null)) return null;
+      return parts.reduce<number>((sum, p) => sum + (p ?? 0), 0);
+    };
     if (effectiveSort === "seats_desc") {
-      arr.sort((a, b) => (b.capacity ?? -1) - (a.capacity ?? -1));
+      arr.sort((a, b) => (seatTotal(b) ?? -1) - (seatTotal(a) ?? -1));
     } else if (effectiveSort === "seats_asc") {
       arr.sort((a, b) => {
-        const av = a.capacity ?? Number.POSITIVE_INFINITY;
-        const bv = b.capacity ?? Number.POSITIVE_INFINITY;
+        const av = seatTotal(a) ?? Number.POSITIVE_INFINITY;
+        const bv = seatTotal(b) ?? Number.POSITIVE_INFINITY;
         return av - bv;
       });
     } else if (effectiveSort === "floor_asc") {
+
       arr.sort((a, b) => {
         const av = floorNum(a); const bv = floorNum(b);
         if (isNaN(av) && isNaN(bv)) return 0;
