@@ -1,6 +1,6 @@
 import { useOccupancy, type OccupancyStatus } from "./useOccupancy";
 import { useGroupRoomAvailability, type GroupRoomStatus } from "./useGroupRoomAvailability";
-import { useOccupancySettings, isWithinSchedule, DEFAULT_SCHEDULE } from "./useOccupancySettings";
+import { useLiveActive } from "./useLiveActive";
 import type { Space } from "./spaces";
 
 export type LiveOccupancy = { level: 1 | 2 | 3; status: OccupancyStatus };
@@ -18,11 +18,8 @@ export function useLiveSpaceStatus(
 ): { occupancy: LiveOccupancy | null; groupRoom: LiveGroupRoom | null; settingsActive: boolean } {
   const rawOccupancy = useOccupancy(space.countmatters_sensor_id);
   const rawGroupRoom = useGroupRoomAvailability(space.booking_room_number);
-  const { data: occSettings } = useOccupancySettings();
+  const settingsActive = useLiveActive();
 
-  const settingsActive =
-    (occSettings?.enabled ?? true) &&
-    isWithinSchedule(occSettings?.schedule ?? DEFAULT_SCHEDULE, new Date());
 
   const occupancyVisible = space.show_occupancy !== false && settingsActive;
   const occupancy = preview?.occupancy ?? (occupancyVisible ? rawOccupancy : null);
