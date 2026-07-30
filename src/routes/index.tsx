@@ -356,22 +356,18 @@ function SpaceFinder() {
   const noFreeRoomsEmpty =
     filters.workMode === "grupprum" && filters.freeOnly && liveActive && sortedFiltered.length === 0;
 
-  const { data: filterOptions = [] } = useFilterOptions();
   const kindSpaces = useMemo(
     () => spaces.filter((s) => (s.space_kind ?? "study") === filters.spaceKind),
     [spaces, filters.spaceKind],
-  );
-  const narrowestMatchOptions = useMemo(
-    () => (liveActive ? { isFree: isFreeNow } : {}),
-    [liveActive, isFreeNow],
   );
   const narrowest = useNarrowestFilter(
     kindSpaces,
     filters,
     categories,
     filterOptions,
-    narrowestMatchOptions,
+    matchOptions,
   );
+
 
   usePageView("home");
 
