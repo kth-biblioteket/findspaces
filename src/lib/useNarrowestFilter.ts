@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { type Space, type FilterCategoryRow, type FilterOption } from "@/lib/spaces";
 import { emptyFilters, type Filters } from "@/components/FilterPanel";
-import { matchesSpace } from "@/lib/filterMatch";
+import { matchesSpace, type MatchOptions } from "@/lib/filterMatch";
 import { pickLocalized, type Lang } from "@/i18n";
 
 export type FilterDimension = {
@@ -22,6 +22,7 @@ export function useNarrowestFilter(
   filters: Filters,
   categories: FilterCategoryRow[],
   options: FilterOption[] = [],
+  matchOptions: MatchOptions = {},
 ): FilterDimension | null {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
@@ -87,14 +88,16 @@ export function useNarrowestFilter(
 
     const scored: FilterDimension[] = dimensions.map((d) => {
       const next = d.remove(filters);
-      const count = spaces.filter((s) => matchesSpace(s, next, categories)).length;
+      const count = spaces.filter((s) => matchesSpace(s, next, categories, matchOptions)).length;
       return { ...d, wouldMatch: count };
     });
 
     // Pick dimension whose removal yields most matches; tie-break by id stability
     scored.sort((a, b) => b.wouldMatch - a.wouldMatch);
     return scored[0] ?? null;
-  }, [spaces, filters, categories, options, t, lang]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [spaces, filters, categories, options, t, lang, matchOptions.isFree, matchOptions.extraSearchText]);
+
 }
 
 export { emptyFilters };

@@ -45,7 +45,8 @@ curl -X POST 'https://findspaces-ref.lib.kth.se/api/auth/v1/signup' \
 - git checkout ref
 - git merge upstream/main --allow-unrelated-histories
 - Hantera eventuella konflikter
-- Hantera package-lock
+  - git commit
+- Hantera eventuell ändring i package.json -- package-lock
   - npm install
 - Hantera anpassningar för eventuella förändringar.
  - t ex ny folder vid bygge

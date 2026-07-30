@@ -1,62 +1,44 @@
-# Snabbare avläsning av lokalkorten
+#
+Genomgång av `src/routes/index.tsx`, `src/components/FilterPanel.tsx`, `src/lib/filterMatch.ts`, `src/lib/useNarrowestFilter.ts`, `ActiveFilterChips.tsx`. De sju tidigare punkterna är åtgärdade. Kvarstår:
 
-Målet är att kortet ska gå att skumma på en sekund: titel → var → hur många platser → egenskaper. Vi rör bara `src/components/SpaceCard.tsx` (presentation) och några tokens i `src/styles.css` vid behov.
+### Faktiska felaktigheter
 
-## 1. Chips: gruppera visuellt utan rubriker
+1. **Öppettiderna beräknas bara en gång per rendering.** `liveActive` i `index.tsx`, `FilterPanel.tsx` och `ActiveFilterChips.tsx` räknas ut med `new Date()` vid render och har ingen timer. En skärm/iframe som står uppe hela dagen fortsätter visa "Visa bara lediga just nu", sorteringen och badgarna långt efter att schemat stängt (och tvärtom öppnar de inte automatiskt).
 
-Idag renderas alla chips (intent + noise + equipment + facility + övriga tags) i en enda `flex-wrap`-rad. Ögat får ingen hjälp att gruppera.
+2. **Dolda kategorifilter i Service/Skapande.** `searchToFilters` behåller `cats` oavsett `kind`, medan `FilterPanel` döljer alla kategorisektioner i icke-studie-lägen. En delad länk som `?kind=service&cats[...]` filtrerar därför bort träffar utan att filtret går att se eller ändra i panelen (bara via chipet ovanför listan). `mode`, `size` och `free` nollställs redan korrekt — `cats` gör det inte.
 
-Ändringar i `renderSection("chips")`:
+3. **Sökningen matchar bara svenska lokaltyper.** `matchesSpace` jämför `q` mot `s.lokaltyp`, som innehåller svenska värden ("Grupprum"). I engelskt läge ger sökning på "group room" noll träffar trots att pillren heter så. Sökningen tittar inte heller i `floor`/`located_in` eller beskrivningen.
 
-- Dela `categoryChips` i fasta grupper i denna ordning: **intent → noise → equipment → facility → övriga tags**.
-- Rendera varje grupp som ett eget `flex-wrap`-block i en yttre flex-container.
-- Separera grupperna med:
-  - Lite större gap mellan grupper (`gap-x-3`) än inuti en grupp (`gap-x-1.5`).
-  - En subtil vertikal avdelare mellan grupper (`<span aria-hidden className="h-4 w-px bg-border/60" />`) som döljs när raden bryter (via `hidden md:inline-block` + `only-child`-hantering, eller enklare: rendera avdelaren mellan grupperna men låt den vara osynlig när den hamnar först på en ny rad — löses med `flex-wrap` + `[&:first-child]:hidden` på en wrapper).
-- Tomma grupper renderas inte alls (inklusive deras avdelare).
-- Ingen ändring av chip-utseende, klickbarhet, eller filterlogik.
+4. **"Antal platser"-sorteringen ser bara `capacity`.** Korten visar tre platstyper (studieplatser, nedslagsplatser, datorplatser) men `seats_desc`/`seats_asc` sorterar enbart på `capacity`. En lokal med 0 studieplatser och 40 nedslagsplatser hamnar sist.
 
-Resultat: samma information, men ögat ser 2–4 tydliga "kluster" istället för en enda rad.
+5. **Dubbel aria-live-uppläsning.** Träffräknaren finns i två element (ett `lg:hidden`, ett `hidden lg:inline`), båda med `aria-live="polite"`. Båda ligger i DOM:en, så skärmläsare kan läsa upp antalet två gånger vid varje filterändring.
 
-## 2. Header: skärpt hierarki
+6. **"Standard" går inte att välja tillbaka för 2–4 personer.** `effectiveSort` tvingar `seats_asc` när `sort === "recommended"` och gruppstorlek 2–4 är vald, så menyvalet "Standard" ser ut att inte göra något.
 
-Just nu ligger titel, plats/lokaltyp och tre platsräknare tätt ihop med liknande vikt. Vi gör tre justeringar:
+### Förbättringsmöjligheter
 
-- **Titel**: behåll storlek, men öka `mb` mot metadata-raden något (från default till `mt-0.5` på metaraden → `mt-1`). Ingen färgändring.
-- **Plats-/lokaltyprad**: sänk till `text-muted-foreground` (idag `text-foreground`) så den läses som sekundär. Behåll `MapPin`-ikonen och separator-pipes.
-- **Platsräknarna** (studieplatser / nedslagsplatser / datorplatser): lyft dem till en egen rad med tydligare visuell vikt — `text-foreground` (som idag) men `font-medium` på siffran, ikon i `text-foreground/70` istället för `text-muted-foreground`. Öka `mt` från nuvarande till `mt-1.5` så de sitter som en egen "stat-rad" under metadatan.
+- **Förslaget "ta bort filter" tar bort en hel kategori** i stället för det enskilda värde som kostar flest träffar. Att kunna föreslå ett enskilt alternativ ger fler användbara förslag.
+- **Kategorival lagras som svensk etikett** (`o.label`) i URL:en. Byter en admin namn på ett alternativ blir gamla bokmärken/länkar tysta nolltäffar. `value_key`/id vore stabilare (större omtag).
+- **Sekundär sortering saknas** för våningsplan och platsantal — inom samma värde behålls manuell ordning. Rimligt, men namn som tiebreak blir mer förutsägbart.
+- **Ingen träffräkning per filteralternativ** i panelen (t.ex. "Tyst (12)"), vilket är det vanligaste sättet att undvika nolltäffar.
 
-Slutresultat, uppifrån och ner:
-1. **Titel** (stark)
-2. Plats · Byggnad · Lokaltyp (dämpad)
-3. **N studieplatser · N nedslagsplatser · N datorplatser** (stark, med ikoner)
-4. Ev. beläggning/grupprum-badge
-5. Notice / info
-6. Chips i visuella grupper
-7. Knappar
+## Vad jag föreslår att vi bygger
 
-## 3. Vad vi INTE ändrar
+**Steg 1 – Levande öppettider.** En delad hook som räknar om `liveActive` på en minuttimer (och vid fönsterfokus), så panel, chips, sortering och badgar följer schemat i realtid.
 
-- Inga ändringar i filterlogik, klickbeteende, admin-vyn eller kortlayout-inställningar.
-- Inga ändringar i chip-färger eller storlekar (fortsatt selected/unselected-stilar oförändrade).
-- Ingen ny data, ingen migration.
+**Steg 2 – Nollställ kategorival utanför studieplatser.** `searchToFilters` ignorerar `cats` när `kind !== "study"`, och `filtersToSearch` skriver inte ut dem — samma regel som redan gäller `mode`/`size`/`free`.
 
-## Teknisk sammanfattning
+**Steg 3 – Bredare och språkmedveten sökning.** `matchesSpace` matchar även lokaltypens engelska etikett (via `filter_options`), samt `floor`/`located_in`. (Beskrivningstext kan tas med om du vill — säg till.)
 
-- **Filer**: `src/components/SpaceCard.tsx` (både `header`- och `chips`-case i `renderSection`).
-- **Tokens**: inga nya krävs; använder befintliga `border`, `muted-foreground`, `foreground`.
-- **Risk**: låg — rent presentationsjobb, inga API- eller state-ändringar.
+**Steg 4 – Platsantal som summa.** `seats_desc`/`seats_asc` sorterar på summan av studieplatser + nedslagsplatser + datorplatser, alternativt att vi byter etikett till "Antal studieplatser". Behöver ditt val.
 
-Efter implementation verifierar jag på desktop-preview att grupperingen ser rätt ut för kort med många chips och för kort med bara 1–2 chips (avdelare ska då inte visas).
-## Mål
-Generera en fil med `INSERT INTO public.spaces (...) VALUES (...);` för varje rad i tabellen `spaces`, som kan köras direkt mot en annan PostgreSQL-databas.
+**Steg 5 – Småfix.** Ett enda aria-live-element för träffräknaren, och "Standard" respekteras som aktivt val även vid 2–4 personer (auto-sorteringen slår bara till innan användaren rört menyn).
 
-## Tillvägagångssätt
-1. Kör en SQL-fråga mot databasen som bygger INSERT-satser dynamiskt med `format()` och `information_schema.columns` — så att alla 47 kolumner tas med i rätt ordning och alla datatyper (text, arrays, jsonb, timestamptz, boolean, numeric) blir korrekt quotade via `quote_nullable()`.
-2. Skriv resultatet till `/mnt/documents/spaces_inserts.sql` så du kan ladda ner filen.
-3. Filen inleds med en kommentar med radantal och exportdatum, och varje rad blir en fristående `INSERT`-sats (enkla att köra selektivt eller alla på en gång).
+**Steg 6 (valfritt) – Smartare tomtillstånd.** Förslaget kan peka ut ett enskilt filteralternativ i stället för hela kategorin.
 
-## Noteringar
-- Ingen schemadel exporteras — bara data. Måltabellen måste redan finnas med samma kolumner.
-- Kolumnen `id` inkluderas som den är (behåller befintliga UUID:er). Vill du hellre låta måldatabasen generera nya id kan vi lätt utesluta den kolumnen.
-- Om du vill ha `ON CONFLICT (id) DO NOTHING` eller `DO UPDATE` för idempotent import lägger vi till det — säg till.
+Inga databasändringar behövs; allt ligger i frontendlogiken.
+
+### Frågor innan bygge
+- Steg 4: summera alla tre platstyperna, eller bara döpa om till "Antal studieplatser"?
+- Ska sökningen även leta i beskrivningstexten (fler träffar, men mer luddiga)?
+- Vill du ha med steg 6 nu eller senare?

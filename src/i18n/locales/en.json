@@ -59,7 +59,9 @@
     "sort_name_asc": "Name (A–Ö)",
     "sort_name_desc": "Name (Ö–A)",
     "sort_free_now": "Free right now",
-    "sort_reset": "Reset sort"
+    "sort_reset": "Reset sort",
+    "no_free_rooms_empty": "No group rooms are free right now. Try removing “Show only free right now”.",
+    "remove_free_only": "Remove “Show only free right now”"
   },
   "chips": {
     "search_label": "Search: \"{{query}}\"",
@@ -82,8 +84,10 @@
     "button_map": "Show on map",
     "button_group_booking": "Book group room",
     "button_booking": "See schedule",
+    "about_button": "About the space",
     "book_now": "Book now",
-    "opens_new_tab_sr": "(opens in a new tab)"
+    "opens_new_tab_sr": "(opens in a new tab)",
+    "hide_description": "Hide text"
   },
   "occupancy": {
     "right_now": "Right now",

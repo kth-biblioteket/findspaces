@@ -28,6 +28,7 @@ const space: Space = {
   category: "service",
   description: HTML_DESCRIPTION,
   description_en: null,
+  description_inline: true,
   intent: [],
   noise: [],
   equipment: [],

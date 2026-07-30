@@ -20,10 +20,11 @@ import { SpaceCard } from "@/components/SpaceCard";
 import { SpaceCardSkeleton } from "@/components/SpaceCardSkeleton";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useUiText, formatSuggestTemplate } from "@/lib/useUiText";
-import { matchesSpace } from "@/lib/filterMatch";
+import { matchesSpace, type MatchOptions } from "@/lib/filterMatch";
 import { useNarrowestFilter } from "@/lib/useNarrowestFilter";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { getGroupRoomAvailability } from "@/lib/groupRoomAvailability.functions";
+import { useLiveActive } from "@/lib/useLiveActive";
 import { track, usePageView, useDebouncedTrack } from "@/lib/analytics";
 
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
@@ -103,7 +104,9 @@ function searchToFilters(s: SearchParams): Filters {
     workMode: isStudy ? (s.mode ?? null) : null,
     groupSize: isStudy && s.mode === "grupprum" ? (s.size ?? null) : null,
     freeOnly: isStudy && s.mode === "grupprum" ? Boolean(s.free) : false,
-    byCategory: s.cats ?? {},
+    // Category filters have no UI outside study spaces, so a shared link must
+    // not silently narrow the service / creative lists.
+    byCategory: isStudy ? (s.cats ?? {}) : {},
   };
 }
 
@@ -121,9 +124,10 @@ function filtersToSearch(f: Filters, highlight?: string) {
     size: isStudy && f.workMode === "grupprum" && f.groupSize ? f.groupSize : undefined,
     free: isStudy && f.workMode === "grupprum" && f.freeOnly ? true : undefined,
     highlight,
-    cats: Object.keys(cats).length > 0 ? cats : undefined,
+    cats: isStudy && Object.keys(cats).length > 0 ? cats : undefined,
   };
 }
+
 
 
 function SpaceFinder() {
@@ -139,9 +143,14 @@ function SpaceFinder() {
 
 
   const sort: SortKey = search.sort ?? "recommended";
-  const canSortFree = filters.workMode === "grupprum";
+  // Live group-room data is only meaningful within opening hours.
+  const liveActive = useLiveActive();
+  const canSortFree = filters.workMode === "grupprum" && liveActive;
   const canSortSeats = filters.spaceKind === "study";
-  const autoSeatsAsc = filters.workMode === "grupprum" && filters.groupSize === "2-4";
+  // Auto-rank small group rooms first, but only until the user picks a sort
+  // themselves — an explicit "Standard" must stay standard.
+  const autoSeatsAsc =
+    search.sort == null && filters.workMode === "grupprum" && filters.groupSize === "2-4";
   const effectiveSort: SortKey =
     sort === "free_now" && !canSortFree
       ? "recommended"
@@ -152,24 +161,40 @@ function SpaceFinder() {
           : sort;
 
 
+
+  // Keep the URL honest: a sort that can't apply in the current context
+  // (seats outside study spaces, "free now" outside opening hours) is dropped
+  // instead of lingering and silently switching back on later.
+  useEffect(() => {
+    const invalid =
+      (search.sort === "free_now" && !canSortFree) ||
+      ((search.sort === "seats_desc" || search.sort === "seats_asc") && !canSortSeats);
+    if (invalid) {
+      navigate({
+        search: (prev: SearchParams) => ({ ...prev, sort: undefined }) as never,
+        replace: true,
+      });
+    }
+  }, [search.sort, canSortFree, canSortSeats, navigate]);
+
   const setFilters = (next: Filters) => {
     const nextSearch = filtersToSearch(next, search.highlight) as Record<string, unknown>;
     const nextMode = next.workMode;
-    if (sort && sort !== "recommended" && !(sort === "free_now" && nextMode !== "grupprum")) {
-      nextSearch.sort = sort;
+    if (search.sort && !(search.sort === "free_now" && nextMode !== "grupprum")) {
+      nextSearch.sort = search.sort;
     }
     navigate({ search: nextSearch as never, replace: true });
   };
 
   const setSort = (next: SortKey) => {
     navigate({
-      search: (prev: SearchParams) => ({
-        ...prev,
-        sort: next === "recommended" ? undefined : next,
-      }) as never,
+      // "recommended" stays in the URL: it marks an explicit user choice and
+      // switches off the automatic "fewest seats first" ranking.
+      search: (prev: SearchParams) => ({ ...prev, sort: next }) as never,
       replace: true,
     });
   };
+
 
 
   const [highlightTick, setHighlightTick] = useState(0);
@@ -195,6 +220,8 @@ function SpaceFinder() {
   const hasActiveFilter =
     filters.query.trim().length > 0 ||
     filters.workMode !== null ||
+    filters.groupSize !== null ||
+    filters.freeOnly ||
     Object.values(filters.byCategory).some((arr) => arr.length > 0);
 
   const { data: availability } = useQuery({
@@ -203,44 +230,79 @@ function SpaceFinder() {
     refetchInterval: 60_000,
     staleTime: 30_000,
     refetchOnWindowFocus: false,
-    enabled:
-      (filters.workMode === "grupprum" && filters.freeOnly) ||
-      (filters.workMode === "grupprum" && effectiveSort === "free_now"),
+    // Enabled throughout opening hours: the same query key backs the card
+    // badges, the mobile draft count and the "free right now" sort, so gating
+    // it on the *applied* filters made the draft count read 0.
+    enabled: liveActive,
   });
+
+  const isFreeNow = useMemo(() => {
+    const rooms = availability?.rooms ?? {};
+    return (s: Space) => {
+      const num = s.booking_room_number;
+      if (num == null) return false;
+      const r = rooms[String(num)];
+      return Boolean(r && !r.disabled && r.status === "free");
+    };
+  }, [availability]);
+
+  const { data: filterOptions = [] } = useFilterOptions();
+
+  // English labels for room types so a search in English matches the Swedish
+  // values stored on the space (e.g. "group room" -> "Grupprum").
+  const extraSearchText = useMemo(() => {
+    const enByLabel = new Map(
+      filterOptions
+        .filter((o) => o.category === "lokaltyp" && o.label_en)
+        .map((o) => [o.label, o.label_en as string]),
+    );
+    return (s: Space) =>
+      (s.lokaltyp ?? []).map((l) => enByLabel.get(l) ?? "").join(" ");
+  }, [filterOptions]);
+
+  const matchOptions = useMemo(
+    () => (liveActive ? { isFree: isFreeNow, extraSearchText } : { extraSearchText }),
+    [liveActive, isFreeNow, extraSearchText],
+  );
+
+  const kindTotal = useMemo(
+    () => spaces.filter((s) => (s.space_kind ?? "study") === filters.spaceKind).length,
+    [spaces, filters.spaceKind],
+  );
 
   const filtered = useMemo(() => {
     const kindMatched = spaces.filter((s) => (s.space_kind ?? "study") === filters.spaceKind);
-    const base = kindMatched.filter((s) => matchesSpace(s, filters, categories));
-    if (filters.workMode === "grupprum" && filters.freeOnly) {
-      const rooms = availability?.rooms ?? {};
-      return base.filter((s) => {
-        const num = s.booking_room_number;
-        if (num == null) return false;
-        const r = rooms[String(num)];
-        return r && !r.disabled && r.status === "free";
-      });
-    }
-    return base;
-  }, [spaces, filters, categories, availability]);
+    return kindMatched.filter((s) => matchesSpace(s, filters, categories, matchOptions));
+  }, [spaces, filters, categories, matchOptions]);
 
   const sortedFiltered = useMemo(() => {
     const arr = [...filtered];
     // Space names are Swedish, so Swedish alphabetical order (Å, Ä, Ö at the
     // end) must apply even when the UI is in English.
     const collator = new Intl.Collator("sv", { sensitivity: "base", numeric: true });
+    // Sort on the name the user actually sees.
+    const displayName = (s: Space): string =>
+      (lang === "en" ? (s.name_en ?? s.name) : s.name) ?? "";
     const floorNum = (s: Space): number => {
       const m = s.floor?.match(/-?\d+/);
       return m ? parseInt(m[0], 10) : Number.NaN;
     };
+    // The cards show three seat types, so "number of seats" ranks on their sum.
+    const seatTotal = (s: Space): number | null => {
+      const parts = [s.capacity, s.informal_seat_count, s.computer_count];
+      if (parts.every((p) => p == null)) return null;
+      return parts.reduce<number>((sum, p) => sum + (p ?? 0), 0);
+    };
     if (effectiveSort === "seats_desc") {
-      arr.sort((a, b) => (b.capacity ?? -1) - (a.capacity ?? -1));
+      arr.sort((a, b) => (seatTotal(b) ?? -1) - (seatTotal(a) ?? -1));
     } else if (effectiveSort === "seats_asc") {
       arr.sort((a, b) => {
-        const av = a.capacity ?? Number.POSITIVE_INFINITY;
-        const bv = b.capacity ?? Number.POSITIVE_INFINITY;
+        const av = seatTotal(a) ?? Number.POSITIVE_INFINITY;
+        const bv = seatTotal(b) ?? Number.POSITIVE_INFINITY;
         return av - bv;
       });
     } else if (effectiveSort === "floor_asc") {
+
       arr.sort((a, b) => {
         const av = floorNum(a); const bv = floorNum(b);
         if (isNaN(av) && isNaN(bv)) return 0;
@@ -257,9 +319,9 @@ function SpaceFinder() {
         return bv - av;
       });
     } else if (effectiveSort === "name_asc") {
-      arr.sort((a, b) => collator.compare(a.name ?? "", b.name ?? ""));
+      arr.sort((a, b) => collator.compare(displayName(a), displayName(b)));
     } else if (effectiveSort === "name_desc") {
-      arr.sort((a, b) => collator.compare(b.name ?? "", a.name ?? ""));
+      arr.sort((a, b) => collator.compare(displayName(b), displayName(a)));
     } else if (effectiveSort === "free_now" && canSortFree) {
       const rooms = availability?.rooms ?? {};
       const rank = (s: Space) => {
@@ -275,7 +337,7 @@ function SpaceFinder() {
       arr.sort((a, b) => rank(a) - rank(b));
     }
     return arr;
-  }, [filtered, effectiveSort, canSortFree, availability]);
+  }, [filtered, effectiveSort, canSortFree, availability, lang]);
 
   const noFreeRoomsForSort = useMemo(() => {
     if (effectiveSort !== "free_now" || !canSortFree) return false;
@@ -291,8 +353,29 @@ function SpaceFinder() {
 
 
 
-  const { data: filterOptions = [] } = useFilterOptions();
-  const narrowest = useNarrowestFilter(spaces, filters, categories, filterOptions);
+  const noFreeRoomsEmpty =
+    filters.workMode === "grupprum" && filters.freeOnly && liveActive && sortedFiltered.length === 0;
+
+  const resultCountText =
+    filters.spaceKind !== "study"
+      ? t("results.count_hits", { count: sortedFiltered.length })
+      : hasActiveFilter
+        ? t("results.count_filtered", { filtered: sortedFiltered.length, total: kindTotal })
+        : t("results.count_total", { count: sortedFiltered.length });
+
+
+  const kindSpaces = useMemo(
+    () => spaces.filter((s) => (s.space_kind ?? "study") === filters.spaceKind),
+    [spaces, filters.spaceKind],
+  );
+  const narrowest = useNarrowestFilter(
+    kindSpaces,
+    filters,
+    categories,
+    filterOptions,
+    matchOptions,
+  );
+
 
   usePageView("home");
 
@@ -388,38 +471,27 @@ function SpaceFinder() {
                 onApply={setFilters}
                 spaces={spaces}
                 categories={categories}
-                availability={availability}
+                matchOptions={matchOptions}
               />
             </div>
           </div>
 
+          {/* One live region for both breakpoints: the visible counters are
+              duplicated for layout, so they stay hidden from screen readers. */}
+          <span className="sr-only" aria-live="polite" aria-atomic="true">
+            {isLoading ? t("results.loading") : resultCountText}
+          </span>
+
           <div className="flex flex-wrap items-center justify-between gap-3 mb-2 min-h-9">
-            <span
-              className="text-xs text-muted-foreground lg:hidden"
-              aria-live="polite"
-              aria-atomic="true"
-            >
-              {isLoading
-                ? t("results.loading")
-                : filters.spaceKind !== "study"
-                  ? t("results.count_hits", { count: sortedFiltered.length })
-                  : hasActiveFilter
-                    ? t("results.count_filtered", { filtered: sortedFiltered.length, total: spaces.length })
-                    : t("results.count_total", { count: sortedFiltered.length })}
+            <span className="text-xs text-muted-foreground lg:hidden" aria-hidden="true">
+              {isLoading ? t("results.loading") : resultCountText}
             </span>
             {!isLoading && (
               <div className="flex items-center gap-3 ml-auto">
-                <span
-                  className="hidden lg:inline text-xs text-muted-foreground"
-                  aria-live="polite"
-                  aria-atomic="true"
-                >
-                  {filters.spaceKind !== "study"
-                    ? t("results.count_hits", { count: sortedFiltered.length })
-                    : hasActiveFilter
-                      ? t("results.count_filtered", { filtered: sortedFiltered.length, total: spaces.length })
-                      : t("results.count_total", { count: sortedFiltered.length })}
+                <span className="hidden lg:inline text-xs text-muted-foreground" aria-hidden="true">
+                  {resultCountText}
                 </span>
+
                 <Select
                   value={effectiveSort === "recommended" ? "" : effectiveSort}
                   onValueChange={(v) => setSort((v || "recommended") as SortKey)}
@@ -513,7 +585,23 @@ function SpaceFinder() {
               <p className="text-lg font-semibold text-foreground mb-2 whitespace-pre-line">
                 {emptyTitle}
               </p>
-              {narrowest && narrowest.wouldMatch > 0 ? (
+              {noFreeRoomsEmpty ? (
+                <>
+                  <p className="text-sm text-muted-foreground mb-5 max-w-md whitespace-pre-line">
+                    {t("results.no_free_rooms_empty")}
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setFilters({ ...filters, freeOnly: false })}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium shadow-sm transition-all hover:opacity-90 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                    >
+                      <X className="h-4 w-4" aria-hidden="true" />
+                      {t("results.remove_free_only")}
+                    </button>
+                  </div>
+                </>
+              ) : narrowest && narrowest.wouldMatch > 0 ? (
                 <>
                   <p className="text-sm text-muted-foreground mb-5 max-w-md whitespace-pre-line">
                     {formatSuggestTemplate(emptySuggestTemplate ?? "", {
@@ -582,13 +670,14 @@ function MobileFilterSheet({
   onApply,
   spaces,
   categories,
-  availability,
+  matchOptions,
 }: {
   filters: Filters;
   onApply: (f: Filters) => void;
   spaces: Space[];
   categories: FilterCategoryRow[];
-  availability: { rooms: Record<string, { status: string; disabled?: boolean }> } | undefined;
+  matchOptions: MatchOptions;
+
 }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -601,18 +690,9 @@ function MobileFilterSheet({
   const draftCount = useMemo(() => {
     const cats = categories ?? [];
     const kindMatched = spaces.filter((s) => (s.space_kind ?? "study") === draft.spaceKind);
-    const base = kindMatched.filter((s) => matchesSpace(s, draft, cats));
-    if (draft.workMode === "grupprum" && draft.freeOnly) {
-      const rooms = availability?.rooms ?? {};
-      return base.filter((s) => {
-        const num = s.booking_room_number;
-        if (num == null) return false;
-        const r = rooms[String(num)];
-        return r && !r.disabled && r.status === "free";
-      }).length;
-    }
-    return base.length;
-  }, [spaces, draft, categories, availability]);
+    return kindMatched.filter((s) => matchesSpace(s, draft, cats, matchOptions)).length;
+  }, [spaces, draft, categories, matchOptions]);
+
 
   const apply = () => {
     onApply(draft);
