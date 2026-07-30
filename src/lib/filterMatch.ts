@@ -16,26 +16,33 @@ export type MatchOptions = {
   extraSearchText?: (s: Space) => string;
 };
 
+export function normalizeSearchText(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLocaleLowerCase("sv");
+}
+
 export function matchesSpace(
   s: Space,
   filters: Filters,
   categories: FilterCategoryRow[],
   opts: MatchOptions = {},
 ): boolean {
-  const q = filters.query.trim().toLowerCase();
+  const q = normalizeSearchText(filters.query.trim());
   if (q) {
-    const haystack = [
-      s.name,
-      s.name_en ?? "",
-      ...(s.lokaltyp ?? []),
-      s.floor ?? "",
-      s.floor_en ?? "",
-      s.located_in ?? "",
-      s.located_in_en ?? "",
-      opts.extraSearchText?.(s) ?? "",
-    ]
-      .join(" ")
-      .toLowerCase();
+    const haystack = normalizeSearchText(
+      [
+        s.name,
+        s.name_en ?? "",
+        ...(s.lokaltyp ?? []),
+        s.floor ?? "",
+        s.floor_en ?? "",
+        s.located_in ?? "",
+        s.located_in_en ?? "",
+        opts.extraSearchText?.(s) ?? "",
+      ].join(" "),
+    );
     if (!haystack.includes(q)) return false;
   }
 
@@ -48,7 +55,7 @@ export function matchesSpace(
     }
     // For "2-4": show all group rooms; ranking is handled by sort (seats asc).
     if (filters.freeOnly && opts.isFree && !opts.isFree(s)) return false;
-  } else if (filters.workMode === "enskilt" || filters.workMode === "tillsammans") {
+  } else if (filters.workMode) {
     if (!(s.intent ?? []).includes(filters.workMode)) return false;
   }
 

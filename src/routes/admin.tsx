@@ -2407,7 +2407,7 @@ function SortableSpaceRow({
 
   const thumbRawUrl = space.images?.[0] ?? space.image_url ?? null;
   const thumbSize = compact ? 60 : 96; // width in px (3:2 ratio)
-  const thumbUrl = thumbRawUrl ? optimizedImageUrl(thumbRawUrl, thumbSize * 2, { resize: "contain" }) : null;
+  const thumbUrl = thumbRawUrl ? optimizedImageUrl(thumbRawUrl, thumbSize * 2, { resize: "contain", aspect: null }) : null;
 
   // Stop propagation so clicks on interactive elements inside the card
   // don't also trigger the card's onEdit.
@@ -3531,7 +3531,42 @@ function OccupancySettingsTab() {
             Beläggningen visas bara inom angivet intervall. Stäng av dagar då biblioteket
             är stängt.
           </p>
+          <div className="mt-3 rounded-md bg-muted/50 p-3 text-xs text-muted-foreground space-y-2">
+            <p className="font-medium text-foreground">
+              Det här styrs av tiderna ovan (utanför intervallet döljs eller inaktiveras det):
+            </p>
+            <ul className="list-disc pl-4 space-y-1">
+              <li>
+                <span className="text-foreground">Beläggningsindikatorn på lokalkorten</span> –
+                färgprick och text (Ledigt / Medel / Upptaget) samt statusen ”Ledigt just nu”
+                för grupprum.
+              </li>
+              <li>
+                <span className="text-foreground">Filtret ”Visa bara lediga just nu”</span> i
+                filtermenyn (grupprum) – visas bara inom öppettiderna och räknas då in i antal
+                träffar och i de valda filtren ovanför träfflistan.
+              </li>
+              <li>
+                <span className="text-foreground">Sorteringsvalet ”Lediga just nu först”</span> –
+                syns bara när grupprum är valt och tiden ligger inom intervallet. Utanför tiderna
+                faller sorteringen tillbaka till Standard.
+              </li>
+              <li>
+                <span className="text-foreground">Fritextsökningen</span> – ord som ”ledigt”
+                matchar bara när realtidsstatus är aktiv.
+              </li>
+              <li>
+                <span className="text-foreground">Meddelandet vid noll träffar</span> – förslaget
+                om att ta bort ”lediga just nu” visas bara inom tiderna.
+              </li>
+            </ul>
+            <p>
+              Realtidsdata hämtas från Countmatters och uppdateras löpande; statusen omvärderas
+              automatiskt när intervallet börjar eller slutar, utan att sidan behöver laddas om.
+            </p>
+          </div>
         </div>
+
         <div className="space-y-2">
           {WEEKDAYS.map((d) => {
             const day = schedule[d];
@@ -3602,7 +3637,7 @@ function OccupancyDiagnosticsPanel({
 }) {
   const { data: realtime, isFetching, refetch, dataUpdatedAt } = useRealtimeOccupancy();
   const { data: spacesData } = useQuery({
-    queryKey: ["spaces"],
+    queryKey: ["spaces", "occupancy-sensors"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("spaces")
