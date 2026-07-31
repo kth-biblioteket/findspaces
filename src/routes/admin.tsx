@@ -900,6 +900,7 @@ function AdminPage() {
             <TabsTrigger value="landing">Texter</TabsTrigger>
             <TabsTrigger value="layout">Kortlayout</TabsTrigger>
             <TabsTrigger value="occupancy">Beläggning</TabsTrigger>
+            <TabsTrigger value="hours">Öppettider</TabsTrigger>
             <TabsTrigger value="analytics">Statistik</TabsTrigger>
           </TabsList>
 
