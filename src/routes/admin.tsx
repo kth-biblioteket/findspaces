@@ -3484,24 +3484,19 @@ function OccupancySettingsTab() {
     }
   }, [data]);
 
-  const updateDay = (d: Weekday, patch: Partial<DaySchedule>) => {
-    setSchedule((s) => ({ ...s, [d]: { ...s[d], ...patch } }));
-  };
-
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
         <h2 className="text-xl font-bold mb-1">Beläggningsindikator</h2>
         <p className="text-sm text-muted-foreground">
-          Styr om realtidsbeläggningen ska visas i studentvyn och under vilka tider.
-          Per-lokal kan beläggningen även slås av på respektive lokalkort.
+          Styr om realtidsbeläggningen ska visas i studentvyn. Öppettiderna hämtas
+          automatiskt från bibliotekets öppettids-API. Per-lokal kan beläggningen
+          även slås av på respektive lokalkort.
         </p>
       </div>
 
-      <OccupancyDiagnosticsPanel
-        globalEnabled={enabled}
-        schedule={schedule}
-      />
+      <OccupancyDiagnosticsPanel globalEnabled={enabled} />
+
 
 
       <div className="rounded-lg border border-border bg-card p-4 space-y-3">
