@@ -184,11 +184,17 @@ test.describe("Filtering flow", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
+    const dialogErrors: string[] = [];
+    page.on("console", (message) => {
+      if (message.type() === "error" && /DialogContent|DialogTitle/.test(message.text())) {
+        dialogErrors.push(message.text());
+      }
+    });
     await openApp(page);
     const trigger = page.getByRole("button", { name: /^Filter$/ });
 
     await trigger.click();
-    const dialog = page.getByRole("dialog");
+    const dialog = page.getByRole("dialog", { name: "Filter" });
     await expect(dialog.getByRole("button", { name: "Dold ljudnivå" })).toHaveCount(0);
     await dialog.getByRole("button", { name: "Utrustning" }).click();
     await expect(dialog.getByRole("button", { name: "Dold skärm" })).toHaveCount(0);
@@ -201,13 +207,21 @@ test.describe("Filtering flow", () => {
     await expect(trigger).toBeFocused();
 
     await trigger.click();
-    const reopened = page.getByRole("dialog");
+    const reopened = page.getByRole("dialog", { name: "Filter" });
     await expect(reopened.getByPlaceholder(/Sök på lokal/i)).toHaveValue("");
     await reopened.getByPlaceholder(/Sök på lokal/i).fill("angdomen");
     await reopened.getByRole("button", { name: /Visa resultat \(\d+\)/ }).click();
 
     await expect.poll(() => searchParams(page).get("q")).toBe("angdomen");
     await expect(page.getByRole("heading", { name: "Ångdomen" })).toBeVisible();
+
+    await page.getByRole("button", { name: /English/ }).click();
+    const englishTrigger = page.getByRole("button", { name: "Filters", exact: true });
+    await englishTrigger.click();
+    await expect(page.getByRole("dialog", { name: "Filters" })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(englishTrigger).toBeFocused();
+    expect(dialogErrors).toEqual([]);
   });
 
   test("mobile filters remain reachable in a tall, scrolled iframe", async ({ page }) => {
@@ -241,7 +255,7 @@ test.describe("Filtering flow", () => {
     expect((triggerBox?.y ?? 0) + (triggerBox?.height ?? 0)).toBeLessThanOrEqual(844);
 
     await trigger.click();
-    const dialog = frame.getByRole("dialog");
+    const dialog = frame.getByRole("dialog", { name: "Filter" });
     await expect(dialog).toBeVisible();
     await page.waitForTimeout(700);
     const dialogBox = await dialog.boundingBox();
