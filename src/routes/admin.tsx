@@ -3885,7 +3885,7 @@ function OccupancySettingsTab() {
         </label>
       </div>
 
-      <OpeningHoursInfoCard />
+
 
       <div className="flex gap-2">
         <button
