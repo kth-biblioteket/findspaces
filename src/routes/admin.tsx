@@ -4029,6 +4029,85 @@ function OpeningHoursTab() {
   );
 }
 
+function OpeningHoursWeeks({
+  weeks,
+  isPending,
+  todayISO,
+}: {
+  weeks: Array<{ label: string; days: Array<{ date: string; name: string; hours: string }> }>;
+  isPending: boolean;
+  todayISO: string;
+}) {
+  const [index, setIndex] = useState(0);
+  const safeIndex = Math.min(index, Math.max(weeks.length - 1, 0));
+  const week = weeks[safeIndex];
+
+  return (
+    <div className="rounded-lg border border-border bg-card p-4 space-y-4">
+      <div>
+        <h3 className="text-sm font-semibold">Öppettider – 6 månader framåt</h3>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Hämtas vecka för vecka från API:et (svenska). Bläddra för att se kommande veckor.
+        </p>
+      </div>
+
+      {isPending ? (
+        <p className="text-xs text-muted-foreground">Hämtar öppettider…</p>
+      ) : week ? (
+        <div className="space-y-3">
+          <h4 className="text-base font-bold">{week.label}</h4>
+          <ul className="max-w-sm text-sm">
+            {week.days.map((day) => {
+              const isToday = day.date === todayISO;
+              const closed = /stängt/i.test(day.hours ?? "");
+              return (
+                <li
+                  key={day.date}
+                  className={`flex items-baseline justify-between gap-3 py-0.5 ${isToday ? "font-semibold" : ""}`}
+                >
+                  <span className="flex items-baseline gap-2">
+                    <span>{day.name}</span>
+                    {isToday && (
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium">Idag</span>
+                    )}
+                  </span>
+                  <span className={closed ? "text-muted-foreground" : ""}>{day.hours || "–"}</span>
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className="flex items-center gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => setIndex(Math.max(safeIndex - 1, 0))}
+              disabled={safeIndex === 0}
+              className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium hover:bg-accent disabled:opacity-40"
+            >
+              Föreg.
+            </button>
+            <button
+              type="button"
+              onClick={() => setIndex(Math.min(safeIndex + 1, weeks.length - 1))}
+              disabled={safeIndex >= weeks.length - 1}
+              className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium hover:bg-accent disabled:opacity-40"
+            >
+              Nästa
+            </button>
+            <span className="text-xs text-muted-foreground">
+              Vecka {safeIndex + 1} av {weeks.length}
+            </span>
+          </div>
+        </div>
+      ) : (
+        <p className="text-xs text-muted-foreground">Inga öppettider kunde hämtas från API:et just nu.</p>
+      )}
+    </div>
+  );
+}
+
+
+
 // ---------------- Occupancy Diagnostics ----------------
 
 function OccupancyDiagnosticsPanel({ globalEnabled }: { globalEnabled: boolean }) {
