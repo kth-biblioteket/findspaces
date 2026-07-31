@@ -36,7 +36,7 @@ export function swedishToday(now: Date = new Date()): string {
 export const getOpeningHours = createServerFn({ method: "GET" }).handler(
   async (): Promise<OpeningHours> => {
     const fetchedAt = new Date().toISOString();
-    const apiUrl = `${BASE_URL}/${swedishToday()}/1/2/en`;
+    const apiUrl = `${BASE_URL}/${swedishToday()}/1/2/sv`;
     try {
       const res = await fetch(apiUrl, { headers: { Accept: "application/json" } });
       if (!res.ok) {
