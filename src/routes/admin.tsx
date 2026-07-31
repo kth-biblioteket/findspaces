@@ -1,45 +1,87 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect, useMemo, useCallback, useId, isValidElement, cloneElement, Children, type ReactElement } from "react";
+import {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useId,
+  isValidElement,
+  cloneElement,
+  Children,
+  type ReactElement,
+} from "react";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  Plus, Pencil, Trash2, ArrowLeft, Upload, X, Settings2, GripVertical,
-  ChevronDown, AlertTriangle, Info, MapPin, CalendarClock, Users, Zap, ImageIcon,
-  ImageOff, Search,
-  Armchair, Monitor, Eye, EyeOff,
+  Plus,
+  Pencil,
+  Trash2,
+  ArrowLeft,
+  Upload,
+  X,
+  Settings2,
+  GripVertical,
+  ChevronDown,
+  AlertTriangle,
+  Info,
+  MapPin,
+  CalendarClock,
+  Users,
+  Zap,
+  ImageIcon,
+  ImageOff,
+  Search,
+  Armchair,
+  Monitor,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { TableChairIcon } from "@/components/icons/TableChairIcon";
 import { optimizedImageUrl } from "@/lib/imageUrl";
 
 import { supabase } from "@/integrations/supabase/client";
 import {
-  type Space, type FilterOption, type FilterCategoryRow,
-  LUCIDE_ICON_CHOICES, getLucideIcon, isLockedKey,
+  type Space,
+  type FilterOption,
+  type FilterCategoryRow,
+  LUCIDE_ICON_CHOICES,
+  getLucideIcon,
+  isLockedKey,
 } from "@/lib/spaces";
 import { useFilterOptions, groupOptionsByKey } from "@/lib/useFilterOptions";
 import {
-  useFilterCategories, useSaveCategory, useDeleteCategory,
-  useReorderCategories, slugifyKey,
+  useFilterCategories,
+  useSaveCategory,
+  useDeleteCategory,
+  useReorderCategories,
+  slugifyKey,
 } from "@/lib/useFilterCategories";
 import { OptionIcon } from "@/components/OptionIcon";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { SpaceCard } from "@/components/SpaceCard";
 import {
-  useCardLayout, useSaveCardLayout,
-  CARD_SECTION_KEYS, CARD_SECTION_LABELS, type CardSectionKey,
+  useCardLayout,
+  useSaveCardLayout,
+  CARD_SECTION_KEYS,
+  CARD_SECTION_LABELS,
+  type CardSectionKey,
 } from "@/lib/useCardLayout";
 import {
-  useUiText, useUiTextAdmin, useSaveUiText,
-  UI_TEXT_DEFAULTS, UI_TEXT_DEFAULTS_EN, UI_TEXT_META, type UiTextKey,
+  useUiText,
+  useUiTextAdmin,
+  useSaveUiText,
+  UI_TEXT_DEFAULTS,
+  UI_TEXT_DEFAULTS_EN,
+  UI_TEXT_META,
+  type UiTextKey,
 } from "@/lib/useUiText";
 import { useCapacityIcon, useSaveCapacityIcon } from "@/lib/useCapacityIcon";
 import { useHiddenIcons } from "@/lib/useHiddenIcons";
 import {
-  useOccupancySettings, useSaveOccupancySettings,
+  useOccupancySettings,
+  useSaveOccupancySettings,
   DEFAULT_SCHEDULE,
   type OccupancySchedule,
 } from "@/lib/useOccupancySettings";
@@ -52,16 +94,23 @@ import { Switch } from "@/components/ui/switch";
 import { useAnnouncementAdmin, useSaveAnnouncement } from "@/lib/useAnnouncement";
 import { processImageToWebp } from "@/lib/processImage";
 
-
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
-  DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors,
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
 import {
-  SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy,
-  useSortable, arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
@@ -88,7 +137,6 @@ type BulkAction =
   | "show_occupancy_on"
   | "show_occupancy_off";
 
-
 const BULK_ACTIONS: { value: BulkAction; label: string; needsValue: boolean; placeholder?: string }[] = [
   { value: "set_floor", label: "Sätt våningsplan (SV)", needsValue: true, placeholder: "t.ex. Plan 3" },
   { value: "set_floor_en", label: "Sätt våningsplan (EN)", needsValue: true, placeholder: "e.g. Floor 3" },
@@ -104,7 +152,6 @@ const BULK_ACTIONS: { value: BulkAction; label: string; needsValue: boolean; pla
   { value: "remove_filter", label: "Ta bort filtervärde", needsValue: true },
   { value: "show_occupancy_on", label: "Visa beläggning: PÅ", needsValue: false },
   { value: "show_occupancy_off", label: "Visa beläggning: AV", needsValue: false },
-
 ];
 
 type FormState = {
@@ -156,11 +203,15 @@ type FormState = {
 const emptyForm: FormState = {
   space_kind: "study",
   slug: "",
-  name: "", name_en: "",
-  description: "", description_en: "",
+  name: "",
+  name_en: "",
+  description: "",
+  description_en: "",
   description_inline: false,
-  floor: "", floor_en: "",
-  located_in: "", located_in_en: "",
+  floor: "",
+  floor_en: "",
+  located_in: "",
+  located_in_en: "",
   capacity: "",
   computer_count: "",
   informal_seat_count: "",
@@ -168,20 +219,34 @@ const emptyForm: FormState = {
   show_occupancy: true,
   countmatters_sensor_id: "",
   booking_room_number: "",
-  intent: [], noise: [], equipment: [], facilities: [], lokaltyp: [],
+  intent: [],
+  noise: [],
+  equipment: [],
+  facilities: [],
+  lokaltyp: [],
   tags: {},
-  images: [], image_alts: [], image_alts_en: [], map_url: "", map_url_en: "", booking_url: "", booking_url_en: "", group_booking_url: "", group_booking_url_en: "", group_booking_label: "", group_booking_label_en: "", book_now_url: "", book_now_url_en: "",
-  notice: "", notice_en: "",
-  info: "", info_en: "",
+  images: [],
+  image_alts: [],
+  image_alts_en: [],
+  map_url: "",
+  map_url_en: "",
+  booking_url: "",
+  booking_url_en: "",
+  group_booking_url: "",
+  group_booking_url_en: "",
+  group_booking_label: "",
+  group_booking_label_en: "",
+  book_now_url: "",
+  book_now_url_en: "",
+  notice: "",
+  notice_en: "",
+  info: "",
+  info_en: "",
   sort_order: 999,
 };
 
-
 function spaceToForm(s: Space): FormState {
-  const images =
-    s.images && s.images.length > 0
-      ? s.images
-      : s.image_url ? [s.image_url] : [];
+  const images = s.images && s.images.length > 0 ? s.images : s.image_url ? [s.image_url] : [];
   const image_alts = (s.image_alts ?? []).slice(0, images.length);
   while (image_alts.length < images.length) image_alts.push("");
   const image_alts_en = (s.image_alts_en ?? []).slice(0, images.length);
@@ -206,12 +271,19 @@ function spaceToForm(s: Space): FormState {
     show_occupancy: s.show_occupancy ?? true,
     countmatters_sensor_id: s.countmatters_sensor_id ?? "",
     booking_room_number: s.booking_room_number != null ? String(s.booking_room_number) : "",
-    intent: s.intent ?? [], noise: s.noise ?? [],
-    equipment: s.equipment ?? [], facilities: s.facilities ?? [],
+    intent: s.intent ?? [],
+    noise: s.noise ?? [],
+    equipment: s.equipment ?? [],
+    facilities: s.facilities ?? [],
     lokaltyp: s.lokaltyp ?? [],
     tags: (s.tags ?? {}) as Record<string, string[]>,
-    images, image_alts, image_alts_en,
-    map_url: s.map_url ?? "", map_url_en: s.map_url_en ?? "", booking_url: s.booking_url ?? "", booking_url_en: s.booking_url_en ?? "",
+    images,
+    image_alts,
+    image_alts_en,
+    map_url: s.map_url ?? "",
+    map_url_en: s.map_url_en ?? "",
+    booking_url: s.booking_url ?? "",
+    booking_url_en: s.booking_url_en ?? "",
     group_booking_url: s.group_booking_url ?? "",
     group_booking_url_en: s.group_booking_url_en ?? "",
     group_booking_label: s.group_booking_label ?? "",
@@ -226,26 +298,35 @@ function spaceToForm(s: Space): FormState {
   };
 }
 
-
-
 function getFormValues(form: FormState, key: string): string[] {
   switch (key) {
-    case "intent": return form.intent;
-    case "noise": return form.noise;
-    case "equipment": return form.equipment;
-    case "facility": return form.facilities;
-    case "lokaltyp": return form.lokaltyp;
-    default: return form.tags[key] ?? [];
+    case "intent":
+      return form.intent;
+    case "noise":
+      return form.noise;
+    case "equipment":
+      return form.equipment;
+    case "facility":
+      return form.facilities;
+    case "lokaltyp":
+      return form.lokaltyp;
+    default:
+      return form.tags[key] ?? [];
   }
 }
 
 function setFormValues(form: FormState, key: string, values: string[]): FormState {
   switch (key) {
-    case "intent": return { ...form, intent: values };
-    case "noise": return { ...form, noise: values };
-    case "equipment": return { ...form, equipment: values };
-    case "facility": return { ...form, facilities: values };
-    case "lokaltyp": return { ...form, lokaltyp: values };
+    case "intent":
+      return { ...form, intent: values };
+    case "noise":
+      return { ...form, noise: values };
+    case "equipment":
+      return { ...form, equipment: values };
+    case "facility":
+      return { ...form, facilities: values };
+    case "lokaltyp":
+      return { ...form, lokaltyp: values };
     default: {
       const nextTags = { ...form.tags };
       if (values.length === 0) delete nextTags[key];
@@ -291,14 +372,18 @@ function AdminPage() {
       setUserEmail(session.user.email ?? null);
       setAuthChecked(true);
     };
-    supabase.auth.getSession().then(({ data }) => { void checkAccess(data.session); });
+    supabase.auth.getSession().then(({ data }) => {
+      void checkAccess(data.session);
+    });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       if (!session) navigate({ to: "/login" });
       else void checkAccess(session);
     });
-    return () => { mounted = false; sub.subscription.unsubscribe(); };
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
   }, [navigate]);
-
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -321,8 +406,6 @@ function AdminPage() {
     }
   }, []);
 
-
-
   const { data: spaces = [], isLoading } = useQuery({
     queryKey: ["spaces"],
     queryFn: async (): Promise<Space[]> => {
@@ -336,8 +419,11 @@ function AdminPage() {
     mutationFn: async (ordered: Space[]) => {
       await Promise.all(
         ordered.map((s, i) =>
-          supabase.from("spaces").update({ sort_order: (i + 1) * 10 }).eq("id", s.id)
-        )
+          supabase
+            .from("spaces")
+            .update({ sort_order: (i + 1) * 10 })
+            .eq("id", s.id),
+        ),
       );
     },
     onMutate: async (ordered: Space[]) => {
@@ -355,7 +441,7 @@ function AdminPage() {
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
   const handleSpacesDragEnd = (e: DragEndEvent) => {
@@ -375,11 +461,12 @@ function AdminPage() {
   // (edited from the Filters tab) drive the space editor's own pickers.
   const spaceKindCat = categories.find((c) => c.special_kind === "space_kind");
   const arbetssattCat = categories.find((c) => c.special_kind === "arbetssatt");
-  const spaceKindOptions: FilterOption[] = (spaceKindCat ? byKey[spaceKindCat.key] ?? [] : [])
-    .filter((o) => !o.hidden && o.value_key);
-  const arbetssattOptions: FilterOption[] = (arbetssattCat ? byKey[arbetssattCat.key] ?? [] : [])
-    .filter((o) => !o.hidden && o.value_key);
-
+  const spaceKindOptions: FilterOption[] = (spaceKindCat ? (byKey[spaceKindCat.key] ?? []) : []).filter(
+    (o) => !o.hidden && o.value_key,
+  );
+  const arbetssattOptions: FilterOption[] = (arbetssattCat ? (byKey[arbetssattCat.key] ?? []) : []).filter(
+    (o) => !o.hidden && o.value_key,
+  );
 
   const save = useMutation({
     mutationFn: async (f: FormState) => {
@@ -404,12 +491,12 @@ function AdminPage() {
         show_capacity_publicly: f.show_capacity_publicly,
         show_occupancy: f.show_occupancy,
         countmatters_sensor_id: f.countmatters_sensor_id.trim() || null,
-        booking_room_number: f.booking_room_number.trim()
-          ? Number.parseInt(f.booking_room_number, 10) || null
-          : null,
-        intent: f.intent, noise: f.noise,
+        booking_room_number: f.booking_room_number.trim() ? Number.parseInt(f.booking_room_number, 10) || null : null,
+        intent: f.intent,
+        noise: f.noise,
         equipment: f.equipment,
-        facilities: f.facilities, lokaltyp: f.lokaltyp,
+        facilities: f.facilities,
+        lokaltyp: f.lokaltyp,
         tags: f.tags,
         images: f.images,
         image_alts: f.image_alts,
@@ -429,7 +516,6 @@ function AdminPage() {
         notice_en: f.notice_en.trim() || null,
         info: f.info.trim() || null,
         info_en: f.info_en.trim() || null,
-
       };
 
       if (f.id) {
@@ -442,7 +528,8 @@ function AdminPage() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["spaces"] });
-      setOpen(false); setForm(emptyForm);
+      setOpen(false);
+      setForm(emptyForm);
       toast.success("Sparat");
     },
     onError: (e: any) => toast.error(e.message),
@@ -461,7 +548,10 @@ function AdminPage() {
 
   const toggleHidden = useMutation({
     mutationFn: async ({ id, hidden }: { id: string; hidden: boolean }) => {
-      const { error } = await supabase.from("spaces").update({ hidden } as any).eq("id", id);
+      const { error } = await supabase
+        .from("spaces")
+        .update({ hidden } as any)
+        .eq("id", id);
       if (error) throw error;
     },
     onSuccess: (_d, vars) => {
@@ -474,7 +564,8 @@ function AdminPage() {
   const toggleSelected = (id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };
@@ -505,11 +596,21 @@ function AdminPage() {
     if (typeof window === "undefined") return false;
     return window.localStorage.getItem("admin.spaces.compact") === "1";
   });
-  useEffect(() => { window.localStorage.setItem("admin.spaces.query", listQuery); }, [listQuery]);
-  useEffect(() => { window.localStorage.setItem("admin.spaces.kind", listKind); }, [listKind]);
-  useEffect(() => { window.localStorage.setItem("admin.spaces.visibility", listVisibility); }, [listVisibility]);
-  useEffect(() => { window.localStorage.setItem("admin.spaces.lokaltyp", listLokaltyp); }, [listLokaltyp]);
-  useEffect(() => { window.localStorage.setItem("admin.spaces.compact", listCompact ? "1" : "0"); }, [listCompact]);
+  useEffect(() => {
+    window.localStorage.setItem("admin.spaces.query", listQuery);
+  }, [listQuery]);
+  useEffect(() => {
+    window.localStorage.setItem("admin.spaces.kind", listKind);
+  }, [listKind]);
+  useEffect(() => {
+    window.localStorage.setItem("admin.spaces.visibility", listVisibility);
+  }, [listVisibility]);
+  useEffect(() => {
+    window.localStorage.setItem("admin.spaces.lokaltyp", listLokaltyp);
+  }, [listLokaltyp]);
+  useEffect(() => {
+    window.localStorage.setItem("admin.spaces.compact", listCompact ? "1" : "0");
+  }, [listCompact]);
 
   const applyBulk = async () => {
     if (selectedIds.size === 0) return;
@@ -529,24 +630,40 @@ function AdminPage() {
 
       const simple: Record<string, any> | null = (() => {
         switch (bulkAction) {
-          case "set_floor": return { floor: val };
-          case "set_floor_en": return { floor_en: val };
-          case "set_notice": return { notice: val };
-          case "clear_notice": return { notice: null };
-          case "set_notice_en": return { notice_en: val };
-          case "clear_notice_en": return { notice_en: null };
-          case "set_info": return { info: val };
-          case "clear_info": return { info: null };
-          case "set_info_en": return { info_en: val };
-          case "clear_info_en": return { info_en: null };
-          case "show_occupancy_on": return { show_occupancy: true };
-          case "show_occupancy_off": return { show_occupancy: false };
-          default: return null;
+          case "set_floor":
+            return { floor: val };
+          case "set_floor_en":
+            return { floor_en: val };
+          case "set_notice":
+            return { notice: val };
+          case "clear_notice":
+            return { notice: null };
+          case "set_notice_en":
+            return { notice_en: val };
+          case "clear_notice_en":
+            return { notice_en: null };
+          case "set_info":
+            return { info: val };
+          case "clear_info":
+            return { info: null };
+          case "set_info_en":
+            return { info_en: val };
+          case "clear_info_en":
+            return { info_en: null };
+          case "show_occupancy_on":
+            return { show_occupancy: true };
+          case "show_occupancy_off":
+            return { show_occupancy: false };
+          default:
+            return null;
         }
       })();
 
       if (simple) {
-        const { error } = await supabase.from("spaces").update(simple as any).in("id", ids);
+        const { error } = await supabase
+          .from("spaces")
+          .update(simple as any)
+          .in("id", ids);
         if (error) throw error;
       } else if (bulkAction === "add_filter" || bulkAction === "remove_filter") {
         const cat = bulkCategory;
@@ -555,29 +672,40 @@ function AdminPage() {
         }
         // Map category key to spaces column (or tags JSON)
         const colMap: Record<string, string> = {
-          intent: "intent", arbetssatt: "intent", noise: "noise", equipment: "equipment",
-          facility: "facilities", lokaltyp: "lokaltyp",
+          intent: "intent",
+          arbetssatt: "intent",
+          noise: "noise",
+          equipment: "equipment",
+          facility: "facilities",
+          lokaltyp: "lokaltyp",
         };
         const col = colMap[cat];
         await Promise.all(
           selectedSpaces.map((s) => {
             if (col) {
               const cur = Array.isArray((s as any)[col]) ? ((s as any)[col] as string[]) : [];
-              const next = bulkAction === "add_filter"
-                ? (cur.includes(val) ? cur : [...cur, val])
-                : cur.filter((x) => x !== val);
-              return supabase.from("spaces").update({ [col]: next } as any).eq("id", s.id);
+              const next =
+                bulkAction === "add_filter" ? (cur.includes(val) ? cur : [...cur, val]) : cur.filter((x) => x !== val);
+              return supabase
+                .from("spaces")
+                .update({ [col]: next } as any)
+                .eq("id", s.id);
             } else {
-              const tags = (s.tags && typeof s.tags === "object" && !Array.isArray(s.tags))
-                ? { ...(s.tags as Record<string, string[]>) } : {};
+              const tags =
+                s.tags && typeof s.tags === "object" && !Array.isArray(s.tags)
+                  ? { ...(s.tags as Record<string, string[]>) }
+                  : {};
               const cur = Array.isArray(tags[cat]) ? tags[cat] : [];
-              const next = bulkAction === "add_filter"
-                ? (cur.includes(val) ? cur : [...cur, val])
-                : cur.filter((x) => x !== val);
-              if (next.length === 0) delete tags[cat]; else tags[cat] = next;
-              return supabase.from("spaces").update({ tags: tags as any }).eq("id", s.id);
+              const next =
+                bulkAction === "add_filter" ? (cur.includes(val) ? cur : [...cur, val]) : cur.filter((x) => x !== val);
+              if (next.length === 0) delete tags[cat];
+              else tags[cat] = next;
+              return supabase
+                .from("spaces")
+                .update({ tags: tags as any })
+                .eq("id", s.id);
             }
-          })
+          }),
         );
       }
 
@@ -591,8 +719,6 @@ function AdminPage() {
       setBulkBusy(false);
     }
   };
-
-
 
   const [uploadBusy, setUploadBusy] = useState(false);
 
@@ -621,7 +747,10 @@ function AdminPage() {
           const { error } = await supabase.storage
             .from("space-images")
             .upload(path, processed.file, { contentType: "image/webp" });
-          if (error) { toast.error(`${file.name}: ${error.message}`); continue; }
+          if (error) {
+            toast.error(`${file.name}: ${error.message}`);
+            continue;
+          }
           const { data } = supabase.storage.from("space-images").getPublicUrl(path);
           const nowIso = new Date().toISOString();
           setForm((f) => ({
@@ -640,7 +769,6 @@ function AdminPage() {
       setUploadBusy(false);
     }
   };
-
 
   const reorderImagesByIndex = (oldIdx: number, newIdx: number) => {
     setForm((f) => {
@@ -694,7 +822,6 @@ function AdminPage() {
     });
   };
 
-
   const openEdit = (s: Space) => {
     const f = spaceToForm(s);
     setForm(f);
@@ -704,9 +831,14 @@ function AdminPage() {
     setOpen(true);
     fetchImageDates(f.images);
   };
-  const openNew = () => { setForm(emptyForm); setOriginalForm(emptyForm); setImageDates({}); setEditTab("basic"); setOpen(true); };
+  const openNew = () => {
+    setForm(emptyForm);
+    setOriginalForm(emptyForm);
+    setImageDates({});
+    setEditTab("basic");
+    setOpen(true);
+  };
   const isDirty = useMemo(() => JSON.stringify(form) !== JSON.stringify(originalForm), [form, originalForm]);
-
 
   useEffect(() => {
     if (open && form.images.length > 0) {
@@ -725,23 +857,15 @@ function AdminPage() {
       if (listVisibility === "hidden" && !s.hidden) return false;
       if (listLokaltyp !== "all" && !(s.lokaltyp ?? []).includes(listLokaltyp)) return false;
       if (q) {
-        const hay = [
-          s.name, s.name_en ?? "", s.slug ?? "",
-          s.floor ?? "", s.located_in ?? "",
-        ].join(" ").toLowerCase();
+        const hay = [s.name, s.name_en ?? "", s.slug ?? "", s.floor ?? "", s.located_in ?? ""].join(" ").toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
     });
   }, [spaces, listQuery, listKind, listVisibility, listLokaltyp]);
 
-
   if (!authChecked) {
-    return (
-      <div className="min-h-dvh flex items-center justify-center text-sm text-muted-foreground">
-        Laddar...
-      </div>
-    );
+    return <div className="min-h-dvh flex items-center justify-center text-sm text-muted-foreground">Laddar...</div>;
   }
 
   return (
@@ -758,13 +882,15 @@ function AdminPage() {
             >
               Logga ut
             </button>
-            <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+            >
               <ArrowLeft className="h-3.5 w-3.5" /> Till studentvy
             </Link>
           </div>
         </div>
       </header>
-
 
       <main id="main" tabIndex={-1} className="max-w-6xl mx-auto px-4 sm:px-6 py-6 focus-visible:outline-none">
         <Tabs defaultValue="spaces" className="w-full">
@@ -776,7 +902,6 @@ function AdminPage() {
             <TabsTrigger value="occupancy">Beläggning</TabsTrigger>
             <TabsTrigger value="analytics">Statistik</TabsTrigger>
           </TabsList>
-
 
           <TabsContent value="spaces" className="space-y-4">
             <div className="flex items-center justify-between">
@@ -800,29 +925,66 @@ function AdminPage() {
                     <DialogTitle className="flex items-center gap-2 flex-wrap text-lg">
                       <span>{form.id ? "Redigera lokal" : "Ny lokal"}</span>
                       {form.name && <span className="text-muted-foreground font-normal">— {form.name}</span>}
-                      {form.id && form.id && (spaces.find((s) => s.id === form.id)?.hidden) && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border font-normal">Dold</span>
+                      {form.id && form.id && spaces.find((s) => s.id === form.id)?.hidden && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border font-normal">
+                          Dold
+                        </span>
                       )}
                       {isDirty && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200 font-normal">Osparade ändringar</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200 font-normal">
+                          Osparade ändringar
+                        </span>
                       )}
                     </DialogTitle>
                   </DialogHeader>
 
-                  <Tabs value={editTab} onValueChange={(v) => setEditTab(v as typeof editTab)} className="flex-1 flex flex-col min-h-0">
+                  <Tabs
+                    value={editTab}
+                    onValueChange={(v) => setEditTab(v as typeof editTab)}
+                    className="flex-1 flex flex-col min-h-0"
+                  >
                     <div className="px-6 pt-3 shrink-0 border-b border-border overflow-x-auto">
                       <TabsList className="bg-transparent p-0 h-auto gap-1">
-                        <TabsTrigger value="basic" className="rounded-t-md rounded-b-none data-[state=active]:bg-accent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary">Grund</TabsTrigger>
-                        <TabsTrigger value="filter" className="rounded-t-md rounded-b-none data-[state=active]:bg-accent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary">Filter</TabsTrigger>
-                        <TabsTrigger value="text" className="rounded-t-md rounded-b-none data-[state=active]:bg-accent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary">Texter</TabsTrigger>
-                        <TabsTrigger value="media" className="rounded-t-md rounded-b-none data-[state=active]:bg-accent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary">Bilder & länkar</TabsTrigger>
-                        <TabsTrigger value="advanced" className="rounded-t-md rounded-b-none data-[state=active]:bg-accent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary">Avancerat</TabsTrigger>
+                        <TabsTrigger
+                          value="basic"
+                          className="rounded-t-md rounded-b-none data-[state=active]:bg-accent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary"
+                        >
+                          Grund
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="filter"
+                          className="rounded-t-md rounded-b-none data-[state=active]:bg-accent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary"
+                        >
+                          Filter
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="text"
+                          className="rounded-t-md rounded-b-none data-[state=active]:bg-accent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary"
+                        >
+                          Texter
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="media"
+                          className="rounded-t-md rounded-b-none data-[state=active]:bg-accent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary"
+                        >
+                          Bilder & länkar
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="advanced"
+                          className="rounded-t-md rounded-b-none data-[state=active]:bg-accent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary"
+                        >
+                          Avancerat
+                        </TabsTrigger>
                       </TabsList>
                     </div>
 
                     <div className="flex-1 overflow-y-auto px-6 py-5 min-h-0">
                       <TabsContent value="basic" className="mt-0 space-y-5 focus-visible:outline-none">
-                        <Field label={spaceKindCat ? `${spaceKindCat.title} (vad letar besökaren efter?)` : "Vad letar du efter?"}>
+                        <Field
+                          label={
+                            spaceKindCat ? `${spaceKindCat.title} (vad letar besökaren efter?)` : "Vad letar du efter?"
+                          }
+                        >
                           <div className="flex flex-wrap gap-2">
                             {spaceKindOptions.map((o) => {
                               const key = o.value_key ?? "";
@@ -845,7 +1007,8 @@ function AdminPage() {
                             })}
                           </div>
                           <p className="text-xs text-muted-foreground mt-1">
-                            Service- och skapandelokaler visas i egna flikar i studentvyn – utan beläggning, bokning eller ljudnivå.
+                            Service- och skapandelokaler visas i egna flikar i studentvyn – utan beläggning, bokning
+                            eller ljudnivå.
                           </p>
                         </Field>
 
@@ -870,16 +1033,28 @@ function AdminPage() {
                         <Field label="Kort-ID / slug (valfritt)">
                           <input
                             value={form.slug}
-                            onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-") })}
+                            onChange={(e) =>
+                              setForm({
+                                ...form,
+                                slug: e.target.value
+                                  .toLowerCase()
+                                  .replace(/[^a-z0-9-]/g, "-")
+                                  .replace(/-+/g, "-"),
+                              })
+                            }
                             placeholder="t.ex. maxwell eller norra-arkaden"
                             className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
                           />
                           <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                            Kort, läsbart ID som används i interna länkar och delbara URL:er. Endast små bokstäver, siffror och bindestreck.
+                            Kort, läsbart ID som används i interna länkar och delbara URL:er. Endast små bokstäver,
+                            siffror och bindestreck.
                             {form.slug && (
                               <>
-                                {" "}Länksyntax: <code className="bg-secondary px-1 py-0.5 rounded">[[{form.slug}|valfri text]]</code>
-                                {" · "}Direktlänk: <code className="bg-secondary px-1 py-0.5 rounded">?highlight={form.slug}</code>
+                                {" "}
+                                Länksyntax:{" "}
+                                <code className="bg-secondary px-1 py-0.5 rounded">[[{form.slug}|valfri text]]</code>
+                                {" · "}Direktlänk:{" "}
+                                <code className="bg-secondary px-1 py-0.5 rounded">?highlight={form.slug}</code>
                               </>
                             )}
                           </p>
@@ -961,7 +1136,9 @@ function AdminPage() {
                       </TabsContent>
 
                       <TabsContent value="filter" className="mt-0 space-y-5 focus-visible:outline-none">
-                        <Field label={arbetssattCat ? `${arbetssattCat.title} (hur vill du arbeta?)` : "Hur vill du arbeta?"}>
+                        <Field
+                          label={arbetssattCat ? `${arbetssattCat.title} (hur vill du arbeta?)` : "Hur vill du arbeta?"}
+                        >
                           <div className="flex flex-wrap gap-2">
                             {arbetssattOptions.map((o) => {
                               const key = o.value_key ?? "";
@@ -971,16 +1148,14 @@ function AdminPage() {
                                   key={o.id}
                                   type="button"
                                   onClick={() => {
-                                    const next = active
-                                      ? form.intent.filter((v) => v !== key)
-                                      : [...form.intent, key];
+                                    const next = active ? form.intent.filter((v) => v !== key) : [...form.intent, key];
                                     setForm({ ...form, intent: next });
                                   }}
                                   className={cn(
                                     "rounded-full border px-3 py-1.5 text-sm transition",
                                     active
                                       ? "bg-[var(--kth-blue)] text-white border-[var(--kth-blue)]"
-                                      : "bg-card text-foreground border-border hover:bg-accent"
+                                      : "bg-card text-foreground border-border hover:bg-accent",
                                   )}
                                 >
                                   {o.label}
@@ -990,20 +1165,28 @@ function AdminPage() {
                           </div>
                         </Field>
 
-                        {categories.filter((c) => !c.special_kind).map((cat) => (
-                          <DynamicCategoryField
-                            key={cat.id}
-                            cat={cat}
-                            options={byKey[cat.key] ?? []}
-                            values={getFormValues(form, cat.key)}
-                            onChange={(values) => setForm(setFormValues(form, cat.key, values))}
-                          />
-                        ))}
+                        {categories
+                          .filter((c) => !c.special_kind)
+                          .map((cat) => (
+                            <DynamicCategoryField
+                              key={cat.id}
+                              cat={cat}
+                              options={byKey[cat.key] ?? []}
+                              values={getFormValues(form, cat.key)}
+                              onChange={(values) => setForm(setFormValues(form, cat.key, values))}
+                            />
+                          ))}
                       </TabsContent>
 
                       <TabsContent value="text" className="mt-0 space-y-5 focus-visible:outline-none">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <Field label={<span className="flex items-center gap-2">Beskrivning (SV) <LinkSyntaxHelp slug={form.slug} /></span>}>
+                          <Field
+                            label={
+                              <span className="flex items-center gap-2">
+                                Beskrivning (SV) <LinkSyntaxHelp slug={form.slug} />
+                              </span>
+                            }
+                          >
                             <textarea
                               rows={5}
                               value={form.description}
@@ -1038,7 +1221,13 @@ function AdminPage() {
                         </label>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <Field label={<span className="flex items-center gap-2">Tillfällig notis, gul ruta (SV) <LinkSyntaxHelp slug={form.slug} /></span>}>
+                          <Field
+                            label={
+                              <span className="flex items-center gap-2">
+                                Tillfällig notis, gul ruta (SV) <LinkSyntaxHelp slug={form.slug} />
+                              </span>
+                            }
+                          >
                             <textarea
                               rows={2}
                               value={form.notice}
@@ -1056,7 +1245,13 @@ function AdminPage() {
                               className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                             />
                           </Field>
-                          <Field label={<span className="flex items-center gap-2">Information på kortet (SV) <LinkSyntaxHelp slug={form.slug} /></span>}>
+                          <Field
+                            label={
+                              <span className="flex items-center gap-2">
+                                Information på kortet (SV) <LinkSyntaxHelp slug={form.slug} />
+                              </span>
+                            }
+                          >
                             <textarea
                               rows={2}
                               value={form.info}
@@ -1080,11 +1275,19 @@ function AdminPage() {
                       <TabsContent value="media" className="mt-0 space-y-6 focus-visible:outline-none">
                         <section className="space-y-3">
                           <div className="flex items-center justify-between gap-2">
-                            <h3 className="text-sm font-semibold">Bilder ({form.images.length} / {MAX_IMAGES})</h3>
-                            <p className="text-xs text-muted-foreground">Första bilden är primär och används som miniatyr.</p>
+                            <h3 className="text-sm font-semibold">
+                              Bilder ({form.images.length} / {MAX_IMAGES})
+                            </h3>
+                            <p className="text-xs text-muted-foreground">
+                              Första bilden är primär och används som miniatyr.
+                            </p>
                           </div>
                           {form.images.length > 0 && (
-                            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleImagesDragEnd}>
+                            <DndContext
+                              sensors={sensors}
+                              collisionDetection={closestCenter}
+                              onDragEnd={handleImagesDragEnd}
+                            >
                               <SortableContext
                                 items={form.images.map((u, i) => `${i}::${u}`)}
                                 strategy={verticalListSortingStrategy}
@@ -1146,7 +1349,9 @@ function AdminPage() {
                                 placeholder="https://..."
                                 className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                               />
-                              <p className="mt-1 text-xs text-muted-foreground">Används för övningssalar. För grupprum, se nedan.</p>
+                              <p className="mt-1 text-xs text-muted-foreground">
+                                Används för övningssalar. För grupprum, se nedan.
+                              </p>
                             </Field>
                             <Field label="Practice room schedule (EN)">
                               <input
@@ -1166,13 +1371,16 @@ function AdminPage() {
                           <Field label="Bokningsrumsnummer">
                             <input
                               value={form.booking_room_number}
-                              onChange={(e) => setForm({ ...form, booking_room_number: e.target.value.replace(/[^0-9]/g, "") })}
+                              onChange={(e) =>
+                                setForm({ ...form, booking_room_number: e.target.value.replace(/[^0-9]/g, "") })
+                              }
                               inputMode="numeric"
                               placeholder="t.ex. 4"
                               className="w-full sm:w-40 rounded-lg border border-border bg-card px-3 py-2 text-sm font-mono"
                             />
                             <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                              Rumsnummer (1–21) i KTH:s bokningssystem. När det matchar visas en indikator om grupprummet är <strong>ledigt</strong> eller <strong>upptaget</strong> just nu.
+                              Rumsnummer (1–21) i KTH:s bokningssystem. När det matchar visas en indikator om
+                              grupprummet är <strong>ledigt</strong> eller <strong>upptaget</strong> just nu.
                             </p>
                           </Field>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1202,7 +1410,9 @@ function AdminPage() {
                                 placeholder="Boka grupprum"
                                 className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                               />
-                              <p className="mt-1 text-xs text-muted-foreground">Lämna tomt = "Boka grupprum". Skriv t.ex. "Boka resursrum" för resursrum.</p>
+                              <p className="mt-1 text-xs text-muted-foreground">
+                                Lämna tomt = "Boka grupprum". Skriv t.ex. "Boka resursrum" för resursrum.
+                              </p>
                             </Field>
                             <Field label="Button label (EN)">
                               <input
@@ -1222,7 +1432,9 @@ function AdminPage() {
                                 className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
                               />
                               <p className="mt-1 text-xs text-muted-foreground">
-                                Mall. Platshållare: <code>{"{room}"}</code>, <code>{"{year}"}</code>, <code>{"{month}"}</code>, <code>{"{day}"}</code>, <code>{"{hour}"}</code>, <code>{"{minute}"}</code>.
+                                Mall. Platshållare: <code>{"{room}"}</code>, <code>{"{year}"}</code>,{" "}
+                                <code>{"{month}"}</code>, <code>{"{day}"}</code>, <code>{"{hour}"}</code>,{" "}
+                                <code>{"{minute}"}</code>.
                               </p>
                             </Field>
                             <Field label='"Book now" – free group room (EN)'>
@@ -1256,13 +1468,16 @@ function AdminPage() {
                               onChange={(e) => setForm({ ...form, show_occupancy: e.target.checked })}
                               className="mt-0.5 h-4 w-4 rounded border-border cursor-pointer accent-[var(--kth-blue)]"
                             />
-                            <span>Visa beläggningsindikator på lokalkortet (kan slås av vid tekniska problem utan att radera sensor-ID:t)</span>
+                            <span>
+                              Visa beläggningsindikator på lokalkortet (kan slås av vid tekniska problem utan att radera
+                              sensor-ID:t)
+                            </span>
                           </label>
                           <p className="text-xs text-muted-foreground leading-relaxed">
-                            Ange <strong>zonnamnet</strong> exakt som det står i Countmatters
-                            (t.ex. <span className="font-mono">Newton</span>, <span className="font-mono">Ångdomen</span>,
-                            {" "}<span className="font-mono">Södra Galleriet</span>). När namnet matchar en zon i
-                            KTH:s realtids-API visas en indikator (grön/gul/röd). Lämna tomt för lokaler utan mätare.
+                            Ange <strong>zonnamnet</strong> exakt som det står i Countmatters (t.ex.{" "}
+                            <span className="font-mono">Newton</span>, <span className="font-mono">Ångdomen</span>,{" "}
+                            <span className="font-mono">Södra Galleriet</span>). När namnet matchar en zon i KTH:s
+                            realtids-API visas en indikator (grön/gul/röd). Lämna tomt för lokaler utan mätare.
                           </p>
                         </section>
 
@@ -1282,12 +1497,16 @@ function AdminPage() {
                     <button
                       onClick={() => setOpen(false)}
                       className="px-4 py-2 rounded-lg text-sm border border-border"
-                    >Avbryt</button>
+                    >
+                      Avbryt
+                    </button>
                     <button
                       disabled={save.isPending || !form.name || !isDirty}
                       onClick={() => save.mutate(form)}
                       className="px-4 py-2 rounded-lg text-sm bg-primary text-primary-foreground disabled:opacity-50"
-                    >{save.isPending ? "Sparar..." : isDirty ? "Spara ändringar" : "Sparat"}</button>
+                    >
+                      {save.isPending ? "Sparar..." : isDirty ? "Spara ändringar" : "Sparat"}
+                    </button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
@@ -1302,30 +1521,42 @@ function AdminPage() {
                   type="button"
                   onClick={clearSelection}
                   className="text-xs text-muted-foreground hover:text-foreground underline"
-                >Avmarkera</button>
+                >
+                  Avmarkera
+                </button>
                 <div className="flex-1" />
                 <select
                   value={bulkAction}
-                  onChange={(e) => { setBulkAction(e.target.value as BulkAction); setBulkValue(""); }}
+                  onChange={(e) => {
+                    setBulkAction(e.target.value as BulkAction);
+                    setBulkValue("");
+                  }}
                   aria-label="Bulk-åtgärd"
                   className="rounded-lg border border-border bg-card px-2 py-1.5 text-sm"
                 >
                   {BULK_ACTIONS.map((a) => (
-                    <option key={a.value} value={a.value}>{a.label}</option>
+                    <option key={a.value} value={a.value}>
+                      {a.label}
+                    </option>
                   ))}
                 </select>
-                {(bulkAction === "add_filter" || bulkAction === "remove_filter") ? (
+                {bulkAction === "add_filter" || bulkAction === "remove_filter" ? (
                   <>
                     <select
                       value={bulkCategory}
-                      onChange={(e) => { setBulkCategory(e.target.value); setBulkValue(""); }}
+                      onChange={(e) => {
+                        setBulkCategory(e.target.value);
+                        setBulkValue("");
+                      }}
                       aria-label="Filterkategori"
                       className="rounded-lg border border-border bg-card px-2 py-1.5 text-sm"
                     >
                       {categories
                         .filter((c) => c.key !== "vaningsplan")
                         .map((c) => (
-                          <option key={c.id} value={c.key}>{c.title}</option>
+                          <option key={c.id} value={c.key}>
+                            {c.title}
+                          </option>
                         ))}
                     </select>
                     <select
@@ -1336,11 +1567,14 @@ function AdminPage() {
                     >
                       <option value="">— välj värde —</option>
                       {(byKey[bulkCategory] ?? []).map((o) => (
-                        <option key={o.id} value={o.label}>{o.label}</option>
+                        <option key={o.id} value={o.label}>
+                          {o.label}
+                        </option>
                       ))}
                     </select>
                   </>
-                ) : BULK_ACTIONS.find((a) => a.value === bulkAction)?.needsValue && (
+                ) : (
+                  BULK_ACTIONS.find((a) => a.value === bulkAction)?.needsValue &&
                   (() => {
                     const isRichText =
                       bulkAction === "set_notice" ||
@@ -1375,23 +1609,26 @@ function AdminPage() {
                   disabled={bulkBusy}
                   onClick={applyBulk}
                   className="rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-sm font-medium disabled:opacity-50"
-                >{bulkBusy ? "Uppdaterar..." : "Tillämpa"}</button>
+                >
+                  {bulkBusy ? "Uppdaterar..." : "Tillämpa"}
+                </button>
                 {(bulkAction === "set_notice" ||
                   bulkAction === "set_notice_en" ||
                   bulkAction === "set_info" ||
                   bulkAction === "set_info_en") && (
                   <p className="basis-full text-xs text-muted-foreground leading-relaxed">
-                    <strong>Länkar:</strong> länka till en webbsida med
-                    {" "}<code className="text-[11px] bg-secondary px-1 py-0.5 rounded">&lt;a href="https://exempel.se"&gt;Länktext&lt;/a&gt;</code>.
-                    Länka till ett annat lokalkort med
-                    {" "}<code className="text-[11px] bg-secondary px-1 py-0.5 rounded">[[slug|Länktext]]</code>
-                    {" "}(eller bara <code className="text-[11px] bg-secondary px-1 py-0.5 rounded">[[slug]]</code> för att använda lokalens namn).
+                    <strong>Länkar:</strong> länka till en webbsida med{" "}
+                    <code className="text-[11px] bg-secondary px-1 py-0.5 rounded">
+                      &lt;a href="https://exempel.se"&gt;Länktext&lt;/a&gt;
+                    </code>
+                    . Länka till ett annat lokalkort med{" "}
+                    <code className="text-[11px] bg-secondary px-1 py-0.5 rounded">[[slug|Länktext]]</code> (eller bara{" "}
+                    <code className="text-[11px] bg-secondary px-1 py-0.5 rounded">[[slug]]</code> för att använda
+                    lokalens namn).
                   </p>
                 )}
               </div>
             )}
-
-
 
             <SelectByLokaltyp
               spaces={spaces}
@@ -1402,17 +1639,23 @@ function AdminPage() {
 
             <div className="space-y-2">
               {isLoading ? (
-                <div className="bg-card rounded-2xl border border-border p-8 text-center text-muted-foreground">Laddar...</div>
+                <div className="bg-card rounded-2xl border border-border p-8 text-center text-muted-foreground">
+                  Laddar...
+                </div>
               ) : spaces.length === 0 ? (
                 <div className="bg-card rounded-2xl border border-border p-10 text-center text-muted-foreground text-sm">
-                  Inga lokaler ännu. Klicka på <span className="font-medium text-foreground">Ny lokal</span> för att komma igång.
+                  Inga lokaler ännu. Klicka på <span className="font-medium text-foreground">Ny lokal</span> för att
+                  komma igång.
                 </div>
               ) : (
                 <>
                   {/* List toolbar: search, filters, compact toggle */}
                   <div className="bg-card border border-border rounded-xl p-2 flex flex-wrap items-center gap-2">
                     <div className="relative flex-1 min-w-[12rem]">
-                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                      <Search
+                        className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+                        aria-hidden="true"
+                      />
                       <input
                         type="search"
                         value={listQuery}
@@ -1442,7 +1685,9 @@ function AdminPage() {
                       >
                         <option value="all">Alla typer</option>
                         {spaceKindOptions.map((o) => (
-                          <option key={o.id} value={o.value_key ?? ""}>{o.label}</option>
+                          <option key={o.id} value={o.value_key ?? ""}>
+                            {o.label}
+                          </option>
                         ))}
                       </select>
                     </label>
@@ -1455,9 +1700,13 @@ function AdminPage() {
                         className="rounded-lg border border-border bg-background px-2 py-1.5 text-sm text-foreground"
                       >
                         <option value="all">Alla lokaltyper</option>
-                        {(byKey["lokaltyp"] ?? []).filter((o) => !o.hidden).map((o) => (
-                          <option key={o.id} value={o.label}>{o.label}</option>
-                        ))}
+                        {(byKey["lokaltyp"] ?? [])
+                          .filter((o) => !o.hidden)
+                          .map((o) => (
+                            <option key={o.id} value={o.label}>
+                              {o.label}
+                            </option>
+                          ))}
                       </select>
                     </label>
                     <label className="text-xs text-muted-foreground flex items-center gap-1.5">
@@ -1480,9 +1729,16 @@ function AdminPage() {
                     {listFiltersActive && (
                       <button
                         type="button"
-                        onClick={() => { setListQuery(""); setListKind("all"); setListVisibility("all"); setListLokaltyp("all"); }}
+                        onClick={() => {
+                          setListQuery("");
+                          setListKind("all");
+                          setListVisibility("all");
+                          setListLokaltyp("all");
+                        }}
                         className="text-xs text-muted-foreground hover:text-foreground underline"
-                      >Rensa filter</button>
+                      >
+                        Rensa filter
+                      </button>
                     )}
                   </div>
 
@@ -1566,8 +1822,6 @@ function AdminPage() {
             <FiltersTab categories={categories} byKey={byKey} />
           </TabsContent>
 
-
-
           <TabsContent value="layout">
             <CardLayoutTab />
           </TabsContent>
@@ -1590,7 +1844,10 @@ function AdminPage() {
 }
 
 function DynamicCategoryField({
-  cat, options, values, onChange,
+  cat,
+  options,
+  values,
+  onChange,
 }: {
   cat: FilterCategoryRow;
   options: FilterOption[];
@@ -1607,14 +1864,13 @@ function DynamicCategoryField({
             const active = values[0] === o.label;
             return (
               <button
-                key={o.id} type="button"
+                key={o.id}
+                type="button"
                 onClick={() => onChange(active ? [] : [o.label])}
                 aria-pressed={active}
                 className={cn(
                   "inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  active
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-secondary border-transparent"
+                  active ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-transparent",
                 )}
               >
                 <OptionIcon option={o} className="h-4 w-4" /> {o.label}
@@ -1636,13 +1892,13 @@ function DynamicCategoryField({
           const active = values.includes(o.label);
           return (
             <button
-              key={o.id} type="button" onClick={() => toggle(o.label)}
+              key={o.id}
+              type="button"
+              onClick={() => toggle(o.label)}
               aria-pressed={active}
               className={cn(
                 "inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                active
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-secondary border-transparent"
+                active ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-transparent",
               )}
             >
               <OptionIcon option={o} className="h-4 w-4" />
@@ -1655,15 +1911,13 @@ function DynamicCategoryField({
   );
 }
 
-function FiltersTab({
-  categories, byKey,
-}: { categories: FilterCategoryRow[]; byKey: Record<string, FilterOption[]> }) {
+function FiltersTab({ categories, byKey }: { categories: FilterCategoryRow[]; byKey: Record<string, FilterOption[]> }) {
   const reorder = useReorderCategories();
   const [creating, setCreating] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
   const handleDragEnd = (e: DragEndEvent) => {
@@ -1692,7 +1946,8 @@ function FiltersTab({
         </button>
       </div>
       <p className="text-sm text-muted-foreground -mt-2">
-        Redigera kategorinamn direkt, dra för att ändra ordningen i studentvyn, och lägg till egna alternativ med valfri ikon. Alternativ märkta <strong>Standard</strong> är kopplade till kod och kan bara döljas — inte raderas.
+        Redigera kategorinamn direkt, dra för att ändra ordningen i studentvyn, och lägg till egna alternativ med valfri
+        ikon. Alternativ märkta <strong>Standard</strong> är kopplade till kod och kan bara döljas — inte raderas.
       </p>
       <div className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
         <strong className="font-medium text-foreground">Om ikonerna:</strong> De inbyggda ikonerna kommer från{" "}
@@ -1706,7 +1961,6 @@ function FiltersTab({
         </a>{" "}
         och är fria att använda (ISC-licens). Du kan även ladda upp egna ikoner per alternativ.
       </div>
-
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={editableCategories.map((c) => c.id)} strategy={verticalListSortingStrategy}>
@@ -1723,10 +1977,7 @@ function FiltersTab({
   );
 }
 
-
-function SortableCategoryCard({
-  cat, items,
-}: { cat: FilterCategoryRow; items: FilterOption[] }) {
+function SortableCategoryCard({ cat, items }: { cat: FilterCategoryRow; items: FilterOption[] }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: cat.id });
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -1741,7 +1992,10 @@ function SortableCategoryCard({
 }
 
 function FilterCategoryCard({
-  cat, items, dragAttributes, dragListeners,
+  cat,
+  items,
+  dragAttributes,
+  dragListeners,
 }: {
   cat: FilterCategoryRow;
   items: FilterOption[];
@@ -1763,7 +2017,10 @@ function FilterCategoryCard({
 
   const saveTitle = async () => {
     const next = titleDraft.trim();
-    if (!next || next === cat.title) { setTitleDraft(cat.title); return; }
+    if (!next || next === cat.title) {
+      setTitleDraft(cat.title);
+      return;
+    }
     try {
       await saveCategory.mutateAsync({ id: cat.id, title: next });
       toast.success("Titel uppdaterad");
@@ -1789,8 +2046,11 @@ function FilterCategoryCard({
     mutationFn: async (ordered: FilterOption[]) => {
       await Promise.all(
         ordered.map((o, i) =>
-          supabase.from("filter_options").update({ sort_order: (i + 1) * 10 }).eq("id", o.id)
-        )
+          supabase
+            .from("filter_options")
+            .update({ sort_order: (i + 1) * 10 })
+            .eq("id", o.id),
+        ),
       );
     },
     onMutate: async (ordered: FilterOption[]) => {
@@ -1811,7 +2071,7 @@ function FilterCategoryCard({
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
   const handleDragEnd = (e: DragEndEvent) => {
@@ -1827,7 +2087,9 @@ function FilterCategoryCard({
 
   const handleDeleteCategory = async () => {
     if (isSpecial) {
-      toast.error("Denna kategori är kopplad till koden och kan inte tas bort. Du kan dölja enskilda alternativ istället.");
+      toast.error(
+        "Denna kategori är kopplad till koden och kan inte tas bort. Du kan dölja enskilda alternativ istället.",
+      );
       return;
     }
     if (!confirm(`Ta bort kategorin "${cat.title}" och alla dess alternativ?`)) return;
@@ -1841,36 +2103,45 @@ function FilterCategoryCard({
     }
   };
 
-
   return (
     <div className="bg-card rounded-2xl border border-border p-4">
       <div className="flex items-center gap-2 mb-3">
         <button
-          {...dragAttributes} {...dragListeners}
+          {...dragAttributes}
+          {...dragListeners}
           className="p-1 text-muted-foreground rounded hover:bg-accent cursor-grab active:cursor-grabbing touch-none"
           title="Dra för att flytta kategorin"
           aria-label="Dra för att flytta kategorin"
-        ><GripVertical className="h-4 w-4" /></button>
+        >
+          <GripVertical className="h-4 w-4" />
+        </button>
 
         <input
           data-cat-id={cat.id}
           value={titleDraft}
           onChange={(e) => setTitleDraft(e.target.value)}
           onBlur={saveTitle}
-          onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+          }}
           className="flex-1 min-w-0 font-semibold text-base bg-transparent border border-transparent rounded-md px-2 py-1 hover:border-border focus:border-primary focus:outline-none"
         />
 
         <button
           onClick={() => setEditingCat(true)}
-          className="p-1.5 rounded-md hover:bg-accent text-muted-foreground" title="Egenskaper"
-        ><Pencil className="h-3.5 w-3.5" /></button>
+          className="p-1.5 rounded-md hover:bg-accent text-muted-foreground"
+          title="Egenskaper"
+        >
+          <Pencil className="h-3.5 w-3.5" />
+        </button>
 
         <button
           onClick={handleDeleteCategory}
-          className="p-1.5 rounded-md hover:bg-destructive/10 text-destructive" title="Ta bort kategori"
-        ><Trash2 className="h-3.5 w-3.5" /></button>
-
+          className="p-1.5 rounded-md hover:bg-destructive/10 text-destructive"
+          title="Ta bort kategori"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
 
         <button
           onClick={() => setCreating(true)}
@@ -1893,7 +2164,9 @@ function FilterCategoryCard({
                   onEdit={() => setEditing(o)}
                   onDelete={() => {
                     if (o.is_seed) {
-                      toast.error("Standardalternativ kan inte raderas — redigera etiketten/ikonen eller dölj det i alternativet.");
+                      toast.error(
+                        "Standardalternativ kan inte raderas — redigera etiketten/ikonen eller dölj det i alternativet.",
+                      );
                       return;
                     }
                     if (confirm(`Ta bort "${o.label}"?`)) del.mutate(o.id);
@@ -1909,20 +2182,19 @@ function FilterCategoryCard({
         <FilterOptionDialog
           categoryKey={cat.key}
           option={editing}
-          onClose={() => { setEditing(null); setCreating(false); }}
+          onClose={() => {
+            setEditing(null);
+            setCreating(false);
+          }}
         />
       )}
 
-      {editingCat && (
-        <CategoryDialog category={cat} onClose={() => setEditingCat(false)} />
-      )}
+      {editingCat && <CategoryDialog category={cat} onClose={() => setEditingCat(false)} />}
     </div>
   );
 }
 
-function CategoryDialog({
-  category, onClose,
-}: { category: FilterCategoryRow | null; onClose: () => void }) {
+function CategoryDialog({ category, onClose }: { category: FilterCategoryRow | null; onClose: () => void }) {
   const saveCategory = useSaveCategory();
   const [title, setTitle] = useState(category?.title ?? "");
   const [titleEn, setTitleEn] = useState(category?.title_en ?? "");
@@ -1932,10 +2204,15 @@ function CategoryDialog({
 
   const isNew = !category;
 
-
   const handleSave = async () => {
     try {
-      const payload: any = { title: title.trim(), title_en: titleEn.trim() || null, style, match_mode: matchMode, is_single_select: isSingle };
+      const payload: any = {
+        title: title.trim(),
+        title_en: titleEn.trim() || null,
+        style,
+        match_mode: matchMode,
+        is_single_select: isSingle,
+      };
 
       if (isNew) {
         const key = slugifyKey(title);
@@ -1976,17 +2253,22 @@ function CategoryDialog({
             />
           </Field>
 
-
           <Field label="Visningsstil i sidopanelen">
             <div className="flex gap-2">
               {(["pills", "list"] as const).map((s) => (
                 <button
-                  key={s} type="button" onClick={() => setStyle(s)}
+                  key={s}
+                  type="button"
+                  onClick={() => setStyle(s)}
                   className={cn(
                     "flex-1 rounded-lg px-3 py-2 text-sm border",
-                    style === s ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-transparent"
+                    style === s
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-secondary border-transparent",
                   )}
-                >{s === "pills" ? "Pillerknappar" : "Lista med bockar"}</button>
+                >
+                  {s === "pills" ? "Pillerknappar" : "Lista med bockar"}
+                </button>
               ))}
             </div>
           </Field>
@@ -1995,10 +2277,14 @@ function CategoryDialog({
             <div className="flex gap-2">
               {(["any", "all"] as const).map((m) => (
                 <button
-                  key={m} type="button" onClick={() => setMatchMode(m)}
+                  key={m}
+                  type="button"
+                  onClick={() => setMatchMode(m)}
                   className={cn(
                     "flex-1 rounded-lg px-3 py-2 text-sm border text-left",
-                    matchMode === m ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-transparent"
+                    matchMode === m
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-secondary border-transparent",
                   )}
                 >
                   <div className="font-medium">{m === "any" ? "Något av" : "Alla av"}</div>
@@ -2011,21 +2297,21 @@ function CategoryDialog({
           </Field>
 
           <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox" checked={isSingle}
-              onChange={(e) => setIsSingle(e.target.checked)}
-            />
+            <input type="checkbox" checked={isSingle} onChange={(e) => setIsSingle(e.target.checked)} />
             Endast ett alternativ kan väljas per lokal (som Ljudnivå)
           </label>
-
         </div>
         <DialogFooter>
-          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm border border-border">Avbryt</button>
+          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm border border-border">
+            Avbryt
+          </button>
           <button
             disabled={saveCategory.isPending || !title.trim()}
             onClick={handleSave}
             className="px-4 py-2 rounded-lg text-sm bg-primary text-primary-foreground disabled:opacity-50"
-          >{saveCategory.isPending ? "Sparar..." : "Spara"}</button>
+          >
+            {saveCategory.isPending ? "Sparar..." : "Spara"}
+          </button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -2033,8 +2319,14 @@ function CategoryDialog({
 }
 
 function FilterOptionDialog({
-  categoryKey, option, onClose,
-}: { categoryKey: string; option: FilterOption | null; onClose: () => void }) {
+  categoryKey,
+  option,
+  onClose,
+}: {
+  categoryKey: string;
+  option: FilterOption | null;
+  onClose: () => void;
+}) {
   const qc = useQueryClient();
   const [label, setLabel] = useState(option?.label ?? "");
   const [labelEn, setLabelEn] = useState(option?.label_en ?? "");
@@ -2043,12 +2335,12 @@ function FilterOptionDialog({
   const [uploading, setUploading] = useState(false);
   const { data: hiddenIcons = [] } = useHiddenIcons();
 
-
   const save = useMutation({
     mutationFn: async () => {
       const newLabel = label.trim();
       const payload = {
-        category: categoryKey, label: newLabel,
+        category: categoryKey,
+        label: newLabel,
         label_en: labelEn.trim() || null,
         icon_url: iconUrl,
         default_icon: iconUrl ? null : defaultIcon,
@@ -2083,8 +2375,6 @@ function FilterOptionDialog({
     onError: (e: any) => toast.error(e.message),
   });
 
-
-
   const handleUploadIcon = async (file: File) => {
     setUploading(true);
     try {
@@ -2105,7 +2395,6 @@ function FilterOptionDialog({
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-
         <DialogHeader>
           <DialogTitle>{option ? "Redigera alternativ" : "Nytt alternativ"}</DialogTitle>
         </DialogHeader>
@@ -2127,7 +2416,6 @@ function FilterOptionDialog({
             />
           </Field>
 
-
           <Field label="Egen ikon (valfritt)">
             <div className="flex items-center gap-3 flex-wrap">
               {iconUrl && (
@@ -2137,14 +2425,18 @@ function FilterOptionDialog({
                     type="button"
                     onClick={() => setIconUrl(null)}
                     className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-0.5"
-                  ><X className="h-3 w-3" /></button>
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
                 </div>
               )}
               <label className="inline-flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2 text-sm cursor-pointer hover:bg-accent">
                 <Upload className="h-4 w-4" />
                 <span>{uploading ? "Laddar upp..." : "Ladda upp ikon"}</span>
                 <input
-                  type="file" accept="image/svg+xml,image/png" className="hidden"
+                  type="file"
+                  accept="image/svg+xml,image/png"
+                  className="hidden"
                   onChange={(e) => e.target.files?.[0] && handleUploadIcon(e.target.files[0])}
                 />
               </label>
@@ -2163,29 +2455,37 @@ function FilterOptionDialog({
                   const selected = defaultIcon === name;
                   return (
                     <button
-                      key={name} type="button"
+                      key={name}
+                      type="button"
                       onClick={() => setDefaultIcon(selected ? null : name)}
                       title={name}
                       className={cn(
                         "h-9 w-9 rounded-md flex items-center justify-center border",
-                        selected ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-transparent hover:bg-accent"
+                        selected
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-secondary border-transparent hover:bg-accent",
                       )}
-                    ><Icon className="h-4 w-4" /></button>
+                    >
+                      <Icon className="h-4 w-4" />
+                    </button>
                   );
                 })}
               </div>
             </Field>
           )}
-
         </div>
 
         <DialogFooter>
-          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm border border-border">Avbryt</button>
+          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm border border-border">
+            Avbryt
+          </button>
           <button
             disabled={save.isPending || !label.trim()}
             onClick={() => save.mutate()}
             className="px-4 py-2 rounded-lg text-sm bg-primary text-primary-foreground disabled:opacity-50"
-          >{save.isPending ? "Sparar..." : "Spara"}</button>
+          >
+            {save.isPending ? "Sparar..." : "Spara"}
+          </button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -2209,7 +2509,9 @@ function LinkSyntaxHelp({ slug }: { slug?: string }) {
         <div className="space-y-2">
           <div>
             <div className="font-semibold mb-1">Länk till annat kort</div>
-            <code className="block bg-secondary rounded px-2 py-1 font-mono text-[11px] whitespace-pre-wrap break-all">[[{example}|valfri text]]</code>
+            <code className="block bg-secondary rounded px-2 py-1 font-mono text-[11px] whitespace-pre-wrap break-all">
+              [[{example}|valfri text]]
+            </code>
           </div>
           <div>
             <div className="font-semibold mb-1">Länk till webbsida</div>
@@ -2217,14 +2519,15 @@ function LinkSyntaxHelp({ slug }: { slug?: string }) {
             <p className="mt-1 text-muted-foreground">Länkar öppnas i ny flik automatiskt.</p>
           </div>
           <div className="text-muted-foreground">
-            Tillåtna taggar: <code>&lt;a&gt;</code>, <code>&lt;b&gt;</code>, <code>&lt;strong&gt;</code>, <code>&lt;i&gt;</code>, <code>&lt;em&gt;</code>, <code>&lt;br&gt;</code>, <code>&lt;p&gt;</code>, <code>&lt;ul&gt;</code>, <code>&lt;ol&gt;</code>, <code>&lt;li&gt;</code>.
+            Tillåtna taggar: <code>&lt;a&gt;</code>, <code>&lt;b&gt;</code>, <code>&lt;strong&gt;</code>,{" "}
+            <code>&lt;i&gt;</code>, <code>&lt;em&gt;</code>, <code>&lt;br&gt;</code>, <code>&lt;p&gt;</code>,{" "}
+            <code>&lt;ul&gt;</code>, <code>&lt;ol&gt;</code>, <code>&lt;li&gt;</code>.
           </div>
         </div>
       </PopoverContent>
     </Popover>
   );
 }
-
 
 function Field({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
   const id = useId();
@@ -2239,7 +2542,9 @@ function Field({ label, children }: { label: React.ReactNode; children: React.Re
     const child = onlyChild as ReactElement<{ id?: string }>;
     return (
       <div>
-        <label htmlFor={id} className="block text-sm font-medium mb-1.5">{label}</label>
+        <label htmlFor={id} className="block text-sm font-medium mb-1.5">
+          {label}
+        </label>
         {cloneElement(child, { id: child.props.id ?? id })}
       </div>
     );
@@ -2249,7 +2554,9 @@ function Field({ label, children }: { label: React.ReactNode; children: React.Re
   const labelId = `${id}-label`;
   return (
     <div role="group" aria-labelledby={labelId}>
-      <span id={labelId} className="block text-sm font-medium mb-1.5">{label}</span>
+      <span id={labelId} className="block text-sm font-medium mb-1.5">
+        {label}
+      </span>
       {children}
     </div>
   );
@@ -2266,7 +2573,13 @@ type ContentField = {
 function ContentBadges({ space }: { space: Space }) {
   const { data: capacityIconUrl } = useCapacityIcon();
   const fields: ContentField[] = [
-    { key: "notice", label: "Tillfällig viktig information", Icon: AlertTriangle, sv: space.notice, en: space.notice_en },
+    {
+      key: "notice",
+      label: "Tillfällig viktig information",
+      Icon: AlertTriangle,
+      sv: space.notice,
+      en: space.notice_en,
+    },
     { key: "info", label: "Information på kortet", Icon: Info, sv: space.info, en: space.info_en },
     { key: "map", label: "Karta", Icon: MapPin, sv: space.map_url, en: space.map_url_en },
     { key: "booking", label: "Bokningsschema", Icon: CalendarClock, sv: space.booking_url, en: space.booking_url_en },
@@ -2294,15 +2607,10 @@ function ContentBadges({ space }: { space: Space }) {
           key={f.key}
           title={title}
           aria-label={title}
-          className={cn(
-            "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium",
-            cls,
-          )}
+          className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium", cls)}
         >
           <f.Icon className="h-3 w-3" aria-hidden="true" />
-          <span className="tabular-nums">
-            {both ? "SV·EN" : svOnly ? "SV" : "EN"}
-          </span>
+          <span className="tabular-nums">{both ? "SV·EN" : svOnly ? "SV" : "EN"}</span>
         </span>
       );
     })
@@ -2361,10 +2669,15 @@ function ContentBadges({ space }: { space: Space }) {
   );
 }
 
-
 function SortableSpaceRow({
-  space, selected, compact = false, dragDisabled = false,
-  onToggleSelected, onEdit, onDelete, onToggleHidden,
+  space,
+  selected,
+  compact = false,
+  dragDisabled = false,
+  onToggleSelected,
+  onEdit,
+  onDelete,
+  onToggleHidden,
 }: {
   space: Space;
   selected: boolean;
@@ -2375,7 +2688,10 @@ function SortableSpaceRow({
   onDelete: () => void;
   onToggleHidden: () => void;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: space.id, disabled: dragDisabled });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: space.id,
+    disabled: dragDisabled,
+  });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -2386,16 +2702,18 @@ function SortableSpaceRow({
   const { data: categories = [] } = useFilterCategories();
   const kind = space.space_kind ?? "study";
   const kindCatKey = categories.find((c) => c.special_kind === "space_kind")?.key;
-  const kindOpt = kindCatKey
-    ? filterOptions.find((o) => o.category === kindCatKey && o.value_key === kind)
-    : undefined;
+  const kindOpt = kindCatKey ? filterOptions.find((o) => o.category === kindCatKey && o.value_key === kind) : undefined;
   const kindClsByValue: Record<string, string> = {
-    service: "bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-800",
-    creative: "bg-violet-100 text-violet-900 border-violet-300 dark:bg-violet-950/40 dark:text-violet-200 dark:border-violet-800",
+    service:
+      "bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-800",
+    creative:
+      "bg-violet-100 text-violet-900 border-violet-300 dark:bg-violet-950/40 dark:text-violet-200 dark:border-violet-800",
     study: "bg-primary/10 text-primary border-primary/30",
   };
   const kindMeta = {
-    label: kindOpt?.label ?? (kind === "service" ? "Service & faciliteter" : kind === "creative" ? "Skapande & paus" : "Studieplatser"),
+    label:
+      kindOpt?.label ??
+      (kind === "service" ? "Service & faciliteter" : kind === "creative" ? "Skapande & paus" : "Studieplatser"),
     cls: kindClsByValue[kind] ?? "bg-primary/10 text-primary border-primary/30",
   };
 
@@ -2408,7 +2726,9 @@ function SortableSpaceRow({
 
   const thumbRawUrl = space.images?.[0] ?? space.image_url ?? null;
   const thumbSize = compact ? 60 : 96; // width in px (3:2 ratio)
-  const thumbUrl = thumbRawUrl ? optimizedImageUrl(thumbRawUrl, thumbSize * 2, { resize: "contain", aspect: null }) : null;
+  const thumbUrl = thumbRawUrl
+    ? optimizedImageUrl(thumbRawUrl, thumbSize * 2, { resize: "contain", aspect: null })
+    : null;
 
   // Stop propagation so clicks on interactive elements inside the card
   // don't also trigger the card's onEdit.
@@ -2445,19 +2765,20 @@ function SortableSpaceRow({
         {/* Left rail: drag + select */}
         <div className="flex flex-col items-center gap-1 pt-1" onClick={stop}>
           <button
-            {...attributes} {...listeners}
+            {...attributes}
+            {...listeners}
             type="button"
             disabled={dragDisabled}
             onClick={stop}
             className={cn(
               "h-8 w-8 inline-flex items-center justify-center rounded-md text-muted-foreground touch-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              dragDisabled
-                ? "opacity-30 cursor-not-allowed"
-                : "hover:bg-accent cursor-grab active:cursor-grabbing",
+              dragDisabled ? "opacity-30 cursor-not-allowed" : "hover:bg-accent cursor-grab active:cursor-grabbing",
             )}
             aria-label={dragDisabled ? "Omordning inaktiverad med aktivt filter" : `Dra för att flytta ${space.name}`}
             title={dragDisabled ? "Rensa filter för att sortera om" : undefined}
-          ><GripVertical className="h-4 w-4" aria-hidden="true" /></button>
+          >
+            <GripVertical className="h-4 w-4" aria-hidden="true" />
+          </button>
           <input
             type="checkbox"
             aria-label={`Markera ${space.name}`}
@@ -2477,34 +2798,36 @@ function SortableSpaceRow({
           aria-hidden="true"
         >
           {thumbUrl ? (
-            <img
-              src={thumbUrl}
-              alt=""
-              loading="lazy"
-              className="absolute inset-0 h-full w-full object-contain"
-            />
+            <img src={thumbUrl} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-contain" />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
-              <ImageOff className={cn("text-muted-foreground/60", compact ? "h-4 w-4" : "h-5 w-5")} aria-hidden="true" />
+              <ImageOff
+                className={cn("text-muted-foreground/60", compact ? "h-4 w-4" : "h-5 w-5")}
+                aria-hidden="true"
+              />
             </div>
           )}
         </div>
-
-
 
         {/* Main content */}
         <div className="flex-1 min-w-0 flex flex-col gap-2">
           <div className="flex items-start justify-between gap-3 flex-wrap">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className={cn(
-                  "font-semibold text-foreground break-words",
-                  compact ? "text-sm" : "text-lg leading-snug",
-                )}>{space.name}</h3>
-                <span className={cn(
-                  "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium",
-                  kindMeta.cls,
-                )}>
+                <h3
+                  className={cn(
+                    "font-semibold text-foreground break-words",
+                    compact ? "text-sm" : "text-lg leading-snug",
+                  )}
+                >
+                  {space.name}
+                </h3>
+                <span
+                  className={cn(
+                    "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium",
+                    kindMeta.cls,
+                  )}
+                >
                   {kindMeta.label}
                 </span>
                 {space.hidden && (
@@ -2517,21 +2840,35 @@ function SortableSpaceRow({
                 <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
                   {locationBits.map((b, i) => (
                     <span key={i} className="inline-flex items-center gap-1">
-                      {i > 0 && <span aria-hidden="true" className="opacity-40">·</span>}
+                      {i > 0 && (
+                        <span aria-hidden="true" className="opacity-40">
+                          ·
+                        </span>
+                      )}
                       {b}
                     </span>
                   ))}
-                  {!compact && (space.slug ? (
-                    <span className="inline-flex items-center gap-1">
-                      {locationBits.length > 0 && <span aria-hidden="true" className="opacity-40">·</span>}
-                      slug: <code className="bg-secondary px-1 py-0.5 rounded font-mono text-[11px]">{space.slug}</code>
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 italic">
-                      {locationBits.length > 0 && <span aria-hidden="true" className="opacity-40">·</span>}
-                      ingen slug
-                    </span>
-                  ))}
+                  {!compact &&
+                    (space.slug ? (
+                      <span className="inline-flex items-center gap-1">
+                        {locationBits.length > 0 && (
+                          <span aria-hidden="true" className="opacity-40">
+                            ·
+                          </span>
+                        )}
+                        slug:{" "}
+                        <code className="bg-secondary px-1 py-0.5 rounded font-mono text-[11px]">{space.slug}</code>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 italic">
+                        {locationBits.length > 0 && (
+                          <span aria-hidden="true" className="opacity-40">
+                            ·
+                          </span>
+                        )}
+                        ingen slug
+                      </span>
+                    ))}
                 </div>
               )}
               {!compact && (typeChips.length > 0 || noiseChips.length > 0) && (
@@ -2554,25 +2891,31 @@ function SortableSpaceRow({
                   ))}
                 </div>
               )}
-
             </div>
-
 
             <div className="flex items-center gap-1 shrink-0" onClick={stop}>
               <button
                 type="button"
-                onClick={(e) => { stop(e); onToggleHidden(); }}
+                onClick={(e) => {
+                  stop(e);
+                  onToggleHidden();
+                }}
                 className="min-h-9 min-w-9 inline-flex items-center justify-center rounded-md hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label={space.hidden ? `Visa ${space.name} igen` : `Dölj ${space.name}`}
                 title={space.hidden ? "Visa igen" : "Dölj lokalen"}
               >
-                {space.hidden
-                  ? <Eye className="h-4 w-4" aria-hidden="true" />
-                  : <EyeOff className="h-4 w-4" aria-hidden="true" />}
+                {space.hidden ? (
+                  <Eye className="h-4 w-4" aria-hidden="true" />
+                ) : (
+                  <EyeOff className="h-4 w-4" aria-hidden="true" />
+                )}
               </button>
               <button
                 type="button"
-                onClick={(e) => { stop(e); onDelete(); }}
+                onClick={(e) => {
+                  stop(e);
+                  onDelete();
+                }}
                 disabled={!space.hidden}
                 className={cn(
                   "min-h-9 min-w-9 inline-flex items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
@@ -2580,7 +2923,9 @@ function SortableSpaceRow({
                     ? "hover:bg-destructive/10 text-destructive"
                     : "text-muted-foreground/40 cursor-not-allowed",
                 )}
-                aria-label={space.hidden ? `Ta bort ${space.name}` : `Dölj lokalen först för att kunna ta bort ${space.name}`}
+                aria-label={
+                  space.hidden ? `Ta bort ${space.name}` : `Dölj lokalen först för att kunna ta bort ${space.name}`
+                }
                 title={space.hidden ? "Ta bort permanent" : "Dölj lokalen först för att kunna ta bort den"}
               >
                 <Trash2 className="h-4 w-4" aria-hidden="true" />
@@ -2595,13 +2940,26 @@ function SortableSpaceRow({
   );
 }
 
-
 function SortableImageRow({
-  id, url, index, altSv, altEn, uploadedAt, onAltSv, onAltEn, onRemove,
+  id,
+  url,
+  index,
+  altSv,
+  altEn,
+  uploadedAt,
+  onAltSv,
+  onAltEn,
+  onRemove,
 }: {
-  id: string; url: string; index: number;
-  altSv: string; altEn: string; uploadedAt?: string | null;
-  onAltSv: (v: string) => void; onAltEn: (v: string) => void; onRemove: () => void;
+  id: string;
+  url: string;
+  index: number;
+  altSv: string;
+  altEn: string;
+  uploadedAt?: string | null;
+  onAltSv: (v: string) => void;
+  onAltEn: (v: string) => void;
+  onRemove: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = {
@@ -2618,10 +2976,13 @@ function SortableImageRow({
     <li ref={setNodeRef} style={style} className="flex gap-3 items-start rounded-lg border border-border p-2 bg-card">
       <button
         type="button"
-        {...attributes} {...listeners}
+        {...attributes}
+        {...listeners}
         className="min-h-11 min-w-11 inline-flex items-center justify-center self-center text-muted-foreground rounded hover:bg-accent cursor-grab active:cursor-grabbing touch-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         aria-label={`Dra för att flytta bild ${index + 1}`}
-      ><GripVertical className="h-4 w-4" aria-hidden="true" /></button>
+      >
+        <GripVertical className="h-4 w-4" aria-hidden="true" />
+      </button>
       <div className="relative shrink-0">
         <img src={url} alt="" className="h-20 w-28 object-cover border border-border" />
         {index === 0 && (
@@ -2632,7 +2993,9 @@ function SortableImageRow({
       </div>
       <div className="flex-1 min-w-0 space-y-2">
         <div>
-          <label htmlFor={altSvId} className="sr-only">Alt-text på svenska för bild {index + 1}</label>
+          <label htmlFor={altSvId} className="sr-only">
+            Alt-text på svenska för bild {index + 1}
+          </label>
           <input
             id={altSvId}
             value={altSv}
@@ -2642,7 +3005,9 @@ function SortableImageRow({
           />
         </div>
         <div>
-          <label htmlFor={altEnId} className="sr-only">Alt text in English for image {index + 1}</label>
+          <label htmlFor={altEnId} className="sr-only">
+            Alt text in English for image {index + 1}
+          </label>
           <input
             id={altEnId}
             value={altEn}
@@ -2652,25 +3017,26 @@ function SortableImageRow({
           />
         </div>
         <div className="flex items-center justify-between">
-          {dateLabel ? (
-            <span className="text-[10px] text-muted-foreground">Uppladdad: {dateLabel}</span>
-          ) : (
-            <span />
-          )}
+          {dateLabel ? <span className="text-[10px] text-muted-foreground">Uppladdad: {dateLabel}</span> : <span />}
           <button
-            type="button" onClick={onRemove}
+            type="button"
+            onClick={onRemove}
             className="min-h-11 min-w-11 rounded bg-destructive/10 text-destructive inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label={`Ta bort bild ${index + 1}`}
-          ><X className="h-3.5 w-3.5" aria-hidden="true" /></button>
+          >
+            <X className="h-3.5 w-3.5" aria-hidden="true" />
+          </button>
         </div>
       </div>
     </li>
   );
 }
 
-
 function SelectByLokaltyp({
-  spaces, options, selectedIds, setSelectedIds,
+  spaces,
+  options,
+  selectedIds,
+  setSelectedIds,
 }: {
   spaces: Space[];
   options: FilterOption[];
@@ -2682,9 +3048,9 @@ function SelectByLokaltyp({
 
   const { data: kindCategories = [] } = useFilterCategories();
   const kindCatKeyForGroups = kindCategories.find((c) => c.special_kind === "space_kind")?.key;
-  const kindOptsForGroups = (kindCatKeyForGroups
+  const kindOptsForGroups = kindCatKeyForGroups
     ? options.filter((o) => o.category === kindCatKeyForGroups && !o.hidden && o.value_key)
-    : []);
+    : [];
   const kindGroups = kindOptsForGroups.map((o) => ({ key: o.value_key as string, label: o.label }));
 
   const toggleForMatches = (matches: Space[]) => {
@@ -2709,9 +3075,7 @@ function SelectByLokaltyp({
 
   return (
     <div className="rounded-xl border border-border bg-muted/40 p-3 space-y-2">
-      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-        Markera flera per typ
-      </div>
+      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Markera flera per typ</div>
 
       <div className="flex flex-wrap items-center gap-1.5">
         <span className="text-xs text-muted-foreground mr-1">Kategori:</span>
@@ -2767,17 +3131,19 @@ function SelectByLokaltyp({
       )}
 
       <p className="text-[11px] text-muted-foreground">
-        Klicka en pill för att markera alla lokaler med den typen. Klicka igen för att avmarkera dem.
-        Använd sedan bulk-verktyget ovanför tabellen för att uppdatera flera lokaler samtidigt.
+        Klicka en pill för att markera alla lokaler med den typen. Klicka igen för att avmarkera dem. Använd sedan
+        bulk-verktyget ovanför tabellen för att uppdatera flera lokaler samtidigt.
       </p>
     </div>
   );
 }
 
-
 function ImageDropzone({
-
-  disabled, busy, remaining, maxImages, onFiles,
+  disabled,
+  busy,
+  remaining,
+  maxImages,
+  onFiles,
 }: {
   disabled: boolean;
   busy: boolean;
@@ -2799,7 +3165,10 @@ function ImageDropzone({
   return (
     <div className="space-y-2">
       <div
-        onDragOver={(e) => { e.preventDefault(); if (!disabled) setDragOver(true); }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          if (!disabled) setDragOver(true);
+        }}
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
         className={cn(
@@ -2814,10 +3183,7 @@ function ImageDropzone({
             <strong>Dra och släpp bilder här</strong> eller{" "}
             <label
               htmlFor={inputId}
-              className={cn(
-                "underline cursor-pointer text-primary",
-                disabled && "pointer-events-none",
-              )}
+              className={cn("underline cursor-pointer text-primary", disabled && "pointer-events-none")}
             >
               välj filer
             </label>
@@ -2846,23 +3212,23 @@ function ImageDropzone({
         </div>
       </div>
       <p className="text-xs text-muted-foreground leading-relaxed">
-        <strong>Auto-crop:</strong> bilder beskärs automatiskt centrerat till <strong>3:2</strong>{" "}
-        (1600×1067 px) och konverteras till WebP under ~250 kB. JPG, PNG och WebP godtas.
-        Motivet bör vara centrerat — kanterna kan beskäras något i topp/botten på desktop
-        beroende på hur mycket text kortet innehåller.
+        <strong>Auto-crop:</strong> bilder beskärs automatiskt centrerat till <strong>3:2</strong> (1600×1067 px) och
+        konverteras till WebP under ~250 kB. JPG, PNG och WebP godtas. Motivet bör vara centrerat — kanterna kan
+        beskäras något i topp/botten på desktop beroende på hur mycket text kortet innehåller.
       </p>
     </div>
   );
 }
 
-
-
-
-
-
 function SortableFilterOptionRow({
-  option, onEdit, onDelete,
-}: { option: FilterOption; onEdit: () => void; onDelete: () => void }) {
+  option,
+  onEdit,
+  onDelete,
+}: {
+  option: FilterOption;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
   const qc = useQueryClient();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: option.id });
   const style = {
@@ -2872,8 +3238,10 @@ function SortableFilterOptionRow({
   };
   const toggleHidden = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from("filter_options")
-        .update({ hidden: !option.hidden } as any).eq("id", option.id);
+      const { error } = await supabase
+        .from("filter_options")
+        .update({ hidden: !option.hidden } as any)
+        .eq("id", option.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -2883,26 +3251,34 @@ function SortableFilterOptionRow({
     onError: (e: any) => toast.error(e.message),
   });
   return (
-    <li ref={setNodeRef} style={style} className={cn(
-      "py-2 flex items-center justify-between gap-3 bg-card",
-      option.hidden && "opacity-60",
-    )}>
+    <li
+      ref={setNodeRef}
+      style={style}
+      className={cn("py-2 flex items-center justify-between gap-3 bg-card", option.hidden && "opacity-60")}
+    >
       <div className="flex items-center gap-2 min-w-0">
         <button
-          {...attributes} {...listeners}
+          {...attributes}
+          {...listeners}
           type="button"
           className="min-h-11 min-w-11 inline-flex items-center justify-center text-muted-foreground rounded hover:bg-accent cursor-grab active:cursor-grabbing touch-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label={`Dra för att flytta ${option.label}`}
-        ><GripVertical className="h-4 w-4" aria-hidden="true" /></button>
+        >
+          <GripVertical className="h-4 w-4" aria-hidden="true" />
+        </button>
         <span className="h-7 w-7 rounded-md bg-secondary flex items-center justify-center shrink-0">
           <OptionIcon option={option} className="h-4 w-4" />
         </span>
         <span className="text-sm truncate">{option.label}</span>
         {option.is_seed && (
-          <span className="text-[10px] rounded-full bg-secondary px-1.5 py-0.5 text-muted-foreground uppercase tracking-wide">Standard</span>
+          <span className="text-[10px] rounded-full bg-secondary px-1.5 py-0.5 text-muted-foreground uppercase tracking-wide">
+            Standard
+          </span>
         )}
         {option.hidden && (
-          <span className="text-[10px] rounded-full bg-secondary px-1.5 py-0.5 text-muted-foreground uppercase tracking-wide">Dold</span>
+          <span className="text-[10px] rounded-full bg-secondary px-1.5 py-0.5 text-muted-foreground uppercase tracking-wide">
+            Dold
+          </span>
         )}
       </div>
       <div className="inline-flex gap-1">
@@ -2998,7 +3374,9 @@ function CardLayoutTab() {
   const save = useSaveCardLayout();
 
   // Sync when remote layout loads/changes.
-  useEffect(() => { setOrder(saved); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [saved.join("|")]);
+  useEffect(() => {
+    setOrder(saved); /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [saved.join("|")]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -3022,8 +3400,8 @@ function CardLayoutTab() {
         <div>
           <h2 className="text-xl font-bold">Kortlayout</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Dra för att ändra ordningen på sektionerna i lokalkorten. Bilden och
-            knappen "Visa beskrivning" har fasta positioner.
+            Dra för att ändra ordningen på sektionerna i lokalkorten. Bilden och knappen "Visa beskrivning" har fasta
+            positioner.
           </p>
         </div>
 
@@ -3068,7 +3446,6 @@ function CardLayoutTab() {
         <CapacityIconSection />
       </div>
     </div>
-
   );
 }
 
@@ -3078,9 +3455,7 @@ function StudySpacePreviewCard({ order }: { order: CardSectionKey[] }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-2 gap-3 flex-wrap">
-        <h3 className="text-sm font-semibold text-muted-foreground">
-          Förhandsvisning – studieplats
-        </h3>
+        <h3 className="text-sm font-semibold text-muted-foreground">Förhandsvisning – studieplats</h3>
         <div className="inline-flex rounded-full border border-border bg-card p-0.5 text-xs">
           {(["free", "moderate", "busy"] as const).map((s) => (
             <button
@@ -3133,9 +3508,7 @@ function GroupRoomPreviewCard({ order }: { order: CardSectionKey[] }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-2 gap-3 flex-wrap">
-        <h3 className="text-sm font-semibold text-muted-foreground">
-          Förhandsvisning – grupprum
-        </h3>
+        <h3 className="text-sm font-semibold text-muted-foreground">Förhandsvisning – grupprum</h3>
         <div className="inline-flex rounded-full border border-border bg-card p-0.5 text-xs">
           <button
             onClick={() => setStatus("free")}
@@ -3152,19 +3525,14 @@ function GroupRoomPreviewCard({ order }: { order: CardSectionKey[] }) {
         </div>
       </div>
       <div className="max-w-[920px]">
-        <SpaceCard
-          space={DUMMY_GROUP_ROOM}
-          layoutOverride={order}
-          previewGroupRoom={{ status }}
-        />
+        <SpaceCard space={DUMMY_GROUP_ROOM} layoutOverride={order} previewGroupRoom={{ status }} />
       </div>
     </div>
   );
 }
 
 function SortableSectionRow({ id, label }: { id: string; label: string }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -3222,9 +3590,7 @@ function LangPairEditor({
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <div className="space-y-2">
-        <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          {labelSv} (SV)
-        </label>
+        <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{labelSv} (SV)</label>
         <textarea
           rows={rows}
           value={sv}
@@ -3253,9 +3619,7 @@ function LangPairEditor({
         </div>
       </div>
       <div className="space-y-2">
-        <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          {labelEn} (EN)
-        </label>
+        <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{labelEn} (EN)</label>
         <textarea
           rows={rows}
           value={en}
@@ -3289,7 +3653,14 @@ function LangPairEditor({
 }
 
 function LandingMessageTab() {
-  const uiKeys: UiTextKey[] = ["empty_title", "empty_suggest_template", "empty_fallback", "occupancy_free", "occupancy_moderate", "occupancy_busy"];
+  const uiKeys: UiTextKey[] = [
+    "empty_title",
+    "empty_suggest_template",
+    "empty_fallback",
+    "occupancy_free",
+    "occupancy_moderate",
+    "occupancy_busy",
+  ];
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -3322,9 +3693,9 @@ function AnnouncementSection() {
         <div>
           <h2 className="text-lg font-bold">Driftmeddelande på startsidan</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Visas som en banner högst upp på startsidan, direkt under sidhuvudet.
-            Använd t.ex. för att informera om renovering eller större ändringar.
-            Besökare kan stänga bannern, men den dyker upp igen om du redigerar texten.
+            Visas som en banner högst upp på startsidan, direkt under sidhuvudet. Använd t.ex. för att informera om
+            renovering eller större ändringar. Besökare kan stänga bannern, men den dyker upp igen om du redigerar
+            texten.
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -3350,12 +3721,8 @@ function AnnouncementSection() {
         valueEn={en}
         isPending={save.isPending}
         isLoading={isLoading}
-        onSaveSv={(v) =>
-          save.mutate({ sv: v }, { onSuccess: () => toast.success("Sparat (SV)") })
-        }
-        onSaveEn={(v) =>
-          save.mutate({ en: v }, { onSuccess: () => toast.success("Sparat (EN)") })
-        }
+        onSaveSv={(v) => save.mutate({ sv: v }, { onSuccess: () => toast.success("Sparat (SV)") })}
+        onSaveEn={(v) => save.mutate({ en: v }, { onSuccess: () => toast.success("Sparat (EN)") })}
       />
     </div>
   );
@@ -3393,7 +3760,6 @@ function UiTextEditor({ uiKey }: { uiKey: UiTextKey }) {
   );
 }
 
-
 function CapacityIconSection() {
   const { data: iconUrl } = useCapacityIcon();
   const save = useSaveCapacityIcon();
@@ -3421,8 +3787,8 @@ function CapacityIconSection() {
       <div>
         <h2 className="text-lg font-bold">Ikon för antal sittplatser</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Visas bredvid antalet platser på alla lokalkort. Rekommenderat: kvadratisk
-          SVG eller PNG (minst 64×64 px) med transparent bakgrund.
+          Visas bredvid antalet platser på alla lokalkort. Rekommenderat: kvadratisk SVG eller PNG (minst 64×64 px) med
+          transparent bakgrund.
         </p>
       </div>
 
@@ -3434,9 +3800,7 @@ function CapacityIconSection() {
             <ChairIcon className="h-6 w-6 text-muted-foreground" />
           )}
         </div>
-        <div className="text-sm text-muted-foreground">
-          {iconUrl ? "Egen ikon används." : "Standardikon används."}
-        </div>
+        <div className="text-sm text-muted-foreground">{iconUrl ? "Egen ikon används." : "Standardikon används."}</div>
       </div>
 
       <div className="flex gap-2 flex-wrap">
@@ -3469,7 +3833,6 @@ function CapacityIconSection() {
   );
 }
 
-
 // ---------------- Occupancy Settings Tab ----------------
 
 function OccupancySettingsTab() {
@@ -3490,15 +3853,12 @@ function OccupancySettingsTab() {
       <div>
         <h2 className="text-xl font-bold mb-1">Beläggningsindikator</h2>
         <p className="text-sm text-muted-foreground">
-          Styr om realtidsbeläggningen ska visas i studentvyn. Öppettiderna hämtas
-          automatiskt från bibliotekets öppettids-API. Per-lokal kan beläggningen
-          även slås av på respektive lokalkort.
+          Styr om realtidsbeläggningen ska visas i studentvyn. Öppettiderna hämtas automatiskt från bibliotekets
+          öppettids-API. Per-lokal kan beläggningen även slås av på respektive lokalkort.
         </p>
       </div>
 
       <OccupancyDiagnosticsPanel globalEnabled={enabled} />
-
-
 
       <div className="rounded-lg border border-border bg-card p-4 space-y-3">
         <label className="flex items-start gap-3 cursor-pointer">
@@ -3509,12 +3869,10 @@ function OccupancySettingsTab() {
             className="mt-1 h-4 w-4 rounded border-border cursor-pointer accent-[var(--kth-blue)]"
           />
           <span>
-            <span className="block text-sm font-medium">
-              Visa beläggning för samtliga lokaler
-            </span>
+            <span className="block text-sm font-medium">Visa beläggning för samtliga lokaler</span>
             <span className="block text-xs text-muted-foreground mt-0.5">
-              Slå av detta för att dölja beläggningsindikatorn på alla lokalkort samtidigt
-              (t.ex. vid tekniska problem med Countmatters).
+              Slå av detta för att dölja beläggningsindikatorn på alla lokalkort samtidigt (t.ex. vid tekniska problem
+              med Countmatters).
             </span>
           </span>
         </label>
@@ -3522,14 +3880,18 @@ function OccupancySettingsTab() {
 
       <OpeningHoursInfoCard />
 
-
       <div className="flex gap-2">
         <button
           type="button"
-          onClick={() => save.mutate({ enabled, schedule }, {
-            onSuccess: () => toast.success("Sparat"),
-            onError: (e: any) => toast.error(e.message),
-          })}
+          onClick={() =>
+            save.mutate(
+              { enabled, schedule },
+              {
+                onSuccess: () => toast.success("Sparat"),
+                onError: (e: any) => toast.error(e.message),
+              },
+            )
+          }
           disabled={save.isPending}
           className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-50"
         >
@@ -3551,8 +3913,8 @@ function OpeningHoursInfoCard() {
         <div>
           <h3 className="text-sm font-semibold">Öppettider (hämtas automatiskt)</h3>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Öppettiderna hämtas från bibliotekets öppettids-API för dagens datum och
-            styr när realtidsfunktionerna visas. De ställs inte längre in manuellt här.
+            Öppettiderna hämtas från bibliotekets öppettids-API för dagens datum och styr när realtidsfunktionerna
+            visas.
           </p>
         </div>
         <button
@@ -3575,9 +3937,7 @@ function OpeningHoursInfoCard() {
         {data?.error && (
           <>
             <dt className="text-muted-foreground">API-fel</dt>
-            <dd className="text-rose-600">
-              {data.error} – appen visar då beläggning och filter som vanligt.
-            </dd>
+            <dd className="text-rose-600">{data.error} – appen visar då beläggning och filter som vanligt.</dd>
           </>
         )}
       </dl>
@@ -3588,29 +3948,27 @@ function OpeningHoursInfoCard() {
         </p>
         <ul className="list-disc pl-4 space-y-1">
           <li>
-            <span className="text-foreground">Beläggningsindikatorn på lokalkorten</span> –
-            färgprick och text (Ledigt / Medel / Upptaget) samt statusen ”Ledigt just nu”
-            för grupprum.
+            <span className="text-foreground">Beläggningsindikatorn på lokalkorten</span> – färgprick och text (Ledigt /
+            Medel / Upptaget) samt statusen ”Ledigt just nu” för grupprum.
           </li>
           <li>
-            <span className="text-foreground">Filtret ”Visa bara lediga just nu”</span> i
-            filtermenyn (grupprum).
+            <span className="text-foreground">Filtret ”Visa bara lediga just nu”</span> i filtermenyn (grupprum).
           </li>
           <li>
             <span className="text-foreground">Sorteringsvalet ”Lediga just nu först”</span>.
           </li>
           <li>
-            <span className="text-foreground">Fritextsökningen</span> – ord som ”ledigt”
-            matchar bara när realtidsstatus är aktiv.
+            <span className="text-foreground">Fritextsökningen</span> – ord som ”ledigt” matchar bara när realtidsstatus
+            är aktiv.
           </li>
           <li>
-            <span className="text-foreground">Meddelandet vid noll träffar</span> – förslaget
-            om att ta bort ”lediga just nu”.
+            <span className="text-foreground">Meddelandet vid noll träffar</span> – förslaget om att ta bort ”lediga
+            just nu”.
           </li>
         </ul>
         <p>
-          Om öppettids-API:t inte svarar visas beläggning och filter ändå, så att
-          studentvyn aldrig blir tom på grund av ett tekniskt fel.
+          Om öppettids-API:t inte svarar visas beläggning och filter ändå, så att studentvyn aldrig blir tom på grund av
+          ett tekniskt fel.
         </p>
       </div>
     </div>
@@ -3619,12 +3977,7 @@ function OpeningHoursInfoCard() {
 
 // ---------------- Occupancy Diagnostics ----------------
 
-function OccupancyDiagnosticsPanel({
-  globalEnabled,
-}: {
-  globalEnabled: boolean;
-}) {
-
+function OccupancyDiagnosticsPanel({ globalEnabled }: { globalEnabled: boolean }) {
   const { data: realtime, isFetching, refetch, dataUpdatedAt } = useRealtimeOccupancy();
   const { data: openingHours } = useOpeningHours();
 
@@ -3647,14 +4000,9 @@ function OccupancyDiagnosticsPanel({
   const locationOpen = realtime?.location && realtime.location.toLowerCase() !== "closed";
   const zoneNames = realtime ? Object.keys(realtime.zones) : [];
 
-  const overallOk =
-    globalEnabled && withinSchedule && httpOk && !realtime?.error && zoneNames.length > 0;
+  const overallOk = globalEnabled && withinSchedule && httpOk && !realtime?.error && zoneNames.length > 0;
 
-  const statusColor = overallOk
-    ? "bg-emerald-500"
-    : httpOk
-      ? "bg-amber-500"
-      : "bg-rose-500";
+  const statusColor = overallOk ? "bg-emerald-500" : httpOk ? "bg-amber-500" : "bg-rose-500";
 
   const statusLabel = overallOk
     ? "Beläggning visas just nu"
@@ -3672,7 +4020,11 @@ function OccupancyDiagnosticsPanel({
 
   const fmt = (iso: string | null | undefined) => {
     if (!iso) return "–";
-    try { return new Date(iso).toLocaleString("sv-SE"); } catch { return iso; }
+    try {
+      return new Date(iso).toLocaleString("sv-SE");
+    } catch {
+      return iso;
+    }
   };
 
   return (
@@ -3707,7 +4059,7 @@ function OccupancyDiagnosticsPanel({
         <div>
           <dt className="text-muted-foreground">HTTP-status</dt>
           <dd className="font-medium">
-            {realtime ? (realtime.httpStatus || "nätverksfel") : "–"}
+            {realtime ? realtime.httpStatus || "nätverksfel" : "–"}
             {realtime?.error ? ` · ${realtime.error}` : ""}
           </dd>
         </div>
@@ -3749,10 +4101,12 @@ function OccupancyDiagnosticsPanel({
               const matched = Boolean(zone && zone.threshold > 0);
               return (
                 <li key={s.id} className="flex items-center gap-2 flex-wrap">
-                  <span className={cn(
-                    "inline-block h-1.5 w-1.5 rounded-full flex-shrink-0",
-                    matched ? "bg-emerald-500" : httpOk ? "bg-amber-500" : "bg-rose-500",
-                  )} />
+                  <span
+                    className={cn(
+                      "inline-block h-1.5 w-1.5 rounded-full flex-shrink-0",
+                      matched ? "bg-emerald-500" : httpOk ? "bg-amber-500" : "bg-rose-500",
+                    )}
+                  />
                   <span className="font-medium">{s.name}</span>
                   <span className="text-muted-foreground">→</span>
                   <span className="font-mono text-[11px]">{id}</span>
@@ -3761,12 +4115,8 @@ function OccupancyDiagnosticsPanel({
                       · {zone!.inside}/{zone!.threshold}
                     </span>
                   )}
-                  {!matched && httpOk && (
-                    <span className="text-muted-foreground">· ingen matchande zon i svaret</span>
-                  )}
-                  {s.show_occupancy === false && (
-                    <span className="text-amber-600">· visning av på kortet</span>
-                  )}
+                  {!matched && httpOk && <span className="text-muted-foreground">· ingen matchande zon i svaret</span>}
+                  {s.show_occupancy === false && <span className="text-amber-600">· visning av på kortet</span>}
                 </li>
               );
             })}
@@ -3775,12 +4125,9 @@ function OccupancyDiagnosticsPanel({
       )}
 
       <p className="text-[11px] text-muted-foreground pt-1">
-        Denna diagnostik anropar datakällan direkt (ingen AI inblandad) och fungerar
-        oförändrat om appen flyttas till en annan sajt.
+        Denna diagnostik anropar datakällan direkt (ingen AI inblandad) och fungerar oförändrat om appen flyttas till en
+        annan sajt.
       </p>
     </div>
   );
 }
-
-
-
