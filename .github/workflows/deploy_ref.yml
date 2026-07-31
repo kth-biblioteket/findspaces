@@ -50,10 +50,7 @@ jobs:
     steps:
       - name: Deploy docker container webhook
         uses: distributhor/workflow-webhook@v3
-        env:
+        with:
           webhook_url: https://api-ref.lib.kth.se/webhooks/hook
           webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
           data: '{ "action": "deploy" }'
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
