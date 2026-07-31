@@ -86,6 +86,7 @@ import {
   type OccupancySchedule,
 } from "@/lib/useOccupancySettings";
 import { useOpeningHours, isOpenNow } from "@/lib/useOpeningHours";
+import { useOpeningHoursSchedule } from "@/lib/useOpeningHoursSchedule";
 import { useRealtimeOccupancy } from "@/lib/useOccupancy";
 
 import { ChairIcon } from "@/components/icons/ChairIcon";
