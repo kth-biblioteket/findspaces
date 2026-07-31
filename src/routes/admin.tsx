@@ -3534,13 +3534,83 @@ function OccupancySettingsTab() {
         >
           {save.isPending ? "Sparar..." : "Spara"}
         </button>
+      </div>
+    </div>
+  );
+}
+
+// ---------------- Opening hours (external API) ----------------
+
+function OpeningHoursInfoCard() {
+  const { data, isFetching, refetch } = useOpeningHours();
+  const openNow = isOpenNow(data, new Date());
+  return (
+    <div className="rounded-lg border border-border bg-card p-4 space-y-3">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h3 className="text-sm font-semibold">Öppettider (hämtas automatiskt)</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Öppettiderna hämtas från bibliotekets öppettids-API för dagens datum och
+            styr när realtidsfunktionerna visas. De ställs inte längre in manuellt här.
+          </p>
+        </div>
         <button
           type="button"
-          onClick={() => setSchedule(DEFAULT_SCHEDULE)}
-          className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent"
+          onClick={() => refetch()}
+          disabled={isFetching}
+          className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium hover:bg-accent disabled:opacity-50"
         >
-          Återställ till standard
+          {isFetching ? "Hämtar..." : "Uppdatera"}
         </button>
+      </div>
+
+      <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+        <dt className="text-muted-foreground">Öppet idag</dt>
+        <dd>{data ? (data.openToday ? "Ja" : "Nej") : "–"}</dd>
+        <dt className="text-muted-foreground">Tider idag</dt>
+        <dd>{data?.hoursToday ?? "–"}</dd>
+        <dt className="text-muted-foreground">Status just nu</dt>
+        <dd>{openNow ? "Realtidsfunktioner visas" : "Utanför öppettiderna"}</dd>
+        {data?.error && (
+          <>
+            <dt className="text-muted-foreground">API-fel</dt>
+            <dd className="text-rose-600">
+              {data.error} – appen visar då beläggning och filter som vanligt.
+            </dd>
+          </>
+        )}
+      </dl>
+
+      <div className="rounded-md bg-muted/50 p-3 text-xs text-muted-foreground space-y-2">
+        <p className="font-medium text-foreground">
+          Det här styrs av öppettiderna (utanför dem döljs eller inaktiveras det):
+        </p>
+        <ul className="list-disc pl-4 space-y-1">
+          <li>
+            <span className="text-foreground">Beläggningsindikatorn på lokalkorten</span> –
+            färgprick och text (Ledigt / Medel / Upptaget) samt statusen ”Ledigt just nu”
+            för grupprum.
+          </li>
+          <li>
+            <span className="text-foreground">Filtret ”Visa bara lediga just nu”</span> i
+            filtermenyn (grupprum).
+          </li>
+          <li>
+            <span className="text-foreground">Sorteringsvalet ”Lediga just nu först”</span>.
+          </li>
+          <li>
+            <span className="text-foreground">Fritextsökningen</span> – ord som ”ledigt”
+            matchar bara när realtidsstatus är aktiv.
+          </li>
+          <li>
+            <span className="text-foreground">Meddelandet vid noll träffar</span> – förslaget
+            om att ta bort ”lediga just nu”.
+          </li>
+        </ul>
+        <p>
+          Om öppettids-API:t inte svarar visas beläggning och filter ändå, så att
+          studentvyn aldrig blir tom på grund av ett tekniskt fel.
+        </p>
       </div>
     </div>
   );
@@ -3550,11 +3620,10 @@ function OccupancySettingsTab() {
 
 function OccupancyDiagnosticsPanel({
   globalEnabled,
-  schedule,
 }: {
   globalEnabled: boolean;
-  schedule: OccupancySchedule;
 }) {
+
   const { data: realtime, isFetching, refetch, dataUpdatedAt } = useRealtimeOccupancy();
   const { data: spacesData } = useQuery({
     queryKey: ["spaces", "occupancy-sensors"],
