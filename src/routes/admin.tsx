@@ -40,11 +40,12 @@ import { useCapacityIcon, useSaveCapacityIcon } from "@/lib/useCapacityIcon";
 import { useHiddenIcons } from "@/lib/useHiddenIcons";
 import {
   useOccupancySettings, useSaveOccupancySettings,
-  DEFAULT_SCHEDULE, WEEKDAYS, WEEKDAY_LABELS_SV,
-  isWithinSchedule,
-  type OccupancySchedule, type DaySchedule, type Weekday,
+  DEFAULT_SCHEDULE,
+  type OccupancySchedule,
 } from "@/lib/useOccupancySettings";
+import { useOpeningHours, isOpenNow } from "@/lib/useOpeningHours";
 import { useRealtimeOccupancy } from "@/lib/useOccupancy";
+
 import { ChairIcon } from "@/components/icons/ChairIcon";
 import { AnalyticsTab } from "@/components/AnalyticsTab";
 import { Switch } from "@/components/ui/switch";
@@ -3484,24 +3485,19 @@ function OccupancySettingsTab() {
     }
   }, [data]);
 
-  const updateDay = (d: Weekday, patch: Partial<DaySchedule>) => {
-    setSchedule((s) => ({ ...s, [d]: { ...s[d], ...patch } }));
-  };
-
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
         <h2 className="text-xl font-bold mb-1">Beläggningsindikator</h2>
         <p className="text-sm text-muted-foreground">
-          Styr om realtidsbeläggningen ska visas i studentvyn och under vilka tider.
-          Per-lokal kan beläggningen även slås av på respektive lokalkort.
+          Styr om realtidsbeläggningen ska visas i studentvyn. Öppettiderna hämtas
+          automatiskt från bibliotekets öppettids-API. Per-lokal kan beläggningen
+          även slås av på respektive lokalkort.
         </p>
       </div>
 
-      <OccupancyDiagnosticsPanel
-        globalEnabled={enabled}
-        schedule={schedule}
-      />
+      <OccupancyDiagnosticsPanel globalEnabled={enabled} />
+
 
 
       <div className="rounded-lg border border-border bg-card p-4 space-y-3">
@@ -3524,83 +3520,8 @@ function OccupancySettingsTab() {
         </label>
       </div>
 
-      <div className="rounded-lg border border-border bg-card p-4 space-y-3">
-        <div>
-          <h3 className="text-sm font-semibold">Visningstider per veckodag</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Beläggningen visas bara inom angivet intervall. Stäng av dagar då biblioteket
-            är stängt.
-          </p>
-          <div className="mt-3 rounded-md bg-muted/50 p-3 text-xs text-muted-foreground space-y-2">
-            <p className="font-medium text-foreground">
-              Det här styrs av tiderna ovan (utanför intervallet döljs eller inaktiveras det):
-            </p>
-            <ul className="list-disc pl-4 space-y-1">
-              <li>
-                <span className="text-foreground">Beläggningsindikatorn på lokalkorten</span> –
-                färgprick och text (Ledigt / Medel / Upptaget) samt statusen ”Ledigt just nu”
-                för grupprum.
-              </li>
-              <li>
-                <span className="text-foreground">Filtret ”Visa bara lediga just nu”</span> i
-                filtermenyn (grupprum) – visas bara inom öppettiderna och räknas då in i antal
-                träffar och i de valda filtren ovanför träfflistan.
-              </li>
-              <li>
-                <span className="text-foreground">Sorteringsvalet ”Lediga just nu först”</span> –
-                syns bara när grupprum är valt och tiden ligger inom intervallet. Utanför tiderna
-                faller sorteringen tillbaka till Standard.
-              </li>
-              <li>
-                <span className="text-foreground">Fritextsökningen</span> – ord som ”ledigt”
-                matchar bara när realtidsstatus är aktiv.
-              </li>
-              <li>
-                <span className="text-foreground">Meddelandet vid noll träffar</span> – förslaget
-                om att ta bort ”lediga just nu” visas bara inom tiderna.
-              </li>
-            </ul>
-            <p>
-              Realtidsdata hämtas från Countmatters och uppdateras löpande; statusen omvärderas
-              automatiskt när intervallet börjar eller slutar, utan att sidan behöver laddas om.
-            </p>
-          </div>
-        </div>
+      <OpeningHoursInfoCard />
 
-        <div className="space-y-2">
-          {WEEKDAYS.map((d) => {
-            const day = schedule[d];
-            return (
-              <div key={d} className="flex items-center gap-3 flex-wrap">
-                <label className="flex items-center gap-2 w-32 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={day.enabled}
-                    onChange={(e) => updateDay(d, { enabled: e.target.checked })}
-                    className="h-4 w-4 rounded border-border cursor-pointer accent-[var(--kth-blue)]"
-                  />
-                  <span className="text-sm">{WEEKDAY_LABELS_SV[d]}</span>
-                </label>
-                <input
-                  type="time"
-                  value={day.from}
-                  disabled={!day.enabled}
-                  onChange={(e) => updateDay(d, { from: e.target.value })}
-                  className="rounded-md border border-border bg-card px-2 py-1 text-sm disabled:opacity-50"
-                />
-                <span className="text-sm text-muted-foreground">–</span>
-                <input
-                  type="time"
-                  value={day.to}
-                  disabled={!day.enabled}
-                  onChange={(e) => updateDay(d, { to: e.target.value })}
-                  className="rounded-md border border-border bg-card px-2 py-1 text-sm disabled:opacity-50"
-                />
-              </div>
-            );
-          })}
-        </div>
-      </div>
 
       <div className="flex gap-2">
         <button
@@ -3614,13 +3535,83 @@ function OccupancySettingsTab() {
         >
           {save.isPending ? "Sparar..." : "Spara"}
         </button>
+      </div>
+    </div>
+  );
+}
+
+// ---------------- Opening hours (external API) ----------------
+
+function OpeningHoursInfoCard() {
+  const { data, isFetching, refetch } = useOpeningHours();
+  const openNow = isOpenNow(data, new Date());
+  return (
+    <div className="rounded-lg border border-border bg-card p-4 space-y-3">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h3 className="text-sm font-semibold">Öppettider (hämtas automatiskt)</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Öppettiderna hämtas från bibliotekets öppettids-API för dagens datum och
+            styr när realtidsfunktionerna visas. De ställs inte längre in manuellt här.
+          </p>
+        </div>
         <button
           type="button"
-          onClick={() => setSchedule(DEFAULT_SCHEDULE)}
-          className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent"
+          onClick={() => refetch()}
+          disabled={isFetching}
+          className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium hover:bg-accent disabled:opacity-50"
         >
-          Återställ till standard
+          {isFetching ? "Hämtar..." : "Uppdatera"}
         </button>
+      </div>
+
+      <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+        <dt className="text-muted-foreground">Öppet idag</dt>
+        <dd>{data ? (data.openToday ? "Ja" : "Nej") : "–"}</dd>
+        <dt className="text-muted-foreground">Tider idag</dt>
+        <dd>{data?.hoursToday ?? "–"}</dd>
+        <dt className="text-muted-foreground">Status just nu</dt>
+        <dd>{openNow ? "Realtidsfunktioner visas" : "Utanför öppettiderna"}</dd>
+        {data?.error && (
+          <>
+            <dt className="text-muted-foreground">API-fel</dt>
+            <dd className="text-rose-600">
+              {data.error} – appen visar då beläggning och filter som vanligt.
+            </dd>
+          </>
+        )}
+      </dl>
+
+      <div className="rounded-md bg-muted/50 p-3 text-xs text-muted-foreground space-y-2">
+        <p className="font-medium text-foreground">
+          Det här styrs av öppettiderna (utanför dem döljs eller inaktiveras det):
+        </p>
+        <ul className="list-disc pl-4 space-y-1">
+          <li>
+            <span className="text-foreground">Beläggningsindikatorn på lokalkorten</span> –
+            färgprick och text (Ledigt / Medel / Upptaget) samt statusen ”Ledigt just nu”
+            för grupprum.
+          </li>
+          <li>
+            <span className="text-foreground">Filtret ”Visa bara lediga just nu”</span> i
+            filtermenyn (grupprum).
+          </li>
+          <li>
+            <span className="text-foreground">Sorteringsvalet ”Lediga just nu först”</span>.
+          </li>
+          <li>
+            <span className="text-foreground">Fritextsökningen</span> – ord som ”ledigt”
+            matchar bara när realtidsstatus är aktiv.
+          </li>
+          <li>
+            <span className="text-foreground">Meddelandet vid noll träffar</span> – förslaget
+            om att ta bort ”lediga just nu”.
+          </li>
+        </ul>
+        <p>
+          Om öppettids-API:t inte svarar visas beläggning och filter ändå, så att
+          studentvyn aldrig blir tom på grund av ett tekniskt fel.
+        </p>
       </div>
     </div>
   );
@@ -3630,12 +3621,13 @@ function OccupancySettingsTab() {
 
 function OccupancyDiagnosticsPanel({
   globalEnabled,
-  schedule,
 }: {
   globalEnabled: boolean;
-  schedule: OccupancySchedule;
 }) {
+
   const { data: realtime, isFetching, refetch, dataUpdatedAt } = useRealtimeOccupancy();
+  const { data: openingHours } = useOpeningHours();
+
   const { data: spacesData } = useQuery({
     queryKey: ["spaces", "occupancy-sensors"],
     queryFn: async () => {
@@ -3649,7 +3641,8 @@ function OccupancyDiagnosticsPanel({
   });
 
   const now = new Date();
-  const withinSchedule = isWithinSchedule(schedule, now);
+  const withinSchedule = isOpenNow(openingHours, now);
+
   const httpOk = realtime && realtime.httpStatus >= 200 && realtime.httpStatus < 300;
   const locationOpen = realtime?.location && realtime.location.toLowerCase() !== "closed";
   const zoneNames = realtime ? Object.keys(realtime.zones) : [];
