@@ -1,13 +1,19 @@
 import { useEffect, useState } from "react";
-import { useOccupancySettings, isWithinSchedule, DEFAULT_SCHEDULE } from "./useOccupancySettings";
+import { useOccupancySettings } from "./useOccupancySettings";
+import { useOpeningHours, isOpenNow } from "./useOpeningHours";
 
 /**
- * True while live availability data should be shown, re-evaluated on a timer
+ * True while live availability data should be shown. Opening hours come from
+ * the KTH library API (see `useOpeningHours`) and are re-evaluated on a timer
  * so long-lived screens (kiosks, embedded iframes) follow the schedule as it
  * opens and closes instead of freezing on the value from first render.
+ *
+ * If the API is unavailable the hook fails open, so students still get the
+ * occupancy meter and time-dependent filters.
  */
 export function useLiveActive(): boolean {
   const { data: occSettings } = useOccupancySettings();
+  const { data: openingHours } = useOpeningHours();
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -22,8 +28,5 @@ export function useLiveActive(): boolean {
     };
   }, []);
 
-  return (
-    (occSettings?.enabled ?? true) &&
-    isWithinSchedule(occSettings?.schedule ?? DEFAULT_SCHEDULE, now)
-  );
+  return (occSettings?.enabled ?? true) && isOpenNow(openingHours, now);
 }
