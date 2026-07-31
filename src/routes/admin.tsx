@@ -900,6 +900,7 @@ function AdminPage() {
             <TabsTrigger value="landing">Texter</TabsTrigger>
             <TabsTrigger value="layout">Kortlayout</TabsTrigger>
             <TabsTrigger value="occupancy">Beläggning</TabsTrigger>
+            <TabsTrigger value="hours">Öppettider</TabsTrigger>
             <TabsTrigger value="analytics">Statistik</TabsTrigger>
           </TabsList>
 
@@ -1833,6 +1834,12 @@ function AdminPage() {
           <TabsContent value="occupancy">
             <OccupancySettingsTab />
           </TabsContent>
+
+          <TabsContent value="hours">
+            <OpeningHoursTab />
+          </TabsContent>
+
+
 
           <TabsContent value="analytics">
             <AnalyticsTab />
@@ -3878,7 +3885,7 @@ function OccupancySettingsTab() {
         </label>
       </div>
 
-      <OpeningHoursInfoCard />
+
 
       <div className="flex gap-2">
         <button
@@ -3904,43 +3911,104 @@ function OccupancySettingsTab() {
 
 // ---------------- Opening hours (external API) ----------------
 
-function OpeningHoursInfoCard() {
-  const { data, isFetching, refetch } = useOpeningHours();
+function OpeningHoursTab() {
+  const { data, isFetching, isError, refetch, dataUpdatedAt } = useOpeningHours();
   const openNow = isOpenNow(data, new Date());
+
+  const status: { label: string; tone: string; detail: string } = (() => {
+    if (isFetching && !data) return { label: "Hämtar…", tone: "bg-muted text-muted-foreground", detail: "Kontaktar API:et." };
+    if (isError || !data)
+      return {
+        label: "Ingen kontakt",
+        tone: "bg-rose-100 text-rose-700",
+        detail: "API:et kunde inte nås. Appen visar beläggning och filter som vanligt (fail-open).",
+      };
+    if (data.error)
+      return {
+        label: "Fel svar",
+        tone: "bg-amber-100 text-amber-800",
+        detail: `${data.error} – appen visar beläggning och filter som vanligt (fail-open).`,
+      };
+    return {
+      label: "Fungerar",
+      tone: "bg-emerald-100 text-emerald-700",
+      detail: `Svar HTTP ${data.httpStatus} från API:et.`,
+    };
+  })();
+
   return (
-    <div className="rounded-lg border border-border bg-card p-4 space-y-3">
+    <div className="space-y-4">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h3 className="text-sm font-semibold">Öppettider (hämtas automatiskt)</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Öppettiderna hämtas från bibliotekets öppettids-API för dagens datum och styr när realtidsfunktionerna
-            visas.
+          <h2 className="text-xl font-bold">Öppettider</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Öppettiderna hämtas automatiskt från bibliotekets öppettids-API och styr när realtidsfunktionerna visas.
           </p>
         </div>
         <button
           type="button"
           onClick={() => refetch()}
           disabled={isFetching}
-          className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium hover:bg-accent disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium hover:bg-accent disabled:opacity-50"
         >
           {isFetching ? "Hämtar..." : "Uppdatera"}
         </button>
       </div>
 
-      <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-        <dt className="text-muted-foreground">Öppet idag</dt>
-        <dd>{data ? (data.openToday ? "Ja" : "Nej") : "–"}</dd>
-        <dt className="text-muted-foreground">Tider idag</dt>
-        <dd>{data?.hoursToday ?? "–"}</dd>
-        <dt className="text-muted-foreground">Status just nu</dt>
-        <dd>{openNow ? "Realtidsfunktioner visas" : "Utanför öppettiderna"}</dd>
-        {data?.error && (
-          <>
-            <dt className="text-muted-foreground">API-fel</dt>
-            <dd className="text-rose-600">{data.error} – appen visar då beläggning och filter som vanligt.</dd>
-          </>
+      <div className="rounded-lg border border-border bg-card p-4 space-y-3">
+        <div className="flex items-center gap-2 flex-wrap">
+          <h3 className="text-sm font-semibold">Koppling till API:et</h3>
+          <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${status.tone}`}>{status.label}</span>
+        </div>
+        <p className="text-xs text-muted-foreground">{status.detail}</p>
+
+        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs">
+          <dt className="text-muted-foreground">API-adress</dt>
+          <dd className="break-all font-mono">{data?.apiUrl ?? "–"}</dd>
+          <dt className="text-muted-foreground">HTTP-status</dt>
+          <dd>{data ? (data.httpStatus || "ingen anslutning") : "–"}</dd>
+          <dt className="text-muted-foreground">Senast hämtat</dt>
+          <dd>{dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleString("sv-SE") : "–"}</dd>
+          <dt className="text-muted-foreground">Öppet idag</dt>
+          <dd>{data ? (data.openToday ? "Ja" : "Nej") : "–"}</dd>
+          <dt className="text-muted-foreground">Tider idag</dt>
+          <dd>{data?.hoursToday ?? "–"}</dd>
+          <dt className="text-muted-foreground">Status just nu</dt>
+          <dd>{openNow ? "Realtidsfunktioner visas" : "Utanför öppettiderna"}</dd>
+        </dl>
+      </div>
+
+      <div className="rounded-lg border border-border bg-card p-4 space-y-3">
+        <h3 className="text-sm font-semibold">Öppettider denna vecka</h3>
+        {data && data.days.length > 0 ? (
+          <ul className="divide-y divide-border text-sm">
+            {data.days.map((day) => {
+              const isToday = Boolean(data.todaysDate) && day.date === data.todaysDate;
+              return (
+                <li
+                  key={`${day.date}-${day.name}`}
+                  className={`flex items-center justify-between gap-4 py-2 ${isToday ? "font-semibold" : ""}`}
+                >
+                  <span className="flex items-center gap-2">
+                    <span>{day.name}</span>
+                    <span className="text-xs text-muted-foreground font-normal">{day.date}</span>
+                    {isToday && (
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium">Idag</span>
+                    )}
+                  </span>
+                  <span className={day.hours?.toLowerCase().includes("closed") ? "text-muted-foreground" : ""}>
+                    {day.hours || "–"}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            Inga dagar kunde hämtas från API:et just nu.
+          </p>
         )}
-      </dl>
+      </div>
 
       <div className="rounded-md bg-muted/50 p-3 text-xs text-muted-foreground space-y-2">
         <p className="font-medium text-foreground">
@@ -3973,6 +4041,7 @@ function OpeningHoursInfoCard() {
       </div>
     </div>
   );
+
 }
 
 // ---------------- Occupancy Diagnostics ----------------
