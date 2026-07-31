@@ -3524,83 +3524,8 @@ function OccupancySettingsTab() {
         </label>
       </div>
 
-      <div className="rounded-lg border border-border bg-card p-4 space-y-3">
-        <div>
-          <h3 className="text-sm font-semibold">Visningstider per veckodag</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Beläggningen visas bara inom angivet intervall. Stäng av dagar då biblioteket
-            är stängt.
-          </p>
-          <div className="mt-3 rounded-md bg-muted/50 p-3 text-xs text-muted-foreground space-y-2">
-            <p className="font-medium text-foreground">
-              Det här styrs av tiderna ovan (utanför intervallet döljs eller inaktiveras det):
-            </p>
-            <ul className="list-disc pl-4 space-y-1">
-              <li>
-                <span className="text-foreground">Beläggningsindikatorn på lokalkorten</span> –
-                färgprick och text (Ledigt / Medel / Upptaget) samt statusen ”Ledigt just nu”
-                för grupprum.
-              </li>
-              <li>
-                <span className="text-foreground">Filtret ”Visa bara lediga just nu”</span> i
-                filtermenyn (grupprum) – visas bara inom öppettiderna och räknas då in i antal
-                träffar och i de valda filtren ovanför träfflistan.
-              </li>
-              <li>
-                <span className="text-foreground">Sorteringsvalet ”Lediga just nu först”</span> –
-                syns bara när grupprum är valt och tiden ligger inom intervallet. Utanför tiderna
-                faller sorteringen tillbaka till Standard.
-              </li>
-              <li>
-                <span className="text-foreground">Fritextsökningen</span> – ord som ”ledigt”
-                matchar bara när realtidsstatus är aktiv.
-              </li>
-              <li>
-                <span className="text-foreground">Meddelandet vid noll träffar</span> – förslaget
-                om att ta bort ”lediga just nu” visas bara inom tiderna.
-              </li>
-            </ul>
-            <p>
-              Realtidsdata hämtas från Countmatters och uppdateras löpande; statusen omvärderas
-              automatiskt när intervallet börjar eller slutar, utan att sidan behöver laddas om.
-            </p>
-          </div>
-        </div>
+      <OpeningHoursInfoCard />
 
-        <div className="space-y-2">
-          {WEEKDAYS.map((d) => {
-            const day = schedule[d];
-            return (
-              <div key={d} className="flex items-center gap-3 flex-wrap">
-                <label className="flex items-center gap-2 w-32 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={day.enabled}
-                    onChange={(e) => updateDay(d, { enabled: e.target.checked })}
-                    className="h-4 w-4 rounded border-border cursor-pointer accent-[var(--kth-blue)]"
-                  />
-                  <span className="text-sm">{WEEKDAY_LABELS_SV[d]}</span>
-                </label>
-                <input
-                  type="time"
-                  value={day.from}
-                  disabled={!day.enabled}
-                  onChange={(e) => updateDay(d, { from: e.target.value })}
-                  className="rounded-md border border-border bg-card px-2 py-1 text-sm disabled:opacity-50"
-                />
-                <span className="text-sm text-muted-foreground">–</span>
-                <input
-                  type="time"
-                  value={day.to}
-                  disabled={!day.enabled}
-                  onChange={(e) => updateDay(d, { to: e.target.value })}
-                  className="rounded-md border border-border bg-card px-2 py-1 text-sm disabled:opacity-50"
-                />
-              </div>
-            );
-          })}
-        </div>
-      </div>
 
       <div className="flex gap-2">
         <button
