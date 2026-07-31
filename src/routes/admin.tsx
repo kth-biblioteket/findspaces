@@ -3626,6 +3626,8 @@ function OccupancyDiagnosticsPanel({
 }) {
 
   const { data: realtime, isFetching, refetch, dataUpdatedAt } = useRealtimeOccupancy();
+  const { data: openingHours } = useOpeningHours();
+
   const { data: spacesData } = useQuery({
     queryKey: ["spaces", "occupancy-sensors"],
     queryFn: async () => {
