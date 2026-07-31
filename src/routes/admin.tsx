@@ -1835,6 +1835,12 @@ function AdminPage() {
             <OccupancySettingsTab />
           </TabsContent>
 
+          <TabsContent value="hours">
+            <OpeningHoursTab />
+          </TabsContent>
+
+
+
           <TabsContent value="analytics">
             <AnalyticsTab />
           </TabsContent>
