@@ -4019,48 +4019,12 @@ function OpeningHoursTab() {
         </dl>
       </div>
 
-      <div className="rounded-lg border border-border bg-card p-4 space-y-5">
-        <div>
-          <h3 className="text-sm font-semibold">Öppettider – 6 månader framåt</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Hämtas vecka för vecka från API:et (svenska).
-          </p>
-        </div>
+      <OpeningHoursWeeks
+        weeks={schedule.data?.weeks ?? []}
+        isPending={schedule.isPending}
+        todayISO={todayISO}
+      />
 
-        {schedule.isPending ? (
-          <p className="text-xs text-muted-foreground">Hämtar öppettider…</p>
-        ) : schedule.data && schedule.data.weeks.length > 0 ? (
-          <div className="space-y-6">
-            {schedule.data.weeks.map((week) => (
-              <div key={week.label} className="space-y-1">
-                <h4 className="text-base font-bold">{week.label}</h4>
-                <ul className="text-base">
-                  {week.days.map((day) => {
-                    const isToday = day.date === todayISO;
-                    const closed = /stängt/i.test(day.hours ?? "");
-                    return (
-                      <li
-                        key={day.date}
-                        className={`flex items-baseline justify-between gap-4 py-0.5 ${isToday ? "font-semibold" : ""}`}
-                      >
-                        <span className="flex items-baseline gap-2">
-                          <span>{day.name}</span>
-                          {isToday && (
-                            <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium">Idag</span>
-                          )}
-                        </span>
-                        <span className={closed ? "text-muted-foreground" : ""}>{day.hours || "–"}</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-xs text-muted-foreground">Inga öppettider kunde hämtas från API:et just nu.</p>
-        )}
-      </div>
     </div>
   );
 }
