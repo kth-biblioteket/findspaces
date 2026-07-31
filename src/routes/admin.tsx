@@ -40,11 +40,12 @@ import { useCapacityIcon, useSaveCapacityIcon } from "@/lib/useCapacityIcon";
 import { useHiddenIcons } from "@/lib/useHiddenIcons";
 import {
   useOccupancySettings, useSaveOccupancySettings,
-  DEFAULT_SCHEDULE, WEEKDAYS, WEEKDAY_LABELS_SV,
-  isWithinSchedule,
-  type OccupancySchedule, type DaySchedule, type Weekday,
+  DEFAULT_SCHEDULE,
+  type OccupancySchedule,
 } from "@/lib/useOccupancySettings";
+import { useOpeningHours, isOpenNow } from "@/lib/useOpeningHours";
 import { useRealtimeOccupancy } from "@/lib/useOccupancy";
+
 import { ChairIcon } from "@/components/icons/ChairIcon";
 import { AnalyticsTab } from "@/components/AnalyticsTab";
 import { Switch } from "@/components/ui/switch";
