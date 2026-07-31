@@ -86,6 +86,7 @@ import {
   type OccupancySchedule,
 } from "@/lib/useOccupancySettings";
 import { useOpeningHours, isOpenNow } from "@/lib/useOpeningHours";
+import { useOpeningHoursSchedule } from "@/lib/useOpeningHoursSchedule";
 import { useRealtimeOccupancy } from "@/lib/useOccupancy";
 
 import { ChairIcon } from "@/components/icons/ChairIcon";
@@ -3913,7 +3914,14 @@ function OccupancySettingsTab() {
 
 function OpeningHoursTab() {
   const { data, isFetching, isError, refetch, dataUpdatedAt } = useOpeningHours();
+  const schedule = useOpeningHoursSchedule();
   const openNow = isOpenNow(data, new Date());
+  const todayISO = new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Europe/Stockholm",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
 
   const status: { label: string; tone: string; detail: string } = (() => {
     if (isFetching && !data) return { label: "Hämtar…", tone: "bg-muted text-muted-foreground", detail: "Kontaktar API:et." };
@@ -3947,67 +3955,15 @@ function OpeningHoursTab() {
         </div>
         <button
           type="button"
-          onClick={() => refetch()}
-          disabled={isFetching}
+          onClick={() => {
+            refetch();
+            schedule.refetch();
+          }}
+          disabled={isFetching || schedule.isFetching}
           className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium hover:bg-accent disabled:opacity-50"
         >
-          {isFetching ? "Hämtar..." : "Uppdatera"}
+          {isFetching || schedule.isFetching ? "Hämtar..." : "Uppdatera"}
         </button>
-      </div>
-
-      <div className="rounded-lg border border-border bg-card p-4 space-y-3">
-        <div className="flex items-center gap-2 flex-wrap">
-          <h3 className="text-sm font-semibold">Koppling till API:et</h3>
-          <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${status.tone}`}>{status.label}</span>
-        </div>
-        <p className="text-xs text-muted-foreground">{status.detail}</p>
-
-        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs">
-          <dt className="text-muted-foreground">API-adress</dt>
-          <dd className="break-all font-mono">{data?.apiUrl ?? "–"}</dd>
-          <dt className="text-muted-foreground">HTTP-status</dt>
-          <dd>{data ? (data.httpStatus || "ingen anslutning") : "–"}</dd>
-          <dt className="text-muted-foreground">Senast hämtat</dt>
-          <dd>{dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleString("sv-SE") : "–"}</dd>
-          <dt className="text-muted-foreground">Öppet idag</dt>
-          <dd>{data ? (data.openToday ? "Ja" : "Nej") : "–"}</dd>
-          <dt className="text-muted-foreground">Tider idag</dt>
-          <dd>{data?.hoursToday ?? "–"}</dd>
-          <dt className="text-muted-foreground">Status just nu</dt>
-          <dd>{openNow ? "Realtidsfunktioner visas" : "Utanför öppettiderna"}</dd>
-        </dl>
-      </div>
-
-      <div className="rounded-lg border border-border bg-card p-4 space-y-3">
-        <h3 className="text-sm font-semibold">Öppettider denna vecka</h3>
-        {data && data.days.length > 0 ? (
-          <ul className="divide-y divide-border text-sm">
-            {data.days.map((day) => {
-              const isToday = Boolean(data.todaysDate) && day.date === data.todaysDate;
-              return (
-                <li
-                  key={`${day.date}-${day.name}`}
-                  className={`flex items-center justify-between gap-4 py-2 ${isToday ? "font-semibold" : ""}`}
-                >
-                  <span className="flex items-center gap-2">
-                    <span>{day.name}</span>
-                    <span className="text-xs text-muted-foreground font-normal">{day.date}</span>
-                    {isToday && (
-                      <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium">Idag</span>
-                    )}
-                  </span>
-                  <span className={day.hours?.toLowerCase().includes("closed") ? "text-muted-foreground" : ""}>
-                    {day.hours || "–"}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
-          <p className="text-xs text-muted-foreground">
-            Inga dagar kunde hämtas från API:et just nu.
-          </p>
-        )}
       </div>
 
       <div className="rounded-md bg-muted/50 p-3 text-xs text-muted-foreground space-y-2">
@@ -4039,9 +3995,74 @@ function OpeningHoursTab() {
           ett tekniskt fel.
         </p>
       </div>
+
+      <div className="rounded-lg border border-border bg-card p-4 space-y-3">
+        <div className="flex items-center gap-2 flex-wrap">
+          <h3 className="text-sm font-semibold">Koppling till API:et</h3>
+          <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${status.tone}`}>{status.label}</span>
+        </div>
+        <p className="text-xs text-muted-foreground">{status.detail}</p>
+
+        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs">
+          <dt className="text-muted-foreground">API-adress</dt>
+          <dd className="break-all font-mono">{data?.apiUrl ?? "–"}</dd>
+          <dt className="text-muted-foreground">HTTP-status</dt>
+          <dd>{data ? (data.httpStatus || "ingen anslutning") : "–"}</dd>
+          <dt className="text-muted-foreground">Senast hämtat</dt>
+          <dd>{dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleString("sv-SE") : "–"}</dd>
+          <dt className="text-muted-foreground">Öppet idag</dt>
+          <dd>{data ? (data.openToday ? "Ja" : "Nej") : "–"}</dd>
+          <dt className="text-muted-foreground">Tider idag</dt>
+          <dd>{data?.hoursToday ?? "–"}</dd>
+          <dt className="text-muted-foreground">Status just nu</dt>
+          <dd>{openNow ? "Realtidsfunktioner visas" : "Utanför öppettiderna"}</dd>
+        </dl>
+      </div>
+
+      <div className="rounded-lg border border-border bg-card p-4 space-y-5">
+        <div>
+          <h3 className="text-sm font-semibold">Öppettider – 6 månader framåt</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Hämtas vecka för vecka från API:et (svenska).
+          </p>
+        </div>
+
+        {schedule.isPending ? (
+          <p className="text-xs text-muted-foreground">Hämtar öppettider…</p>
+        ) : schedule.data && schedule.data.weeks.length > 0 ? (
+          <div className="space-y-6">
+            {schedule.data.weeks.map((week) => (
+              <div key={week.label} className="space-y-1">
+                <h4 className="text-base font-bold">{week.label}</h4>
+                <ul className="text-base">
+                  {week.days.map((day) => {
+                    const isToday = day.date === todayISO;
+                    const closed = /stängt/i.test(day.hours ?? "");
+                    return (
+                      <li
+                        key={day.date}
+                        className={`flex items-baseline justify-between gap-4 py-0.5 ${isToday ? "font-semibold" : ""}`}
+                      >
+                        <span className="flex items-baseline gap-2">
+                          <span>{day.name}</span>
+                          {isToday && (
+                            <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium">Idag</span>
+                          )}
+                        </span>
+                        <span className={closed ? "text-muted-foreground" : ""}>{day.hours || "–"}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-xs text-muted-foreground">Inga öppettider kunde hämtas från API:et just nu.</p>
+        )}
+      </div>
     </div>
   );
-
 }
 
 // ---------------- Occupancy Diagnostics ----------------
