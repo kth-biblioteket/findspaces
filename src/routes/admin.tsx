@@ -3638,7 +3638,8 @@ function OccupancyDiagnosticsPanel({
   });
 
   const now = new Date();
-  const withinSchedule = isWithinSchedule(schedule, now);
+  const withinSchedule = isOpenNow(openingHours, now);
+
   const httpOk = realtime && realtime.httpStatus >= 200 && realtime.httpStatus < 300;
   const locationOpen = realtime?.location && realtime.location.toLowerCase() !== "closed";
   const zoneNames = realtime ? Object.keys(realtime.zones) : [];
