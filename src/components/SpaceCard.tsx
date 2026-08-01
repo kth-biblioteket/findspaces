@@ -471,7 +471,7 @@ export function SpaceCard({
               {hasCollapsibleDescription && (
                 <div
                   className={cn(
-                    "description-expand text-sm text-foreground/90 leading-relaxed",
+                    "description-expand min-h-0 overflow-hidden text-sm text-foreground/90 leading-relaxed",
                     aboutOpen && "description-expand-open",
                   )}
                   aria-hidden={!aboutOpen}
