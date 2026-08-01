@@ -118,6 +118,25 @@
   box-shadow: 0 5px 24px -4px rgba(0, 0, 0, 0.22);
 }
 
+@utility description-expand {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    grid-template-rows 300ms ease-out,
+    opacity 300ms ease-out,
+    visibility 0ms linear 300ms;
+}
+
+@utility description-expand-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0ms;
+}
+
+
 @media (min-width: 1024px) {
   .study-place-filter-panel {
     position: sticky;
