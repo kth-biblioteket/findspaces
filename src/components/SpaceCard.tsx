@@ -297,10 +297,8 @@ export function SpaceCard({
     "bg-[var(--kth-blue)] text-white hover:bg-[var(--kth-blue)]/90 [&_img]:brightness-0 [&_img]:invert";
 
   const hasCollapsibleDescription = Boolean(sanitizedDescription && !space.description_inline);
-  const descriptionIsVisible = Boolean(
-    sanitizedDescription && (space.description_inline || aboutOpen),
-  );
   const chipControlCount = interactive
+
     ? intentChips.length + visibleNoiseChips.length + visibleOtherCategoryChips.length
     : 0;
   const chipStartIndex = hasCollapsibleDescription ? 1 : 0;
