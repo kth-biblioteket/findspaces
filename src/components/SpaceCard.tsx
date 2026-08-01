@@ -297,10 +297,8 @@ export function SpaceCard({
     "bg-[var(--kth-blue)] text-white hover:bg-[var(--kth-blue)]/90 [&_img]:brightness-0 [&_img]:invert";
 
   const hasCollapsibleDescription = Boolean(sanitizedDescription && !space.description_inline);
-  const descriptionIsVisible = Boolean(
-    sanitizedDescription && (space.description_inline || aboutOpen),
-  );
   const chipControlCount = interactive
+
     ? intentChips.length + visibleNoiseChips.length + visibleOtherCategoryChips.length
     : 0;
   const chipStartIndex = hasCollapsibleDescription ? 1 : 0;
@@ -469,7 +467,27 @@ export function SpaceCard({
                   localizedName
                 )}
               </h3>
+
+              {hasCollapsibleDescription && (
+                <div
+                  className={cn(
+                    "description-expand text-sm text-foreground/90 leading-relaxed",
+                    aboutOpen && "description-expand-open",
+                  )}
+                  aria-hidden={!aboutOpen}
+                >
+                  <div className="min-h-0 overflow-hidden py-1">
+                    <div
+                      id={`space-${space.id}-about`}
+                      className="space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
+                      dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+                    />
+                  </div>
+                </div>
+              )}
+
               {hasMeta && (
+
                 <div className="mt-1 text-sm text-muted-foreground leading-snug">
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                     {floorPart && (
@@ -723,17 +741,14 @@ export function SpaceCard({
         >
           {layout.map((k) => renderSection(k))}
 
-          {sanitizedDescription && (
+          {space.description_inline && sanitizedDescription && (
             <div
-              id={`space-${space.id}-about`}
-              hidden={!descriptionIsVisible}
-              className={cn(
-                "text-sm text-foreground/90 leading-relaxed space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line",
-                !space.description_inline && "border-t border-border pt-4",
-              )}
+              id={`space-${space.id}-about-inline`}
+              className="text-sm text-foreground/90 leading-relaxed space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
               dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
             />
           )}
+
         </div>
 
         <div
