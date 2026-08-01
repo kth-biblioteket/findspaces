@@ -469,7 +469,27 @@ export function SpaceCard({
                   localizedName
                 )}
               </h3>
+
+              {hasCollapsibleDescription && (
+                <div
+                  className={cn(
+                    "description-expand text-sm text-foreground/90 leading-relaxed",
+                    aboutOpen && "description-expand-open",
+                  )}
+                  aria-hidden={!aboutOpen}
+                >
+                  <div className="min-h-0 overflow-hidden py-1">
+                    <div
+                      id={`space-${space.id}-about`}
+                      className="space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
+                      dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+                    />
+                  </div>
+                </div>
+              )}
+
               {hasMeta && (
+
                 <div className="mt-1 text-sm text-muted-foreground leading-snug">
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                     {floorPart && (
