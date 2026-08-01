@@ -743,17 +743,14 @@ export function SpaceCard({
         >
           {layout.map((k) => renderSection(k))}
 
-          {sanitizedDescription && (
+          {space.description_inline && sanitizedDescription && (
             <div
-              id={`space-${space.id}-about`}
-              hidden={!descriptionIsVisible}
-              className={cn(
-                "text-sm text-foreground/90 leading-relaxed space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line",
-                !space.description_inline && "border-t border-border pt-4",
-              )}
+              id={`space-${space.id}-about-inline`}
+              className="text-sm text-foreground/90 leading-relaxed space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
               dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
             />
           )}
+
         </div>
 
         <div
