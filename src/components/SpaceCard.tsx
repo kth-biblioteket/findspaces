@@ -476,13 +476,13 @@ export function SpaceCard({
                   )}
                   aria-hidden={!aboutOpen}
                 >
-                  <div className="min-h-0 overflow-hidden py-1">
+                  <div className="min-h-0 overflow-hidden">
                     <div
                       id={`space-${space.id}-about`}
-                      className="space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
+                      className="space-y-2 py-1 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
                       dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
                     />
-                    <div className="border-t border-border mt-2" aria-hidden="true" />
+                    <div className="border-t border-border" aria-hidden="true" />
                   </div>
                 </div>
               )}
