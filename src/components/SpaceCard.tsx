@@ -482,6 +482,7 @@ export function SpaceCard({
                       className="space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
                       dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
                     />
+                    <div className="border-t border-border mt-2" aria-hidden="true" />
                   </div>
                 </div>
               )}
