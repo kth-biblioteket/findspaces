@@ -431,7 +431,7 @@ export function SpaceCard({
                 {t("card.roving_group_help")}
               </p>
             )}
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-0">
               <h3
                 id={`space-${space.id}-title`}
                 className="text-lg md:text-xl font-semibold leading-none"
