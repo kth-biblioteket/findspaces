@@ -479,14 +479,14 @@ export function SpaceCard({
                   <div
                     className={cn(
                       "min-h-0 overflow-hidden",
-                      aboutOpen ? "pt-2 pb-6" : "py-0",
+                      aboutOpen ? "pt-2 pb-4" : "py-0",
                     )}
                   >
                     <div
                       id={`space-${space.id}-about`}
                       className={cn(
                         "space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line",
-                        aboutOpen ? "pt-2 pb-5" : "py-0",
+                        aboutOpen ? "pt-1 pb-3" : "py-0",
                       )}
                       dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
                     />
