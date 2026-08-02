@@ -454,12 +454,12 @@ export function SpaceCard({
                   >
                     <span>{localizedName}</span>
                     <span
-                      className="inline-flex h-7 shrink-0 items-center gap-0.5 rounded-md px-1 group-hover/title:bg-accent"
+                      className="inline-flex h-6 shrink-0 items-center gap-0.5 rounded-md px-1 group-hover/title:bg-accent"
                       aria-hidden="true"
                     >
-                      <Info className="h-4 w-4" />
+                      <Info className="h-3.5 w-3.5" />
                       <ChevronDown
-                        className={cn("h-4 w-4 transition-transform", aboutOpen && "rotate-180")}
+                        className={cn("h-3.5 w-3.5 transition-transform", aboutOpen && "rotate-180")}
                       />
                     </span>
                   </button>
@@ -476,10 +476,10 @@ export function SpaceCard({
                   )}
                   aria-hidden={!aboutOpen}
                 >
-                  <div className="min-h-0 overflow-hidden pt-1 pb-2">
+                  <div className="min-h-0 overflow-hidden pt-2 pb-6">
                     <div
                       id={`space-${space.id}-about`}
-                      className="space-y-2 pt-1 pb-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
+                      className="space-y-2 pt-2 pb-5 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
                       dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
                     />
                     <div className="border-t border-border" aria-hidden="true" />
