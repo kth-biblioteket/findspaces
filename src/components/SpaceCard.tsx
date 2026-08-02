@@ -489,7 +489,7 @@ export function SpaceCard({
 
               {hasMeta && (
 
-                <div className="mt-1 text-sm text-muted-foreground leading-snug">
+                <div className="text-sm text-muted-foreground leading-snug">
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                     {floorPart && (
                       <span className="inline-flex items-center gap-1.5">
