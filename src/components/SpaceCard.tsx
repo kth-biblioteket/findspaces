@@ -454,12 +454,12 @@ export function SpaceCard({
                   >
                     <span>{localizedName}</span>
                     <span
-                      className="inline-flex h-7 shrink-0 items-center gap-0.5 rounded-md px-1 group-hover/title:bg-accent"
+                      className="inline-flex h-6 shrink-0 items-center gap-0.5 rounded-md px-1 group-hover/title:bg-accent"
                       aria-hidden="true"
                     >
-                      <Info className="h-4 w-4" />
+                      <Info className="h-3.5 w-3.5" />
                       <ChevronDown
-                        className={cn("h-4 w-4 transition-transform", aboutOpen && "rotate-180")}
+                        className={cn("h-3.5 w-3.5 transition-transform", aboutOpen && "rotate-180")}
                       />
                     </span>
                   </button>
