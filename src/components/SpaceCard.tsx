@@ -500,15 +500,11 @@ export function SpaceCard({
                       </span>
                     )}
                     {floorPart && locatedInPart && (
-                      <span className="text-muted-foreground/50" aria-hidden="true">
-                        |
-                      </span>
+                      <span className="w-px h-4 bg-border" aria-hidden="true" />
                     )}
                     {locatedInPart && <span>{locatedInPart}</span>}
                     {(floorPart || locatedInPart) && lokaltypParts.length > 0 && (
-                      <span className="text-muted-foreground/50" aria-hidden="true">
-                        |
-                      </span>
+                      <span className="w-px h-4 bg-border" aria-hidden="true" />
                     )}
                     {lokaltypParts.length > 0 && <span>{lokaltypParts.join(" • ")}</span>}
                   </div>
