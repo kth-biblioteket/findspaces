@@ -34,7 +34,7 @@ Github actions fix:
             VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_60Bb-qHXzLofE7g3QT2EN0_A1pWxHEy
             VITE_SUPABASE_PROJECT_ID=lobuiecijreciwgkkcml
             
-- server-adapter.js används för att köra själva appen i en node-container
+- server-adapter.js används för att köra själva appen och dess server-komponeneter i en node-container
 
 ### Skapa användare
 

@@ -18,14 +18,8 @@ services:
       - "traefik.http.routers.findspaces.tls=true"
       - "traefik.http.routers.findspaces.tls.certresolver=myresolver"
       - "traefik.http.services.findspaces.loadbalancer.server.port=80"
-    environment:
-      - NODE_ENV=production
-      - VITE_SUPABASE_URL=${SUPABASE_URL}
-      - VITE_SUPABASE_PUBLISHABLE_KEY=${SUPABASE_PUBLISHABLE_KEY}
-      - SUPABASE_URL=https://${DOMAIN_NAME}/api
-      - SUPABASE_PUBLISHABLE_KEY=${ANON_KEY}
-      ## För server-adapter.js
-      - SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}
+    env_file:
+      - .env
 
   # ─── API Gateway (Kong) ──────────────────────────────────
   kong:
