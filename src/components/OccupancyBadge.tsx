@@ -26,7 +26,7 @@ function OccupancyPeople({ level }: { level: 1 | 2 | 3 }) {
             "h-4 w-4",
             i <= level
               ? "text-[var(--kth-blue)] fill-current"
-              : "text-black fill-[#004791]"
+              : "text-black"
           )}
         />
       ))}
