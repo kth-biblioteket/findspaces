@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { setResponseHeader } from "@tanstack/react-start/server";
 
-const BASE_URL =
+const BASE_URL = process.env.OPENINGHOURS_API_BASE ??
   "https://api.lib.kth.se/bookingsystem/v1/openinghoursjson/openinghours";
 
 export type OpeningHoursDay = {

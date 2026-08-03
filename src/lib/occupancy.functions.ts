@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { setResponseHeader } from "@tanstack/react-start/server";
 
-const API_URL =
+const API_URL = process.env.OCCUPANCY_API_BASE ??
   "https://apps.lib.kth.se/smartsigntools/api/v1/imas/realtime";
 
 export type ZoneOccupancy = {

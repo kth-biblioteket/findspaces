@@ -1,4 +1,4 @@
-const BASE_URL =
+const BASE_URL = process.env.OPENINGHOURS_API_BASE ??
   "https://api.lib.kth.se/bookingsystem/v1/openinghoursjson/openinghours";
 
 export type ScheduleDay = { date: string; name: string; hours: string };
