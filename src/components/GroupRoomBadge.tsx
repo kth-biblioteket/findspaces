@@ -19,7 +19,11 @@ export function GroupRoomBadge({
   const { t } = useTranslation();
   const Icon = status === "free" ? DoorOpen : DoorClosed;
   const dotClass =
-    status === "free" ? "bg-emerald-500" : status === "tentative" ? "bg-amber-400" : "bg-red-500";
+    status === "free"
+      ? "bg-[#4DA060]"
+      : status === "tentative"
+        ? "bg-amber-400"
+        : "bg-[#E86A58]";
   return (
     <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
       <Icon className="h-4 w-4 text-foreground" aria-hidden="true" />
@@ -35,7 +39,7 @@ export function GroupRoomBadge({
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="ml-1 inline-flex items-center gap-1 rounded-full border border-emerald-600 bg-emerald-50 text-emerald-800 px-3 py-0.5 text-xs font-semibold hover:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-600 transition-colors"
+          className="ml-1 inline-flex items-center gap-1 rounded-full border border-[#4DA060] bg-[#4DA060]/10 text-[#4DA060] px-3 py-0.5 text-xs font-semibold hover:bg-[#4DA060]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#4DA060] transition-colors"
         >
           <span>{t("card.book_now")}</span>
           <span aria-hidden="true">→</span>
