@@ -160,12 +160,12 @@ createServer(async (req, res) => {
               res.writeHead(500, { 'Content-Type': 'application/json' });
               return res.end(JSON.stringify({ error: "server_error", error_description: "Kunde inte skapa användare i Supabase Admin" }));
             }
+            const createData = await createRes.json();
+            userId = createData.id || createData.user?.id;
           }    
 
           // 2.5. Säkerställ att användaren har admin-roll i public.user_roles
           try {
-            const createData = await createRes.json();
-            userId = createData.id || createData.user?.id;
             const roleRes = await fetch(`http://supabase-rest:3000/user_roles`, {
               method: 'POST',
               headers: {
