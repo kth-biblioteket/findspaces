@@ -1,4 +1,4 @@
-import { User, Users } from "lucide-react";
+import { User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useUiText } from "@/lib/useUiText";
