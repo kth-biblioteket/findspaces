@@ -8,8 +8,15 @@ Detta är ett verktyg för att söka platser på biblioteket.
 - Skapa docker-composer.yml och uppdatera från repot
 - Skapa .env med allt som behövs
 - Skapa och kör prepare.sh (sudo chmod +x prepare.sh)
+- Kopiera innehållet i kong.yml från repo till ./volumes/api/kong.yml
+- Skapa eventuellt record i dns för domän(findspaces.lib.kth.se)
+  - Via https://sysadm.lan.kth.se
 
 ### Logga in på pgadmin
+- registrera server
+ - supabase-db/5432
+ - user: postgres
+ - password: xxxx(env POSTGRES_PASSWORD)
 - Kör schema.sql
 - Importera data
 
@@ -57,6 +64,9 @@ curl -X POST 'https://findspaces-ref.lib.kth.se/api/auth/v1/signup' \
  - t ex ny folder vid bygge
 - Hantera eventuella databasuppdateringar
  - Tabeller, fält etc
+
+- git chekout main
+- git merge. ref 
 
 ### Licens / License
 
