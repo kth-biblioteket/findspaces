@@ -40,7 +40,6 @@ export function OccupancyBadge({ level, status }: { level: 1 | 2 | 3; status: Oc
   const label = customLabel ?? t(OCCUPANCY_FALLBACK_I18N[status]);
   return (
     <div className="flex items-center gap-1.5 md:gap-2">
-      <Users className="h-4 w-4 text-foreground" aria-hidden="true" />
       <OccupancyPeople level={level} />
       <span className="text-sm text-foreground">
         <span className="text-muted-foreground">{t("occupancy.right_now")}:</span> <strong>{label}</strong>
