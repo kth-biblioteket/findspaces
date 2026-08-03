@@ -61,7 +61,7 @@ createServer(async (req, res) => {
           // 1.5. Använd KTH-token för att kontrollera att användaren tillhör biblioteket (pa.anstallda.T.TRA.)
           try {
             const username = email.split('@')[0];
-            const accountRes = await fetch(`https://api.lib.kth.se/ldap/api/v1/account/${encodeURIComponent(username)}`, {
+            const accountRes = await fetch(`http://ldap-api/ldap/api/v1/account/${encodeURIComponent(username)}`, {
               headers: {
                 'x-access-token': kthData.token
               }
