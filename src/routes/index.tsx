@@ -36,7 +36,7 @@ import {
   type SortKey,
 } from "@/lib/filterSearch";
 
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle } from "@/components/ui/sheet";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import type { FilterCategoryRow } from "@/lib/spaces";
 
@@ -689,6 +689,7 @@ function MobileFilterSheet({
 
       </SheetTrigger>
       <SheetContent side="bottom" hideClose className="mobile-filter-sheet p-0 flex flex-col overflow-hidden gap-0 rounded-t-2xl border-t">
+        <SheetTitle className="sr-only">{t("filters.title")}</SheetTitle>
         <div className="shrink-0 px-4 pt-4 pb-2 flex items-center justify-between">
           <SheetClose
             aria-label={t("filters.close")}
