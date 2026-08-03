@@ -42,7 +42,7 @@ createServer(async (req, res) => {
         if (grantType === 'password' && email && password) {
           console.log("kör mot KTH");
           // 1. Verifiera mot KTH LDAP-API och hämta token
-          const kthRes = await fetch('http://ldap-api/ldap/api/v1/login', {
+          const kthRes = await fetch('http://ldap-api/api/v1/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: email, password }),
@@ -61,7 +61,7 @@ createServer(async (req, res) => {
           // 1.5. Använd KTH-token för att kontrollera att användaren tillhör biblioteket (pa.anstallda.T.TRA.)
           try {
             const username = email.split('@')[0];
-            const accountRes = await fetch(`http://ldap-api/ldap/api/v1/account/${encodeURIComponent(username)}`, {
+            const accountRes = await fetch(`http://ldap-api/api/v1/account/${encodeURIComponent(username)}`, {
               headers: {
                 'x-access-token': kthData.token
               }
