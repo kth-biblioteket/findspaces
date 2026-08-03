@@ -586,9 +586,9 @@ export function SpaceCard({
           <div
             key="notice"
             role="status"
-            className="flex items-start gap-1.5 bg-[hsl(48_100%_85%)] text-foreground rounded-lg px-3 py-2 text-sm"
+            className="flex items-start gap-1.5 bg-[#FFF0B0] text-foreground rounded-lg px-3 py-2 text-sm"
           >
-            <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-orange-500" aria-hidden="true" />
+            <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-[#FFBE00]" aria-hidden="true" />
             <span className="whitespace-pre-line">
               <span className="sr-only">{t("card.notice_sr")} </span>
               {linkedNotice}
