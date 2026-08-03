@@ -18,7 +18,7 @@ const OCCUPANCY_FALLBACK_I18N: Record<OccupancyStatus, string> = {
 
 function OccupancyPeople({ level }: { level: 1 | 2 | 3 }) {
   return (
-    <div className="flex items-center gap-0.5" aria-hidden="true">
+    <div className="flex items-center gap-0" aria-hidden="true">
       {[1, 2, 3].map((i) => (
         <User
           key={i}
