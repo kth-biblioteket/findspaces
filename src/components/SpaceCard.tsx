@@ -521,22 +521,22 @@ export function SpaceCard({
               {(showCapacity ||
                 (space.informal_seat_count ?? 0) > 0 ||
                 (space.computer_count ?? 0) > 0) && (
-                <div className="mt-1.5 flex flex-wrap items-end gap-x-4 gap-y-1 text-sm text-foreground">
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-foreground">
                   {showCapacity && (
-                    <p className="inline-flex items-end gap-1.5">
-                      <span className="inline-flex w-4 justify-center">
+                    <p className="inline-flex items-center gap-1.5">
+                      <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center">
                         {capacityIconUrl ? (
                           <img src={capacityIconUrl} alt="" className="h-4 w-4 object-contain" />
                         ) : capacityIconPending ? (
                           <span className="h-4 w-4" aria-hidden="true" />
                         ) : (
                           <TableChairIcon
-                            className="h-4 w-4 text-foreground/70"
+                            className="h-4 w-4 text-foreground"
                             aria-hidden="true"
                           />
                         )}
                       </span>
-                      <span className="leading-none">
+                      <span className="leading-tight">
                         <span className="sr-only">{t("card.study_seats_sr")} </span>
                         <span className="font-medium">{space.capacity}</span>{" "}
                         {t("card.study_seats_label", { count: space.capacity ?? 0 })}
@@ -544,11 +544,11 @@ export function SpaceCard({
                     </p>
                   )}
                   {(space.informal_seat_count ?? 0) > 0 && (
-                    <p className="inline-flex items-end gap-1.5">
-                      <span className="inline-flex w-4 justify-center">
-                        <Armchair className="h-4 w-4 text-foreground/70" aria-hidden="true" />
+                    <p className="inline-flex items-center gap-1.5">
+                      <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center">
+                        <Armchair className="h-4 w-4 text-foreground" aria-hidden="true" />
                       </span>
-                      <span className="leading-none">
+                      <span className="leading-tight">
                         <span className="sr-only">{t("card.informal_seats_sr")} </span>
                         <span className="font-medium">{space.informal_seat_count}</span>{" "}
                         {t("card.informal_seats_label", { count: space.informal_seat_count ?? 0 })}
@@ -556,11 +556,11 @@ export function SpaceCard({
                     </p>
                   )}
                   {(space.computer_count ?? 0) > 0 && (
-                    <p className="inline-flex items-end gap-1.5">
-                      <span className="inline-flex w-4 justify-center">
-                        <Monitor className="h-4 w-4 text-foreground/70" aria-hidden="true" />
+                    <p className="inline-flex items-center gap-1.5">
+                      <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center">
+                        <Monitor className="h-4 w-4 text-foreground" aria-hidden="true" />
                       </span>
-                      <span className="leading-none">
+                      <span className="leading-tight">
                         <span className="sr-only">{t("card.computers_sr")} </span>
                         <span className="font-medium">{space.computer_count}</span>{" "}
                         {t("card.computers_label", { count: space.computer_count ?? 0 })}
@@ -568,6 +568,7 @@ export function SpaceCard({
                     </p>
                   )}
                 </div>
+
               )}
             </div>
 
