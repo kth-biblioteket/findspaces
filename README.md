@@ -7,7 +7,11 @@ Detta är ett verktyg för att söka platser på biblioteket.
 - Skapa lokal folder (sudo mkdir findspaces)
 - Skapa docker-composer.yml och uppdatera från repot
 - Skapa .env med allt som behövs
-- Skapa och kör prepare.sh (chmod +x prepare.sh)
+- Skapa och kör prepare.sh (sudo chmod +x prepare.sh)
+
+### Logga in på pgadmin
+- Kör schema.sql
+- Importera data
 
 Github actions fix:
 
@@ -22,8 +26,8 @@ Github actions fix:
             VITE_SUPABASE_URL=https://findspaces-ref.lib.kth.se/api
             VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_60Bb-qHXzLofE7g3QT2EN0_A1pWxHEy
             VITE_SUPABASE_PROJECT_ID=lobuiecijreciwgkkcml
-
-- en server-adapter.js används för att köra själva appen i en node-container
+            
+- server-adapter.js används för att köra själva appen i en node-container
 
 ### Skapa användare
 
