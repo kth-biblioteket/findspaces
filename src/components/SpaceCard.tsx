@@ -200,8 +200,10 @@ export function SpaceCard({
     return opt ? pickLocalized(opt, "label", lang) : value;
   };
 
-  const isGrupprum =
-    (space.lokaltyp ?? []).includes("Grupprum") || (space.intent ?? []).includes("grupprum");
+  // Driven by the options' stable value_key, so renaming "Grupprum" in admin
+  // does not break the card logic.
+  const isGrupprum = isGroupRoomSpace(space, groupRoomLabels(options));
+
 
   // Intent chips on the card: enskilt / tillsammans for regular spaces,
   // "I grupprum" for group-room spaces. Noise level always joins this row.
