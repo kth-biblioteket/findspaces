@@ -938,7 +938,7 @@ function AdminPage() {
                   ({listFiltersActive ? `${filteredSpaces.length} av ${spaces.length}` : spaces.length})
                 </span>
               </h2>
-              <Dialog open={open} onOpenChange={setOpen}>
+              <Dialog open={open} onOpenChange={handleDialogOpenChange}>
                 <DialogTrigger asChild>
                   <button
                     onClick={openNew}
