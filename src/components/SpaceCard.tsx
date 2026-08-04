@@ -281,10 +281,12 @@ export function SpaceCard({
 
   const floorPart = localizedFloor;
   const locatedInPart = localizedLocatedIn;
+  const hiddenRoomTypes = cardHiddenRoomTypeLabels(options);
   const lokaltypParts = (space.lokaltyp ?? [])
-    .filter((l) => l !== "Grupprum" && l !== "Resursrum")
+    .filter((l) => !hiddenRoomTypes.includes(l))
     .map((l) => localizeChip("lokaltyp", l))
     .filter((s): s is string => Boolean(s && s.length > 0));
+
 
   const floorRowParts = [floorPart, locatedInPart].filter((s): s is string =>
     Boolean(s && s.length > 0),
