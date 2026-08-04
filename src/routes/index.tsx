@@ -486,7 +486,7 @@ function SpaceFinder() {
                   <SelectTrigger
                     id="sort-select"
                     aria-label={t("results.sort_label")}
-                    className="h-auto min-h-9 w-auto gap-2 border-0 bg-transparent shadow-none rounded-lg px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-accent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 transition-colors [&>svg]:opacity-100"
+                    className="h-auto min-h-9 w-auto gap-2 border-0 bg-transparent shadow-none rounded-lg px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-accent focus:ring-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transition-colors [&>svg]:opacity-100"
                   >
                     <ArrowUpDown className="h-3.5 w-3.5" aria-hidden="true" />
                     <span className="mr-0.5">{t("results.sort_label")}:</span>
