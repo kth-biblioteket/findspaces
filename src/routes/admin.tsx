@@ -1520,20 +1520,32 @@ function AdminPage() {
                     </div>
                   </Tabs>
 
-                  <DialogFooter className="px-6 py-3 border-t border-border shrink-0 bg-card">
-                    <button
-                      onClick={() => setOpen(false)}
-                      className="px-4 py-2 rounded-lg text-sm border border-border"
-                    >
-                      Avbryt
-                    </button>
-                    <button
-                      disabled={save.isPending || !form.name || !isDirty}
-                      onClick={() => save.mutate(form)}
-                      className="px-4 py-2 rounded-lg text-sm bg-primary text-primary-foreground disabled:opacity-50"
-                    >
-                      {save.isPending ? "Sparar..." : isDirty ? "Spara ändringar" : "Sparat"}
-                    </button>
+                  <DialogFooter className="px-6 py-3 border-t border-border shrink-0 bg-card sm:flex-row sm:items-center sm:justify-between gap-3">
+                    {formErrors.length > 0 ? (
+                      <ul className="text-xs text-destructive space-y-0.5 sm:mr-auto text-left" role="alert">
+                        {formErrors.map((msg) => (
+                          <li key={msg}>{msg}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <span className="sm:mr-auto" />
+                    )}
+                    <div className="flex gap-2 justify-end">
+                      <button
+                        onClick={() => handleDialogOpenChange(false)}
+                        className="px-4 py-2 rounded-lg text-sm border border-border"
+                      >
+                        Avbryt
+                      </button>
+                      <button
+                        disabled={save.isPending || !form.name || !isDirty}
+                        onClick={handleSave}
+                        className="px-4 py-2 rounded-lg text-sm bg-primary text-primary-foreground disabled:opacity-50"
+                      >
+                        {save.isPending ? "Sparar..." : isDirty ? "Spara ändringar" : "Sparat"}
+                      </button>
+                    </div>
+
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
