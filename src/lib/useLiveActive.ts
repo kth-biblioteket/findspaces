@@ -17,6 +17,8 @@ export function useLiveActive(): boolean {
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
+    // Guarded so the hook is safe to call during SSR/prerender too.
+    if (typeof window === "undefined") return;
     const tick = () => setNow(new Date());
     const id = window.setInterval(tick, 30_000);
     window.addEventListener("focus", tick);
@@ -27,6 +29,7 @@ export function useLiveActive(): boolean {
       document.removeEventListener("visibilitychange", tick);
     };
   }, []);
+
 
   return (occSettings?.enabled ?? true) && isOpenNow(openingHours, now);
 }

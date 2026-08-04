@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { emptyFilters, type Filters } from "./FilterPanel";
@@ -5,6 +6,8 @@ import { useFilterCategories } from "@/lib/useFilterCategories";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { pickLocalized, type Lang } from "@/i18n";
 import { useLiveActive } from "@/lib/useLiveActive";
+import { cn } from "@/lib/utils";
+
 
 type Chip = { key: string; label: string; onRemove: () => void };
 
@@ -22,6 +25,29 @@ export function ActiveFilterChips({
   // Outside opening hours the "free right now" filter is ignored, so don't
   // show a chip that suggests it is narrowing the results.
   const liveActive = useLiveActive();
+
+  // Fade on the right edge while more chips are scrollable out of view.
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const updateScrollState = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollRight(el.scrollWidth - el.clientWidth - el.scrollLeft > 4);
+  }, []);
+  useEffect(updateScrollState);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", updateScrollState, { passive: true });
+    window.addEventListener("resize", updateScrollState);
+    return () => {
+      el.removeEventListener("scroll", updateScrollState);
+      window.removeEventListener("resize", updateScrollState);
+    };
+  }, [updateScrollState]);
+
+
 
   const visibleOptions = options.filter((option) => !option.hidden);
   const optLookup = new Map(
@@ -129,33 +155,46 @@ export function ActiveFilterChips({
   void categories;
 
   return (
-    <div
-      role="group"
-      aria-label={t("chips.active_filters")}
-      className="mb-3 flex flex-nowrap items-center gap-2 overflow-x-auto scrollbar-hide"
-    >
-      {chips.map((c) => (
-        <button
-          key={c.key}
-          type="button"
-          onClick={c.onRemove}
-          aria-label={t("chips.remove_aria", { label: c.label })}
-          className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground border border-primary pl-3 pr-2 py-1 text-xs hover:opacity-90 active:scale-95 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
-        >
-          <span>{c.label}</span>
-          <X className="h-3.5 w-3.5" aria-hidden="true" />
-        </button>
-      ))}
+    <div className="relative mb-3">
+      <div
+        ref={scrollRef}
+        role="group"
+        aria-label={t("chips.active_filters")}
+        className="flex flex-nowrap items-center gap-2 overflow-x-auto scrollbar-hide"
+      >
+        {chips.map((c) => (
+          <button
+            key={c.key}
+            type="button"
+            onClick={c.onRemove}
+            aria-label={t("chips.remove_aria", { label: c.label })}
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground border border-primary pl-3 pr-2 py-1 text-xs hover:opacity-90 active:scale-95 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+          >
+            <span>{c.label}</span>
+            <X className="h-3.5 w-3.5" aria-hidden="true" />
+          </button>
+        ))}
 
-      {chips.length > 1 && (
-        <button
-          type="button"
-          onClick={() => onChange(emptyFilters)}
-          className="text-xs font-medium text-[var(--kth-blue)] hover:underline ml-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary rounded"
-        >
-          {t("filters.clear_all")}
-        </button>
-      )}
+        {chips.length > 1 && (
+          <button
+            type="button"
+            onClick={() => onChange(emptyFilters)}
+            className="shrink-0 text-xs font-medium text-[var(--kth-blue)] hover:underline ml-1 mr-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary rounded"
+          >
+            {t("filters.clear_all")}
+          </button>
+        )}
+      </div>
+
+      {/* Hint that more filters are hidden to the right of the scroller. */}
+      <div
+        aria-hidden="true"
+        className={cn(
+          "pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-background to-transparent transition-opacity duration-150",
+          canScrollRight ? "opacity-100" : "opacity-0",
+        )}
+      />
     </div>
   );
 }
+

@@ -58,6 +58,8 @@ import {
 } from "@/lib/useFilterCategories";
 import { OptionIcon } from "@/components/OptionIcon";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { validateSpaceForm } from "@/lib/adminSpaceSchema";
+
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { SpaceCard } from "@/components/SpaceCard";
@@ -841,6 +843,29 @@ function AdminPage() {
   };
   const isDirty = useMemo(() => JSON.stringify(form) !== JSON.stringify(originalForm), [form, originalForm]);
 
+  // Client-side validation of the space form (numbers, links, required fields).
+  const [formErrors, setFormErrors] = useState<string[]>([]);
+  const handleSave = () => {
+    const errors = validateSpaceForm(form as unknown as Record<string, unknown>);
+    setFormErrors(errors);
+    if (errors.length > 0) {
+      toast.error("Kontrollera fälten innan du sparar.");
+      return;
+    }
+    save.mutate(form);
+  };
+  // Guard against losing edits when the dialog is dismissed by mistake.
+  const handleDialogOpenChange = (next: boolean) => {
+    if (!next && isDirty && !save.isPending) {
+      const discard = window.confirm("Du har ändringar som inte är sparade. Vill du stänga ändå?");
+      if (!discard) return;
+    }
+    if (!next) setFormErrors([]);
+    setOpen(next);
+  };
+
+
+
   useEffect(() => {
     if (open && form.images.length > 0) {
       fetchImageDates(form.images);
@@ -913,7 +938,7 @@ function AdminPage() {
                   ({listFiltersActive ? `${filteredSpaces.length} av ${spaces.length}` : spaces.length})
                 </span>
               </h2>
-              <Dialog open={open} onOpenChange={setOpen}>
+              <Dialog open={open} onOpenChange={handleDialogOpenChange}>
                 <DialogTrigger asChild>
                   <button
                     onClick={openNew}
@@ -1495,20 +1520,32 @@ function AdminPage() {
                     </div>
                   </Tabs>
 
-                  <DialogFooter className="px-6 py-3 border-t border-border shrink-0 bg-card">
-                    <button
-                      onClick={() => setOpen(false)}
-                      className="px-4 py-2 rounded-lg text-sm border border-border"
-                    >
-                      Avbryt
-                    </button>
-                    <button
-                      disabled={save.isPending || !form.name || !isDirty}
-                      onClick={() => save.mutate(form)}
-                      className="px-4 py-2 rounded-lg text-sm bg-primary text-primary-foreground disabled:opacity-50"
-                    >
-                      {save.isPending ? "Sparar..." : isDirty ? "Spara ändringar" : "Sparat"}
-                    </button>
+                  <DialogFooter className="px-6 py-3 border-t border-border shrink-0 bg-card sm:flex-row sm:items-center sm:justify-between gap-3">
+                    {formErrors.length > 0 ? (
+                      <ul className="text-xs text-destructive space-y-0.5 sm:mr-auto text-left" role="alert">
+                        {formErrors.map((msg) => (
+                          <li key={msg}>{msg}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <span className="sm:mr-auto" />
+                    )}
+                    <div className="flex gap-2 justify-end">
+                      <button
+                        onClick={() => handleDialogOpenChange(false)}
+                        className="px-4 py-2 rounded-lg text-sm border border-border"
+                      >
+                        Avbryt
+                      </button>
+                      <button
+                        disabled={save.isPending || !form.name || !isDirty}
+                        onClick={handleSave}
+                        className="px-4 py-2 rounded-lg text-sm bg-primary text-primary-foreground disabled:opacity-50"
+                      >
+                        {save.isPending ? "Sparar..." : isDirty ? "Spara ändringar" : "Sparat"}
+                      </button>
+                    </div>
+
                   </DialogFooter>
                 </DialogContent>
               </Dialog>

@@ -22,6 +22,8 @@ import { TableChairIcon } from "./icons/TableChairIcon";
 
 import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
+import { cardHiddenRoomTypeLabels, groupRoomLabels, isGroupRoomSpace } from "@/lib/groupRoom";
+
 import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
 import { useCapacityIcon } from "@/lib/useCapacityIcon";
 import {
@@ -200,8 +202,10 @@ export function SpaceCard({
     return opt ? pickLocalized(opt, "label", lang) : value;
   };
 
-  const isGrupprum =
-    (space.lokaltyp ?? []).includes("Grupprum") || (space.intent ?? []).includes("grupprum");
+  // Driven by the options' stable value_key, so renaming "Grupprum" in admin
+  // does not break the card logic.
+  const isGrupprum = isGroupRoomSpace(space, groupRoomLabels(options));
+
 
   // Intent chips on the card: enskilt / tillsammans for regular spaces,
   // "I grupprum" for group-room spaces. Noise level always joins this row.
@@ -277,10 +281,12 @@ export function SpaceCard({
 
   const floorPart = localizedFloor;
   const locatedInPart = localizedLocatedIn;
+  const hiddenRoomTypes = cardHiddenRoomTypeLabels(options);
   const lokaltypParts = (space.lokaltyp ?? [])
-    .filter((l) => l !== "Grupprum" && l !== "Resursrum")
+    .filter((l) => !hiddenRoomTypes.includes(l))
     .map((l) => localizeChip("lokaltyp", l))
     .filter((s): s is string => Boolean(s && s.length > 0));
+
 
   const floorRowParts = [floorPart, locatedInPart].filter((s): s is string =>
     Boolean(s && s.length > 0),
