@@ -285,33 +285,27 @@ function SpaceFinder() {
       if (parts.every((p) => p == null)) return null;
       return parts.reduce<number>((sum, p) => sum + (p ?? 0), 0);
     };
+    // Ties keep a predictable order: fall back to name A–Ö.
+    const byName = (a: Space, b: Space) => collator.compare(displayName(a), displayName(b));
     if (effectiveSort === "seats_desc") {
-      arr.sort((a, b) => (seatTotal(b) ?? -1) - (seatTotal(a) ?? -1));
+      arr.sort((a, b) => ((seatTotal(b) ?? -1) - (seatTotal(a) ?? -1)) || byName(a, b));
     } else if (effectiveSort === "seats_asc") {
       arr.sort((a, b) => {
         const av = seatTotal(a) ?? Number.POSITIVE_INFINITY;
         const bv = seatTotal(b) ?? Number.POSITIVE_INFINITY;
-        return av - bv;
+        return (av - bv) || byName(a, b);
       });
-    } else if (effectiveSort === "floor_asc") {
-
+    } else if (effectiveSort === "floor_asc" || effectiveSort === "floor_desc") {
+      const dir = effectiveSort === "floor_asc" ? 1 : -1;
       arr.sort((a, b) => {
         const av = floorNum(a); const bv = floorNum(b);
-        if (isNaN(av) && isNaN(bv)) return 0;
+        if (isNaN(av) && isNaN(bv)) return byName(a, b);
         if (isNaN(av)) return 1;
         if (isNaN(bv)) return -1;
-        return av - bv;
-      });
-    } else if (effectiveSort === "floor_desc") {
-      arr.sort((a, b) => {
-        const av = floorNum(a); const bv = floorNum(b);
-        if (isNaN(av) && isNaN(bv)) return 0;
-        if (isNaN(av)) return 1;
-        if (isNaN(bv)) return -1;
-        return bv - av;
+        return ((av - bv) * dir) || byName(a, b);
       });
     } else if (effectiveSort === "name_asc") {
-      arr.sort((a, b) => collator.compare(displayName(a), displayName(b)));
+      arr.sort(byName);
     } else if (effectiveSort === "name_desc") {
       arr.sort((a, b) => collator.compare(displayName(b), displayName(a)));
     } else if (effectiveSort === "free_now" && canSortFree) {
@@ -326,8 +320,9 @@ function SpaceFinder() {
         if (r.status === "busy") return 2;
         return 3;
       };
-      arr.sort((a, b) => rank(a) - rank(b));
+      arr.sort((a, b) => (rank(a) - rank(b)) || byName(a, b));
     }
+
     return arr;
   }, [filtered, effectiveSort, canSortFree, availability, lang]);
 
