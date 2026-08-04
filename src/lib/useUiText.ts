@@ -94,19 +94,17 @@ export function useUiText(key: UiTextKey) {
           .eq("key", settingKey(key, "en"))
           .maybeSingle();
         if (enRow?.value) return enRow.value;
-        // Fall back to EN default if defined, otherwise SV from DB.
+        // No EN override: prefer an admin-edited SV text over our generic EN
+        // default, so the admin's own wording wins.
+        const { data: svRow } = await supabase
+          .from("app_settings")
+          .select("value")
+          .eq("key", settingKey(key, "sv"))
+          .maybeSingle();
+        if (svRow?.value) return svRow.value;
         const enDefault = UI_TEXT_DEFAULTS_EN[key];
-        if (enDefault) {
-          // Still prefer admin-edited SV if EN is unset and SV exists,
-          // so the admin's tone wins over our generic translation.
-          const { data: svRow } = await supabase
-            .from("app_settings")
-            .select("value")
-            .eq("key", settingKey(key, "sv"))
-            .maybeSingle();
-          if (svRow?.value) return enDefault;
-          return enDefault;
-        }
+        if (enDefault) return enDefault;
+
       }
       const { data, error } = await supabase
         .from("app_settings")
