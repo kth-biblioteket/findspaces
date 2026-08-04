@@ -205,9 +205,10 @@ export function canonicalizeSearch(
       // always canonicalize to value_key.
       const toKey = new Map<string, string>();
       for (const option of categoryOptions) {
-        if (!option.value_key) continue;
-        toKey.set(option.value_key, option.value_key);
-        toKey.set(option.label, option.value_key);
+        // Options without a stable key fall back to their label as the key.
+        const key = option.value_key ?? option.label;
+        toKey.set(key, key);
+        toKey.set(option.label, key);
       }
       const values = [
         ...new Set(
