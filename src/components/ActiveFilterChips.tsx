@@ -34,7 +34,7 @@ export function ActiveFilterChips({
     if (!el) return;
     setCanScrollRight(el.scrollWidth - el.clientWidth - el.scrollLeft > 4);
   }, []);
-  useLayoutEffect(updateScrollState);
+  useEffect(updateScrollState);
   useEffect(() => {
     if (typeof window === "undefined") return;
     const el = scrollRef.current;
