@@ -22,6 +22,8 @@ import { TableChairIcon } from "./icons/TableChairIcon";
 
 import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
+import { cardHiddenRoomTypeLabels, groupRoomLabels, isGroupRoomSpace } from "@/lib/groupRoom";
+
 import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
 import { useCapacityIcon } from "@/lib/useCapacityIcon";
 import {
