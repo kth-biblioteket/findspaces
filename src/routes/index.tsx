@@ -21,6 +21,8 @@ import { SpaceCardSkeleton } from "@/components/SpaceCardSkeleton";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useUiText, formatSuggestTemplate } from "@/lib/useUiText";
 import { matchesSpace, type MatchOptions } from "@/lib/filterMatch";
+import { groupRoomLabels, isGroupRoomSpace } from "@/lib/groupRoom";
+
 import { useNarrowestFilter } from "@/lib/useNarrowestFilter";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { getGroupRoomAvailability } from "@/lib/groupRoomAvailability.functions";
