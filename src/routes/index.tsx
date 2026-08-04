@@ -92,7 +92,7 @@ function SpaceFinder() {
         : routeSearch,
     [filterMetadataReady, routeSearch, categories, filterOptions],
   );
-  const filters = useMemo(() => searchToFilters(search), [search]);
+  const filters = useMemo(() => searchToFilters(search, filterOptions), [search, filterOptions]);
   const filterPanelRef = useRef<HTMLDivElement | null>(null);
   const filterViewport = useIframeVisibleHeight(filterPanelRef);
 
@@ -143,7 +143,7 @@ function SpaceFinder() {
   }, [search.sort, canSortFree, canSortSeats, navigate]);
 
   const setFilters = (next: Filters) => {
-    const nextSearch = filtersToSearch(next, search.highlight) as Record<string, unknown>;
+    const nextSearch = filtersToSearch(next, search.highlight, filterOptions) as Record<string, unknown>;
     const nextMode = next.workMode;
     if (search.sort && !(search.sort === "free_now" && nextMode !== "grupprum")) {
       nextSearch.sort = search.sort;
@@ -239,10 +239,21 @@ function SpaceFinder() {
       (s.lokaltyp ?? []).map((l) => enByLabel.get(l) ?? "").join(" ");
   }, [filterOptions]);
 
+  // Group-room detection resolves through the options' stable value_key so a
+  // renamed room-type label can't silently break filtering.
+  const isGroupRoom = useMemo(() => {
+    const labels = groupRoomLabels(filterOptions);
+    return (s: Space) => isGroupRoomSpace(s, labels);
+  }, [filterOptions]);
+
   const matchOptions = useMemo(
-    () => (liveActive ? { isFree: isFreeNow, extraSearchText } : { extraSearchText }),
-    [liveActive, isFreeNow, extraSearchText],
+    () =>
+      liveActive
+        ? { isFree: isFreeNow, extraSearchText, isGroupRoom }
+        : { extraSearchText, isGroupRoom },
+    [liveActive, isFreeNow, extraSearchText, isGroupRoom],
   );
+
 
   const kindTotal = useMemo(
     () => spaces.filter((s) => (s.space_kind ?? "study") === filters.spaceKind).length,
