@@ -200,16 +200,27 @@ export function canonicalizeSearch(
       const selected = search.cats[category.key] ?? [];
       if (selected.length === 0) continue;
 
-      const allowed = new Set(
-        visibleOptions
-          .filter((option) => option.category === category.key)
-          .map((option) => option.label),
-      );
-      const values = [...new Set(selected.filter((value) => allowed.has(value)))];
+      const categoryOptions = visibleOptions.filter((option) => option.category === category.key);
+      // Accept both the stable value_key and the legacy label (old links), and
+      // always canonicalize to value_key.
+      const toKey = new Map<string, string>();
+      for (const option of categoryOptions) {
+        if (!option.value_key) continue;
+        toKey.set(option.value_key, option.value_key);
+        toKey.set(option.label, option.value_key);
+      }
+      const values = [
+        ...new Set(
+          selected
+            .map((value) => toKey.get(value))
+            .filter((value): value is string => Boolean(value)),
+        ),
+      ];
       if (values.length > 0) cats[category.key] = values;
     }
     if (Object.keys(cats).length > 0) canonical.cats = cats;
   }
+
 
   if (
     search.sort &&
