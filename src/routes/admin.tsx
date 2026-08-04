@@ -841,6 +841,29 @@ function AdminPage() {
   };
   const isDirty = useMemo(() => JSON.stringify(form) !== JSON.stringify(originalForm), [form, originalForm]);
 
+  // Client-side validation of the space form (numbers, links, required fields).
+  const [formErrors, setFormErrors] = useState<string[]>([]);
+  const handleSave = () => {
+    const errors = validateSpaceForm(form as unknown as Record<string, unknown>);
+    setFormErrors(errors);
+    if (errors.length > 0) {
+      toast.error("Kontrollera fälten innan du sparar.");
+      return;
+    }
+    save.mutate(form);
+  };
+  // Guard against losing edits when the dialog is dismissed by mistake.
+  const handleDialogOpenChange = (next: boolean) => {
+    if (!next && isDirty && !save.isPending) {
+      const discard = window.confirm("Du har ändringar som inte är sparade. Vill du stänga ändå?");
+      if (!discard) return;
+    }
+    if (!next) setFormErrors([]);
+    setOpen(next);
+  };
+
+
+
   useEffect(() => {
     if (open && form.images.length > 0) {
       fetchImageDates(form.images);
