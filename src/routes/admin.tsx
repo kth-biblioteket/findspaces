@@ -58,6 +58,8 @@ import {
 } from "@/lib/useFilterCategories";
 import { OptionIcon } from "@/components/OptionIcon";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { validateSpaceForm } from "@/lib/adminSpaceSchema";
+
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { SpaceCard } from "@/components/SpaceCard";
