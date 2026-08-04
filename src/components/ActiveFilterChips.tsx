@@ -26,6 +26,29 @@ export function ActiveFilterChips({
   // show a chip that suggests it is narrowing the results.
   const liveActive = useLiveActive();
 
+  // Fade on the right edge while more chips are scrollable out of view.
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const updateScrollState = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollRight(el.scrollWidth - el.clientWidth - el.scrollLeft > 4);
+  }, []);
+  useLayoutEffect(updateScrollState);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", updateScrollState, { passive: true });
+    window.addEventListener("resize", updateScrollState);
+    return () => {
+      el.removeEventListener("scroll", updateScrollState);
+      window.removeEventListener("resize", updateScrollState);
+    };
+  }, [updateScrollState]);
+
+
+
   const visibleOptions = options.filter((option) => !option.hidden);
   const optLookup = new Map(
     visibleOptions.map((option) => [
