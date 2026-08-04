@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { emptyFilters, type Filters } from "./FilterPanel";
@@ -5,6 +6,8 @@ import { useFilterCategories } from "@/lib/useFilterCategories";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { pickLocalized, type Lang } from "@/i18n";
 import { useLiveActive } from "@/lib/useLiveActive";
+import { cn } from "@/lib/utils";
+
 
 type Chip = { key: string; label: string; onRemove: () => void };
 
