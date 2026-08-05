@@ -485,14 +485,14 @@ export function SpaceCard({
                   <div
                     className={cn(
                       "min-h-0 overflow-hidden",
-                      aboutOpen ? "pt-2 pb-4" : "py-0",
+                      aboutOpen ? "pt-2 pb-2" : "py-0",
                     )}
                   >
                     <div
                       id={`space-${space.id}-about`}
                       className={cn(
                         "space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line",
-                        aboutOpen ? "pt-1 pb-3" : "py-0",
+                        aboutOpen ? "pt-1 pb-2" : "py-0",
                       )}
                       dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
                     />
@@ -503,7 +503,7 @@ export function SpaceCard({
 
               {hasMeta && (
 
-                <div className="mt-1.5 text-sm text-muted-foreground leading-snug">
+                <div className={cn("text-sm text-muted-foreground leading-snug", aboutOpen ? "mt-0" : "mt-1.5")}>
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                     {floorPart && (
                       <span className="inline-flex items-center gap-1.5">
