@@ -1,3 +1,4 @@
+import { DoorOpen, DoorClosed } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type { GroupRoomStatus } from "@/lib/useGroupRoomAvailability";
@@ -16,6 +17,7 @@ export function GroupRoomBadge({
   bookingUrl?: string | null;
 }) {
   const { t } = useTranslation();
+  const Icon = status === "free" ? DoorOpen : DoorClosed;
   const dotClass =
     status === "free"
       ? "bg-[#4DA060]"
@@ -23,9 +25,10 @@ export function GroupRoomBadge({
         ? "bg-amber-400"
         : "bg-[#E86A58]";
   return (
-    <div className="flex items-center gap-1 flex-wrap">
-      <span className={cn("inline-block h-2.5 w-2.5 shrink-0 rounded-full", dotClass)} aria-hidden="true" />
-      <span className="text-sm leading-tight text-foreground">
+    <div className="flex items-center flex-wrap">
+      <Icon className="h-4 w-4 shrink-0 text-foreground" aria-hidden="true" />
+      <span className={cn("inline-block h-2.5 w-2.5 shrink-0 rounded-full ml-1.5", dotClass)} aria-hidden="true" />
+      <span className="ml-1 text-sm leading-tight text-foreground">
         <span className="text-muted-foreground">{t("group_room.right_now")}:</span>{" "}
         <strong>{t(GROUP_ROOM_LABELS[status])}</strong>
       </span>
