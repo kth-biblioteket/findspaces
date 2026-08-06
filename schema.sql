@@ -186,6 +186,8 @@ GRANT SELECT ON public.spaces TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.spaces TO authenticated;
 GRANT ALL ON public.spaces TO service_role;
 
+
+--- 20260525
 ALTER TABLE public.spaces ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Spaces are viewable by everyone"
@@ -200,6 +202,20 @@ CREATE POLICY "Authenticated can delete spaces"
 INSERT INTO storage.buckets (id, name, public) VALUES ('space-images', 'space-images', true);
 INSERT INTO storage.buckets (id, name, public) VALUES ('filter-icons', 'filter-icons', true);
 
+CREATE TRIGGER spaces_updated_at
+  BEFORE UPDATE ON public.spaces
+  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+CREATE TRIGGER set_filter_options_updated_at
+  BEFORE UPDATE ON public.filter_options
+  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+---20260526
+CREATE TRIGGER set_updated_at_filter_categories
+  BEFORE UPDATE ON public.filter_categories
+  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+---20260611
 ALTER TABLE public.spaces
   ADD COLUMN IF NOT EXISTS book_now_url text,
   ADD COLUMN IF NOT EXISTS book_now_url_en text;
@@ -207,10 +223,13 @@ ALTER TABLE public.spaces
 ALTER TABLE public.spaces
   ADD COLUMN IF NOT EXISTS image_alts_en text[] NOT NULL DEFAULT '{}'::text[];
 
+--- 20260612
 ALTER TABLE public.spaces ADD COLUMN IF NOT EXISTS info_sv text, ADD COLUMN IF NOT EXISTS info_en text;
 
 ALTER TABLE public.spaces RENAME COLUMN info_sv TO info;
 
+
+--20260614
 CREATE TABLE public.analytics_events (
   id BIGSERIAL PRIMARY KEY,
   event_type TEXT NOT NULL,
@@ -245,14 +264,17 @@ DROP POLICY IF EXISTS "Anyone can read analytics events" ON public.analytics_eve
 CREATE POLICY "Authenticated can read analytics events" ON public.analytics_events FOR SELECT TO authenticated USING (true);
 REVOKE SELECT ON public.analytics_events FROM anon;
 
+--- 20260617
 ALTER TABLE public.spaces ADD COLUMN IF NOT EXISTS slug text;
 CREATE UNIQUE INDEX IF NOT EXISTS spaces_slug_unique ON public.spaces (slug) WHERE slug IS NOT NULL;
 ALTER TABLE public.spaces DROP CONSTRAINT IF EXISTS spaces_slug_format_chk;
 ALTER TABLE public.spaces ADD CONSTRAINT spaces_slug_format_chk
   CHECK (slug IS NULL OR slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$');
 
+--- 20260625
 ALTER TABLE public.spaces ADD COLUMN IF NOT EXISTS map_url_en text, ADD COLUMN IF NOT EXISTS booking_url_en text;
 
+--20260709
 ALTER TABLE public.spaces
   ADD COLUMN IF NOT EXISTS space_kind text NOT NULL DEFAULT 'study';
 
@@ -278,6 +300,7 @@ ALTER TABLE public.spaces ADD COLUMN IF NOT EXISTS description_inline boolean NO
 
 ALTER TABLE public.spaces ADD COLUMN IF NOT EXISTS informal_seat_count integer;
 
+--- 20260713
 
 -- 1. Add columns
 ALTER TABLE public.filter_categories ADD COLUMN IF NOT EXISTS special_kind text;
@@ -345,6 +368,7 @@ CREATE TRIGGER validate_space_kind_trg
   FOR EACH ROW EXECUTE FUNCTION public.validate_space_kind();
 
 
+---20260715
 
 -- 1. Roles enum + user_roles table
 DO $$ BEGIN
@@ -491,6 +515,7 @@ $function$;
 -- Re-grant EXECUTE to authenticated; the internal admin check gates it.
 GRANT EXECUTE ON FUNCTION public.rename_filter_option(text, text, text) TO authenticated;
 
+--- 20260716
 ALTER TABLE public.spaces ADD COLUMN hidden boolean NOT NULL DEFAULT false;
 CREATE INDEX IF NOT EXISTS idx_spaces_hidden ON public.spaces(hidden);
 
@@ -546,6 +571,97 @@ GRANT EXECUTE ON FUNCTION public.rename_filter_option(text, text, text) TO servi
 
 GRANT EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) TO authenticated;
 
+---- 20260727
 ALTER TABLE public.spaces
   ADD COLUMN IF NOT EXISTS group_booking_label text,
   ADD COLUMN IF NOT EXISTS group_booking_label_en text;
+
+---- 20260804
+
+create or replace function public.slugify_filter_value(p text)
+returns text
+language sql
+immutable
+set search_path = public
+as $$
+  select coalesce(
+    nullif(
+      regexp_replace(
+        regexp_replace(
+          lower(translate(coalesce(p, ''), 'åäöéèüÅÄÖÉÈÜ', 'aaoeeuaaoeeu')),
+          '[^a-z0-9]+', '_', 'g'
+        ),
+        '^_+|_+$', '', 'g'
+      ),
+      ''
+    ),
+    'option'
+  )
+$$;
+
+create or replace function public.set_filter_option_value_key()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  base text;
+  candidate text;
+  i int := 1;
+begin
+  if new.value_key is null or btrim(new.value_key) = '' then
+    base := public.slugify_filter_value(new.label);
+    candidate := base;
+    while exists (
+      select 1 from public.filter_options
+      where category = new.category
+        and value_key = candidate
+        and id is distinct from new.id
+    ) loop
+      i := i + 1;
+      candidate := base || '_' || i;
+    end loop;
+    new.value_key := candidate;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists filter_options_set_value_key on public.filter_options;
+create trigger filter_options_set_value_key
+before insert on public.filter_options
+for each row execute function public.set_filter_option_value_key();
+
+-- Backfill stable keys for every existing option that lacks one.
+do $$
+declare
+  r record;
+  base text;
+  candidate text;
+  i int;
+begin
+  for r in select id, category, label from public.filter_options
+           where value_key is null or btrim(value_key) = ''
+           order by category, sort_order
+  loop
+    base := public.slugify_filter_value(r.label);
+    candidate := base;
+    i := 1;
+    while exists (
+      select 1 from public.filter_options
+      where category = r.category and value_key = candidate
+    ) loop
+      i := i + 1;
+      candidate := base || '_' || i;
+    end loop;
+    update public.filter_options set value_key = candidate where id = r.id;
+  end loop;
+end $$;
+
+create unique index if not exists filter_options_category_value_key_uidx
+  on public.filter_options (category, value_key);
+
+--- 20260804
+revoke all on function public.set_filter_option_value_key() from public, anon, authenticated;
+revoke all on function public.slugify_filter_value(text) from public, anon, authenticated;

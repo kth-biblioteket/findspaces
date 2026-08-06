@@ -131,9 +131,12 @@ curl -X POST 'https://findspaces-ref.lib.kth.se/api/auth/v1/signup' \
  - Ligger i filer som uppdaterats i folder "supabase/migrations"
    - Tabeller, fält etc
    - Kör SQL i pgadmin
-
-- git chekout main
-- git merge. ref 
+   - Uppdatera schema.sql
+- git push origin ref
+- Kontrollera i ref att allt ser ok ut
+- git checkout main
+- git merge ref 
+- git push origin main
 
 ### Licens / License
 
