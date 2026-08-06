@@ -122,5 +122,13 @@
   },
   "a11y": {
     "skip_to_content": "Hoppa till innehållet"
+  },
+  "nav": {
+    "label": "Huvudmeny",
+    "education": "Utbildning",
+    "research": "Forskning",
+    "collaboration": "Samverkan",
+    "about": "Om KTH",
+    "library": "Biblioteket"
   }
 }

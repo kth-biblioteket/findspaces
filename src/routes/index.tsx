@@ -3,7 +3,7 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import { useIframeVisibleHeight } from "@/lib/useIframeVisibleHeight";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { SlidersHorizontal, Settings, X, ArrowUpDown, SearchX, AlertTriangle } from "lucide-react";
+import { SlidersHorizontal, X, ArrowUpDown, SearchX, AlertTriangle } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -18,7 +18,7 @@ import { FilterPanel, emptyFilters, type Filters } from "@/components/FilterPane
 import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { SpaceCard } from "@/components/SpaceCard";
 import { SpaceCardSkeleton } from "@/components/SpaceCardSkeleton";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { SiteHeader } from "@/components/SiteHeader";
 import { useUiText, formatSuggestTemplate } from "@/lib/useUiText";
 import { matchesSpace, type MatchOptions } from "@/lib/filterMatch";
 import { groupRoomLabels, isGroupRoomSpace } from "@/lib/groupRoom";
@@ -395,24 +395,16 @@ function SpaceFinder() {
 
   return (
     <div className="min-h-dvh bg-background">
-      <header className="bg-card">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between">
-          <h1 className="text-sm font-semibold leading-tight">
+      <SiteHeader />
+      <div className="bg-card">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+          <h1 className="text-2xl sm:text-3xl font-bold leading-tight text-foreground">
             <span className="whitespace-nowrap">{t("header.title_line1")}</span>{" "}
             <span className="whitespace-nowrap">{t("header.title_line2")}</span>
           </h1>
-          <div className="flex items-center gap-3 ml-3 sm:ml-4">
-            <LanguageSwitcher />
-            <Link
-              to="/admin"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              aria-label={t("header.admin")}
-            >
-              <Settings className="h-4 w-4" aria-hidden="true" />
-            </Link>
-          </div>
         </div>
-      </header>
+      </div>
+
 
       <AnnouncementBanner />
 

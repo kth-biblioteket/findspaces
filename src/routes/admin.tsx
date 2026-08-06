@@ -61,6 +61,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { validateSpaceForm } from "@/lib/adminSpaceSchema";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  NAV_LINK_KEYS,
+  NAV_LINK_DEFAULTS,
+  useNavLinksAdmin,
+  useSaveNavLink,
+  type NavLinkKey,
+} from "@/lib/useNavLinks";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { SpaceCard } from "@/components/SpaceCard";
 import {
@@ -924,6 +934,7 @@ function AdminPage() {
             <TabsTrigger value="spaces">Lokaler</TabsTrigger>
             <TabsTrigger value="filters">Filteralternativ</TabsTrigger>
             <TabsTrigger value="landing">Texter</TabsTrigger>
+            <TabsTrigger value="nav">Meny</TabsTrigger>
             <TabsTrigger value="layout">Kortlayout</TabsTrigger>
             <TabsTrigger value="occupancy">Beläggning</TabsTrigger>
             <TabsTrigger value="hours">Öppettider</TabsTrigger>
@@ -1863,6 +1874,10 @@ function AdminPage() {
 
           <TabsContent value="layout">
             <CardLayoutTab />
+          </TabsContent>
+
+          <TabsContent value="nav">
+            <NavLinksTab />
           </TabsContent>
 
           <TabsContent value="landing">
@@ -3693,6 +3708,90 @@ function LangPairEditor({
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+const NAV_LABELS: Record<NavLinkKey, string> = {
+  education: "Utbildning / Studies",
+  research: "Forskning / Research",
+  collaboration: "Samverkan / Collaboration",
+  about: "Om KTH / About KTH",
+  library: "Biblioteket / Library",
+};
+
+function NavLinksTab() {
+  const { data: pairs, isLoading } = useNavLinksAdmin();
+  const save = useSaveNavLink();
+
+  return (
+    <div className="space-y-6 max-w-4xl">
+      <div className="bg-card rounded-2xl border border-border p-6 space-y-2">
+        <h2 className="text-lg font-bold">Länkar i toppmenyn</h2>
+        <p className="text-sm text-muted-foreground">
+          Ange webbadresser för menyrubrikerna i headern. Lämna tomt för att använda
+          standardlänken till kth.se. Om engelsk adress saknas används den svenska.
+        </p>
+      </div>
+      {NAV_LINK_KEYS.map((key) => (
+        <div key={key} className="bg-card rounded-2xl border border-border p-6 space-y-4">
+          <h3 className="text-base font-semibold">{NAV_LABELS[key]}</h3>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <NavLinkField
+              label="Svensk länk"
+              placeholder={NAV_LINK_DEFAULTS[key].sv}
+              value={pairs?.[key].sv ?? ""}
+              disabled={isLoading || save.isPending}
+              onSave={(v) =>
+                save.mutate({ key, lang: "sv", value: v }, { onSuccess: () => toast.success("Sparat (SV)") })
+              }
+            />
+            <NavLinkField
+              label="Engelsk länk"
+              placeholder={NAV_LINK_DEFAULTS[key].en}
+              value={pairs?.[key].en ?? ""}
+              disabled={isLoading || save.isPending}
+              onSave={(v) =>
+                save.mutate({ key, lang: "en", value: v }, { onSuccess: () => toast.success("Sparat (EN)") })
+              }
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function NavLinkField({
+  label,
+  placeholder,
+  value,
+  disabled,
+  onSave,
+}: {
+  label: string;
+  placeholder: string;
+  value: string;
+  disabled?: boolean;
+  onSave: (value: string) => void;
+}) {
+  const [draft, setDraft] = useState(value);
+  useEffect(() => setDraft(value), [value]);
+  const dirty = draft.trim() !== value.trim();
+
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <Input
+        type="url"
+        inputMode="url"
+        value={draft}
+        placeholder={placeholder}
+        onChange={(e) => setDraft(e.target.value)}
+      />
+      <Button size="sm" disabled={disabled || !dirty} onClick={() => onSave(draft.trim())}>
+        Spara
+      </Button>
     </div>
   );
 }

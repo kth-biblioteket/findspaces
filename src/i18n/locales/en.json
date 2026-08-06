@@ -122,5 +122,13 @@
   },
   "a11y": {
     "skip_to_content": "Skip to content"
+  },
+  "nav": {
+    "label": "Main menu",
+    "education": "Studies",
+    "research": "Research",
+    "collaboration": "Collaboration",
+    "about": "About KTH",
+    "library": "Library"
   }
 }
