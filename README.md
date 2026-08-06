@@ -9,7 +9,7 @@ Detta är ett verktyg för att söka platser på biblioteket.
 - Skapa .env med allt som behövs
 - Skapa och kör prepare.sh (sudo chmod +x prepare.sh)
 - Kopiera innehållet i kong.yml från repo till ./volumes/api/kong.yml
-- Skapa eventuellt record i dns för domän(findspaces.lib.kth.se)
+- Skapa eventuellt record i dns för domän(spacefinder.lib.kth.se)
   - Via https://sysadm.lan.kth.se
 
 ## Skapa databas/tabeller
@@ -42,14 +42,14 @@ UPDATE public.spaces
     SET image_url = replace(
       image_url,
       'https://lobuiecijreciwgkkcml.supabase.co/storage/v1',
-      'https://findspaces-ref.lib.kth.se/api/storage/v1'
+      'https://spacefinder-ref.lib.kth.se/api/storage/v1'
     )
     WHERE image_url LIKE 'https://lobuiecijreciwgkkcml.supabase.co%';
 
     UPDATE public.spaces
     SET images = (
       SELECT array_agg(
-        replace(elem, 'https://lobuiecijreciwgkkcml.supabase.co/storage/v1', 'https://findspaces-ref.lib.kth.se/api/storage/v1')
+        replace(elem, 'https://lobuiecijreciwgkkcml.supabase.co/storage/v1', 'https://spacefinder-ref.lib.kth.se/api/storage/v1')
       )
       FROM unnest(images) AS elem
     )
@@ -59,7 +59,7 @@ UPDATE public.spaces
     set icon_url = replace(
       icon_url,
       'https://lobuiecijreciwgkkcml.supabase.co/storage/v1',
-      'https://findspaces-ref.lib.kth.se/api/storage/v1'
+      'https://spacefinder-ref.lib.kth.se/api/storage/v1'
     )
     where icon_url like 'https://lobuiecijreciwgkkcml.supabase.co%';
 
@@ -67,7 +67,7 @@ UPDATE public.spaces
     set default_icon = replace(
       default_icon,
       'https://lobuiecijreciwgkkcml.supabase.co/storage/v1',
-      'https://findspaces-ref.lib.kth.se/api/storage/v1'
+      'https://spacefinder-ref.lib.kth.se/api/storage/v1'
     )
     where default_icon like 'https://lobuiecijreciwgkkcml.supabase.co%';
 
@@ -75,7 +75,7 @@ UPDATE public.spaces
     set value = replace(
       value,
       'https://lobuiecijreciwgkkcml.supabase.co/storage/v1',
-      'https://findspaces-ref.lib.kth.se/api/storage/v1'
+      'https://spacefinder-ref.lib.kth.se/api/storage/v1'
     )
     where key = 'capacity_icon_url';
 ```
@@ -92,7 +92,7 @@ name: Build and push Docker image
           tags: ${{ steps.meta.outputs.tags }} 
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            VITE_SUPABASE_URL=https://findspaces-ref.lib.kth.se/api
+            VITE_SUPABASE_URL=https://spacefinder-ref.lib.kth.se/api
             VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_60Bb-qHXzLofE7g3QT2EN0_A1pWxHEy
             VITE_SUPABASE_PROJECT_ID=lobuiecijreciwgkkcml
 ```         
@@ -100,7 +100,7 @@ name: Build and push Docker image
 
 ### Skapa användare
 
-curl -X POST 'https://findspaces-ref.lib.kth.se/api/auth/v1/signup' \
+curl -X POST 'https://spacefinder-ref.lib.kth.se/api/auth/v1/signup' \
   -H "apikey: xxxx" \
   -H "Authorization: Bearer xxxx" \
   -H "Content-Type: application/json" \
