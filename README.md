@@ -119,10 +119,12 @@ curl -X POST 'https://findspaces-ref.lib.kth.se/api/auth/v1/signup' \
 - git diff --stat ref upstream/main
 - git merge upstream/main --allow-unrelated-histories
 - Hantera eventuella konflikter
-  - git commit
+  - git add och commit
 - Hantera eventuell ändring i package.json -- package-lock
+  - nvm use 22
   - npm install
   - npm install --legacy-peer-deps
+  - git add och commit
 - Hantera anpassningar för eventuella förändringar.
  - t ex ny folder vid bygge
 - Hantera eventuella databasuppdateringar
