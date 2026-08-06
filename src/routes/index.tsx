@@ -400,10 +400,17 @@ function SpaceFinder() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
           <h1 className="text-xl sm:text-3xl font-bold leading-tight text-foreground">
             <span className="whitespace-nowrap">{t("header.title_line1")}</span>{" "}
-            <span className="whitespace-nowrap">{t("header.title_line2")}</span>
+            <span className="whitespace-nowrap">
+              {t("header.title_line2")}{" "}
+              <span className="align-middle inline-flex items-center rounded-full bg-secondary px-2.5 py-0.5 text-[0.7em] font-semibold uppercase tracking-wide text-foreground">
+                Beta
+              </span>
+            </span>
           </h1>
         </div>
+        <LandingText />
       </div>
+
 
 
       <AnnouncementBanner />
