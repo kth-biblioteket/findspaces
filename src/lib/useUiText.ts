@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Lang } from "@/i18n";
 
 export type UiTextKey =
+  | "landing_intro"
+  | "landing_body"
   | "empty_title"
   | "empty_suggest_template"
   | "empty_fallback"
@@ -12,6 +14,8 @@ export type UiTextKey =
   | "occupancy_busy";
 
 export const UI_TEXT_DEFAULTS: Record<UiTextKey, string> = {
+  landing_intro: "",
+  landing_body: "",
   empty_title: "Inga lokaler matchar dina filter.",
   empty_suggest_template:
     "Filtret {label} verkar smalast — om du tar bort det hittar vi {count} {lokal}.",
@@ -22,6 +26,8 @@ export const UI_TEXT_DEFAULTS: Record<UiTextKey, string> = {
 };
 
 export const UI_TEXT_DEFAULTS_EN: Record<UiTextKey, string> = {
+  landing_intro: "",
+  landing_body: "",
   empty_title: "No spaces match your filters.",
   empty_suggest_template:
     "The filter {label} seems narrowest — if you remove it we find {count} {lokal}.",
@@ -31,10 +37,23 @@ export const UI_TEXT_DEFAULTS_EN: Record<UiTextKey, string> = {
   occupancy_busy: "Very busy",
 };
 
+
 export const UI_TEXT_META: Record<
   UiTextKey,
   { title: string; description: string; rows?: number }
 > = {
+  landing_intro: {
+    title: "Ingress på startsidan",
+    description:
+      "Större introduktionstext direkt under rubriken. Lämna tomt för att dölja. Du kan använda länkar: <a href=\"https://...\">länktext</a>.",
+    rows: 4,
+  },
+  landing_body: {
+    title: "Brödtext på startsidan",
+    description:
+      "Mindre text i en grå ruta under ingressen. Lämna en tom rad mellan stycken. Lämna tomt för att dölja. Du kan använda länkar: <a href=\"https://...\">länktext</a>.",
+    rows: 8,
+  },
   empty_title: {
     title: "Tomt resultat – rubrik",
     description:

@@ -3798,6 +3798,8 @@ function NavLinkField({
 
 function LandingMessageTab() {
   const uiKeys: UiTextKey[] = [
+    "landing_intro",
+    "landing_body",
     "empty_title",
     "empty_suggest_template",
     "empty_fallback",
