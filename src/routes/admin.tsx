@@ -68,6 +68,9 @@ import {
   useSaveNavLink,
   type NavLinkKey,
 } from "@/lib/useNavLinks";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { SpaceCard } from "@/components/SpaceCard";
 import {
