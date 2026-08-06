@@ -21,6 +21,8 @@ import { SpaceCardSkeleton } from "@/components/SpaceCardSkeleton";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useUiText, formatSuggestTemplate } from "@/lib/useUiText";
 import { matchesSpace, type MatchOptions } from "@/lib/filterMatch";
+import { groupRoomLabels, isGroupRoomSpace } from "@/lib/groupRoom";
+
 import { useNarrowestFilter } from "@/lib/useNarrowestFilter";
 import { useFilterOptions } from "@/lib/useFilterOptions";
 import { getGroupRoomAvailability } from "@/lib/groupRoomAvailability.functions";
@@ -92,7 +94,7 @@ function SpaceFinder() {
         : routeSearch,
     [filterMetadataReady, routeSearch, categories, filterOptions],
   );
-  const filters = useMemo(() => searchToFilters(search), [search]);
+  const filters = useMemo(() => searchToFilters(search, filterOptions), [search, filterOptions]);
   const filterPanelRef = useRef<HTMLDivElement | null>(null);
   const filterViewport = useIframeVisibleHeight(filterPanelRef);
 
@@ -143,7 +145,7 @@ function SpaceFinder() {
   }, [search.sort, canSortFree, canSortSeats, navigate]);
 
   const setFilters = (next: Filters) => {
-    const nextSearch = filtersToSearch(next, search.highlight) as Record<string, unknown>;
+    const nextSearch = filtersToSearch(next, search.highlight, filterOptions) as Record<string, unknown>;
     const nextMode = next.workMode;
     if (search.sort && !(search.sort === "free_now" && nextMode !== "grupprum")) {
       nextSearch.sort = search.sort;
@@ -239,10 +241,21 @@ function SpaceFinder() {
       (s.lokaltyp ?? []).map((l) => enByLabel.get(l) ?? "").join(" ");
   }, [filterOptions]);
 
+  // Group-room detection resolves through the options' stable value_key so a
+  // renamed room-type label can't silently break filtering.
+  const isGroupRoom = useMemo(() => {
+    const labels = groupRoomLabels(filterOptions);
+    return (s: Space) => isGroupRoomSpace(s, labels);
+  }, [filterOptions]);
+
   const matchOptions = useMemo(
-    () => (liveActive ? { isFree: isFreeNow, extraSearchText } : { extraSearchText }),
-    [liveActive, isFreeNow, extraSearchText],
+    () =>
+      liveActive
+        ? { isFree: isFreeNow, extraSearchText, isGroupRoom }
+        : { extraSearchText, isGroupRoom },
+    [liveActive, isFreeNow, extraSearchText, isGroupRoom],
   );
+
 
   const kindTotal = useMemo(
     () => spaces.filter((s) => (s.space_kind ?? "study") === filters.spaceKind).length,
@@ -272,33 +285,27 @@ function SpaceFinder() {
       if (parts.every((p) => p == null)) return null;
       return parts.reduce<number>((sum, p) => sum + (p ?? 0), 0);
     };
+    // Ties keep a predictable order: fall back to name A–Ö.
+    const byName = (a: Space, b: Space) => collator.compare(displayName(a), displayName(b));
     if (effectiveSort === "seats_desc") {
-      arr.sort((a, b) => (seatTotal(b) ?? -1) - (seatTotal(a) ?? -1));
+      arr.sort((a, b) => ((seatTotal(b) ?? -1) - (seatTotal(a) ?? -1)) || byName(a, b));
     } else if (effectiveSort === "seats_asc") {
       arr.sort((a, b) => {
         const av = seatTotal(a) ?? Number.POSITIVE_INFINITY;
         const bv = seatTotal(b) ?? Number.POSITIVE_INFINITY;
-        return av - bv;
+        return (av - bv) || byName(a, b);
       });
-    } else if (effectiveSort === "floor_asc") {
-
+    } else if (effectiveSort === "floor_asc" || effectiveSort === "floor_desc") {
+      const dir = effectiveSort === "floor_asc" ? 1 : -1;
       arr.sort((a, b) => {
         const av = floorNum(a); const bv = floorNum(b);
-        if (isNaN(av) && isNaN(bv)) return 0;
+        if (isNaN(av) && isNaN(bv)) return byName(a, b);
         if (isNaN(av)) return 1;
         if (isNaN(bv)) return -1;
-        return av - bv;
-      });
-    } else if (effectiveSort === "floor_desc") {
-      arr.sort((a, b) => {
-        const av = floorNum(a); const bv = floorNum(b);
-        if (isNaN(av) && isNaN(bv)) return 0;
-        if (isNaN(av)) return 1;
-        if (isNaN(bv)) return -1;
-        return bv - av;
+        return ((av - bv) * dir) || byName(a, b);
       });
     } else if (effectiveSort === "name_asc") {
-      arr.sort((a, b) => collator.compare(displayName(a), displayName(b)));
+      arr.sort(byName);
     } else if (effectiveSort === "name_desc") {
       arr.sort((a, b) => collator.compare(displayName(b), displayName(a)));
     } else if (effectiveSort === "free_now" && canSortFree) {
@@ -313,8 +320,9 @@ function SpaceFinder() {
         if (r.status === "busy") return 2;
         return 3;
       };
-      arr.sort((a, b) => rank(a) - rank(b));
+      arr.sort((a, b) => (rank(a) - rank(b)) || byName(a, b));
     }
+
     return arr;
   }, [filtered, effectiveSort, canSortFree, availability, lang]);
 
@@ -478,7 +486,7 @@ function SpaceFinder() {
                   <SelectTrigger
                     id="sort-select"
                     aria-label={t("results.sort_label")}
-                    className="h-auto min-h-9 w-auto gap-2 border-0 bg-transparent shadow-none rounded-lg px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-accent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 transition-colors [&>svg]:opacity-100"
+                    className="h-auto min-h-9 w-auto gap-2 border-0 bg-transparent shadow-none rounded-lg px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-accent focus:ring-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transition-colors [&>svg]:opacity-100"
                   >
                     <ArrowUpDown className="h-3.5 w-3.5" aria-hidden="true" />
                     <span className="mr-0.5">{t("results.sort_label")}:</span>

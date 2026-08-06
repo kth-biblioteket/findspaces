@@ -342,6 +342,7 @@ export type Database = {
         Args: { p_category: string; p_new_label: string; p_old_label: string }
         Returns: undefined
       }
+      slugify_filter_value: { Args: { p: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

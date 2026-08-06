@@ -22,6 +22,8 @@ import { TableChairIcon } from "./icons/TableChairIcon";
 
 import { type Space } from "@/lib/spaces";
 import { useFilterOptions } from "@/lib/useFilterOptions";
+import { cardHiddenRoomTypeLabels, groupRoomLabels, isGroupRoomSpace } from "@/lib/groupRoom";
+
 import { useCardLayout, type CardSectionKey } from "@/lib/useCardLayout";
 import { useCapacityIcon } from "@/lib/useCapacityIcon";
 import {
@@ -200,8 +202,10 @@ export function SpaceCard({
     return opt ? pickLocalized(opt, "label", lang) : value;
   };
 
-  const isGrupprum =
-    (space.lokaltyp ?? []).includes("Grupprum") || (space.intent ?? []).includes("grupprum");
+  // Driven by the options' stable value_key, so renaming "Grupprum" in admin
+  // does not break the card logic.
+  const isGrupprum = isGroupRoomSpace(space, groupRoomLabels(options));
+
 
   // Intent chips on the card: enskilt / tillsammans for regular spaces,
   // "I grupprum" for group-room spaces. Noise level always joins this row.
@@ -277,10 +281,12 @@ export function SpaceCard({
 
   const floorPart = localizedFloor;
   const locatedInPart = localizedLocatedIn;
+  const hiddenRoomTypes = cardHiddenRoomTypeLabels(options);
   const lokaltypParts = (space.lokaltyp ?? [])
-    .filter((l) => l !== "Grupprum" && l !== "Resursrum")
+    .filter((l) => !hiddenRoomTypes.includes(l))
     .map((l) => localizeChip("lokaltyp", l))
     .filter((s): s is string => Boolean(s && s.length > 0));
+
 
   const floorRowParts = [floorPart, locatedInPart].filter((s): s is string =>
     Boolean(s && s.length > 0),
@@ -479,14 +485,14 @@ export function SpaceCard({
                   <div
                     className={cn(
                       "min-h-0 overflow-hidden",
-                      aboutOpen ? "pt-2 pb-4" : "py-0",
+                      aboutOpen ? "pt-2 pb-2" : "py-0",
                     )}
                   >
                     <div
                       id={`space-${space.id}-about`}
                       className={cn(
                         "space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line",
-                        aboutOpen ? "pt-1 pb-3" : "py-0",
+                        aboutOpen ? "pt-1 pb-2" : "py-0",
                       )}
                       dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
                     />
@@ -497,7 +503,7 @@ export function SpaceCard({
 
               {hasMeta && (
 
-                <div className="mt-1.5 text-sm text-muted-foreground leading-snug">
+                <div className={cn("text-sm text-muted-foreground leading-snug", aboutOpen ? "mt-0" : "mt-1.5")}>
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                     {floorPart && (
                       <span className="inline-flex items-center gap-1.5">
@@ -521,22 +527,28 @@ export function SpaceCard({
               {(showCapacity ||
                 (space.informal_seat_count ?? 0) > 0 ||
                 (space.computer_count ?? 0) > 0) && (
-                <div className="mt-1.5 flex flex-wrap items-end gap-x-4 gap-y-1 text-sm text-foreground">
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-foreground">
                   {showCapacity && (
-                    <p className="inline-flex items-end gap-1.5">
-                      <span className="inline-flex w-4 justify-center">
+                    <p className="inline-flex items-center gap-1.5">
+                      <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center">
                         {capacityIconUrl ? (
-                          <img src={capacityIconUrl} alt="" className="h-4 w-4 object-contain" />
+                          <img
+                            data-capacity-icon
+                            src={capacityIconUrl}
+                            alt=""
+                            className="h-3.5 w-3.5 object-contain"
+                          />
                         ) : capacityIconPending ? (
-                          <span className="h-4 w-4" aria-hidden="true" />
+                          <span className="h-3.5 w-3.5" aria-hidden="true" />
                         ) : (
                           <TableChairIcon
-                            className="h-4 w-4 text-foreground/70"
+                            data-capacity-icon
+                            className="h-3.5 w-3.5 text-foreground"
                             aria-hidden="true"
                           />
                         )}
                       </span>
-                      <span className="leading-none">
+                      <span className="leading-tight">
                         <span className="sr-only">{t("card.study_seats_sr")} </span>
                         <span className="font-medium">{space.capacity}</span>{" "}
                         {t("card.study_seats_label", { count: space.capacity ?? 0 })}
@@ -544,11 +556,11 @@ export function SpaceCard({
                     </p>
                   )}
                   {(space.informal_seat_count ?? 0) > 0 && (
-                    <p className="inline-flex items-end gap-1.5">
-                      <span className="inline-flex w-4 justify-center">
-                        <Armchair className="h-4 w-4 text-foreground/70" aria-hidden="true" />
+                    <p className="inline-flex items-center gap-1.5">
+                      <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center">
+                        <Armchair className="h-4 w-4 text-foreground" aria-hidden="true" />
                       </span>
-                      <span className="leading-none">
+                      <span className="leading-tight">
                         <span className="sr-only">{t("card.informal_seats_sr")} </span>
                         <span className="font-medium">{space.informal_seat_count}</span>{" "}
                         {t("card.informal_seats_label", { count: space.informal_seat_count ?? 0 })}
@@ -556,11 +568,11 @@ export function SpaceCard({
                     </p>
                   )}
                   {(space.computer_count ?? 0) > 0 && (
-                    <p className="inline-flex items-end gap-1.5">
-                      <span className="inline-flex w-4 justify-center">
-                        <Monitor className="h-4 w-4 text-foreground/70" aria-hidden="true" />
+                    <p className="inline-flex items-center gap-1.5">
+                      <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center">
+                        <Monitor className="h-4 w-4 text-foreground" aria-hidden="true" />
                       </span>
-                      <span className="leading-none">
+                      <span className="leading-tight">
                         <span className="sr-only">{t("card.computers_sr")} </span>
                         <span className="font-medium">{space.computer_count}</span>{" "}
                         {t("card.computers_label", { count: space.computer_count ?? 0 })}
@@ -568,6 +580,7 @@ export function SpaceCard({
                     </p>
                   )}
                 </div>
+
               )}
             </div>
 
@@ -586,9 +599,9 @@ export function SpaceCard({
           <div
             key="notice"
             role="status"
-            className="flex items-start gap-1.5 bg-[hsl(48_100%_85%)] text-foreground rounded-lg px-3 py-2 text-sm"
+            className="flex items-start gap-1.5 bg-[#FFF0B0] text-foreground rounded-lg px-3 py-2 text-sm"
           >
-            <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-orange-500" aria-hidden="true" />
+            <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-black" aria-hidden="true" />
             <span className="whitespace-pre-line">
               <span className="sr-only">{t("card.notice_sr")} </span>
               {linkedNotice}

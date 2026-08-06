@@ -33,7 +33,7 @@ Detta är ett verktyg för att söka platser på biblioteket.
     select icon_url as val from public.filter_options where icon_url is not null
   ```
   - kör node-script med dessa respektive listor som hämtar bilder från lovable-buckets och sedan anropar API och laddar upp bilderna i den lokala isntallationen
-  
+
   - Uppdatera DB:
 
 ```mysql
@@ -83,8 +83,8 @@ UPDATE public.spaces
 
 Github actions yml-fix
 - Måste ha build args
-
-- name: Build and push Docker image 
+```
+name: Build and push Docker image 
         uses: docker/build-push-action@v3
         with:
           context: .
@@ -95,7 +95,7 @@ Github actions yml-fix
             VITE_SUPABASE_URL=https://findspaces-ref.lib.kth.se/api
             VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_60Bb-qHXzLofE7g3QT2EN0_A1pWxHEy
             VITE_SUPABASE_PROJECT_ID=lobuiecijreciwgkkcml
-            
+```         
 - server-adapter.js används för att köra själva appen och dess server-komponeneter i en node-container
 
 ### Skapa användare
@@ -116,6 +116,7 @@ curl -X POST 'https://findspaces-ref.lib.kth.se/api/auth/v1/signup' \
 - git remote add upstream https://github.com/sofieseo/kth-rummet-hitta.git
 - git fetch upstream
 - git checkout ref
+- git diff --stat ref upstream/main
 - git merge upstream/main --allow-unrelated-histories
 - Hantera eventuella konflikter
   - git commit
@@ -125,7 +126,9 @@ curl -X POST 'https://findspaces-ref.lib.kth.se/api/auth/v1/signup' \
 - Hantera anpassningar för eventuella förändringar.
  - t ex ny folder vid bygge
 - Hantera eventuella databasuppdateringar
- - Tabeller, fält etc
+ - Ligger i filer som uppdaterats i folder "supabase/migrations"
+   - Tabeller, fält etc
+   - Kör SQL i pgadmin
 
 - git chekout main
 - git merge. ref 

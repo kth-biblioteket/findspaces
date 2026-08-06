@@ -79,9 +79,34 @@ export function validateSearchInput(input: Record<string, unknown>): SearchParam
   return search;
 }
 
-export function searchToFilters(search: SearchParams): Filters {
+/**
+ * Category filter values live in the URL as stable `value_key`s so renaming an
+ * option in admin never breaks an existing link. Internally (and on the space
+ * rows) the values are still the Swedish labels, so we translate at the URL
+ * boundary.
+ */
+function buildValueMaps(options: FilterOption[]) {
+  const labelToKey = new Map<string, string>();
+  const keyToLabel = new Map<string, string>();
+  for (const option of options) {
+    if (!option.value_key) continue;
+    labelToKey.set(`${option.category}:${option.label}`, option.value_key);
+    keyToLabel.set(`${option.category}:${option.value_key}`, option.label);
+  }
+  return { labelToKey, keyToLabel };
+}
+
+export function searchToFilters(search: SearchParams, options: FilterOption[] = []): Filters {
   const kind = search.kind ?? "study";
   const isStudy = kind === "study";
+  const { keyToLabel } = buildValueMaps(options);
+
+  const byCategory: Record<string, string[]> = {};
+  if (isStudy) {
+    for (const [key, values] of Object.entries(search.cats ?? {})) {
+      byCategory[key] = values.map((value) => keyToLabel.get(`${key}:${value}`) ?? value);
+    }
+  }
 
   return {
     query: search.q ?? "",
@@ -89,12 +114,17 @@ export function searchToFilters(search: SearchParams): Filters {
     workMode: isStudy ? (search.mode ?? null) : null,
     groupSize: isStudy && search.mode === "grupprum" ? (search.size ?? null) : null,
     freeOnly: isStudy && search.mode === "grupprum" ? Boolean(search.free) : false,
-    byCategory: isStudy ? (search.cats ?? {}) : {},
+    byCategory,
   };
 }
 
-export function filtersToSearch(filters: Filters, highlight?: string): SearchParams {
+export function filtersToSearch(
+  filters: Filters,
+  highlight?: string,
+  options: FilterOption[] = [],
+): SearchParams {
   const search: SearchParams = {};
+  const { labelToKey } = buildValueMaps(options);
 
   if (filters.query.trim()) search.q = filters.query;
   if (filters.spaceKind !== "study") search.kind = filters.spaceKind;
@@ -108,7 +138,9 @@ export function filtersToSearch(filters: Filters, highlight?: string): SearchPar
 
     const cats: Record<string, string[]> = {};
     for (const [key, values] of Object.entries(filters.byCategory)) {
-      if (values.length > 0) cats[key] = values;
+      if (values.length > 0) {
+        cats[key] = values.map((value) => labelToKey.get(`${key}:${value}`) ?? value);
+      }
     }
     if (Object.keys(cats).length > 0) search.cats = cats;
   }
@@ -116,6 +148,7 @@ export function filtersToSearch(filters: Filters, highlight?: string): SearchPar
   if (highlight) search.highlight = highlight;
   return search;
 }
+
 
 export function canonicalizeSearch(
   search: SearchParams,
@@ -167,16 +200,28 @@ export function canonicalizeSearch(
       const selected = search.cats[category.key] ?? [];
       if (selected.length === 0) continue;
 
-      const allowed = new Set(
-        visibleOptions
-          .filter((option) => option.category === category.key)
-          .map((option) => option.label),
-      );
-      const values = [...new Set(selected.filter((value) => allowed.has(value)))];
+      const categoryOptions = visibleOptions.filter((option) => option.category === category.key);
+      // Accept both the stable value_key and the legacy label (old links), and
+      // always canonicalize to value_key.
+      const toKey = new Map<string, string>();
+      for (const option of categoryOptions) {
+        // Options without a stable key fall back to their label as the key.
+        const key = option.value_key ?? option.label;
+        toKey.set(key, key);
+        toKey.set(option.label, key);
+      }
+      const values = [
+        ...new Set(
+          selected
+            .map((value) => toKey.get(value))
+            .filter((value): value is string => Boolean(value)),
+        ),
+      ];
       if (values.length > 0) cats[category.key] = values;
     }
     if (Object.keys(cats).length > 0) canonical.cats = cats;
   }
+
 
   if (
     search.sort &&

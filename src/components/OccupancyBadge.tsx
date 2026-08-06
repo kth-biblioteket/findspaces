@@ -1,4 +1,4 @@
-import { Users } from "lucide-react";
+import { User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useUiText } from "@/lib/useUiText";
@@ -16,13 +16,18 @@ const OCCUPANCY_FALLBACK_I18N: Record<OccupancyStatus, string> = {
   busy: "occupancy.busy",
 };
 
-function OccupancyBlocks({ level }: { level: 1 | 2 | 3 }) {
+function OccupancyPeople({ level }: { level: 1 | 2 | 3 }) {
   return (
-    <div className="flex items-center gap-[2px]" aria-hidden="true">
+    <div className="flex h-4 shrink-0 items-center -space-x-0.5" aria-hidden="true">
       {[1, 2, 3].map((i) => (
-        <div
+        <User
           key={i}
-          className={cn("w-5 h-2 rounded-sm", i <= level ? "bg-[var(--kth-blue)]" : "bg-muted")}
+          className={cn(
+            "h-4 w-4",
+            i <= level
+              ? "text-[var(--kth-blue)] fill-current"
+              : "text-black"
+          )}
         />
       ))}
     </div>
@@ -35,9 +40,8 @@ export function OccupancyBadge({ level, status }: { level: 1 | 2 | 3; status: Oc
   const label = customLabel ?? t(OCCUPANCY_FALLBACK_I18N[status]);
   return (
     <div className="flex items-center gap-1.5 md:gap-2">
-      <Users className="h-4 w-4 text-foreground" aria-hidden="true" />
-      <OccupancyBlocks level={level} />
-      <span className="text-sm text-foreground">
+      <OccupancyPeople level={level} />
+      <span className="text-sm leading-tight text-foreground">
         <span className="text-muted-foreground">{t("occupancy.right_now")}:</span> <strong>{label}</strong>
       </span>
     </div>
