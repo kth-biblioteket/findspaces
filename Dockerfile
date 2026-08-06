@@ -16,6 +16,10 @@ ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL \
 COPY package.json package-lock.json* ./
 RUN npm ci --legacy-peer-deps
 
+# Prune dev deps in builder so node_modules becomes production-only before copying.
+# Alternative: omit this step and run `npm ci --omit=dev` in the runner stage instead.
+RUN npm prune --production
+
 # Kopiera källkod och bygg
 COPY . .
 RUN npm run build
