@@ -13,7 +13,7 @@ function paragraphs(text: string): string[] {
     .filter(Boolean);
 }
 
-/** Editor-controlled intro (large) and body text (grey box) on the landing page. */
+/** Editor-controlled intro (large) and body text (white background) on the landing page. */
 export function LandingText() {
   const { data: intro } = useUiText("landing_intro");
   const { data: body } = useUiText("landing_body");
@@ -37,7 +37,7 @@ export function LandingText() {
         </div>
       )}
       {bodyParts.length > 0 && (
-        <div className="max-w-3xl rounded-lg bg-secondary/60 px-5 py-4 space-y-3">
+        <div className="max-w-3xl rounded-lg bg-card px-5 py-4 space-y-3">
           {bodyParts.map((p, i) => (
             <p
               key={i}
