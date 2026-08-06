@@ -7,7 +7,13 @@ const LANGUAGE_LABELS: Record<Lang, string> = {
   en: "English",
 };
 
-export function LanguageSwitcher({ className = "" }: { className?: string }) {
+export function LanguageSwitcher({
+  className = "",
+  tone = "default",
+}: {
+  className?: string;
+  tone?: "default" | "light";
+}) {
   const { i18n, t } = useTranslation();
   const current = (i18n.resolvedLanguage ?? "sv") as Lang;
   const other = SUPPORTED_LANGUAGES.find((lng) => lng !== current) ?? "en";
@@ -19,9 +25,11 @@ export function LanguageSwitcher({ className = "" }: { className?: string }) {
       aria-label={`${t("header.language")}: ${LANGUAGE_LABELS[other]}`}
       lang={other}
       className={
-        "inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground " +
-        "hover:text-foreground transition-colors focus-visible:outline-none " +
-        "focus-visible:ring-2 focus-visible:ring-primary rounded-md px-1 py-0.5 " +
+        "inline-flex items-center gap-1.5 text-sm font-medium transition-colors " +
+        (tone === "light"
+          ? "text-white hover:opacity-80 focus-visible:ring-white "
+          : "text-muted-foreground hover:text-foreground focus-visible:ring-primary ") +
+        "focus-visible:outline-none focus-visible:ring-2 rounded-md px-1 py-0.5 " +
         className
       }
     >
@@ -30,4 +38,5 @@ export function LanguageSwitcher({ className = "" }: { className?: string }) {
     </button>
   );
 }
+
 
