@@ -42,6 +42,18 @@ export const UI_TEXT_META: Record<
   UiTextKey,
   { title: string; description: string; rows?: number }
 > = {
+  landing_intro: {
+    title: "Ingress på startsidan",
+    description:
+      "Större introduktionstext direkt under rubriken. Lämna tomt för att dölja. Du kan använda länkar: <a href=\"https://...\">länktext</a>.",
+    rows: 4,
+  },
+  landing_body: {
+    title: "Brödtext på startsidan",
+    description:
+      "Mindre text i en grå ruta under ingressen. Lämna en tom rad mellan stycken. Lämna tomt för att dölja. Du kan använda länkar: <a href=\"https://...\">länktext</a>.",
+    rows: 8,
+  },
   empty_title: {
     title: "Tomt resultat – rubrik",
     description:
