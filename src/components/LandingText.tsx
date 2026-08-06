@@ -20,12 +20,19 @@ export function LandingText() {
 
   const introParts = paragraphs(intro ?? "");
   const bodyParts = paragraphs(body ?? "");
+  const hasIntro = introParts.length > 0;
+  const hasBody = bodyParts.length > 0;
 
-  if (introParts.length === 0 && bodyParts.length === 0) return null;
+  if (!hasIntro && !hasBody) return null;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-6 space-y-5">
-      {introParts.length > 0 && (
+    <div
+      className={[
+        "max-w-7xl mx-auto px-4 sm:px-6 pb-3",
+        hasIntro ? "space-y-4" : "-mt-2 space-y-0",
+      ].join(" ")}
+    >
+      {hasIntro && (
         <div className="max-w-4xl space-y-3">
           {introParts.map((p, i) => (
             <p
@@ -36,8 +43,13 @@ export function LandingText() {
           ))}
         </div>
       )}
-      {bodyParts.length > 0 && (
-        <div className="max-w-3xl rounded-lg bg-card px-5 py-4 space-y-3">
+      {hasBody && (
+        <div
+          className={[
+            "max-w-3xl rounded-lg bg-card space-y-3",
+            hasIntro ? "py-2" : "pt-2 pb-2",
+          ].join(" ")}
+        >
           {bodyParts.map((p, i) => (
             <p
               key={i}
