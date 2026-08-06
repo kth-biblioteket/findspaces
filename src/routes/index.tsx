@@ -397,8 +397,8 @@ function SpaceFinder() {
     <div className="min-h-dvh bg-background">
       <SiteHeader />
       <div className="bg-card">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-          <h1 className="text-2xl sm:text-3xl font-bold leading-tight text-foreground">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+          <h1 className="text-xl sm:text-3xl font-bold leading-tight text-foreground">
             <span className="whitespace-nowrap">{t("header.title_line1")}</span>{" "}
             <span className="whitespace-nowrap">{t("header.title_line2")}</span>
           </h1>
