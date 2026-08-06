@@ -35,7 +35,7 @@ export function SiteHeader() {
           </nav>
         </div>
         <div className="flex justify-end">
-          <LanguageSwitcher className="text-white hover:text-white" />
+          <LanguageSwitcher tone="light" />
         </div>
       </div>
     </header>
