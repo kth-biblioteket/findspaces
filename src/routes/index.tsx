@@ -40,6 +40,7 @@ import {
 
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle } from "@/components/ui/sheet";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
+import { LandingText } from "@/components/LandingText";
 import type { FilterCategoryRow } from "@/lib/spaces";
 
 const spacesQueryOptions = queryOptions({
