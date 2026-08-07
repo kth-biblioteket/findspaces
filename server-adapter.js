@@ -234,6 +234,7 @@ createServer(async (req, res) => {
     const filePath = path.join(CLIENT_DIR, pathname);
     if (fs.existsSync(filePath)) {
       if (ext === '.png') res.setHeader('Content-Type', 'image/png');
+      if (ext === '.svg') res.setHeader('Content-Type', 'image/svg+xml');
       if (ext === '.js') res.setHeader('Content-Type', 'application/javascript');
       if (ext === '.css') res.setHeader('Content-Type', 'text/css');
       return fs.createReadStream(filePath).pipe(res);
