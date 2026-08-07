@@ -5,7 +5,7 @@ import { useOpeningHours, isOpenNow } from "./useOpeningHours";
 /**
  * True while live availability data should be shown. Opening hours come from
  * the KTH library API (see `useOpeningHours`) and are re-evaluated on a timer
- * so long-lived screens (kiosks, embedded iframes) follow the schedule as it
+ * so long-lived screens (for example kiosks) follow the schedule as it
  * opens and closes instead of freezing on the value from first render.
  *
  * If the API is unavailable the hook fails open, so students still get the

@@ -47,8 +47,8 @@ Ogiltiga kombinationer (t.ex. `sort=free_now` utan `mode=grupprum`, eller `seats
 - **Byten är `replace: true`.** Filter- och sorterings-updates ersätter historian istället för att pusha, så webbläsarens bakåt-knapp bär tillbaka till föregående *sida*, inte till varje filtertryck.
 - **Persistens över filterbyten.** Aktiv `sort` behålls när användaren byter filter så länge sorteringen fortfarande är giltig (t.ex. `sort=free_now` nollställs om `mode` inte längre är `grupprum`).
 
-## För kth.se-embed
+## För den fristående sidan
 
-När appen bäddas som iframe på kth.se är URL-ändringarna **interna för iframen** — de syns inte i parentens adressfält. Om KTH-sidan vill kunna dela djuplänkar behövs en `postMessage`-brygga som synkar iframens `location.search` till parent (inte implementerat i skrivande stund — se `.lovable/plan.md` sektion 1).
+Appen körs som en fristående sida. URL-ändringarna syns därför direkt i webbläsarens adressfält och de kan delas som vanliga djuplänkar utan en `postMessage`-brygga eller annan iframe-synkronisering.
 
 Fram tills dess: användare som ska dela en specifik vy delar direktlänken till appens egen domän (`lib.kth.se/…`), inte kth.se-URL:en.

@@ -125,6 +125,9 @@
   },
   "nav": {
     "label": "Huvudmeny",
+    "menu": "Meny",
+    "menu_open": "Öppna huvudmenyn",
+    "menu_close": "Stäng huvudmenyn",
     "education": "Utbildning",
     "research": "Forskning",
     "collaboration": "Samverkan",

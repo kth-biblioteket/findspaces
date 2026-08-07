@@ -1,0 +1,47 @@
+import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
+import { AnnouncementBanner } from "@/components/AnnouncementBanner";
+import { LandingText } from "@/components/LandingText";
+import { SiteHeader } from "@/components/SiteHeader";
+import { useUiText } from "@/lib/useUiText";
+
+type SitePageLayoutProps = {
+  children: ReactNode;
+  /** Swap this node for the official KTH header when it becomes available. */
+  header?: ReactNode;
+  /** Swap this node for the official KTH footer when it becomes available. */
+  footer?: ReactNode;
+};
+
+/** Standalone page chrome around the preserved study-place application. */
+export function SitePageLayout({ children, header = <SiteHeader />, footer }: SitePageLayoutProps) {
+  const { t } = useTranslation();
+  const { data: pageTitle } = useUiText("landing_title");
+
+  return (
+    <div className="flex min-h-dvh flex-col bg-background">
+      {header}
+
+      <section className="bg-card" aria-labelledby="page-title">
+        <div className="mx-auto max-w-7xl px-4 pb-4 pt-6 sm:px-6">
+          <h1
+            id="page-title"
+            className="text-lg font-bold leading-tight text-foreground sm:text-3xl"
+          >
+            {pageTitle ?? t("header.title")}{" "}
+            <span className="inline-flex items-center rounded-full bg-secondary px-1.5 py-0.5 align-middle text-[0.6em] font-semibold uppercase tracking-wide text-foreground sm:px-2 sm:py-0.5 sm:text-[0.55em]">
+              Beta
+            </span>
+          </h1>
+        </div>
+        <LandingText />
+      </section>
+
+      <AnnouncementBanner />
+
+      <div className="flex-1">{children}</div>
+
+      {footer}
+    </div>
+  );
+}

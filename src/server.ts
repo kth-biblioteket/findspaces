@@ -66,7 +66,7 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   return brandedErrorResponse();
 }
 
-// Security headers, including CSP tuned for iframe embedding under kth.se.
+// Security headers for the standalone application.
 // script-src / style-src still need 'unsafe-inline' because TanStack Start
 // emits inline hydration scripts and Tailwind emits inline styles;
 // tighten with nonces once we introduce a nonce middleware.
@@ -74,8 +74,8 @@ const CSP = [
   "default-src 'self'",
   "base-uri 'self'",
   "object-src 'none'",
-  "frame-ancestors 'self' https://*.kth.se https://kth.se https://*.lovable.app",
-  "img-src 'self' data: blob: https://*.supabase.co https://*.r2.dev https://pub-*.r2.dev",
+  "frame-ancestors 'none'",
+  "img-src 'self' data: blob: https://app.kth.se https://*.supabase.co https://*.r2.dev https://pub-*.r2.dev",
   "font-src 'self' data: https://fonts.gstatic.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
@@ -93,10 +93,7 @@ function applySecurityHeaders(response: Response): Response {
     "Permissions-Policy",
     "camera=(), microphone=(), geolocation=(), payment=()",
   );
-  if (!headers.has("X-Frame-Options")) {
-    // Some proxies still respect this even though CSP frame-ancestors supersedes.
-    // Omit it entirely so iframe embedding under kth.se works.
-  }
+  headers.set("X-Frame-Options", "DENY");
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
@@ -116,4 +113,3 @@ export default {
     }
   },
 };
-

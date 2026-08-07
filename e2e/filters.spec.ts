@@ -1,15 +1,9 @@
-import { test, expect, type FrameLocator, type Page } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
 const FIXED_OPEN_TIME = new Date("2026-07-30T10:00:00+02:00");
 
 async function waitForApp(page: Page) {
   const main = page.locator("main");
-  await expect(main).toHaveAttribute("aria-busy", "false", { timeout: 20_000 });
-  await expect(main.locator('ul[role="list"] > li').first()).toBeVisible();
-}
-
-async function waitForFrameApp(frame: FrameLocator) {
-  const main = frame.locator("main");
   await expect(main).toHaveAttribute("aria-busy", "false", { timeout: 20_000 });
   await expect(main.locator('ul[role="list"] > li').first()).toBeVisible();
 }
@@ -51,6 +45,75 @@ test.describe("Filtering flow", () => {
 
     await expect(page).toHaveTitle(/Hitta studieplats\s*[–-]\s*KTH Biblioteket/);
     await expect.poll(() => new URL(page.url()).search).toBe("");
+  });
+
+  test("renders the standalone page shell around the app", async ({ page }) => {
+    await openApp(page);
+
+    const header = page.getByRole("banner");
+    const main = page.getByRole("main");
+
+    await expect(header).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Hitta studieplats");
+    await expect(main).toBeVisible();
+    await expect(page.getByRole("contentinfo")).toHaveCount(0);
+
+    expect(
+      await page.evaluate(() => {
+        const headerElement = document.querySelector("header");
+        const mainElement = document.querySelector("main");
+        if (!headerElement || !mainElement) return false;
+        return Boolean(
+          headerElement.compareDocumentPosition(mainElement) & Node.DOCUMENT_POSITION_FOLLOWING,
+        );
+      }),
+    ).toBe(true);
+  });
+
+  test("mobile header exposes the KTH-style collapsible main menu", async ({ page }) => {
+    await page.setViewportSize({ width: 430, height: 844 });
+    await openApp(page);
+
+    const header = page.getByRole("banner");
+    const openMenu = header.getByRole("button", { name: "Öppna huvudmenyn" });
+    await expect(openMenu).toBeVisible();
+    await expect(openMenu).toHaveAttribute("aria-expanded", "false");
+    await expect(header.getByRole("navigation", { name: "Huvudmeny" })).toHaveCount(0);
+
+    await openMenu.click();
+
+    const mobileNavigation = header.getByRole("navigation", { name: "Huvudmeny" });
+    const closeMenu = header.getByRole("button", { name: "Stäng huvudmenyn" });
+    await expect(closeMenu).toHaveAttribute("aria-expanded", "true");
+    await expect(mobileNavigation).toBeVisible();
+    await expect(mobileNavigation.getByRole("link", { name: "Biblioteket" })).toBeVisible();
+
+    await page.keyboard.press("Escape");
+    await expect(openMenu).toBeFocused();
+    await expect(header.getByRole("navigation", { name: "Huvudmeny" })).toHaveCount(0);
+  });
+
+  test("desktop filters remain contained and scrollable in a short standalone window", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 360 });
+    await openApp(page);
+
+    const panel = desktopFilters(page).locator(".study-place-filter-panel");
+    const content = panel.locator(".study-place-filter-content");
+    const panelBox = await panel.boundingBox();
+    const dimensions = await content.evaluate((element) => ({
+      clientHeight: element.clientHeight,
+      scrollHeight: element.scrollHeight,
+    }));
+
+    expect(panelBox).not.toBeNull();
+    expect((panelBox?.y ?? 0) + (panelBox?.height ?? 0)).toBeLessThanOrEqual(361);
+    expect(dimensions.clientHeight).toBeGreaterThan(0);
+    expect(dimensions.scrollHeight).toBeGreaterThan(dimensions.clientHeight);
+
+    await content.evaluate((element) => element.scrollTo(0, element.scrollHeight));
+    await expect.poll(() => content.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
   });
 
   test("free-text search is diacritic-insensitive and removable by chip", async ({ page }) => {
@@ -286,6 +349,25 @@ test.describe("Filtering flow", () => {
 
     await title.click();
     await expect(title).toHaveAttribute("aria-expanded", "true");
+    await expect
+      .poll(async () => {
+        const expanded = await card.boundingBox();
+        return (expanded?.height ?? 0) - (collapsedCard?.height ?? 0);
+      })
+      .toBeGreaterThan(50);
+    await expect
+      .poll(async () => {
+        const [expanded, expandedMedia] = await Promise.all([
+          card.boundingBox(),
+          media.boundingBox(),
+        ]);
+        return Math.abs(
+          (expandedMedia?.y ?? 0) +
+            (expandedMedia?.height ?? 0) -
+            ((expanded?.y ?? 0) + (expanded?.height ?? 0)),
+        );
+      })
+      .toBeLessThan(1);
 
     const [expandedCard, expandedMedia, expandedImage] = await Promise.all([
       card.boundingBox(),
@@ -393,45 +475,5 @@ test.describe("Filtering flow", () => {
     expect((headingBox?.y ?? 0) + (headingBox?.height ?? 0)).toBeLessThan(actionsBox?.y ?? 0);
     await expect(media).toHaveCSS("border-top-left-radius", "16px");
     await expect(media).toHaveCSS("border-top-right-radius", "16px");
-  });
-
-  test("mobile filters remain reachable in a tall, scrolled iframe", async ({ page }) => {
-    await page.setViewportSize({ width: 430, height: 844 });
-    await page.route("http://localhost:8080/__e2e__/iframe", (route) =>
-      route.fulfill({
-        contentType: "text/html",
-        body: `
-          <!doctype html>
-          <style>
-            body { margin: 0; height: 2400px; }
-            .spacer { height: 500px; }
-            iframe { display: block; width: 390px; height: 1500px; border: 0; }
-          </style>
-          <div class="spacer"></div>
-          <iframe title="KTH filtertest" src="/"></iframe>
-        `,
-      }),
-    );
-
-    await page.goto("/__e2e__/iframe");
-    await page.evaluate(() => window.scrollTo(0, 650));
-    const frame = page.frameLocator('iframe[title="KTH filtertest"]');
-    await waitForFrameApp(frame);
-    const trigger = frame.getByRole("button", { name: /^Filter$/ });
-    await expect(trigger).toBeVisible();
-
-    const triggerBox = await trigger.boundingBox();
-    expect(triggerBox).not.toBeNull();
-    expect(triggerBox?.y).toBeGreaterThanOrEqual(0);
-    expect((triggerBox?.y ?? 0) + (triggerBox?.height ?? 0)).toBeLessThanOrEqual(844);
-
-    await trigger.click();
-    const dialog = frame.getByRole("dialog", { name: "Filter" });
-    await expect(dialog).toBeVisible();
-    await page.waitForTimeout(700);
-    const dialogBox = await dialog.boundingBox();
-    expect(dialogBox).not.toBeNull();
-    expect(dialogBox?.y).toBeGreaterThanOrEqual(0);
-    expect((dialogBox?.y ?? 0) + (dialogBox?.height ?? 0)).toBeLessThanOrEqual(844);
   });
 });

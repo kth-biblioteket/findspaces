@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Lang } from "@/i18n";
 
 export type UiTextKey =
+  | "landing_title"
   | "landing_intro"
   | "landing_body"
   | "empty_title"
@@ -14,6 +15,7 @@ export type UiTextKey =
   | "occupancy_busy";
 
 export const UI_TEXT_DEFAULTS: Record<UiTextKey, string> = {
+  landing_title: "Hitta studieplats på KTH Biblioteket",
   landing_intro: "",
   landing_body: "",
   empty_title: "Inga lokaler matchar dina filter.",
@@ -26,6 +28,7 @@ export const UI_TEXT_DEFAULTS: Record<UiTextKey, string> = {
 };
 
 export const UI_TEXT_DEFAULTS_EN: Record<UiTextKey, string> = {
+  landing_title: "Find a study space at KTH Library",
   landing_intro: "",
   landing_body: "",
   empty_title: "No spaces match your filters.",
@@ -37,27 +40,30 @@ export const UI_TEXT_DEFAULTS_EN: Record<UiTextKey, string> = {
   occupancy_busy: "Very busy",
 };
 
-
 export const UI_TEXT_META: Record<
   UiTextKey,
   { title: string; description: string; rows?: number }
 > = {
+  landing_title: {
+    title: "Rubrik på startsidan",
+    description: "Huvudrubriken ovanför ingressen. Redigera svenska och engelska var för sig.",
+    rows: 2,
+  },
   landing_intro: {
     title: "Ingress på startsidan",
     description:
-      "Större introduktionstext direkt under rubriken. Lämna tomt för att dölja. Du kan använda länkar: <a href=\"https://...\">länktext</a>.",
+      'Större introduktionstext direkt under rubriken. Lämna tomt för att dölja. Du kan använda länkar: <a href="https://...">länktext</a>.',
     rows: 4,
   },
   landing_body: {
     title: "Brödtext på startsidan",
     description:
-      "Mindre text i en grå ruta under ingressen. Lämna en tom rad mellan stycken. Lämna tomt för att dölja. Du kan använda länkar: <a href=\"https://...\">länktext</a>.",
+      'Mindre text i en grå ruta under ingressen. Lämna en tom rad mellan stycken. Lämna tomt för att dölja. Du kan använda länkar: <a href="https://...">länktext</a>.',
     rows: 8,
   },
   empty_title: {
     title: "Tomt resultat – rubrik",
-    description:
-      "Visas överst när inga lokaler matchar de valda filtren.",
+    description: "Visas överst när inga lokaler matchar de valda filtren.",
     rows: 2,
   },
   empty_suggest_template: {
@@ -74,24 +80,20 @@ export const UI_TEXT_META: Record<
   },
   occupancy_free: {
     title: "Beläggning – gott om plats",
-    description:
-      "Visas i beläggningsmätaren på lokalkortet när det är lugnt (lägsta nivån).",
+    description: "Visas i beläggningsmätaren på lokalkortet när det är lugnt (lägsta nivån).",
     rows: 2,
   },
   occupancy_moderate: {
     title: "Beläggning – halvfullt",
-    description:
-      "Visas i beläggningsmätaren på lokalkortet vid mellannivån.",
+    description: "Visas i beläggningsmätaren på lokalkortet vid mellannivån.",
     rows: 2,
   },
   occupancy_busy: {
     title: "Beläggning – mycket folk",
-    description:
-      "Visas i beläggningsmätaren på lokalkortet vid högsta nivån.",
+    description: "Visas i beläggningsmätaren på lokalkortet vid högsta nivån.",
     rows: 2,
   },
 };
-
 
 const SETTING_PREFIX_SV = "ui_text:";
 const SETTING_PREFIX_EN = "ui_text:en:";
@@ -123,7 +125,6 @@ export function useUiText(key: UiTextKey) {
         if (svRow?.value) return svRow.value;
         const enDefault = UI_TEXT_DEFAULTS_EN[key];
         if (enDefault) return enDefault;
-
       }
       const { data, error } = await supabase
         .from("app_settings")
@@ -140,7 +141,15 @@ export function useUiText(key: UiTextKey) {
 export function useSaveUiText() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ key, value, lang = "sv" }: { key: UiTextKey; value: string; lang?: Lang }) => {
+    mutationFn: async ({
+      key,
+      value,
+      lang = "sv",
+    }: {
+      key: UiTextKey;
+      value: string;
+      lang?: Lang;
+    }) => {
       const { error } = await supabase
         .from("app_settings")
         .upsert({ key: settingKey(key, lang), value });

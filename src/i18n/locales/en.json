@@ -125,6 +125,9 @@
   },
   "nav": {
     "label": "Main menu",
+    "menu": "Menu",
+    "menu_open": "Open main menu",
+    "menu_close": "Close main menu",
     "education": "Studies",
     "research": "Research",
     "collaboration": "Collaboration",
