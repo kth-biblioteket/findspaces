@@ -128,6 +128,10 @@ export const Route = createFileRoute("/admin")({
 const MAX_IMAGES = 8;
 
 type BulkAction =
+  | "set_description"
+  | "clear_description"
+  | "set_description_en"
+  | "clear_description_en"
   | "set_floor"
   | "set_floor_en"
   | "set_notice"
@@ -144,6 +148,15 @@ type BulkAction =
   | "show_occupancy_off";
 
 const BULK_ACTIONS: { value: BulkAction; label: string; needsValue: boolean; placeholder?: string }[] = [
+  { value: "set_description", label: "Sätt beskrivning (SV)", needsValue: true, placeholder: "Beskrivning på svenska" },
+  { value: "clear_description", label: "Rensa beskrivning (SV)", needsValue: false },
+  {
+    value: "set_description_en",
+    label: "Sätt beskrivning (EN)",
+    needsValue: true,
+    placeholder: "Description in English",
+  },
+  { value: "clear_description_en", label: "Rensa beskrivning (EN)", needsValue: false },
   { value: "set_floor", label: "Sätt våningsplan (SV)", needsValue: true, placeholder: "t.ex. Plan 3" },
   { value: "set_floor_en", label: "Sätt våningsplan (EN)", needsValue: true, placeholder: "e.g. Floor 3" },
   { value: "set_notice", label: "Sätt notis SV (gul ruta)", needsValue: true, placeholder: "Kort notistext" },
@@ -159,6 +172,16 @@ const BULK_ACTIONS: { value: BulkAction; label: string; needsValue: boolean; pla
   { value: "show_occupancy_on", label: "Visa beläggning: PÅ", needsValue: false },
   { value: "show_occupancy_off", label: "Visa beläggning: AV", needsValue: false },
 ];
+
+const BULK_RICH_TEXT_ACTIONS: BulkAction[] = [
+  "set_description",
+  "set_description_en",
+  "set_notice",
+  "set_notice_en",
+  "set_info",
+  "set_info_en",
+];
+
 
 type FormState = {
   id?: string;
@@ -636,6 +659,14 @@ function AdminPage() {
 
       const simple: Record<string, any> | null = (() => {
         switch (bulkAction) {
+          case "set_description":
+            return { description: val };
+          case "clear_description":
+            return { description: "" };
+          case "set_description_en":
+            return { description_en: val };
+          case "clear_description_en":
+            return { description_en: null };
           case "set_floor":
             return { floor: val };
           case "set_floor_en":
@@ -1619,11 +1650,7 @@ function AdminPage() {
                 ) : (
                   BULK_ACTIONS.find((a) => a.value === bulkAction)?.needsValue &&
                   (() => {
-                    const isRichText =
-                      bulkAction === "set_notice" ||
-                      bulkAction === "set_notice_en" ||
-                      bulkAction === "set_info" ||
-                      bulkAction === "set_info_en";
+                    const isRichText = BULK_RICH_TEXT_ACTIONS.includes(bulkAction);
                     if (isRichText) {
                       return (
                         <textarea
@@ -1658,7 +1685,9 @@ function AdminPage() {
                 {(bulkAction === "set_notice" ||
                   bulkAction === "set_notice_en" ||
                   bulkAction === "set_info" ||
-                  bulkAction === "set_info_en") && (
+                  bulkAction === "set_info_en" ||
+                  bulkAction === "set_description" ||
+                  bulkAction === "set_description_en") && (
                   <p className="basis-full text-xs text-muted-foreground leading-relaxed">
                     <strong>Länkar:</strong> länka till en webbsida med{" "}
                     <code className="text-[11px] bg-secondary px-1 py-0.5 rounded">
