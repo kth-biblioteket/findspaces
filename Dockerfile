@@ -14,7 +14,7 @@ ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL \
 
 # Kopiera package-filer och installera beroenden
 COPY package.json package-lock.json* ./
-RUN npm ci --legacy-peer-deps --omit=dev
+RUN npm ci --legacy-peer-deps
 
 # Kopiera källkod och bygg
 COPY . .
