@@ -1650,11 +1650,7 @@ function AdminPage() {
                 ) : (
                   BULK_ACTIONS.find((a) => a.value === bulkAction)?.needsValue &&
                   (() => {
-                    const isRichText =
-                      bulkAction === "set_notice" ||
-                      bulkAction === "set_notice_en" ||
-                      bulkAction === "set_info" ||
-                      bulkAction === "set_info_en";
+                    const isRichText = BULK_RICH_TEXT_ACTIONS.includes(bulkAction);
                     if (isRichText) {
                       return (
                         <textarea
