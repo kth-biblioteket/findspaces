@@ -20,13 +20,15 @@ type SitePageLayoutProps = {
 export function SitePageLayout({ children, header = <SiteHeader />, footer }: SitePageLayoutProps) {
   const { t } = useTranslation();
   const { data: pageTitle } = useUiText("landing_title");
+  const { data: announcement } = useAnnouncement();
+  const hasAnnouncement = Boolean(announcement?.message);
 
   return (
     <div className="flex min-h-dvh flex-col bg-background">
       {header}
 
       <section className="bg-card" aria-labelledby="page-title">
-        <div className="mx-auto max-w-7xl px-4 pb-4 pt-6 sm:px-6">
+        <div className={cn("mx-auto max-w-7xl px-4 pt-6 sm:px-6", hasAnnouncement ? "pb-4" : "pb-0")}>
           <h1
             id="page-title"
             className="text-lg font-bold leading-tight text-foreground sm:text-3xl"
@@ -37,7 +39,7 @@ export function SitePageLayout({ children, header = <SiteHeader />, footer }: Si
             </span>
           </h1>
         </div>
-        <LandingText />
+        <LandingText compact={!hasAnnouncement} />
       </section>
 
       <AnnouncementBanner />
@@ -48,3 +50,4 @@ export function SitePageLayout({ children, header = <SiteHeader />, footer }: Si
     </div>
   );
 }
+
