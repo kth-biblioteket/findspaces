@@ -53,7 +53,7 @@
   --kth-blue: oklch(0.43 0.16 260);   /* #1954a6 */
   --kth-sand: oklch(0.965 0 0);       /* #F5F5F5 */
 
-  --background: oklch(1 0 0);                    /* white for embedding */
+  --background: oklch(1 0 0);                    /* white page background */
   --foreground: oklch(0 0 0);                    /* black body text */
   --card: oklch(1 0 0);                          /* white card surface */
   --card-foreground: oklch(0 0 0);
@@ -156,7 +156,7 @@
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
-    overscroll-behavior: contain;
+    overscroll-behavior-y: auto;
     scrollbar-gutter: stable;
   }
 }
@@ -171,9 +171,7 @@
     z-index: 40;
     right: max(1rem, env(safe-area-inset-right, 0px));
     left: max(1rem, env(safe-area-inset-left, 0px));
-    bottom: calc(
-      var(--iframe-hidden-bottom, 0px) + max(1rem, env(safe-area-inset-bottom, 0px))
-    );
+    bottom: max(1rem, env(safe-area-inset-bottom, 0px));
     margin: 0;
     pointer-events: none;
   }
@@ -187,9 +185,9 @@
   /* Higher specificity so it wins over the Radix sheet's own bottom: 0 / height. */
   .mobile-filter-sheet.mobile-filter-sheet {
     top: auto;
-    bottom: var(--iframe-hidden-bottom, 0px);
-    height: min(85dvh, calc(var(--iframe-visible-height, 100dvh) - 0.75rem));
-    max-height: calc(var(--iframe-visible-height, 100dvh) - 0.75rem);
+    bottom: 0;
+    height: min(85dvh, calc(100dvh - 0.75rem));
+    max-height: calc(100dvh - 0.75rem);
     padding-bottom: env(safe-area-inset-bottom, 0px);
     overscroll-behavior: contain;
   }

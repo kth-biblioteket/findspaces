@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState, useEffect, useRef } from "react";
-import { useIframeVisibleHeight } from "@/lib/useIframeVisibleHeight";
+import { useStickyPanelViewport } from "@/lib/useStickyPanelViewport";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { SlidersHorizontal, X, ArrowUpDown, SearchX, AlertTriangle } from "lucide-react";
@@ -18,7 +18,7 @@ import { FilterPanel, emptyFilters, type Filters } from "@/components/FilterPane
 import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { SpaceCard } from "@/components/SpaceCard";
 import { SpaceCardSkeleton } from "@/components/SpaceCardSkeleton";
-import { SiteHeader } from "@/components/SiteHeader";
+import { SitePageLayout } from "@/components/SitePageLayout";
 import { useUiText, formatSuggestTemplate } from "@/lib/useUiText";
 import { matchesSpace, type MatchOptions } from "@/lib/filterMatch";
 import { groupRoomLabels, isGroupRoomSpace } from "@/lib/groupRoom";
@@ -39,8 +39,6 @@ import {
 } from "@/lib/filterSearch";
 
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle } from "@/components/ui/sheet";
-import { AnnouncementBanner } from "@/components/AnnouncementBanner";
-import { LandingText } from "@/components/LandingText";
 import type { FilterCategoryRow } from "@/lib/spaces";
 
 const spacesQueryOptions = queryOptions({
@@ -67,10 +65,18 @@ export const Route = createFileRoute("/")({
     // for reactivity and per-request Suspense-free rendering.
     void context.queryClient.prefetchQuery(spacesQueryOptions);
   },
-  component: SpaceFinder,
+  component: SpaceFinderPage,
 });
 
-function SpaceFinder() {
+function SpaceFinderPage() {
+  return (
+    <SitePageLayout>
+      <SpaceFinderApp />
+    </SitePageLayout>
+  );
+}
+
+function SpaceFinderApp() {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage ?? "sv") as "sv" | "en";
   const routeSearch = Route.useSearch();
@@ -97,7 +103,7 @@ function SpaceFinder() {
   );
   const filters = useMemo(() => searchToFilters(search, filterOptions), [search, filterOptions]);
   const filterPanelRef = useRef<HTMLDivElement | null>(null);
-  const filterViewport = useIframeVisibleHeight(filterPanelRef);
+  const filterViewport = useStickyPanelViewport(filterPanelRef);
 
   useEffect(() => {
     if (!filterMetadataReady) return;
@@ -395,29 +401,6 @@ function SpaceFinder() {
   }, [isLoading, hasActiveFilter, filtered.length]);
 
   return (
-    <div className="min-h-dvh bg-background">
-      <SiteHeader />
-      <div className="bg-card">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-4">
-          <h1 className="text-lg sm:text-3xl font-bold leading-tight text-foreground flex flex-nowrap items-baseline gap-2">
-            <span className="whitespace-nowrap">{t("header.title_line1")}</span>{" "}
-            <span className="whitespace-nowrap">
-              {t("header.title_line2")}{" "}
-              <span className="align-middle inline-flex items-center rounded-full bg-secondary px-1.5 py-0.5 text-[0.6em] font-semibold uppercase tracking-wide text-foreground sm:px-2 sm:py-0.5 sm:text-[0.55em]">
-                Beta
-              </span>
-            </span>
-          </h1>
-        </div>
-        <LandingText />
-      </div>
-
-
-
-      <AnnouncementBanner />
-
-
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 lg:grid lg:grid-cols-[320px_1fr] lg:gap-6">
         <aside className="hidden lg:block lg:mt-11" aria-label={t("filters.title")}>
           <div
@@ -650,7 +633,6 @@ function SpaceFinder() {
 
         </main>
       </div>
-    </div>
   );
 }
 

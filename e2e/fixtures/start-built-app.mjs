@@ -48,7 +48,7 @@ function run(command, args) {
   });
 }
 
-const buildCode = await run("bun", ["run", "build"]);
+const buildCode = await run("npm", ["run", "build"]);
 if (buildCode !== 0) process.exit(buildCode);
 
 const appCode = await run("npx", [
