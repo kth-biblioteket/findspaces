@@ -2494,6 +2494,26 @@ function FilterOptionDialog({
             />
           </Field>
 
+          {canMove && (
+            <Field label="Kategori">
+              <select
+                value={targetCategory}
+                onChange={(e) => setTargetCategory(e.target.value)}
+                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm"
+              >
+                {movableCategories.map((c) => (
+                  <option key={c.id} value={c.key}>
+                    {c.title}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-muted-foreground mt-2">
+                Byter du kategori följer filtret med på alla lokaler som redan har det.
+              </p>
+            </Field>
+          )}
+
+
           <Field label="Egen ikon (valfritt)">
             <div className="flex items-center gap-3 flex-wrap">
               {iconUrl && (
