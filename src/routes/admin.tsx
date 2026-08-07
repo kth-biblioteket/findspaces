@@ -128,6 +128,10 @@ export const Route = createFileRoute("/admin")({
 const MAX_IMAGES = 8;
 
 type BulkAction =
+  | "set_description"
+  | "clear_description"
+  | "set_description_en"
+  | "clear_description_en"
   | "set_floor"
   | "set_floor_en"
   | "set_notice"
@@ -144,6 +148,15 @@ type BulkAction =
   | "show_occupancy_off";
 
 const BULK_ACTIONS: { value: BulkAction; label: string; needsValue: boolean; placeholder?: string }[] = [
+  { value: "set_description", label: "Sätt beskrivning (SV)", needsValue: true, placeholder: "Beskrivning på svenska" },
+  { value: "clear_description", label: "Rensa beskrivning (SV)", needsValue: false },
+  {
+    value: "set_description_en",
+    label: "Sätt beskrivning (EN)",
+    needsValue: true,
+    placeholder: "Description in English",
+  },
+  { value: "clear_description_en", label: "Rensa beskrivning (EN)", needsValue: false },
   { value: "set_floor", label: "Sätt våningsplan (SV)", needsValue: true, placeholder: "t.ex. Plan 3" },
   { value: "set_floor_en", label: "Sätt våningsplan (EN)", needsValue: true, placeholder: "e.g. Floor 3" },
   { value: "set_notice", label: "Sätt notis SV (gul ruta)", needsValue: true, placeholder: "Kort notistext" },
@@ -159,6 +172,16 @@ const BULK_ACTIONS: { value: BulkAction; label: string; needsValue: boolean; pla
   { value: "show_occupancy_on", label: "Visa beläggning: PÅ", needsValue: false },
   { value: "show_occupancy_off", label: "Visa beläggning: AV", needsValue: false },
 ];
+
+const BULK_RICH_TEXT_ACTIONS: BulkAction[] = [
+  "set_description",
+  "set_description_en",
+  "set_notice",
+  "set_notice_en",
+  "set_info",
+  "set_info_en",
+];
+
 
 type FormState = {
   id?: string;
