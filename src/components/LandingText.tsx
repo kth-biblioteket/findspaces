@@ -34,10 +34,12 @@ export function LandingText({ compact = false }: LandingTextProps) {
   return (
     <div
       className={[
-        "max-w-7xl mx-auto px-4 sm:px-6 pb-3",
+        "max-w-7xl mx-auto px-4 sm:px-6",
+        compact ? "pb-0" : "pb-3",
         hasIntro ? "space-y-4" : "-mt-2 space-y-0",
       ].join(" ")}
     >
+
       {hasIntro && (
         <div className="max-w-4xl space-y-3">
           {introParts.map((p, i) => (
