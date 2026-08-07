@@ -13,10 +13,16 @@ function paragraphs(text: string): string[] {
     .filter(Boolean);
 }
 
+type LandingTextProps = {
+  /** When true, remove bottom padding so the text sits tight against the filter service. */
+  compact?: boolean;
+};
+
 /** Editor-controlled intro (large) and body text (white background) on the landing page. */
-export function LandingText() {
+export function LandingText({ compact = false }: LandingTextProps) {
   const { data: intro } = useUiText("landing_intro");
   const { data: body } = useUiText("landing_body");
+
 
   const introParts = paragraphs(intro ?? "");
   const bodyParts = paragraphs(body ?? "");
