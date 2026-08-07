@@ -331,12 +331,29 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      array_add_value: {
+        Args: { arr: string[]; p_val: string }
+        Returns: string[]
+      }
+      array_remove_value: {
+        Args: { arr: string[]; p_val: string }
+        Returns: string[]
+      }
+      array_replace_dedupe: {
+        Args: { arr: string[]; p_new: string; p_old: string }
+        Returns: string[]
+      }
+      filter_storage_column: { Args: { p_category: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      move_filter_option: {
+        Args: { p_new_category: string; p_option_id: string }
+        Returns: undefined
       }
       rename_filter_option: {
         Args: { p_category: string; p_new_label: string; p_old_label: string }
