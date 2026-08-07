@@ -659,6 +659,14 @@ function AdminPage() {
 
       const simple: Record<string, any> | null = (() => {
         switch (bulkAction) {
+          case "set_description":
+            return { description: val };
+          case "clear_description":
+            return { description: "" };
+          case "set_description_en":
+            return { description_en: val };
+          case "clear_description_en":
+            return { description_en: null };
           case "set_floor":
             return { floor: val };
           case "set_floor_en":
