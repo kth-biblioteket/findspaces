@@ -4,6 +4,9 @@ import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import { LandingText } from "@/components/LandingText";
 import { SiteHeader } from "@/components/SiteHeader";
 import { useUiText } from "@/lib/useUiText";
+import { useAnnouncement } from "@/lib/useAnnouncement";
+import { cn } from "@/lib/utils";
+
 
 type SitePageLayoutProps = {
   children: ReactNode;
