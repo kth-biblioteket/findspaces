@@ -2388,18 +2388,24 @@ function FilterOptionDialog({
   onClose: () => void;
 }) {
   const qc = useQueryClient();
+  const { data: allCategories = [] } = useFilterCategories();
   const [label, setLabel] = useState(option?.label ?? "");
   const [labelEn, setLabelEn] = useState(option?.label_en ?? "");
+  const [targetCategory, setTargetCategory] = useState(option?.category ?? categoryKey);
   const [iconUrl, setIconUrl] = useState<string | null>(option?.icon_url ?? null);
   const [defaultIcon, setDefaultIcon] = useState<string | null>(option?.default_icon ?? null);
   const [uploading, setUploading] = useState(false);
   const { data: hiddenIcons = [] } = useHiddenIcons();
 
+  // Only ordinary categories can receive a moved option; the special ones
+  // (lokaltyp/arbetssätt) are driven by dedicated columns and value keys.
+  const movableCategories = allCategories.filter((c) => !c.special_kind);
+  const canMove = Boolean(option) && movableCategories.some((c) => c.key === option?.category);
+
   const save = useMutation({
     mutationFn: async () => {
       const newLabel = label.trim();
       const payload = {
-        category: categoryKey,
         label: newLabel,
         label_en: labelEn.trim() || null,
         icon_url: iconUrl,
@@ -2408,19 +2414,30 @@ function FilterOptionDialog({
 
       if (option) {
         const oldLabel = option.label;
+        const oldCategory = option.category;
         const { error } = await supabase.from("filter_options").update(payload).eq("id", option.id);
         if (error) throw error;
+        // Rename first (values on spaces are stored by label within the
+        // current category), then move the option to its new category.
         if (oldLabel && oldLabel !== newLabel) {
           const { error: rpcErr } = await supabase.rpc("rename_filter_option" as any, {
-            p_category: categoryKey,
+            p_category: oldCategory,
             p_old_label: oldLabel,
             p_new_label: newLabel,
           });
           if (rpcErr) throw rpcErr;
         }
+        if (canMove && targetCategory && targetCategory !== oldCategory) {
+          const { error: moveErr } = await supabase.rpc("move_filter_option" as any, {
+            p_option_id: option.id,
+            p_new_category: targetCategory,
+          });
+          if (moveErr) throw moveErr;
+        }
       } else {
         const { error } = await supabase.from("filter_options").insert({
           ...payload,
+          category: categoryKey,
           sort_order: 999,
         });
         if (error) throw error;
@@ -2434,6 +2451,7 @@ function FilterOptionDialog({
     },
     onError: (e: any) => toast.error(e.message),
   });
+
 
   const handleUploadIcon = async (file: File) => {
     setUploading(true);
