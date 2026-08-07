@@ -44,7 +44,7 @@ export function SitePageLayout({ children, header = <SiteHeader />, footer }: Si
       {header}
 
       <section className="bg-card" aria-labelledby="page-title">
-        <div className={cn("mx-auto max-w-7xl px-4 pt-6 sm:px-6", isBannerVisible ? "pb-4" : "pb-0")}>
+        <div className={cn("mx-auto max-w-7xl px-4 pt-6 sm:px-6", isBannerVisible ? "pb-4 mb-2" : "pb-2")}>
           <h1
             id="page-title"
             className="text-lg font-bold leading-tight text-foreground sm:text-3xl"
