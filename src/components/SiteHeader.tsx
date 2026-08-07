@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Menu, X } from "lucide-react";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { NAV_LINK_KEYS, useNavLinks } from "@/lib/useNavLinks";
-import kthLogo from "@/assets/kth-logo-white.svg.asset.json";
+const KTH_LOGO_SRC = "/kth-logo-white.svg";
 import type { Lang } from "@/i18n";
 
 const KTH_LOGO_FALLBACK = "https://app.kth.se/style/assets/kth-logotype-white.png";
@@ -51,7 +51,7 @@ export function SiteHeader() {
             className="shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded"
           >
             <img
-              src={kthLogo.url}
+              src={KTH_LOGO_SRC}
               alt="KTH"
               className="h-16 w-auto"
               onError={({ currentTarget }) => {
