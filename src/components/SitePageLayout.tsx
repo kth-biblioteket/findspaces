@@ -36,7 +36,8 @@ export function SitePageLayout({ children, header = <SiteHeader />, footer }: Si
   }, []);
 
   const isBannerVisible =
-    mounted && Boolean(announcement?.message) && (!announcement.hash || dismissedHash !== announcement.hash);
+    mounted && Boolean(announcement?.message) && (!announcement?.hash || dismissedHash !== announcement?.hash);
+
 
   return (
     <div className="flex min-h-dvh flex-col bg-background">
