@@ -1685,7 +1685,9 @@ function AdminPage() {
                 {(bulkAction === "set_notice" ||
                   bulkAction === "set_notice_en" ||
                   bulkAction === "set_info" ||
-                  bulkAction === "set_info_en") && (
+                  bulkAction === "set_info_en" ||
+                  bulkAction === "set_description" ||
+                  bulkAction === "set_description_en") && (
                   <p className="basis-full text-xs text-muted-foreground leading-relaxed">
                     <strong>Länkar:</strong> länka till en webbsida med{" "}
                     <code className="text-[11px] bg-secondary px-1 py-0.5 rounded">
