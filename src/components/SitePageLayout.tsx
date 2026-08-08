@@ -44,7 +44,22 @@ export function SitePageLayout({ children, header = <SiteHeader />, footer }: Si
       {header}
 
       <section className="bg-card" aria-labelledby="page-title">
-        <div className={cn("mx-auto max-w-7xl px-4 pt-6 sm:px-6", isBannerVisible ? "pb-4" : "pb-3")}>
+        {isBannerVisible && (
+          <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
+            <AnnouncementBanner
+              dismissedHash={dismissedHash}
+              onDismiss={(hash) => {
+                try {
+                  localStorage.setItem(ANNOUNCEMENT_STORAGE_KEY, hash);
+                } catch {
+                  // ignore
+                }
+                setDismissedHash(hash);
+              }}
+            />
+          </div>
+        )}
+        <div className={cn("mx-auto max-w-7xl px-4 sm:px-6", isBannerVisible ? "pt-4 pb-4" : "pt-6 pb-3")}>
           <h1
             id="page-title"
             className="text-lg font-bold leading-tight text-foreground sm:text-3xl"
@@ -57,18 +72,6 @@ export function SitePageLayout({ children, header = <SiteHeader />, footer }: Si
         </div>
         <LandingText compact={!isBannerVisible} />
       </section>
-
-      <AnnouncementBanner
-        dismissedHash={dismissedHash}
-        onDismiss={(hash) => {
-          try {
-            localStorage.setItem(ANNOUNCEMENT_STORAGE_KEY, hash);
-          } catch {
-            // ignore
-          }
-          setDismissedHash(hash);
-        }}
-      />
 
       <div className="flex-1">{children}</div>
 
