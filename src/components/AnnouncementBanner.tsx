@@ -49,7 +49,7 @@ export function AnnouncementBanner({ dismissedHash: controlledHash, onDismiss }:
     <div
       role="status"
       aria-live="polite"
-      className="bg-muted text-foreground border-b border-border"
+      className="bg-[#FFF0B0] text-foreground border-b border-border"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-start gap-3">
         <Info className="h-4 w-4 mt-0.5 shrink-0" aria-hidden="true" />
