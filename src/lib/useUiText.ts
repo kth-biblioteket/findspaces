@@ -9,10 +9,7 @@ export type UiTextKey =
   | "landing_body"
   | "empty_title"
   | "empty_suggest_template"
-  | "empty_fallback"
-  | "occupancy_free"
-  | "occupancy_moderate"
-  | "occupancy_busy";
+  | "empty_fallback";
 
 export const UI_TEXT_DEFAULTS: Record<UiTextKey, string> = {
   landing_title: "Hitta studieplats på KTH Biblioteket",
@@ -22,9 +19,6 @@ export const UI_TEXT_DEFAULTS: Record<UiTextKey, string> = {
   empty_suggest_template:
     "Filtret {label} verkar smalast — om du tar bort det hittar vi {count} {lokal}.",
   empty_fallback: "Prova att rensa filtren och börja om.",
-  occupancy_free: "Gott om plats",
-  occupancy_moderate: "Halvfullt",
-  occupancy_busy: "Mycket folk",
 };
 
 export const UI_TEXT_DEFAULTS_EN: Record<UiTextKey, string> = {
