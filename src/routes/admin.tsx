@@ -3771,23 +3771,42 @@ function LangPairEditor({
 
 
 function LandingMessageTab() {
-  const uiKeys: UiTextKey[] = [
-    "landing_title",
-    "landing_intro",
-    "landing_body",
-    "empty_title",
-    "empty_suggest_template",
-    "empty_fallback",
-    "occupancy_free",
-    "occupancy_moderate",
-    "occupancy_busy",
-  ];
-
   return (
     <div className="space-y-6 max-w-4xl">
       <AnnouncementSection />
-      {uiKeys.map((k) => (
-        <UiTextEditor key={k} uiKey={k} />
+      <UiTextGroupCard
+        title="Startsida"
+        description="Texter som visas överst på startsidan."
+        keys={["landing_title", "landing_intro", "landing_body"]}
+      />
+      <UiTextGroupCard
+        title="Tomt resultat"
+        description="Texter som visas när inga lokaler matchar de valda filtren."
+        keys={["empty_title", "empty_suggest_template", "empty_fallback"]}
+      />
+    </div>
+  );
+}
+
+function UiTextGroupCard({
+  title,
+  description,
+  keys,
+}: {
+  title: string;
+  description: string;
+  keys: UiTextKey[];
+}) {
+  return (
+    <div className="bg-card rounded-2xl border border-border p-6 space-y-6">
+      <div>
+        <h2 className="text-lg font-bold">{title}</h2>
+        <p className="text-sm text-muted-foreground mt-1">{description}</p>
+      </div>
+      {keys.map((k, i) => (
+        <div key={k} className={cn(i > 0 && "pt-6 border-t border-border")}>
+          <UiTextEditor uiKey={k} compact />
+        </div>
       ))}
     </div>
   );
@@ -3849,16 +3868,18 @@ function AnnouncementSection() {
   );
 }
 
-function UiTextEditor({ uiKey }: { uiKey: UiTextKey }) {
+function UiTextEditor({ uiKey, compact = false }: { uiKey: UiTextKey; compact?: boolean }) {
   const { data: pair, isLoading } = useUiTextAdmin(uiKey);
   const save = useSaveUiText();
   const meta = UI_TEXT_META[uiKey];
 
-  return (
-    <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
+  const inner = (
+    <div className="space-y-3">
       <div>
-        <h2 className="text-lg font-bold">{meta.title}</h2>
-        <p className="text-sm text-muted-foreground mt-1">{meta.description}</p>
+        <h3 className={cn("font-bold", compact ? "text-base" : "text-lg")}>{meta.title}</h3>
+        <p className={cn("text-muted-foreground", compact ? "text-xs mt-0.5" : "text-sm mt-1")}>
+          {meta.description}
+        </p>
       </div>
       <LangPairEditor
         labelSv={meta.title}
@@ -3877,6 +3898,14 @@ function UiTextEditor({ uiKey }: { uiKey: UiTextKey }) {
           save.mutate({ key: uiKey, value: v, lang: "en" }, { onSuccess: () => toast.success("Sparat (EN)") })
         }
       />
+    </div>
+  );
+
+  if (compact) return inner;
+
+  return (
+    <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
+      {inner}
     </div>
   );
 }

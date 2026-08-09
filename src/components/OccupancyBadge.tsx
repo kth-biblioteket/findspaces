@@ -1,16 +1,9 @@
 import { User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
-import { useUiText } from "@/lib/useUiText";
 import type { OccupancyStatus } from "@/lib/useOccupancy";
 
-const OCCUPANCY_TEXT_KEYS: Record<OccupancyStatus, "occupancy_free" | "occupancy_moderate" | "occupancy_busy"> = {
-  free: "occupancy_free",
-  moderate: "occupancy_moderate",
-  busy: "occupancy_busy",
-};
-
-const OCCUPANCY_FALLBACK_I18N: Record<OccupancyStatus, string> = {
+const OCCUPANCY_I18N_KEYS: Record<OccupancyStatus, string> = {
   free: "occupancy.free",
   moderate: "occupancy.moderate",
   busy: "occupancy.busy",
@@ -36,8 +29,7 @@ function OccupancyPeople({ level }: { level: 1 | 2 | 3 }) {
 
 export function OccupancyBadge({ level, status }: { level: 1 | 2 | 3; status: OccupancyStatus }) {
   const { t } = useTranslation();
-  const { data: customLabel } = useUiText(OCCUPANCY_TEXT_KEYS[status]);
-  const label = customLabel ?? t(OCCUPANCY_FALLBACK_I18N[status]);
+  const label = t(OCCUPANCY_I18N_KEYS[status]);
   return (
     <div className="flex items-center gap-1.5 md:gap-2">
       <OccupancyPeople level={level} />
