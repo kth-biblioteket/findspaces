@@ -19,7 +19,7 @@
     "clear": "Rensa filter",
     "show_results": "Visa resultat",
     "show_results_count": "Visa resultat ({{count}})",
-    "search_placeholder": "Sök på lokal...",
+    "search_placeholder": "Sök på lokalnamn",
     "search_sr": "Sök på lokal",
     "intent_default_title": "Hur vill du arbeta?",
     "intent_enskilt": "Enskilt",

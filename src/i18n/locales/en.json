@@ -19,7 +19,7 @@
     "clear": "Clear filters",
     "show_results": "Show results",
     "show_results_count": "Show results ({{count}})",
-    "search_placeholder": "Search for a space...",
+    "search_placeholder": "Search by space name",
     "search_sr": "Search for a space",
     "intent_default_title": "How do you want to work?",
     "intent_enskilt": "Alone",
