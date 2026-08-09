@@ -3868,16 +3868,18 @@ function AnnouncementSection() {
   );
 }
 
-function UiTextEditor({ uiKey }: { uiKey: UiTextKey }) {
+function UiTextEditor({ uiKey, compact = false }: { uiKey: UiTextKey; compact?: boolean }) {
   const { data: pair, isLoading } = useUiTextAdmin(uiKey);
   const save = useSaveUiText();
   const meta = UI_TEXT_META[uiKey];
 
-  return (
-    <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
+  const inner = (
+    <div className="space-y-3">
       <div>
-        <h2 className="text-lg font-bold">{meta.title}</h2>
-        <p className="text-sm text-muted-foreground mt-1">{meta.description}</p>
+        <h3 className={cn("font-bold", compact ? "text-base" : "text-lg")}>{meta.title}</h3>
+        <p className={cn("text-muted-foreground", compact ? "text-xs mt-0.5" : "text-sm mt-1")}>
+          {meta.description}
+        </p>
       </div>
       <LangPairEditor
         labelSv={meta.title}
@@ -3896,6 +3898,14 @@ function UiTextEditor({ uiKey }: { uiKey: UiTextKey }) {
           save.mutate({ key: uiKey, value: v, lang: "en" }, { onSuccess: () => toast.success("Sparat (EN)") })
         }
       />
+    </div>
+  );
+
+  if (compact) return inner;
+
+  return (
+    <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
+      {inner}
     </div>
   );
 }
