@@ -527,7 +527,7 @@ function SpaceFinderApp() {
           {!isLoading && noFreeRoomsForSort && sortedFiltered.length > 0 && (
             <div
               role="status"
-              className="rounded-2xl border border-border bg-[color:var(--kth-blue)]/5 px-4 py-3 text-sm text-foreground"
+              className="rounded-2xl border border-border bg-[color:var(--kth-blue)]/5 px-4 py-3 text-sm text-foreground mb-4"
             >
               {t("results.no_free_rooms_notice")}
             </div>
