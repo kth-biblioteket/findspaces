@@ -237,6 +237,7 @@ createServer(async (req, res) => {
       if (ext === '.svg') res.setHeader('Content-Type', 'image/svg+xml');
       if (ext === '.js') res.setHeader('Content-Type', 'application/javascript');
       if (ext === '.css') res.setHeader('Content-Type', 'text/css');
+      if (ext === '.woff2') res.setHeader('Content-Type', 'font/woff2');
       return fs.createReadStream(filePath).pipe(res);
     }
   }
