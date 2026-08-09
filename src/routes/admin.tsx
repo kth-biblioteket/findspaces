@@ -3771,23 +3771,42 @@ function LangPairEditor({
 
 
 function LandingMessageTab() {
-  const uiKeys: UiTextKey[] = [
-    "landing_title",
-    "landing_intro",
-    "landing_body",
-    "empty_title",
-    "empty_suggest_template",
-    "empty_fallback",
-    "occupancy_free",
-    "occupancy_moderate",
-    "occupancy_busy",
-  ];
-
   return (
     <div className="space-y-6 max-w-4xl">
       <AnnouncementSection />
-      {uiKeys.map((k) => (
-        <UiTextEditor key={k} uiKey={k} />
+      <UiTextGroupCard
+        title="Startsida"
+        description="Texter som visas överst på startsidan."
+        keys={["landing_title", "landing_intro", "landing_body"]}
+      />
+      <UiTextGroupCard
+        title="Tomt resultat"
+        description="Texter som visas när inga lokaler matchar de valda filtren."
+        keys={["empty_title", "empty_suggest_template", "empty_fallback"]}
+      />
+    </div>
+  );
+}
+
+function UiTextGroupCard({
+  title,
+  description,
+  keys,
+}: {
+  title: string;
+  description: string;
+  keys: UiTextKey[];
+}) {
+  return (
+    <div className="bg-card rounded-2xl border border-border p-6 space-y-6">
+      <div>
+        <h2 className="text-lg font-bold">{title}</h2>
+        <p className="text-sm text-muted-foreground mt-1">{description}</p>
+      </div>
+      {keys.map((k, i) => (
+        <div key={k} className={cn(i > 0 && "pt-6 border-t border-border")}>
+          <UiTextEditor uiKey={k} compact />
+        </div>
       ))}
     </div>
   );
