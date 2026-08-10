@@ -996,8 +996,10 @@ function AdminPage() {
                                   toast.error("Dölj lokalen först innan du kan radera den.");
                                   return;
                                 }
-                                if (confirm(`Ta bort "${s.name}"? Detta går inte att ångra.`)) del.mutate(s.id);
+                                // No confirm dialog: the toast offers an "Ångra" action instead.
+                                del.mutate(s);
                               }}
+
                             />
                           ))}
                         </ul>
