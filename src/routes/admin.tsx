@@ -1,124 +1,31 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-  useId,
-  isValidElement,
-  cloneElement,
-  Children,
-  type ReactElement,
-} from "react";
-
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  ArrowLeft,
-  Upload,
-  X,
-  Settings2,
-  GripVertical,
-  ChevronDown,
-  AlertTriangle,
-  Info,
-  MapPin,
-  CalendarClock,
-  Users,
-  Zap,
-  ImageIcon,
-  ImageOff,
-  Search,
-  Armchair,
-  Monitor,
-  Eye,
-  EyeOff,
-} from "lucide-react";
-import { TableChairIcon } from "@/components/icons/TableChairIcon";
-import { optimizedImageUrl } from "@/lib/imageUrl";
-
-import { supabase } from "@/integrations/supabase/client";
-import {
-  type Space,
-  type FilterOption,
-  type FilterCategoryRow,
-  LUCIDE_ICON_CHOICES,
-  getLucideIcon,
-  isLockedKey,
-} from "@/lib/spaces";
-import { useFilterOptions, groupOptionsByKey } from "@/lib/useFilterOptions";
-import {
-  useFilterCategories,
-  useSaveCategory,
-  useDeleteCategory,
-  useReorderCategories,
-  slugifyKey,
-} from "@/lib/useFilterCategories";
-import { OptionIcon } from "@/components/OptionIcon";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { validateSpaceForm } from "@/lib/adminSpaceSchema";
-
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { SpaceCard } from "@/components/SpaceCard";
-import {
-  useCardLayout,
-  useSaveCardLayout,
-  CARD_SECTION_KEYS,
-  CARD_SECTION_LABELS,
-  type CardSectionKey,
-} from "@/lib/useCardLayout";
-import {
-  useUiText,
-  useUiTextAdmin,
-  useSaveUiText,
-  UI_TEXT_DEFAULTS,
-  UI_TEXT_DEFAULTS_EN,
-  UI_TEXT_META,
-  type UiTextKey,
-} from "@/lib/useUiText";
-import { useCapacityIcon, useSaveCapacityIcon } from "@/lib/useCapacityIcon";
-import { useHiddenIcons } from "@/lib/useHiddenIcons";
-import {
-  useOccupancySettings,
-  useSaveOccupancySettings,
-  DEFAULT_SCHEDULE,
-  type OccupancySchedule,
-} from "@/lib/useOccupancySettings";
-import { useOpeningHours, isOpenNow } from "@/lib/useOpeningHours";
-import { useOpeningHoursSchedule } from "@/lib/useOpeningHoursSchedule";
-import { useRealtimeOccupancy } from "@/lib/useOccupancy";
-
-import { ChairIcon } from "@/components/icons/ChairIcon";
 import { AnalyticsTab } from "@/components/AnalyticsTab";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { useAnnouncementAdmin, useSaveAnnouncement } from "@/lib/useAnnouncement";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/integrations/supabase/client";
+import { validateSpaceForm } from "@/lib/adminSpaceSchema";
 import { processImageToWebp } from "@/lib/processImage";
-
-import { toast } from "sonner";
+import { type FilterOption, type Space } from "@/lib/spaces";
+import { useFilterCategories } from "@/lib/useFilterCategories";
+import { groupOptionsByKey, useFilterOptions } from "@/lib/useFilterOptions";
 import { cn } from "@/lib/utils";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-  useSortable,
-  arrayMove,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { DndContext, type DragEndEvent, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
+import { SortableContext, arrayMove, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link, createFileRoute } from "@tanstack/react-router";
+import { ArrowLeft, Info, Plus, Search, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+
+import { DynamicCategoryField, Field, ImageDropzone, LinkSyntaxHelp, SelectByLokaltyp, SortableImageRow } from "@/components/admin/shared";
+import { SortableSpaceRow } from "@/components/admin/SpaceListRow";
+import { FiltersTab } from "@/components/admin/FiltersTab";
+import { CardLayoutTab } from "@/components/admin/CardLayoutTab";
+import { LandingMessageTab } from "@/components/admin/TextsTab";
+import { OccupancySettingsTab } from "@/components/admin/OccupancyTab";
+import { OpeningHoursTab } from "@/components/admin/OpeningHoursTab";
+import { MAX_IMAGES, type BulkAction, BULK_ACTIONS, BULK_RICH_TEXT_ACTIONS, type FormState, emptyForm, spaceToForm, getFormValues, setFormValues } from "@/components/admin/adminForm";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [{ title: "Admin — KTH Biblioteket" }] }),
