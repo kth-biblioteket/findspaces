@@ -2,6 +2,7 @@ import { useState, useEffect, useId, isValidElement, cloneElement, Children, typ
 import { AlertTriangle, Armchair, CalendarClock, GripVertical, ImageIcon, Info, MapPin, Monitor, Upload, Users, X, Zap } from "lucide-react";
 import { OptionIcon } from "@/components/OptionIcon";
 import { TableChairIcon } from "@/components/icons/TableChairIcon";
+import { ChairIcon } from "@/components/icons/ChairIcon";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import { type FilterCategoryRow, type FilterOption, type Space } from "@/lib/spaces";
