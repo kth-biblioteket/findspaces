@@ -56,8 +56,26 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "Hitta studieplats – KTH Biblioteket" },
       { name: "description", content: "Hitta rätt studieplats på KTH Biblioteket." },
+      { property: "og:title", content: "Hitta studieplats – KTH Biblioteket" },
+      {
+        property: "og:description",
+        content: "Utforska bibliotekets studieplatser och filtrera fram din favorit.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://hitta-studieplats-demo.lovable.app/" },
+      {
+        property: "og:image",
+        content: "https://hitta-studieplats-demo.lovable.app/og-preview.jpg",
+      },
+      { name: "twitter:card", content: "summary_large_image" },
+      {
+        name: "twitter:image",
+        content: "https://hitta-studieplats-demo.lovable.app/og-preview.jpg",
+      },
     ],
+    links: [{ rel: "canonical", href: "https://hitta-studieplats-demo.lovable.app/" }],
   }),
+
   validateSearch: validateSearchInput,
   loader: ({ context }) => {
     // Prime the cache so the first paint has data available (no fetch waterfall
@@ -509,7 +527,7 @@ function SpaceFinderApp() {
           {!isLoading && noFreeRoomsForSort && sortedFiltered.length > 0 && (
             <div
               role="status"
-              className="rounded-2xl border border-border bg-[color:var(--kth-blue)]/5 px-4 py-3 text-sm text-foreground"
+              className="rounded-2xl border border-border bg-[color:var(--kth-blue)]/5 px-4 py-3 text-sm text-foreground mb-4"
             >
               {t("results.no_free_rooms_notice")}
             </div>
