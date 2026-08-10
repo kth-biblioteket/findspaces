@@ -232,19 +232,37 @@ function AdminPage() {
     onError: (e: any) => toast.error(e.message),
   });
 
-  const del = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("spaces").delete().eq("id", id);
+  // Restore a deleted space from the snapshot taken before deletion (undo).
+  const restore = useMutation({
+    mutationFn: async (row: Space) => {
+      const { error } = await supabase.from("spaces").insert(row as any);
       if (error) throw error;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["spaces"] });
-      toast.success("Borttagen");
+      toast.success("Lokalen är återställd");
     },
+    onError: (e: any) => toast.error(e.message ?? "Kunde inte återställa lokalen"),
+  });
+
+  const del = useMutation({
+    mutationFn: async (space: Space) => {
+      const { error } = await supabase.from("spaces").delete().eq("id", space.id);
+      if (error) throw error;
+      return space;
+    },
+    onSuccess: (space) => {
+      qc.invalidateQueries({ queryKey: ["spaces"] });
+      toast.success(`"${space.name}" är borttagen`, {
+        duration: 10000,
+        action: { label: "Ångra", onClick: () => restore.mutate(space) },
+      });
+    },
+    onError: (e: any) => toast.error(e.message ?? "Kunde inte ta bort lokalen"),
   });
 
   const toggleHidden = useMutation({
-    mutationFn: async ({ id, hidden }: { id: string; hidden: boolean }) => {
+    mutationFn: async ({ id, hidden }: { id: string; hidden: boolean; silent?: boolean }) => {
       const { error } = await supabase
         .from("spaces")
         .update({ hidden } as any)
@@ -253,10 +271,18 @@ function AdminPage() {
     },
     onSuccess: (_d, vars) => {
       qc.invalidateQueries({ queryKey: ["spaces"] });
-      toast.success(vars.hidden ? "Lokalen är dold" : "Lokalen är synlig igen");
+      if (vars.silent) return;
+      toast.success(vars.hidden ? "Lokalen är dold" : "Lokalen är synlig igen", {
+        duration: 8000,
+        action: {
+          label: "Ångra",
+          onClick: () => toggleHidden.mutate({ id: vars.id, hidden: !vars.hidden, silent: true }),
+        },
+      });
     },
     onError: (e: any) => toast.error(e.message),
   });
+
 
   const toggleSelected = (id: string) => {
     setSelectedIds((prev) => {
