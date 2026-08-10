@@ -240,3 +240,59 @@ export function setFormValues(form: FormState, key: string, values: string[]): F
   }
 }
 
+
+/** Build a Space object from the editor form so the admin can preview the card. */
+export function formToSpace(f: FormState): Space {
+  const num = (v: string) => {
+    const n = v.trim() ? Number.parseInt(v, 10) : NaN;
+    return Number.isFinite(n) ? n : null;
+  };
+  return {
+    id: f.id ?? "preview",
+    slug: f.slug.trim() || null,
+    name: f.name || "Namnlös lokal",
+    name_en: f.name_en.trim() || null,
+    space_kind: f.space_kind,
+    category: "",
+    description: f.description,
+    description_en: f.description_en.trim() || null,
+    description_inline: f.description_inline,
+    intent: f.intent,
+    noise: f.noise,
+    equipment: f.equipment,
+    facilities: f.facilities,
+    lokaltyp: f.lokaltyp,
+    image_url: f.images[0] ?? null,
+    images: f.images,
+    image_alts: f.image_alts,
+    image_alts_en: f.image_alts_en,
+    map_url: f.map_url.trim() || null,
+    map_url_en: f.map_url_en.trim() || null,
+    booking_url: f.booking_url.trim() || null,
+    booking_url_en: f.booking_url_en.trim() || null,
+    group_booking_url: f.group_booking_url.trim() || null,
+    group_booking_url_en: f.group_booking_url_en.trim() || null,
+    group_booking_label: f.group_booking_label.trim() || null,
+    group_booking_label_en: f.group_booking_label_en.trim() || null,
+    book_now_url: f.book_now_url.trim() || null,
+    book_now_url_en: f.book_now_url_en.trim() || null,
+    sort_order: f.sort_order,
+    floor: f.floor.trim() || null,
+    floor_en: f.floor_en.trim() || null,
+    located_in: f.located_in.trim() || null,
+    located_in_en: f.located_in_en.trim() || null,
+    capacity: num(f.capacity),
+    computer_count: num(f.computer_count),
+    informal_seat_count: num(f.informal_seat_count),
+    tags: f.tags,
+    notice: f.notice.trim() || null,
+    notice_en: f.notice_en.trim() || null,
+    info: f.info.trim() || null,
+    info_en: f.info_en.trim() || null,
+    show_capacity_publicly: f.show_capacity_publicly,
+    show_occupancy: f.show_occupancy,
+    countmatters_sensor_id: f.countmatters_sensor_id.trim() || null,
+    booking_room_number: num(f.booking_room_number),
+    hidden: false,
+  };
+}
