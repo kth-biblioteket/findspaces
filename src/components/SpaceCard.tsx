@@ -16,7 +16,7 @@ import {
   ChevronDown,
   Monitor,
   Armchair,
-  Link2,
+  Share,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
