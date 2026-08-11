@@ -23,12 +23,15 @@ if (!i18n.isInitialized) {
       supportedLngs: SUPPORTED_LANGUAGES as unknown as string[],
       interpolation: { escapeValue: false },
       detection: {
-        // Only honor an explicit saved choice. First-time visitors
-        // always get the Swedish fallback regardless of browser locale.
-        order: ["localStorage"],
+        // Honor ?lang= from a shared link first (so an English card link
+        // opens in English), then the visitor's saved choice. First-time
+        // visitors without either always get the Swedish fallback.
+        order: ["querystring", "localStorage"],
         caches: ["localStorage"],
+        lookupQuerystring: "lang",
         lookupLocalStorage: "lang",
       },
+
       react: { useSuspense: false },
     });
 }
