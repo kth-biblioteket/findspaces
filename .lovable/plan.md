@@ -1,39 +1,35 @@
-# Fler liknande risker (webbläsare, särskilt Safari/iOS)
+# Länka till en enskild lokal — utan egna sidor
 
-Genomgång av koden efter samma typ av problem som Figtree-buggen: sådant som fungerar i Chrome men tyst går fel någon annanstans. Sorterat efter sannolik påverkan.
+Startsidan har redan en länkparameter (`highlight`) som används när man klickar sig mellan lokaler i beskrivningstexterna. Den kan återanvändas som delbar länk, så vi slipper egna sidor per lokal.
 
-## 1. Typsnittet laddas sent (ingen förladdning)
-Typsnittsfilerna ligger nu lokalt, men de hittas först efter att CSS:en lästs in. Det ger en kort blänk med systemtypsnitt vid första besöket.
-**Åtgärd:** lägg `<link rel="preload">` för de två woff2-filerna i sidhuvudet.
+## Så fungerar det
 
-## 2. Bilduppladdning i admin kan misslyckas tyst
-Uppladdade bilder konverteras till WebP i webbläsaren. Äldre Safari (och vissa iPad-versioner) kan neka den konverteringen, och då blir resultatet en tom fil utan felmeddelande.
-**Åtgärd:** kontrollera att konverteringen lyckades, annars falla tillbaka på JPEG och visa ett tydligt fel om även det misslyckas.
+En delad länk ser ut så här:
 
-## 3. Privat läge / blockerade kakor
-Driftsmeddelandets "dölj"-val och adminlistans sparade filter skrivs direkt till webbläsarlagringen. I privat läge eller med hårda integritetsinställningar kastar det ett fel som kan släcka sidan.
-**Åtgärd:** kapsla in läsning/skrivning så att appen fungerar även när lagring nekas.
+```text
+https://.../?highlight=biblioteket-plan-3
+```
 
-## 4. Färgerna (oklch) på äldre enheter
-Hela färgsystemet använder ett modernt färgformat. På iOS äldre än 15.4 blir följden osynlig text/rutor, inte bara fel nyans.
-**Åtgärd:** avgör om vi bryr oss om så gamla enheter; om ja, lägg en enkel reservfärg per token.
+När någon öppnar den:
+1. Sidan laddas i standardsortering utan filter, så lokalen garanterat finns i listan.
+2. Sidan rullar automatiskt ner till kortet och markerar det kort (samma markering som redan används idag).
+3. URL:en städas efter markeringen, så att en uppdatering av sidan inte hoppar igen och delning vidare blir ren.
 
-## 5. Höjd på mobil (dvh) och sticky filterpanel
-Filterluckan och sidhöjden använder dynamisk viewport-höjd. På iOS kan panelen bli några pixlar för hög när adressfältet krymper, med dubbla rullningslister som följd.
-**Åtgärd:** verifiera i mobilt Safari-läge och justera med en säkerhetsmarginal vid behov.
+Idag sätts `highlight` bara vid klick inne i appen; den läses inte vid sidladdning. Det är det som byggs.
 
-## 6. Tabellstilar med modern CSS-selektor
-Två ställen i tabellkomponenten använder `:has(...)`. Det finns inte i Firefox-versioner före 121 — bara kosmetiskt, men värt att veta.
-**Åtgärd:** låg prioritet; byt till vanlig klass om vi vill vara helt säkra.
+## Delaknapp per lokal
 
-## 7. Sortering och tider
-Sortering (A–Ö) och öppettider bygger på webbläsarens språk- och tidszonsstöd. Det är brett stött, men värt en snabb kontroll att svensk bokstavsordning och Stockholmstid ger rätt resultat i Safari.
+En diskret länk-ikon i lokalkortets nedre kant (samma stil som övriga små åtgärder):
+- Kopierar länken till urklipp och visar en kort bekräftelse ("Länk kopierad").
+- På mobil används telefonens vanliga delningsruta när den finns, annars kopiering.
+- Ikonen har ett tydligt hjälptext för skärmläsare ("Kopiera länk till Biblioteket plan 3").
 
-## Förslag på ordning
-1. Punkt 1 och 3 (små, tar bort synliga och potentiellt sidsläckande fel)
-2. Punkt 2 (skyddar adminarbetet)
-3. Punkt 5 och 7 (verifiering i Safari)
-4. Punkt 4 och 6 (bara om äldre enheter ska stödjas)
+## Detaljer att bestämma i bygget
+
+- Länken använder lokalens `slug` (finns redan) — läsbart och stabilt även om namnet ändras något.
+- Om en delad lokal är dold eller borttagen: ingen markering, listan visas som vanligt (inget felmeddelande).
+- Rullning respekterar "minskad rörelse"-inställningen.
 
 ## Teknisk not
-Inga schemaändringar. Punkt 1 rör `src/routes/__root.tsx`, punkt 2 `src/lib/processImage.ts`, punkt 3 `AnnouncementBanner.tsx`/`SitePageLayout.tsx`/`admin.tsx`, punkt 4–5 `src/styles.css`.
+
+Inga schemaändringar, inga nya routes. Berör `src/routes/index.tsx` (läs `highlight` vid första renderingen, nollställ filter, rulla och markera, rensa parametern) och `src/components/SpaceCard.tsx` (delaknappen). Markeringsstilen `.space-highlight` finns redan i `src/styles.css`.
