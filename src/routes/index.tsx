@@ -191,25 +191,34 @@ function SpaceFinderApp() {
 
 
   const [highlightTick, setHighlightTick] = useState(0);
+  // The card to scroll to and flash. Held in state (not in the URL) so a
+  // shared link can be consumed once and then cleaned out of the address bar.
+  const [highlightId, setHighlightId] = useState<string | undefined>(undefined);
+
+  // A shared link (`/?highlight=<slug>`) lands in the default sort with no
+  // filters, so the space is guaranteed to be in the list.
+  const sharedHighlight = routeSearch.highlight;
+  useEffect(() => {
+    if (!sharedHighlight) return;
+    setHighlightId(sharedHighlight);
+    setHighlightTick((t) => t + 1);
+    navigate({ search: {} as never, replace: true, resetScroll: false });
+  }, [sharedHighlight, navigate]);
 
   const handleSpaceLink = (id: string) => {
+    setHighlightId(id);
     setHighlightTick((t) => t + 1);
     const target = spaces.find((s) => s.id === id || s.slug === id);
     const visible = target ? filtered.some((s) => s.id === target.id) : false;
     if (target && !visible) {
       navigate({
-        search: { highlight: id } as never,
-        replace: true,
-        resetScroll: false,
-      });
-    } else {
-      navigate({
-        search: (prev: SearchParams) => ({ ...prev, highlight: id }) as never,
+        search: {} as never,
         replace: true,
         resetScroll: false,
       });
     }
   };
+
 
   const {
     data: spaces = [],
