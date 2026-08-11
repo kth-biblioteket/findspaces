@@ -170,7 +170,7 @@ function SpaceFinderApp() {
   }, [search.sort, canSortFree, canSortSeats, navigate]);
 
   const setFilters = (next: Filters) => {
-    const nextSearch = filtersToSearch(next, search.highlight, filterOptions) as Record<string, unknown>;
+    const nextSearch = filtersToSearch(next, undefined, filterOptions) as Record<string, unknown>;
     const nextMode = next.workMode;
     if (search.sort && !(search.sort === "free_now" && nextMode !== "grupprum")) {
       nextSearch.sort = search.sort;
@@ -651,7 +651,7 @@ function SpaceFinderApp() {
               <ul role="list" className="space-y-4 md:space-y-6 list-none pl-0">
                 {sortedFiltered.map((s, i) => (
                   <li key={s.id}>
-                    <SpaceCard space={s} filters={filters} onFiltersChange={setFilters} onSpaceLink={handleSpaceLink} highlightId={search.highlight} highlightTick={highlightTick} spaces={spaces} priority={i < 2} />
+                    <SpaceCard space={s} filters={filters} onFiltersChange={setFilters} onSpaceLink={handleSpaceLink} highlightId={highlightId} highlightTick={highlightTick} spaces={spaces} priority={i < 2} />
                   </li>
                 ))}
               </ul>
