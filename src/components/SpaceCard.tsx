@@ -16,7 +16,7 @@ import {
   ChevronDown,
   Monitor,
   Armchair,
-  Share,
+  Share2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -823,9 +823,9 @@ export function SpaceCard({
               }}
               aria-label={t("card.share_sr", { name: localizedName })}
               title={t("card.share_sr", { name: localizedName })}
-              className="absolute top-3 right-3 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white text-foreground shadow-md transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              className="absolute top-2 right-2 z-20 inline-flex h-8 w-8 md:top-3 md:right-3 md:h-9 md:w-9 items-center justify-center rounded-full bg-white text-foreground shadow-md transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
-              <Share className="h-5 w-5" aria-hidden="true" />
+              <Share2 className="h-4 w-4 md:h-5 md:w-5" aria-hidden="true" />
             </button>
           )}
         </div>
