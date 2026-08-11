@@ -133,6 +133,24 @@ export function SpaceCard({
         : [];
 
   const localizedName = pickLocalized(space, "name", lang);
+
+  /** Copies (or shares) a deep link that lands on this card in the default sort. */
+  const shareSpace = async () => {
+    if (typeof window === "undefined") return;
+    const url = `${window.location.origin}/?highlight=${encodeURIComponent(space.slug || space.id)}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: localizedName, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      toast.success(t("card.link_copied"));
+    } catch (err) {
+      if ((err as DOMException)?.name === "AbortError") return;
+      window.prompt(t("card.share_sr", { name: localizedName }), url);
+    }
+  };
+
   const localizedDescription = pickLocalized(space, "description", lang);
   const localizedNotice = pickLocalized(space, "notice", lang);
   const localizedInfo = pickLocalized(space, "info", lang);
