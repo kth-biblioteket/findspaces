@@ -134,10 +134,15 @@ export function SpaceCard({
 
   const localizedName = pickLocalized(space, "name", lang);
 
-  /** Copies (or shares) a deep link that lands on this card in the default sort. */
+  /**
+   * Copies (or shares) a deep link that lands on this card in the default sort.
+   * The current language rides along so an English card opens in English.
+   */
   const shareSpace = async () => {
     if (typeof window === "undefined") return;
-    const url = `${window.location.origin}/?highlight=${encodeURIComponent(space.slug || space.id)}`;
+    const shareLang = i18n.resolvedLanguage === "en" ? "en" : "sv";
+    const url = `${window.location.origin}/?highlight=${encodeURIComponent(space.slug || space.id)}&lang=${shareLang}`;
+
     try {
       if (navigator.share) {
         await navigator.share({ title: localizedName, url });
