@@ -802,7 +802,7 @@ export function SpaceCard({
 
         <div
           data-card-media
-          className="order-1 w-full shrink-0 self-start aspect-[3/2] overflow-hidden rounded-t-2xl md:order-none md:col-start-2 md:row-start-1 md:row-span-2 md:self-stretch md:rounded-t-none md:rounded-l-none md:rounded-tr-2xl"
+          className="relative order-1 w-full shrink-0 self-start aspect-[3/2] overflow-hidden rounded-t-2xl md:order-none md:col-start-2 md:row-start-1 md:row-span-2 md:self-stretch md:rounded-t-none md:rounded-l-none md:rounded-tr-2xl"
         >
           <ImageCarousel
             images={images}
@@ -814,6 +814,20 @@ export function SpaceCard({
               setLightboxOpen(true);
             }}
           />
+          {interactive && (
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                shareSpace();
+              }}
+              aria-label={t("card.share_sr", { name: localizedName })}
+              title={t("card.share_sr", { name: localizedName })}
+              className="absolute top-3 right-3 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white text-foreground shadow-md transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            >
+              <Share className="h-5 w-5" aria-hidden="true" />
+            </button>
+          )}
         </div>
 
         {(renderedButtons.length > 0 || interactive) && (
