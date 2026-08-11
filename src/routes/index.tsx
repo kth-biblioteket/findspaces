@@ -170,7 +170,7 @@ function SpaceFinderApp() {
   }, [search.sort, canSortFree, canSortSeats, navigate]);
 
   const setFilters = (next: Filters) => {
-    const nextSearch = filtersToSearch(next, search.highlight, filterOptions) as Record<string, unknown>;
+    const nextSearch = filtersToSearch(next, undefined, filterOptions) as Record<string, unknown>;
     const nextMode = next.workMode;
     if (search.sort && !(search.sort === "free_now" && nextMode !== "grupprum")) {
       nextSearch.sort = search.sort;
@@ -191,25 +191,34 @@ function SpaceFinderApp() {
 
 
   const [highlightTick, setHighlightTick] = useState(0);
+  // The card to scroll to and flash. Held in state (not in the URL) so a
+  // shared link can be consumed once and then cleaned out of the address bar.
+  const [highlightId, setHighlightId] = useState<string | undefined>(undefined);
+
+  // A shared link (`/?highlight=<slug>`) lands in the default sort with no
+  // filters, so the space is guaranteed to be in the list.
+  const sharedHighlight = routeSearch.highlight;
+  useEffect(() => {
+    if (!sharedHighlight) return;
+    setHighlightId(sharedHighlight);
+    setHighlightTick((t) => t + 1);
+    navigate({ search: {} as never, replace: true, resetScroll: false });
+  }, [sharedHighlight, navigate]);
 
   const handleSpaceLink = (id: string) => {
+    setHighlightId(id);
     setHighlightTick((t) => t + 1);
     const target = spaces.find((s) => s.id === id || s.slug === id);
     const visible = target ? filtered.some((s) => s.id === target.id) : false;
     if (target && !visible) {
       navigate({
-        search: { highlight: id } as never,
-        replace: true,
-        resetScroll: false,
-      });
-    } else {
-      navigate({
-        search: (prev: SearchParams) => ({ ...prev, highlight: id }) as never,
+        search: {} as never,
         replace: true,
         resetScroll: false,
       });
     }
   };
+
 
   const {
     data: spaces = [],
@@ -642,7 +651,7 @@ function SpaceFinderApp() {
               <ul role="list" className="space-y-4 md:space-y-6 list-none pl-0">
                 {sortedFiltered.map((s, i) => (
                   <li key={s.id}>
-                    <SpaceCard space={s} filters={filters} onFiltersChange={setFilters} onSpaceLink={handleSpaceLink} highlightId={search.highlight} highlightTick={highlightTick} spaces={spaces} priority={i < 2} />
+                    <SpaceCard space={s} filters={filters} onFiltersChange={setFilters} onSpaceLink={handleSpaceLink} highlightId={highlightId} highlightTick={highlightTick} spaces={spaces} priority={i < 2} />
                   </li>
                 ))}
               </ul>

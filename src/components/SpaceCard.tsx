@@ -16,7 +16,9 @@ import {
   ChevronDown,
   Monitor,
   Armchair,
+  Link2,
 } from "lucide-react";
+import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { TableChairIcon } from "./icons/TableChairIcon";
 
@@ -108,12 +110,16 @@ export function SpaceCard({
       setHighlighted(true);
       const el = document.getElementById(`space-${space.id}`);
       if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        const reduceMotion =
+          typeof window !== "undefined" &&
+          window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+        el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
       }
       const timer = setTimeout(() => setHighlighted(false), 2500);
       return () => clearTimeout(timer);
     }
   }, [highlightId, highlightTick, space.id, space.slug]);
+
 
   const interactive = Boolean(filters && onFiltersChange);
 
@@ -127,6 +133,24 @@ export function SpaceCard({
         : [];
 
   const localizedName = pickLocalized(space, "name", lang);
+
+  /** Copies (or shares) a deep link that lands on this card in the default sort. */
+  const shareSpace = async () => {
+    if (typeof window === "undefined") return;
+    const url = `${window.location.origin}/?highlight=${encodeURIComponent(space.slug || space.id)}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: localizedName, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      toast.success(t("card.link_copied"));
+    } catch (err) {
+      if ((err as DOMException)?.name === "AbortError") return;
+      window.prompt(t("card.share_sr", { name: localizedName }), url);
+    }
+  };
+
   const localizedDescription = pickLocalized(space, "description", lang);
   const localizedNotice = pickLocalized(space, "notice", lang);
   const localizedInfo = pickLocalized(space, "info", lang);
@@ -785,25 +809,44 @@ export function SpaceCard({
           />
         </div>
 
-        {renderedButtons.length > 0 && (
+        {(renderedButtons.length > 0 || interactive) && (
           <div
-            role={renderedButtons.length > 1 ? "toolbar" : undefined}
-            aria-label={
-              renderedButtons.length > 1
-                ? t("card.actions_label", { name: localizedName })
-                : undefined
-            }
-            aria-describedby={renderedButtons.length > 1 ? actionHelpId : undefined}
             onBlurCapture={actionRoving.onBlurCapture}
             className="order-3 flex flex-wrap items-center justify-end gap-2 px-3 pb-3 pt-4 md:order-none md:col-start-1 md:row-start-2 md:p-6 md:pt-0"
           >
-            {renderedButtons.length > 1 && (
-              <p id={actionHelpId} className="sr-only">
-                {t("card.roving_group_help")}
-              </p>
+            {interactive && (
+              <button
+                type="button"
+                onClick={shareSpace}
+                title={t("card.share")}
+                className="mr-auto inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-xs text-muted-foreground/80 transition-colors hover:text-[var(--kth-blue)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              >
+                <Link2 className="h-3.5 w-3.5" aria-hidden="true" />
+                <span aria-hidden="true">{t("card.share")}</span>
+                <span className="sr-only">{t("card.share_sr", { name: localizedName })}</span>
+              </button>
             )}
-            {renderedButtons}
+            {renderedButtons.length > 0 && (
+              <div
+                role={renderedButtons.length > 1 ? "toolbar" : undefined}
+                aria-label={
+                  renderedButtons.length > 1
+                    ? t("card.actions_label", { name: localizedName })
+                    : undefined
+                }
+                aria-describedby={renderedButtons.length > 1 ? actionHelpId : undefined}
+                className="flex flex-wrap items-center justify-end gap-2"
+              >
+                {renderedButtons.length > 1 && (
+                  <p id={actionHelpId} className="sr-only">
+                    {t("card.roving_group_help")}
+                  </p>
+                )}
+                {renderedButtons}
+              </div>
+            )}
           </div>
+
         )}
       </div>
 

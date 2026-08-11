@@ -90,6 +90,9 @@
     "hide_description": "Dölj text",
     "header_filters_label": "{{name}}, rubrik och snabbfilter",
     "actions_label": "Åtgärder för {{name}}",
+    "share": "Dela",
+    "share_sr": "Kopiera länk till {{name}}",
+    "link_copied": "Länk kopierad",
     "roving_group_help": "Använd vänster och höger pil för att navigera i gruppen."
   },
   "occupancy": {
