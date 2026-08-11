@@ -110,12 +110,16 @@ export function SpaceCard({
       setHighlighted(true);
       const el = document.getElementById(`space-${space.id}`);
       if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        const reduceMotion =
+          typeof window !== "undefined" &&
+          window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+        el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
       }
       const timer = setTimeout(() => setHighlighted(false), 2500);
       return () => clearTimeout(timer);
     }
   }, [highlightId, highlightTick, space.id, space.slug]);
+
 
   const interactive = Boolean(filters && onFiltersChange);
 
