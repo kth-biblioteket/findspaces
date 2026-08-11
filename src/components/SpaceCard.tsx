@@ -16,7 +16,7 @@ import {
   ChevronDown,
   Monitor,
   Armchair,
-  Link2,
+  Share,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -802,7 +802,7 @@ export function SpaceCard({
 
         <div
           data-card-media
-          className="order-1 w-full shrink-0 self-start aspect-[3/2] overflow-hidden rounded-t-2xl md:order-none md:col-start-2 md:row-start-1 md:row-span-2 md:self-stretch md:rounded-t-none md:rounded-l-none md:rounded-tr-2xl"
+          className="relative order-1 w-full shrink-0 self-start aspect-[3/2] overflow-hidden rounded-t-2xl md:order-none md:col-start-2 md:row-start-1 md:row-span-2 md:self-stretch md:rounded-t-none md:rounded-l-none md:rounded-tr-2xl"
         >
           <ImageCarousel
             images={images}
@@ -814,46 +814,45 @@ export function SpaceCard({
               setLightboxOpen(true);
             }}
           />
+          {interactive && (
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                shareSpace();
+              }}
+              aria-label={t("card.share_sr", { name: localizedName })}
+              title={t("card.share_sr", { name: localizedName })}
+              className="absolute top-3 right-3 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white text-foreground shadow-md transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            >
+              <Share className="h-5 w-5" aria-hidden="true" />
+            </button>
+          )}
         </div>
 
-        {(renderedButtons.length > 0 || interactive) && (
+        {renderedButtons.length > 0 && (
           <div
             onBlurCapture={actionRoving.onBlurCapture}
             className="order-3 flex flex-wrap items-center justify-end gap-2 px-3 pb-3 pt-4 md:order-none md:col-start-1 md:row-start-2 md:p-6 md:pt-0"
           >
-            {interactive && (
-              <button
-                type="button"
-                onClick={shareSpace}
-                title={t("card.share")}
-                className="mr-auto inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-xs text-muted-foreground/80 transition-colors hover:text-[var(--kth-blue)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-              >
-                <Link2 className="h-3.5 w-3.5" aria-hidden="true" />
-                <span aria-hidden="true">{t("card.share")}</span>
-                <span className="sr-only">{t("card.share_sr", { name: localizedName })}</span>
-              </button>
-            )}
-            {renderedButtons.length > 0 && (
-              <div
-                role={renderedButtons.length > 1 ? "toolbar" : undefined}
-                aria-label={
-                  renderedButtons.length > 1
-                    ? t("card.actions_label", { name: localizedName })
-                    : undefined
-                }
-                aria-describedby={renderedButtons.length > 1 ? actionHelpId : undefined}
-                className="flex flex-wrap items-center justify-end gap-2"
-              >
-                {renderedButtons.length > 1 && (
-                  <p id={actionHelpId} className="sr-only">
-                    {t("card.roving_group_help")}
-                  </p>
-                )}
-                {renderedButtons}
-              </div>
-            )}
+            <div
+              role={renderedButtons.length > 1 ? "toolbar" : undefined}
+              aria-label={
+                renderedButtons.length > 1
+                  ? t("card.actions_label", { name: localizedName })
+                  : undefined
+              }
+              aria-describedby={renderedButtons.length > 1 ? actionHelpId : undefined}
+              className="flex flex-wrap items-center justify-end gap-2"
+            >
+              {renderedButtons.length > 1 && (
+                <p id={actionHelpId} className="sr-only">
+                  {t("card.roving_group_help")}
+                </p>
+              )}
+              {renderedButtons}
+            </div>
           </div>
-
         )}
       </div>
 
