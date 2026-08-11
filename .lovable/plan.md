@@ -1,56 +1,39 @@
-# Nya förbättringsförslag
+# Fler liknande risker (webbläsare, särskilt Safari/iOS)
 
-Den tidigare listan är helt genomförd. Här är ett nytt urval, sorterat efter nytta för användarna först.
+Genomgång av koden efter samma typ av problem som Figtree-buggen: sådant som fungerar i Chrome men tyst går fel någon annanstans. Sorterat efter sannolik påverkan.
 
-## A. Studentvyn
+## 1. Typsnittet laddas sent (ingen förladdning)
+Typsnittsfilerna ligger nu lokalt, men de hittas först efter att CSS:en lästs in. Det ger en kort blänk med systemtypsnitt vid första besöket.
+**Åtgärd:** lägg `<link rel="preload">` för de två woff2-filerna i sidhuvudet.
 
-**A1. Dela och återvänd till en sökning**
-Filtren ligger redan i URL:en. Lägg till en "Kopiera länk"-knapp vid sorteringen så en student enkelt kan dela sin filtrering, plus en kort bekräftelse när länken kopierats.
+## 2. Bilduppladdning i admin kan misslyckas tyst
+Uppladdade bilder konverteras till WebP i webbläsaren. Äldre Safari (och vissa iPad-versioner) kan neka den konverteringen, och då blir resultatet en tom fil utan felmeddelande.
+**Åtgärd:** kontrollera att konverteringen lyckades, annars falla tillbaka på JPEG och visa ett tydligt fel om även det misslyckas.
 
-**A2. Direktlänk till en enskild lokal**
-Idag finns bara startsidan. En egen sida per lokal (`/lokal/<namn>`) ger delbara länkar, egen titel/förhandsvisning vid delning och bättre synlighet i sökmotorer. Kortet i listan får en "Visa lokal"-länk.
+## 3. Privat läge / blockerade kakor
+Driftsmeddelandets "dölj"-val och adminlistans sparade filter skrivs direkt till webbläsarlagringen. I privat läge eller med hårda integritetsinställningar kastar det ett fel som kan släcka sidan.
+**Åtgärd:** kapsla in läsning/skrivning så att appen fungerar även när lagring nekas.
 
-**A3. Kom ihåg senaste val**
-Spara valt språk och senast använda filter lokalt i webbläsaren, med en diskret "Återställ filter"-knapp. Återkommande besökare slipper börja om.
+## 4. Färgerna (oklch) på äldre enheter
+Hela färgsystemet använder ett modernt färgformat. På iOS äldre än 15.4 blir följden osynlig text/rutor, inte bara fel nyans.
+**Åtgärd:** avgör om vi bryr oss om så gamla enheter; om ja, lägg en enkel reservfärg per token.
 
-**A4. Tydligare laddning av liveinformation**
-Beläggning och lediga grupprum hämtas efter att sidan ritats. Visa en liten "uppdaterar"-indikator och en tidsstämpel ("uppdaterad 08:31") så det syns att uppgiften är färsk.
+## 5. Höjd på mobil (dvh) och sticky filterpanel
+Filterluckan och sidhöjden använder dynamisk viewport-höjd. På iOS kan panelen bli några pixlar för hög när adressfältet krymper, med dubbla rullningslister som följd.
+**Åtgärd:** verifiera i mobilt Safari-läge och justera med en säkerhetsmarginal vid behov.
 
-**A5. Skärmläsarmeddelande vid filtrering**
-När träfflistan ändras annonseras inget. Lägg ett artigt statusmeddelande ("12 av 56 lokaler matchar") som läses upp vid varje filterändring.
+## 6. Tabellstilar med modern CSS-selektor
+Två ställen i tabellkomponenten använder `:has(...)`. Det finns inte i Firefox-versioner före 121 — bara kosmetiskt, men värt att veta.
+**Åtgärd:** låg prioritet; byt till vanlig klass om vi vill vara helt säkra.
 
-## B. Admin
-
-**B1. Dela upp admin-filen**
-`src/routes/admin.tsx` är 4 408 rader. Bryt ut lokalredigeraren, filterhanteringen, texterna och listan till egna filer under `src/components/admin/`. Ingen funktionsändring, men mycket lättare att underhålla vidare.
-
-**B2. Ångra vid dölj/radera**
-Idag är dölj och radera bekräftelsedialoger. Lägg till en "Ångra"-knapp i bekräftelsen efter åtgärden (några sekunder) — snabbare och mindre riskfyllt.
-
-**B3. Sökfält och filtrering i lokallistan**
-Med många lokaler blir listan lång. Lägg till fritextsök på namn samt snabbfilter för dolda/publika och kategori.
-
-**B4. Förhandsvisning av lokalkortet i redigeraren**
-Visa kortet som studenten ser det bredvid formuläret, så admin direkt ser effekten av texter, ikoner och antal platser.
-
-## C. Kvalitet och drift
-
-**C1. Fler automatiska tester**
-Det finns tester för filtermatchning och URL-filter. Utöka med tester för sorteringsordningen, tomtillståndets förslag och admin-validering, så framtida ändringar inte tyst går sönder.
-
-**C2. Bildstorlekar**
-Uppladdade bilder skalas i webbläsaren. Generera en mindre variant vid uppladdning och servera rätt storlek per skärm — snabbare laddning på mobil.
-
-**C3. Felhantering vid tappat nätverk**
-Om anropen misslyckas visas ett generellt fel. Lägg till "Försök igen"-knapp och behåll tidigare resultat i stället för tom sida.
-
-## Teknisk not
-
-Inget av ovanstående kräver schemaändringar utom A2 (kräver en stabil slug per lokal) och C2 (extra bildvariant i lagringen). Övrigt är front-end och struktur.
+## 7. Sortering och tider
+Sortering (A–Ö) och öppettider bygger på webbläsarens språk- och tidszonsstöd. Det är brett stött, men värt en snabb kontroll att svensk bokstavsordning och Stockholmstid ger rätt resultat i Safari.
 
 ## Förslag på ordning
+1. Punkt 1 och 3 (små, tar bort synliga och potentiellt sidsläckande fel)
+2. Punkt 2 (skyddar adminarbetet)
+3. Punkt 5 och 7 (verifiering i Safari)
+4. Punkt 4 och 6 (bara om äldre enheter ska stödjas)
 
-1. A1, A5, C3 (små, snabb nytta)
-2. B3, B2, B4 (adminupplevelse)
-3. A2, C2 (kräver data-/lagringsändring)
-4. B1, C1 (underhåll)
+## Teknisk not
+Inga schemaändringar. Punkt 1 rör `src/routes/__root.tsx`, punkt 2 `src/lib/processImage.ts`, punkt 3 `AnnouncementBanner.tsx`/`SitePageLayout.tsx`/`admin.tsx`, punkt 4–5 `src/styles.css`.
