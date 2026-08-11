@@ -142,7 +142,7 @@ export function SpaceCard({
   const shareSpace = async () => {
     if (typeof window === "undefined") return;
     const shareLang = i18n.resolvedLanguage === "en" ? "en" : "sv";
-    const nameParam = encodeURIComponent(localizedName);
+    const nameParam = encodeURIComponent(space.name);
     const url = `${window.location.origin}/?highlight=${encodeURIComponent(space.slug || space.id)}&lang=${shareLang}&name=${nameParam}`;
 
     try {
