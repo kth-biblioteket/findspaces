@@ -136,12 +136,14 @@ export function SpaceCard({
 
   /**
    * Copies (or shares) a deep link that lands on this card in the default sort.
-   * The current language rides along so an English card opens in English.
+   * The current language rides along so an English card opens in English, and
+   * the localized space name is included in the URL for readability.
    */
   const shareSpace = async () => {
     if (typeof window === "undefined") return;
     const shareLang = i18n.resolvedLanguage === "en" ? "en" : "sv";
-    const url = `${window.location.origin}/?highlight=${encodeURIComponent(space.slug || space.id)}&lang=${shareLang}`;
+    const nameParam = encodeURIComponent(localizedName);
+    const url = `${window.location.origin}/?highlight=${encodeURIComponent(space.slug || space.id)}&lang=${shareLang}&name=${nameParam}`;
 
     try {
       if (navigator.share) {
