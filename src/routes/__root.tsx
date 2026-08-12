@@ -82,8 +82,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:title", content: "Hitta studieplats – KTH Biblioteket" },
       { property: "og:description", content: "Hitta och boka studieplatser på KTH Biblioteket." },
       { name: "twitter:description", content: "Hitta och boka studieplatser på KTH Biblioteket." },
-      { property: "og:image", content: "https://hitta-studieplats-demo.lovable.app/og-preview.jpg" },
-      { name: "twitter:image", content: "https://hitta-studieplats-demo.lovable.app/og-preview.jpg" },
+      // og:image / twitter:image live on the leaf route (src/routes/index.tsx)
+      // so each page owns its own share preview.
+
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
     ],
