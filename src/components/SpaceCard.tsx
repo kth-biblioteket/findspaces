@@ -16,7 +16,9 @@ import {
   ChevronDown,
   Monitor,
   Armchair,
+  Share2,
 } from "lucide-react";
+import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { TableChairIcon } from "./icons/TableChairIcon";
 
@@ -108,12 +110,16 @@ export function SpaceCard({
       setHighlighted(true);
       const el = document.getElementById(`space-${space.id}`);
       if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        const reduceMotion =
+          typeof window !== "undefined" &&
+          window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+        el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
       }
       const timer = setTimeout(() => setHighlighted(false), 2500);
       return () => clearTimeout(timer);
     }
   }, [highlightId, highlightTick, space.id, space.slug]);
+
 
   const interactive = Boolean(filters && onFiltersChange);
 
@@ -127,6 +133,31 @@ export function SpaceCard({
         : [];
 
   const localizedName = pickLocalized(space, "name", lang);
+
+  /**
+   * Copies (or shares) a deep link that lands on this card in the default sort.
+   * The current language rides along so an English card opens in English, and
+   * the localized space name is included in the URL for readability.
+   */
+  const shareSpace = async () => {
+    if (typeof window === "undefined") return;
+    const shareLang = i18n.resolvedLanguage === "en" ? "en" : "sv";
+    const nameParam = encodeURIComponent(space.name);
+    const url = `${window.location.origin}/?highlight=${encodeURIComponent(space.slug || space.id)}&lang=${shareLang}&name=${nameParam}`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: localizedName, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      toast.success(t("card.link_copied"));
+    } catch (err) {
+      if ((err as DOMException)?.name === "AbortError") return;
+      window.prompt(t("card.share_sr", { name: localizedName }), url);
+    }
+  };
+
   const localizedDescription = pickLocalized(space, "description", lang);
   const localizedNotice = pickLocalized(space, "notice", lang);
   const localizedInfo = pickLocalized(space, "info", lang);
@@ -771,7 +802,7 @@ export function SpaceCard({
 
         <div
           data-card-media
-          className="order-1 w-full shrink-0 self-start aspect-[3/2] overflow-hidden rounded-t-2xl md:order-none md:col-start-2 md:row-start-1 md:row-span-2 md:self-stretch md:rounded-t-none md:rounded-l-none md:rounded-tr-2xl"
+          className="relative order-1 w-full shrink-0 self-start aspect-[3/2] overflow-hidden rounded-t-2xl md:order-none md:col-start-2 md:row-start-1 md:row-span-2 md:self-stretch md:rounded-t-none md:rounded-l-none md:rounded-tr-2xl"
         >
           <ImageCarousel
             images={images}
@@ -783,26 +814,49 @@ export function SpaceCard({
               setLightboxOpen(true);
             }}
           />
+          {interactive && (
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                shareSpace();
+              }}
+              aria-label={t("card.share_sr", { name: localizedName })}
+              title={t("card.share_sr", { name: localizedName })}
+              className="absolute top-2 right-2 z-20 inline-flex h-8 w-8 md:top-3 md:right-3 md:h-9 md:w-9 items-center justify-center rounded-full bg-white text-[var(--kth-navy)] transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              style={{ boxShadow: "0 10px 30px -8px rgba(0, 0, 0, 0.12)" }}
+            >
+              <Share2
+                className="h-4 w-4 md:h-5 md:w-5"
+                strokeWidth={2.5}
+                aria-hidden="true"
+              />
+            </button>
+          )}
         </div>
 
         {renderedButtons.length > 0 && (
           <div
-            role={renderedButtons.length > 1 ? "toolbar" : undefined}
-            aria-label={
-              renderedButtons.length > 1
-                ? t("card.actions_label", { name: localizedName })
-                : undefined
-            }
-            aria-describedby={renderedButtons.length > 1 ? actionHelpId : undefined}
             onBlurCapture={actionRoving.onBlurCapture}
             className="order-3 flex flex-wrap items-center justify-end gap-2 px-3 pb-3 pt-4 md:order-none md:col-start-1 md:row-start-2 md:p-6 md:pt-0"
           >
-            {renderedButtons.length > 1 && (
-              <p id={actionHelpId} className="sr-only">
-                {t("card.roving_group_help")}
-              </p>
-            )}
-            {renderedButtons}
+            <div
+              role={renderedButtons.length > 1 ? "toolbar" : undefined}
+              aria-label={
+                renderedButtons.length > 1
+                  ? t("card.actions_label", { name: localizedName })
+                  : undefined
+              }
+              aria-describedby={renderedButtons.length > 1 ? actionHelpId : undefined}
+              className="flex flex-wrap items-center justify-end gap-2"
+            >
+              {renderedButtons.length > 1 && (
+                <p id={actionHelpId} className="sr-only">
+                  {t("card.roving_group_help")}
+                </p>
+              )}
+              {renderedButtons}
+            </div>
           </div>
         )}
       </div>
