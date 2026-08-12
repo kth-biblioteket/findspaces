@@ -62,19 +62,19 @@ export const Route = createFileRoute("/")({
         content: "Utforska bibliotekets studieplatser och filtrera fram din favorit.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://hitta-studieplats-demo.lovable.app/" },
-      {
-        property: "og:image",
-        content: "https://hitta-studieplats-demo.lovable.app/og-preview.jpg",
-      },
+      { property: "og:url", content: siteUrl("/") },
+      { property: "og:image", content: siteUrl("/og-preview.jpg") },
       { name: "twitter:card", content: "summary_large_image" },
-      {
-        name: "twitter:image",
-        content: "https://hitta-studieplats-demo.lovable.app/og-preview.jpg",
-      },
+      { name: "twitter:image", content: siteUrl("/og-preview.jpg") },
     ],
-    links: [{ rel: "canonical", href: "https://hitta-studieplats-demo.lovable.app/" }],
+    links: [
+      { rel: "canonical", href: siteUrl("/") },
+      { rel: "alternate", hrefLang: "sv", href: siteUrl("/?lang=sv") },
+      { rel: "alternate", hrefLang: "en", href: siteUrl("/?lang=en") },
+      { rel: "alternate", hrefLang: "x-default", href: siteUrl("/") },
+    ],
   }),
+
 
   validateSearch: validateSearchInput,
   loader: ({ context }) => {
