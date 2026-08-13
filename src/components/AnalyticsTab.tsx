@@ -422,9 +422,9 @@ export function AnalyticsTab() {
                   <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
                   <Tooltip />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Bar dataKey="views" name="Sidvisningar" fill="hsl(var(--primary))" />
-                  <Bar dataKey="expands" name="Kortklick" fill="hsl(var(--muted-foreground))" />
-                  <Bar dataKey="bookings" name="Bokningsklick" fill="hsl(var(--destructive))" />
+                  <Bar dataKey="views" name="Sidvisningar" fill="var(--primary)" />
+                  <Bar dataKey="expands" name="Kortklick" fill="var(--muted-foreground)" />
+                  <Bar dataKey="bookings" name="Bokningsklick" fill="var(--destructive)" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -438,7 +438,7 @@ export function AnalyticsTab() {
                     <XAxis dataKey="label" tick={{ fontSize: 10 }} />
                     <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
                     <Tooltip />
-                    <Bar dataKey="value" fill="hsl(var(--primary))" />
+                    <Bar dataKey="value" fill="var(--primary)" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -450,7 +450,7 @@ export function AnalyticsTab() {
                     <XAxis dataKey="label" tick={{ fontSize: 11 }} />
                     <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
                     <Tooltip />
-                    <Bar dataKey="value" fill="hsl(var(--primary))" />
+                    <Bar dataKey="value" fill="var(--primary)" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -734,7 +734,10 @@ function Heatmap({ grid, max }: { grid: number[][]; max: number }) {
                     key={h}
                     title={`${days[dow]} ${String(h).padStart(2, "0")}:00 · ${v} sidvisningar`}
                     className="aspect-square rounded-sm border border-border/40"
-                    style={{ backgroundColor: `hsl(var(--primary) / ${0.08 + intensity * 0.85})` }}
+                    style={{
+                      backgroundColor: `color-mix(in oklab, var(--primary) ${Math.round((0.06 + intensity * 0.9) * 100)}%, transparent)`,
+                    }}
+
                   />
                 );
               })}
