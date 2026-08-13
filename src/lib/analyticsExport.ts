@@ -41,6 +41,8 @@ export function exportAnalyticsToExcel(rows: Row[], from: Date, to: Date): void 
     ["Bokningsklick", byType.booking_link_click ?? 0],
     ["Kartklick", byType.map_link_click ?? 0],
     ["Länkklick till lokalsida", byType.space_link_click ?? 0],
+    ["Delningar", byType.share_click ?? 0],
+    ["Öppnade delade länkar", byType.share_open ?? 0],
     ["Filterändringar", byType.filter_change ?? 0],
     ["Sök utan träff", byType.empty_results ?? 0],
     ["Totalt händelser", rows.length],
