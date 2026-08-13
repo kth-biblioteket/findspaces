@@ -27,7 +27,9 @@ export type AnalyticsEvent =
   | "booking_link_click"
   | "map_link_click"
   | "empty_results"
-  | "space_link_click";
+  | "space_link_click"
+  | "share_click"
+  | "share_open";
 
 function detectDevice(): "mobile" | "tablet" | "desktop" {
   if (typeof window === "undefined") return "desktop";

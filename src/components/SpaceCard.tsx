@@ -19,6 +19,7 @@ import {
   Share2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { track } from "@/lib/analytics";
 import { useTranslation } from "react-i18next";
 import { TableChairIcon } from "./icons/TableChairIcon";
 
@@ -142,19 +143,29 @@ export function SpaceCard({
   const shareSpace = async () => {
     if (typeof window === "undefined") return;
     const shareLang = i18n.resolvedLanguage === "en" ? "en" : "sv";
+    const trackShare = (method: "native" | "clipboard" | "prompt") =>
+      track("share_click", {
+        space_id: space.slug || space.id,
+        name: space.name,
+        lang: shareLang,
+        method,
+      });
     const nameParam = encodeURIComponent(space.name);
     const url = `${window.location.origin}/?highlight=${encodeURIComponent(space.slug || space.id)}&lang=${shareLang}&name=${nameParam}`;
 
     try {
       if (navigator.share) {
         await navigator.share({ title: localizedName, url });
+        trackShare("native");
         return;
       }
       await navigator.clipboard.writeText(url);
+      trackShare("clipboard");
       toast.success(t("card.link_copied"));
     } catch (err) {
       if ((err as DOMException)?.name === "AbortError") return;
       window.prompt(t("card.share_sr", { name: localizedName }), url);
+      trackShare("prompt");
     }
   };
 

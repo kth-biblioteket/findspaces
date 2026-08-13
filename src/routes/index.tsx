@@ -202,6 +202,12 @@ function SpaceFinderApp() {
   const sharedHighlight = routeSearch.highlight;
   useEffect(() => {
     if (!sharedHighlight) return;
+    track("share_open", {
+      space_id: sharedHighlight,
+      lang: typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search).get("lang") ?? ""
+        : "",
+    });
     setHighlightId(sharedHighlight);
     setHighlightTick((t) => t + 1);
     navigate({ search: {} as never, replace: true, resetScroll: false });
