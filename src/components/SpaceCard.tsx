@@ -164,10 +164,31 @@ export function SpaceCard({
       toast.success(t("card.link_copied"));
     } catch (err) {
       if ((err as DOMException)?.name === "AbortError") return;
-      window.prompt(t("card.share_sr", { name: localizedName }), url);
+      // Clipboard blocked (or no Web Share): show a dialog with a selectable
+      // link and an explicit copy button instead of window.prompt.
+      setShareUrl(url);
+      setShareOpen(true);
       trackShare("prompt");
     }
   };
+
+  const copyShareUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success(t("card.link_copied"));
+      setShareOpen(false);
+    } catch {
+      const input = document.getElementById(`share-url-${space.id}`) as HTMLInputElement | null;
+      input?.select();
+      // Legacy fallback for browsers without the async clipboard API.
+      const ok = document.execCommand?.("copy");
+      if (ok) {
+        toast.success(t("card.link_copied"));
+        setShareOpen(false);
+      }
+    }
+  };
+
 
   const localizedDescription = pickLocalized(space, "description", lang);
   const localizedNotice = pickLocalized(space, "notice", lang);
