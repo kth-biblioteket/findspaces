@@ -902,6 +902,27 @@ export function SpaceCard({
         open={lightboxOpen}
         onClose={() => setLightboxOpen(false)}
       />
+
+      <Dialog open={shareOpen} onOpenChange={setShareOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("card.share_sr", { name: localizedName })}</DialogTitle>
+          </DialogHeader>
+          <div className="flex items-center gap-2">
+            <Input
+              id={`share-url-${space.id}`}
+              readOnly
+              value={shareUrl}
+              onFocus={(e) => e.currentTarget.select()}
+              className="flex-1"
+            />
+            <Button type="button" onClick={copyShareUrl}>
+              {t("card.copy_link")}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
     </article>
   );
 }
