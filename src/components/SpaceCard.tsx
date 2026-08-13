@@ -85,6 +85,9 @@ export function SpaceCard({
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [highlighted, setHighlighted] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
+
   const headerRoving = useRovingTabIndex();
   const actionRoving = useRovingTabIndex();
   const { data: options = [] } = useFilterOptions();
