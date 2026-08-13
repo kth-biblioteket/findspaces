@@ -46,6 +46,10 @@ import { useSpaceAnalytics } from "@/lib/useSpaceAnalytics";
 import { type Filters } from "./FilterPanel";
 import { parseSpaceLinks } from "@/lib/spaceLinks";
 import { useRovingTabIndex } from "@/hooks/useRovingTabIndex";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
 
 type IntentValue = "enskilt" | "tillsammans" | "grupprum";
 type CardActionKey = "book_now" | "button_map" | "button_group_booking" | "button_booking";
