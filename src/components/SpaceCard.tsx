@@ -160,12 +160,20 @@ export function SpaceCard({
     const nameParam = encodeURIComponent(space.name);
     const url = `${window.location.origin}/?highlight=${encodeURIComponent(space.slug || space.id)}&lang=${shareLang}&name=${nameParam}`;
 
+    // Desktop browsers (Chrome/Safari on macOS) expose navigator.share but open
+    // an OS share sheet, which is not what a "copy link" click expects. Only use
+    // the native sheet on touch devices; elsewhere copy straight to clipboard.
+    const useNativeShare =
+      typeof navigator.share === "function" &&
+      window.matchMedia?.("(pointer: coarse)").matches;
+
     try {
-      if (navigator.share) {
+      if (useNativeShare) {
         await navigator.share({ title: localizedName, url });
         trackShare("native");
         return;
       }
+
       await navigator.clipboard.writeText(url);
       trackShare("clipboard");
       toast.success(t("card.link_copied"));
