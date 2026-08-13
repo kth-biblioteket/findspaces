@@ -93,7 +93,8 @@
     "share": "Dela",
     "share_sr": "Kopiera länk till {{name}}",
     "link_copied": "Länk kopierad",
-    "roving_group_help": "Använd vänster och höger pil för att navigera i gruppen."
+    "roving_group_help": "Använd vänster och höger pil för att navigera i gruppen.",
+    "copy_link": "Kopiera länk"
   },
   "occupancy": {
     "right_now": "Just nu",

@@ -46,6 +46,10 @@ import { useSpaceAnalytics } from "@/lib/useSpaceAnalytics";
 import { type Filters } from "./FilterPanel";
 import { parseSpaceLinks } from "@/lib/spaceLinks";
 import { useRovingTabIndex } from "@/hooks/useRovingTabIndex";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
 
 type IntentValue = "enskilt" | "tillsammans" | "grupprum";
 type CardActionKey = "book_now" | "button_map" | "button_group_booking" | "button_booking";
@@ -85,6 +89,9 @@ export function SpaceCard({
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [highlighted, setHighlighted] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
+
   const headerRoving = useRovingTabIndex();
   const actionRoving = useRovingTabIndex();
   const { data: options = [] } = useFilterOptions();
@@ -111,15 +118,15 @@ export function SpaceCard({
       setHighlighted(true);
       const el = document.getElementById(`space-${space.id}`);
       if (el) {
-        const reduceMotion =
-          typeof window !== "undefined" &&
-          window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-        el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+        // Jump straight to the card: a shared link should land on it, not
+        // animate the whole list past the user.
+        el.scrollIntoView({ behavior: "auto", block: "center" });
       }
       const timer = setTimeout(() => setHighlighted(false), 2500);
       return () => clearTimeout(timer);
     }
   }, [highlightId, highlightTick, space.id, space.slug]);
+
 
 
   const interactive = Boolean(filters && onFiltersChange);
@@ -164,10 +171,31 @@ export function SpaceCard({
       toast.success(t("card.link_copied"));
     } catch (err) {
       if ((err as DOMException)?.name === "AbortError") return;
-      window.prompt(t("card.share_sr", { name: localizedName }), url);
+      // Clipboard blocked (or no Web Share): show a dialog with a selectable
+      // link and an explicit copy button instead of window.prompt.
+      setShareUrl(url);
+      setShareOpen(true);
       trackShare("prompt");
     }
   };
+
+  const copyShareUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success(t("card.link_copied"));
+      setShareOpen(false);
+    } catch {
+      const input = document.getElementById(`share-url-${space.id}`) as HTMLInputElement | null;
+      input?.select();
+      // Legacy fallback for browsers without the async clipboard API.
+      const ok = document.execCommand?.("copy");
+      if (ok) {
+        toast.success(t("card.link_copied"));
+        setShareOpen(false);
+      }
+    }
+  };
+
 
   const localizedDescription = pickLocalized(space, "description", lang);
   const localizedNotice = pickLocalized(space, "notice", lang);
@@ -878,6 +906,27 @@ export function SpaceCard({
         open={lightboxOpen}
         onClose={() => setLightboxOpen(false)}
       />
+
+      <Dialog open={shareOpen} onOpenChange={setShareOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("card.share_sr", { name: localizedName })}</DialogTitle>
+          </DialogHeader>
+          <div className="flex items-center gap-2">
+            <Input
+              id={`share-url-${space.id}`}
+              readOnly
+              value={shareUrl}
+              onFocus={(e) => e.currentTarget.select()}
+              className="flex-1"
+            />
+            <Button type="button" onClick={copyShareUrl}>
+              {t("card.copy_link")}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
     </article>
   );
 }

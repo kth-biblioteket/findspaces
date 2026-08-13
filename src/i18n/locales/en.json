@@ -93,7 +93,8 @@
     "share": "Share",
     "share_sr": "Copy link to {{name}}",
     "link_copied": "Link copied",
-    "roving_group_help": "Use the left and right arrow keys to navigate within the group."
+    "roving_group_help": "Use the left and right arrow keys to navigate within the group.",
+    "copy_link": "Copy link"
   },
   "occupancy": {
     "right_now": "Right now",
