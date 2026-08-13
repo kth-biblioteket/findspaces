@@ -114,15 +114,15 @@ export function SpaceCard({
       setHighlighted(true);
       const el = document.getElementById(`space-${space.id}`);
       if (el) {
-        const reduceMotion =
-          typeof window !== "undefined" &&
-          window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-        el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+        // Jump straight to the card: a shared link should land on it, not
+        // animate the whole list past the user.
+        el.scrollIntoView({ behavior: "auto", block: "center" });
       }
       const timer = setTimeout(() => setHighlighted(false), 2500);
       return () => clearTimeout(timer);
     }
   }, [highlightId, highlightTick, space.id, space.slug]);
+
 
 
   const interactive = Boolean(filters && onFiltersChange);
