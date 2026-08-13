@@ -463,9 +463,7 @@ export function AnalyticsTab() {
               <Stat label="Öppnade delade länkar" value={shareStats.opens} prev={prevTotals.byType.share_open ?? 0} />
               <Stat
                 label="Öppningar per delning"
-                value={shareStats.clicks ? Math.round((shareStats.opens / shareStats.clicks) * 100) : 0}
-                prev={0}
-                suffix="%"
+                value={`${shareStats.clicks ? Math.round((shareStats.opens / shareStats.clicks) * 100) : 0} %`}
               />
             </div>
             {shareStats.clicks === 0 && shareStats.opens === 0 ? (
