@@ -734,7 +734,10 @@ function Heatmap({ grid, max }: { grid: number[][]; max: number }) {
                     key={h}
                     title={`${days[dow]} ${String(h).padStart(2, "0")}:00 · ${v} sidvisningar`}
                     className="aspect-square rounded-sm border border-border/40"
-                    style={{ backgroundColor: `hsl(var(--primary) / ${0.08 + intensity * 0.85})` }}
+                    style={{
+                      backgroundColor: `color-mix(in oklab, var(--primary) ${Math.round((0.06 + intensity * 0.9) * 100)}%, transparent)`,
+                    }}
+
                   />
                 );
               })}
