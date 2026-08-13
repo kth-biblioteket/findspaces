@@ -834,7 +834,7 @@ export function SpaceCard({
               }}
               aria-label={t("card.share_sr", { name: localizedName })}
               title={t("card.share_sr", { name: localizedName })}
-              className="absolute top-2 right-2 z-20 inline-flex h-8 w-8 md:top-3 md:right-3 md:h-9 md:w-9 items-center justify-center rounded-full bg-white text-[var(--kth-navy)] transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 after:absolute after:content-[''] after:-inset-1.5 after:rounded-full md:after:hidden"
+              className="absolute top-2 right-2 z-20 inline-flex h-8 w-8 md:top-3 md:right-3 md:h-8 md:w-8 items-center justify-center rounded-full bg-white text-[var(--kth-navy)] transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 after:absolute after:content-[''] after:-inset-1.5 after:rounded-full md:after:hidden"
               style={{ boxShadow: "0 10px 30px -8px rgba(0, 0, 0, 0.12)" }}
             >
               <Share2
