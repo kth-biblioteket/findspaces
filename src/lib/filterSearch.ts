@@ -79,6 +79,10 @@ export function validateSearchInput(input: Record<string, unknown>): SearchParam
     search.sort = input.sort as SortKey;
   }
 
+  if (input.lang === "sv" || input.lang === "en") {
+    search.lang = input.lang;
+  }
+
   return search;
 }
 
@@ -160,6 +164,7 @@ export function canonicalizeSearch(
 ): SearchParams {
   const canonical: SearchParams = {};
 
+  if (search.lang) canonical.lang = search.lang;
   if (search.q?.trim()) canonical.q = search.q;
   if (search.highlight) canonical.highlight = search.highlight;
 
@@ -253,6 +258,7 @@ function comparableSearch(search: SearchParams) {
     highlight: search.highlight,
     cats: Object.keys(cats).length > 0 ? cats : undefined,
     sort: search.sort,
+    lang: search.lang,
   };
 }
 
