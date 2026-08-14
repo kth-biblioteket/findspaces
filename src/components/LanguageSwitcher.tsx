@@ -21,7 +21,17 @@ export function LanguageSwitcher({
   return (
     <button
       type="button"
-      onClick={() => i18n.changeLanguage(other)}
+      onClick={() => {
+        void i18n.changeLanguage(other);
+        // Keep ?lang= in sync so canonical/hreflang, <html lang> and shared
+        // links all describe the language actually shown.
+        if (typeof window !== "undefined") {
+          const url = new URL(window.location.href);
+          if (other === "sv") url.searchParams.delete("lang");
+          else url.searchParams.set("lang", other);
+          window.history.replaceState(window.history.state, "", url.toString());
+        }
+      }}
       aria-label={`${t("header.language")}: ${LANGUAGE_LABELS[other]}`}
       lang={other}
       className={

@@ -20,6 +20,9 @@ export type SearchParams = {
   highlight?: string;
   cats?: Record<string, string[]>;
   sort?: SortKey;
+  /** Language of the page — kept in the URL so search engines and shared
+   *  links can address the English version directly. */
+  lang?: "sv" | "en";
 };
 
 const VALID_SORTS = new Set<SortKey>([
@@ -74,6 +77,10 @@ export function validateSearchInput(input: Record<string, unknown>): SearchParam
 
   if (VALID_SORTS.has(input.sort as SortKey)) {
     search.sort = input.sort as SortKey;
+  }
+
+  if (input.lang === "sv" || input.lang === "en") {
+    search.lang = input.lang;
   }
 
   return search;
@@ -157,6 +164,7 @@ export function canonicalizeSearch(
 ): SearchParams {
   const canonical: SearchParams = {};
 
+  if (search.lang) canonical.lang = search.lang;
   if (search.q?.trim()) canonical.q = search.q;
   if (search.highlight) canonical.highlight = search.highlight;
 
@@ -250,6 +258,7 @@ function comparableSearch(search: SearchParams) {
     highlight: search.highlight,
     cats: Object.keys(cats).length > 0 ? cats : undefined,
     sort: search.sort,
+    lang: search.lang,
   };
 }
 

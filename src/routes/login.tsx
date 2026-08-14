@@ -5,7 +5,12 @@ import { Library } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "Logga in — KTH Biblioteket" }] }),
+  head: () => ({
+    meta: [
+      { title: "Logga in — KTH Biblioteket" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: LoginPage,
 });
 
