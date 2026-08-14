@@ -20,6 +20,9 @@ export type SearchParams = {
   highlight?: string;
   cats?: Record<string, string[]>;
   sort?: SortKey;
+  /** Language of the page — kept in the URL so search engines and shared
+   *  links can address the English version directly. */
+  lang?: "sv" | "en";
 };
 
 const VALID_SORTS = new Set<SortKey>([
