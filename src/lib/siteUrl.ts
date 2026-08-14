@@ -1,11 +1,11 @@
 /**
  * Public base URL for the site, without a trailing slash.
  *
- * Set VITE_SITE_URL (e.g. https://spacefinder.lib.kth.se) when the service
- * moves to its own domain — every canonical/og:url/og:image/hreflang value is
+ * Defaults to the production domain. Override with VITE_SITE_URL (e.g. the
+ * demo address) — every canonical/og:url/og:image/hreflang/sitemap value is
  * derived from this single constant.
  */
-const FALLBACK_SITE_URL = "https://hitta-studieplats-demo.lovable.app";
+const FALLBACK_SITE_URL = "https://spacefinder.lib.kth.se";
 
 const raw =
   (typeof import.meta !== "undefined" && import.meta.env?.VITE_SITE_URL) || FALLBACK_SITE_URL;

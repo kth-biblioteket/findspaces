@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -101,8 +102,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: React.ReactNode }) {
+  // Server-rendered <html lang> follows ?lang= so crawlers (and screen readers
+  // on first paint) see the right language for the page they requested.
+  const langParam = useRouterState({
+    select: (state) => (state.location.search as { lang?: string } | undefined)?.lang,
+  });
+  const htmlLang = langParam === "en" ? "en" : "sv";
+
   return (
-    <html lang="sv">
+    <html lang={htmlLang} suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
