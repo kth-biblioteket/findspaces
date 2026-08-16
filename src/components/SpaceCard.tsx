@@ -46,6 +46,7 @@ import { useSpaceAnalytics } from "@/lib/useSpaceAnalytics";
 import { type Filters } from "./FilterPanel";
 import { parseSpaceLinks } from "@/lib/spaceLinks";
 import { useRovingTabIndex } from "@/hooks/useRovingTabIndex";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -85,6 +86,7 @@ export function SpaceCard({
 }) {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
+  const isMobile = useIsMobile();
   const [aboutOpen, setAboutOpen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -856,10 +858,14 @@ export function SpaceCard({
             alts={localizedAlts}
             alt={localizedName}
             priority={priority}
-            onImageClick={(index) => {
-              setLightboxIndex(index);
-              setLightboxOpen(true);
-            }}
+            onImageClick={
+              isMobile
+                ? undefined
+                : (index) => {
+                    setLightboxIndex(index);
+                    setLightboxOpen(true);
+                  }
+            }
           />
           {interactive && (
             <button
@@ -907,13 +913,15 @@ export function SpaceCard({
         )}
       </div>
 
-      <ImageLightbox
-        images={images}
-        alts={localizedAlts}
-        initialIndex={lightboxIndex}
-        open={lightboxOpen}
-        onClose={() => setLightboxOpen(false)}
-      />
+      {!isMobile && (
+        <ImageLightbox
+          images={images}
+          alts={localizedAlts}
+          initialIndex={lightboxIndex}
+          open={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+        />
+      )}
 
       <Dialog open={shareOpen} onOpenChange={setShareOpen}>
         <DialogContent className="sm:max-w-md">
