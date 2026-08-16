@@ -858,10 +858,14 @@ export function SpaceCard({
             alts={localizedAlts}
             alt={localizedName}
             priority={priority}
-            onImageClick={(index) => {
-              setLightboxIndex(index);
-              setLightboxOpen(true);
-            }}
+            onImageClick={
+              isMobile
+                ? undefined
+                : (index) => {
+                    setLightboxIndex(index);
+                    setLightboxOpen(true);
+                  }
+            }
           />
           {interactive && (
             <button
