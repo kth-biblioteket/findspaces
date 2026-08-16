@@ -29,7 +29,12 @@ import { SpaceEditorDialog } from "@/components/admin/SpaceEditorDialog";
 import { MAX_IMAGES, type BulkAction, BULK_ACTIONS, BULK_RICH_TEXT_ACTIONS, type FormState, emptyForm, spaceToForm, getFormValues, setFormValues } from "@/components/admin/adminForm";
 
 export const Route = createFileRoute("/admin")({
-  head: () => ({ meta: [{ title: "Admin — KTH Biblioteket" }] }),
+  head: () => ({
+    meta: [
+      { title: "Admin — KTH Biblioteket" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: AdminPage,
 });
 

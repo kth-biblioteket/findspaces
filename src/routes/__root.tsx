@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -82,8 +83,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:title", content: "Hitta studieplats – KTH Biblioteket" },
       { property: "og:description", content: "Hitta och boka studieplatser på KTH Biblioteket." },
       { name: "twitter:description", content: "Hitta och boka studieplatser på KTH Biblioteket." },
-      { property: "og:image", content: "https://hitta-studieplats-demo.lovable.app/og-preview.jpg" },
-      { name: "twitter:image", content: "https://hitta-studieplats-demo.lovable.app/og-preview.jpg" },
+      // og:image / twitter:image live on the leaf route (src/routes/index.tsx)
+      // so each page owns its own share preview.
+
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
     ],
@@ -100,8 +102,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: React.ReactNode }) {
+  // Server-rendered <html lang> follows ?lang= so crawlers (and screen readers
+  // on first paint) see the right language for the page they requested.
+  const langParam = useRouterState({
+    select: (state) => (state.location.search as { lang?: string } | undefined)?.lang,
+  });
+  const htmlLang = langParam === "en" ? "en" : "sv";
+
   return (
-    <html lang="sv">
+    <html lang={htmlLang} suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>

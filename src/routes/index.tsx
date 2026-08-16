@@ -22,6 +22,8 @@ import { SitePageLayout } from "@/components/SitePageLayout";
 import { useUiText, formatSuggestTemplate } from "@/lib/useUiText";
 import { matchesSpace, type MatchOptions } from "@/lib/filterMatch";
 import { groupRoomLabels, isGroupRoomSpace } from "@/lib/groupRoom";
+import { siteUrl } from "@/lib/siteUrl";
+
 
 import { useNarrowestFilter } from "@/lib/useNarrowestFilter";
 import { useFilterOptions } from "@/lib/useFilterOptions";
@@ -52,29 +54,90 @@ const spacesQueryOptions = queryOptions({
 });
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Hitta studieplats – KTH Biblioteket" },
-      { name: "description", content: "Hitta rätt studieplats på KTH Biblioteket." },
-      { property: "og:title", content: "Hitta studieplats – KTH Biblioteket" },
-      {
-        property: "og:description",
-        content: "Utforska bibliotekets studieplatser och filtrera fram din favorit.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://hitta-studieplats-demo.lovable.app/" },
-      {
-        property: "og:image",
-        content: "https://hitta-studieplats-demo.lovable.app/og-preview.jpg",
-      },
-      { name: "twitter:card", content: "summary_large_image" },
-      {
-        name: "twitter:image",
-        content: "https://hitta-studieplats-demo.lovable.app/og-preview.jpg",
-      },
-    ],
-    links: [{ rel: "canonical", href: "https://hitta-studieplats-demo.lovable.app/" }],
-  }),
+  head: ({ match }) => {
+    const lang = match.search.lang === "en" ? "en" : "sv";
+    const isEn = lang === "en";
+    const self = siteUrl(isEn ? "/?lang=en" : "/");
+    const title = isEn
+      ? "Find a study space – KTH Library"
+      : "Hitta studieplats – KTH Biblioteket";
+    const description = isEn
+      ? "Find the right study space at the KTH Library — filter by seats, group rooms and facilities."
+      : "Hitta rätt studieplats på KTH Biblioteket — filtrera på platser, grupprum och faciliteter.";
+    const ogDescription = isEn
+      ? "Explore the library's study spaces and filter your way to a favourite."
+      : "Utforska bibliotekets studieplatser och filtrera fram din favorit.";
+    const imageAlt = isEn
+      ? "Start page of Find a study space at the KTH Library"
+      : "Startsidan för Hitta studieplats på KTH Biblioteket";
+
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: ogDescription },
+        { property: "og:type", content: "website" },
+        { property: "og:locale", content: isEn ? "en_GB" : "sv_SE" },
+        { property: "og:url", content: self },
+        { property: "og:image", content: siteUrl("/og-preview.jpg?v=2") },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { property: "og:image:alt", content: imageAlt },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: ogDescription },
+        { name: "twitter:image", content: siteUrl("/og-preview.jpg?v=2") },
+      ],
+      links: [
+        // Self-referencing canonical per language: filter/share parameters
+        // (highlight, q, cats …) never create duplicate pages in the index.
+        { rel: "canonical", href: self },
+        { rel: "alternate", hrefLang: "sv", href: siteUrl("/") },
+        { rel: "alternate", hrefLang: "en", href: siteUrl("/?lang=en") },
+        { rel: "alternate", hrefLang: "x-default", href: siteUrl("/") },
+      ],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "WebSite",
+                "@id": `${siteUrl("/")}#website`,
+                url: siteUrl("/"),
+                name: title,
+                description,
+                inLanguage: isEn ? "en" : "sv",
+                publisher: { "@id": `${siteUrl("/")}#library` },
+              },
+              {
+                "@type": "Library",
+                "@id": `${siteUrl("/")}#library`,
+                name: isEn ? "KTH Library" : "KTH Biblioteket",
+                url: isEn ? "https://www.kth.se/en/biblioteket" : "https://www.kth.se/biblioteket",
+                parentOrganization: {
+                  "@type": "CollegeOrUniversity",
+                  name: isEn
+                    ? "KTH Royal Institute of Technology"
+                    : "Kungliga Tekniska högskolan",
+                  url: "https://www.kth.se",
+                },
+                address: {
+                  "@type": "PostalAddress",
+                  streetAddress: "Osquars backe 31",
+                  postalCode: "114 28",
+                  addressLocality: "Stockholm",
+                  addressCountry: "SE",
+                },
+              },
+            ],
+          }),
+        },
+      ],
+    };
+  },
 
   validateSearch: validateSearchInput,
   loader: ({ context }) => {
@@ -171,6 +234,7 @@ function SpaceFinderApp() {
 
   const setFilters = (next: Filters) => {
     const nextSearch = filtersToSearch(next, undefined, filterOptions) as Record<string, unknown>;
+    if (search.lang) nextSearch.lang = search.lang;
     const nextMode = next.workMode;
     if (search.sort && !(search.sort === "free_now" && nextMode !== "grupprum")) {
       nextSearch.sort = search.sort;
@@ -200,9 +264,15 @@ function SpaceFinderApp() {
   const sharedHighlight = routeSearch.highlight;
   useEffect(() => {
     if (!sharedHighlight) return;
+    track("share_open", {
+      space_id: sharedHighlight,
+      lang: typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search).get("lang") ?? ""
+        : "",
+    });
     setHighlightId(sharedHighlight);
     setHighlightTick((t) => t + 1);
-    navigate({ search: {} as never, replace: true, resetScroll: false });
+    navigate({ search: ((prev: SearchParams) => ({ lang: prev.lang })) as never, replace: true, resetScroll: false });
   }, [sharedHighlight, navigate]);
 
   const handleSpaceLink = (id: string) => {
@@ -212,7 +282,7 @@ function SpaceFinderApp() {
     const visible = target ? filtered.some((s) => s.id === target.id) : false;
     if (target && !visible) {
       navigate({
-        search: {} as never,
+        search: ((prev: SearchParams) => ({ lang: prev.lang })) as never,
         replace: true,
         resetScroll: false,
       });

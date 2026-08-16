@@ -19,6 +19,7 @@ import {
   Share2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { track } from "@/lib/analytics";
 import { useTranslation } from "react-i18next";
 import { TableChairIcon } from "./icons/TableChairIcon";
 
@@ -45,6 +46,11 @@ import { useSpaceAnalytics } from "@/lib/useSpaceAnalytics";
 import { type Filters } from "./FilterPanel";
 import { parseSpaceLinks } from "@/lib/spaceLinks";
 import { useRovingTabIndex } from "@/hooks/useRovingTabIndex";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
 
 type IntentValue = "enskilt" | "tillsammans" | "grupprum";
 type CardActionKey = "book_now" | "button_map" | "button_group_booking" | "button_booking";
@@ -80,10 +86,14 @@ export function SpaceCard({
 }) {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
+  const isMobile = useIsMobile();
   const [aboutOpen, setAboutOpen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [highlighted, setHighlighted] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
+
   const headerRoving = useRovingTabIndex();
   const actionRoving = useRovingTabIndex();
   const { data: options = [] } = useFilterOptions();
@@ -110,15 +120,15 @@ export function SpaceCard({
       setHighlighted(true);
       const el = document.getElementById(`space-${space.id}`);
       if (el) {
-        const reduceMotion =
-          typeof window !== "undefined" &&
-          window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-        el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+        // Jump straight to the card: a shared link should land on it, not
+        // animate the whole list past the user.
+        el.scrollIntoView({ behavior: "auto", block: "center" });
       }
       const timer = setTimeout(() => setHighlighted(false), 2500);
       return () => clearTimeout(timer);
     }
   }, [highlightId, highlightTick, space.id, space.slug]);
+
 
 
   const interactive = Boolean(filters && onFiltersChange);
@@ -142,21 +152,60 @@ export function SpaceCard({
   const shareSpace = async () => {
     if (typeof window === "undefined") return;
     const shareLang = i18n.resolvedLanguage === "en" ? "en" : "sv";
+    const trackShare = (method: "native" | "clipboard" | "prompt") =>
+      track("share_click", {
+        space_id: space.slug || space.id,
+        name: space.name,
+        lang: shareLang,
+        method,
+      });
     const nameParam = encodeURIComponent(space.name);
     const url = `${window.location.origin}/?highlight=${encodeURIComponent(space.slug || space.id)}&lang=${shareLang}&name=${nameParam}`;
 
+    // Desktop browsers (Chrome/Safari on macOS) expose navigator.share but open
+    // an OS share sheet, which is not what a "copy link" click expects. Only use
+    // the native sheet on touch devices; elsewhere copy straight to clipboard.
+    const useNativeShare =
+      typeof navigator.share === "function" &&
+      window.matchMedia?.("(pointer: coarse)").matches;
+
     try {
-      if (navigator.share) {
+      if (useNativeShare) {
         await navigator.share({ title: localizedName, url });
+        trackShare("native");
         return;
       }
+
       await navigator.clipboard.writeText(url);
+      trackShare("clipboard");
       toast.success(t("card.link_copied"));
     } catch (err) {
       if ((err as DOMException)?.name === "AbortError") return;
-      window.prompt(t("card.share_sr", { name: localizedName }), url);
+      // Clipboard blocked (or no Web Share): show a dialog with a selectable
+      // link and an explicit copy button instead of window.prompt.
+      setShareUrl(url);
+      setShareOpen(true);
+      trackShare("prompt");
     }
   };
+
+  const copyShareUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success(t("card.link_copied"));
+      setShareOpen(false);
+    } catch {
+      const input = document.getElementById(`share-url-${space.id}`) as HTMLInputElement | null;
+      input?.select();
+      // Legacy fallback for browsers without the async clipboard API.
+      const ok = document.execCommand?.("copy");
+      if (ok) {
+        toast.success(t("card.link_copied"));
+        setShareOpen(false);
+      }
+    }
+  };
+
 
   const localizedDescription = pickLocalized(space, "description", lang);
   const localizedNotice = pickLocalized(space, "notice", lang);
@@ -809,10 +858,14 @@ export function SpaceCard({
             alts={localizedAlts}
             alt={localizedName}
             priority={priority}
-            onImageClick={(index) => {
-              setLightboxIndex(index);
-              setLightboxOpen(true);
-            }}
+            onImageClick={
+              isMobile
+                ? undefined
+                : (index) => {
+                    setLightboxIndex(index);
+                    setLightboxOpen(true);
+                  }
+            }
           />
           {interactive && (
             <button
@@ -823,12 +876,11 @@ export function SpaceCard({
               }}
               aria-label={t("card.share_sr", { name: localizedName })}
               title={t("card.share_sr", { name: localizedName })}
-              className="absolute top-2 right-2 z-20 inline-flex h-8 w-8 md:top-3 md:right-3 md:h-9 md:w-9 items-center justify-center rounded-full bg-white text-[var(--kth-navy)] transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              className="absolute top-2 right-2 z-20 inline-flex h-8 w-8 md:top-3 md:right-3 md:h-8 md:w-8 items-center justify-center rounded-full bg-white text-[var(--kth-navy)] transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 after:absolute after:content-[''] after:-inset-1.5 after:rounded-full md:after:hidden"
               style={{ boxShadow: "0 10px 30px -8px rgba(0, 0, 0, 0.12)" }}
             >
               <Share2
                 className="h-4 w-4 md:h-5 md:w-5"
-                strokeWidth={2.5}
                 aria-hidden="true"
               />
             </button>
@@ -861,13 +913,36 @@ export function SpaceCard({
         )}
       </div>
 
-      <ImageLightbox
-        images={images}
-        alts={localizedAlts}
-        initialIndex={lightboxIndex}
-        open={lightboxOpen}
-        onClose={() => setLightboxOpen(false)}
-      />
+      {!isMobile && (
+        <ImageLightbox
+          images={images}
+          alts={localizedAlts}
+          initialIndex={lightboxIndex}
+          open={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+        />
+      )}
+
+      <Dialog open={shareOpen} onOpenChange={setShareOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("card.share_sr", { name: localizedName })}</DialogTitle>
+          </DialogHeader>
+          <div className="flex items-center gap-2">
+            <Input
+              id={`share-url-${space.id}`}
+              readOnly
+              value={shareUrl}
+              onFocus={(e) => e.currentTarget.select()}
+              className="flex-1"
+            />
+            <Button type="button" onClick={copyShareUrl}>
+              {t("card.copy_link")}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
     </article>
   );
 }

@@ -278,6 +278,54 @@ export function AnalyticsTab() {
     return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
   }, [rows]);
 
+  const shareStats = useMemo(() => {
+    const byMethod: Record<string, number> = {};
+    const byLang: Record<string, number> = {};
+    const bySpace: Record<string, { name: string; count: number }> = {};
+    const openBySpace: Record<string, number> = {};
+    let clicks = 0;
+    let opens = 0;
+    for (const r of rows) {
+      const p = (r.payload ?? {}) as Record<string, unknown>;
+      const id = String(p.space_id ?? "");
+      if (r.event_type === "share_click") {
+        clicks++;
+        const method = String(p.method ?? "okänd");
+        byMethod[method] = (byMethod[method] ?? 0) + 1;
+        const lang = String(p.lang ?? "okänd");
+        byLang[lang] = (byLang[lang] ?? 0) + 1;
+        if (id) {
+          bySpace[id] = { name: String(p.name ?? id), count: (bySpace[id]?.count ?? 0) + 1 };
+        }
+      } else if (r.event_type === "share_open") {
+        opens++;
+        if (id) openBySpace[id] = (openBySpace[id] ?? 0) + 1;
+      }
+    }
+    const methodLabels: Record<string, string> = {
+      native: "Delningsmeny (mobil)",
+      clipboard: "Kopierad länk",
+      prompt: "Manuell kopiering",
+      okänd: "Okänd",
+    };
+    const langLabels: Record<string, string> = { sv: "Svenska", en: "Engelska", "": "Okänt", okänd: "Okänt" };
+    const top = Object.entries(bySpace)
+      .map(([id, v]) => ({ id, name: v.name, count: v.count, opens: openBySpace[id] ?? 0 }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+    return {
+      clicks,
+      opens,
+      methods: Object.entries(byMethod)
+        .map(([k, v]) => ({ label: methodLabels[k] ?? k, count: v }))
+        .sort((a, b) => b.count - a.count),
+      langs: Object.entries(byLang)
+        .map(([k, v]) => ({ label: langLabels[k] ?? k, count: v }))
+        .sort((a, b) => b.count - a.count),
+      top,
+    };
+  }, [rows]);
+
   const heatmap = useMemo(() => {
     // 7 rows (Mon-Sun) x 24 cols
     const grid: number[][] = Array.from({ length: 7 }, () => new Array(24).fill(0));
@@ -374,9 +422,9 @@ export function AnalyticsTab() {
                   <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
                   <Tooltip />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Bar dataKey="views" name="Sidvisningar" fill="hsl(var(--primary))" />
-                  <Bar dataKey="expands" name="Kortklick" fill="hsl(var(--muted-foreground))" />
-                  <Bar dataKey="bookings" name="Bokningsklick" fill="hsl(var(--destructive))" />
+                  <Bar dataKey="views" name="Sidvisningar" fill="var(--primary)" />
+                  <Bar dataKey="expands" name="Kortklick" fill="var(--muted-foreground)" />
+                  <Bar dataKey="bookings" name="Bokningsklick" fill="var(--destructive)" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -390,7 +438,7 @@ export function AnalyticsTab() {
                     <XAxis dataKey="label" tick={{ fontSize: 10 }} />
                     <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
                     <Tooltip />
-                    <Bar dataKey="value" fill="hsl(var(--primary))" />
+                    <Bar dataKey="value" fill="var(--primary)" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -402,12 +450,72 @@ export function AnalyticsTab() {
                     <XAxis dataKey="label" tick={{ fontSize: 11 }} />
                     <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
                     <Tooltip />
-                    <Bar dataKey="value" fill="hsl(var(--primary))" />
+                    <Bar dataKey="value" fill="var(--primary)" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </Section>
           </div>
+
+          <Section title="Delningar">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+              <Stat label="Delningar" value={shareStats.clicks} prev={prevTotals.byType.share_click ?? 0} />
+              <Stat label="Öppnade delade länkar" value={shareStats.opens} prev={prevTotals.byType.share_open ?? 0} />
+              <Stat
+                label="Öppningar per delning"
+                value={`${shareStats.clicks ? Math.round((shareStats.opens / shareStats.clicks) * 100) : 0} %`}
+              />
+            </div>
+            {shareStats.clicks === 0 && shareStats.opens === 0 ? (
+              <Empty />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="text-sm font-semibold mb-2">Mest delade lokaler</h4>
+                  {shareStats.top.length === 0 ? <Empty /> : (
+                    <ol className="divide-y divide-border">
+                      {shareStats.top.map((c) => (
+                        <li key={c.id} className="flex items-center justify-between py-2 text-sm gap-3">
+                          <span className="truncate">{c.name}</span>
+                          <span className="font-mono tabular-nums text-muted-foreground whitespace-nowrap">
+                            {c.count} delningar · {c.opens} öppningar
+                          </span>
+                        </li>
+                      ))}
+                    </ol>
+                  )}
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-sm font-semibold mb-2">Delningssätt</h4>
+                    {shareStats.methods.length === 0 ? <Empty /> : (
+                      <ul className="divide-y divide-border">
+                        {shareStats.methods.map((m) => (
+                          <li key={m.label} className="flex items-center justify-between py-2 text-sm">
+                            <span className="truncate">{m.label}</span>
+                            <span className="font-mono tabular-nums text-muted-foreground">{m.count}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold mb-2">Språk vid delning</h4>
+                    {shareStats.langs.length === 0 ? <Empty /> : (
+                      <ul className="divide-y divide-border">
+                        {shareStats.langs.map((l) => (
+                          <li key={l.label} className="flex items-center justify-between py-2 text-sm">
+                            <span className="truncate">{l.label}</span>
+                            <span className="font-mono tabular-nums text-muted-foreground">{l.count}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </Section>
 
           <Section title="Mest engagerande lokaler">
             {topCards.length === 0 ? <Empty /> : (
@@ -626,7 +734,10 @@ function Heatmap({ grid, max }: { grid: number[][]; max: number }) {
                     key={h}
                     title={`${days[dow]} ${String(h).padStart(2, "0")}:00 · ${v} sidvisningar`}
                     className="aspect-square rounded-sm border border-border/40"
-                    style={{ backgroundColor: `hsl(var(--primary) / ${0.08 + intensity * 0.85})` }}
+                    style={{
+                      backgroundColor: `color-mix(in oklab, var(--primary) ${Math.round((0.06 + intensity * 0.9) * 100)}%, transparent)`,
+                    }}
+
                   />
                 );
               })}
