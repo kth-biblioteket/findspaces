@@ -59,13 +59,13 @@ export function SitePageLayout({ children, header = <SiteHeader />, footer }: Si
             />
           </div>
         )}
-        <div className={cn("mx-auto max-w-7xl px-0 sm:px-6", isBannerVisible ? "pt-4 pb-4" : "pt-6 pb-3")}>
+        <div className={cn("mx-auto max-w-7xl px-4 sm:px-6", isBannerVisible ? "pt-4 pb-4" : "pt-6 pb-3")}>
           <h1
             id="page-title"
-            className="flex items-center gap-1 whitespace-nowrap text-[clamp(1.125rem,5vw,1.25rem)] font-bold tracking-tight leading-tight text-foreground sm:text-3xl"
+            className="text-lg font-bold leading-tight text-foreground sm:text-3xl"
           >
-            {pageTitle ?? t("header.title")}
-            <span className="inline-flex items-center rounded-full bg-secondary px-1.5 py-0.5 align-middle text-[0.55em] font-semibold uppercase tracking-wide text-foreground sm:px-2 sm:py-0.5 sm:text-[0.55em]">
+            {pageTitle ?? t("header.title")}{" "}
+            <span className="inline-flex items-center rounded-full bg-secondary px-1.5 py-0.5 align-middle text-[0.6em] font-semibold uppercase tracking-wide text-foreground sm:px-2 sm:py-0.5 sm:text-[0.55em]">
               Beta
             </span>
           </h1>
