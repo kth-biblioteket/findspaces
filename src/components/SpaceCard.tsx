@@ -46,6 +46,7 @@ import { useSpaceAnalytics } from "@/lib/useSpaceAnalytics";
 import { type Filters } from "./FilterPanel";
 import { parseSpaceLinks } from "@/lib/spaceLinks";
 import { useRovingTabIndex } from "@/hooks/useRovingTabIndex";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
