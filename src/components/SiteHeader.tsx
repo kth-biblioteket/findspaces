@@ -84,9 +84,9 @@ export function SiteHeader() {
             aria-controls="mobile-site-navigation"
             aria-label={menuOpen ? t("nav.menu_close") : t("nav.menu_open")}
             onClick={() => setMenuOpen((open) => !open)}
-            className="inline-flex min-h-12 min-w-12 flex-col items-center justify-center gap-0.5 rounded px-1 text-sm font-medium text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white min-[993px]:hidden"
+            className="inline-flex items-center gap-1.5 rounded-md px-1 py-0.5 text-sm font-medium text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white min-[993px]:hidden"
           >
-            {menuOpen ? <X aria-hidden="true" size={28} /> : <Menu aria-hidden="true" size={28} />}
+            {menuOpen ? <X aria-hidden="true" size={20} /> : <Menu aria-hidden="true" size={20} />}
             <span>{t("nav.menu")}</span>
           </button>
         </div>
