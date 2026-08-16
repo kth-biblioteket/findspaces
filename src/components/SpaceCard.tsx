@@ -913,13 +913,15 @@ export function SpaceCard({
         )}
       </div>
 
-      <ImageLightbox
-        images={images}
-        alts={localizedAlts}
-        initialIndex={lightboxIndex}
-        open={lightboxOpen}
-        onClose={() => setLightboxOpen(false)}
-      />
+      {!isMobile && (
+        <ImageLightbox
+          images={images}
+          alts={localizedAlts}
+          initialIndex={lightboxIndex}
+          open={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+        />
+      )}
 
       <Dialog open={shareOpen} onOpenChange={setShareOpen}>
         <DialogContent className="sm:max-w-md">
