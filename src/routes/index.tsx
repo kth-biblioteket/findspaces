@@ -59,16 +59,16 @@ export const Route = createFileRoute("/")({
     const isEn = lang === "en";
     const self = siteUrl(isEn ? "/?lang=en" : "/");
     const title = isEn
-      ? "Find a study space – KTH Library"
+      ? "Find a study place at KTH Library"
       : "Hitta studieplats på KTH Biblioteket";
     const description = isEn
-      ? "Find the right study space at the KTH Library — filter by seats, group rooms and facilities."
+      ? "Explore the library's study spaces and filter your way to a favourite."
       : "Utforska bibliotekets studieplatser och filtrera fram din favorit.";
     const ogDescription = isEn
       ? "Explore the library's study spaces and filter your way to a favourite."
       : "Utforska bibliotekets studieplatser och filtrera fram din favorit.";
     const imageAlt = isEn
-      ? "Start page of Find a study space at the KTH Library"
+      ? "Start page of Find a study place at KTH Library"
       : "Startsidan för Hitta studieplats på KTH Biblioteket";
 
     return {
