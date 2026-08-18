@@ -60,10 +60,10 @@ export const Route = createFileRoute("/")({
     const self = siteUrl(isEn ? "/?lang=en" : "/");
     const title = isEn
       ? "Find a study space – KTH Library"
-      : "Hitta studieplats – KTH Biblioteket";
+      : "Hitta studieplats på KTH Biblioteket";
     const description = isEn
       ? "Find the right study space at the KTH Library — filter by seats, group rooms and facilities."
-      : "Hitta rätt studieplats på KTH Biblioteket — filtrera på platser, grupprum och faciliteter.";
+      : "Utforska bibliotekets studieplatser och filtrera fram din favorit.";
     const ogDescription = isEn
       ? "Explore the library's study spaces and filter your way to a favourite."
       : "Utforska bibliotekets studieplatser och filtrera fram din favorit.";
