@@ -77,12 +77,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Hitta studieplats – KTH Biblioteket" },
-      { name: "description", content: "Hitta och boka studieplatser på KTH Biblioteket." },
-      { property: "og:title", content: "Hitta studieplats – KTH Biblioteket" },
-      { name: "twitter:title", content: "Hitta studieplats – KTH Biblioteket" },
-      { property: "og:description", content: "Hitta och boka studieplatser på KTH Biblioteket." },
-      { name: "twitter:description", content: "Hitta och boka studieplatser på KTH Biblioteket." },
+      { title: "Hitta studieplats på KTH Biblioteket" },
+      { name: "description", content: "Utforska bibliotekets studieplatser och filtrera fram din favorit." },
+      { property: "og:title", content: "Hitta studieplats på KTH Biblioteket" },
+      { name: "twitter:title", content: "Hitta studieplats på KTH Biblioteket" },
+      { property: "og:description", content: "Utforska bibliotekets studieplatser och filtrera fram din favorit." },
+      { name: "twitter:description", content: "Utforska bibliotekets studieplatser och filtrera fram din favorit." },
       // og:image / twitter:image live on the leaf route (src/routes/index.tsx)
       // so each page owns its own share preview.
 
