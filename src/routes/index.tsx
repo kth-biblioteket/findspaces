@@ -56,7 +56,8 @@ const spacesQueryOptions = queryOptions({
 
 export const Route = createFileRoute("/")({
   head: ({ match, loaderData }) => {
-    const ogImage = loaderData?.ogImage ?? siteUrl(DEFAULT_OG_IMAGE);
+    const ogImage =
+      (loaderData as { ogImage?: string } | undefined)?.ogImage ?? siteUrl(DEFAULT_OG_IMAGE);
     const lang = match.search.lang === "en" ? "en" : "sv";
     const isEn = lang === "en";
     const self = siteUrl(isEn ? "/?lang=en" : "/");
