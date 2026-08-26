@@ -12,7 +12,7 @@ export type UiTextKey =
   | "empty_fallback";
 
 export const UI_TEXT_DEFAULTS: Record<UiTextKey, string> = {
-  landing_title: "Hitta studieplats på KTH Biblioteket",
+  landing_title: "KTH Bibliotekets studieplatsväljare",
   landing_intro: "",
   landing_body: "",
   empty_title: "Inga lokaler matchar dina filter.",
@@ -22,7 +22,7 @@ export const UI_TEXT_DEFAULTS: Record<UiTextKey, string> = {
 };
 
 export const UI_TEXT_DEFAULTS_EN: Record<UiTextKey, string> = {
-  landing_title: "Find a study space at KTH Library",
+  landing_title: "KTH Library Spacefinder",
   landing_intro: "",
   landing_body: "",
   empty_title: "No spaces match your filters.",
