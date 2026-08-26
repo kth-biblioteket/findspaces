@@ -672,7 +672,25 @@ function AdminPage() {
                   ({listFiltersActive ? `${filteredSpaces.length} av ${spaces.length}` : spaces.length})
                 </span>
               </h2>
+              <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const list = listFiltersActive ? filteredSpaces : spaces;
+                  if (list.length === 0) {
+                    toast.error("Inga lokaler att exportera.");
+                    return;
+                  }
+                  exportSpacesToExcel(list, categories, byKey);
+                  toast.success(`Exporterade ${list.length} lokaler till Excel.`);
+                }}
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent"
+                title="Exporterar all information (utom bilder) till ett Excel-ark"
+              >
+                <Download className="h-4 w-4" /> Exportera till Excel
+              </button>
               <Dialog open={open} onOpenChange={handleDialogOpenChange}>
+
                 <DialogTrigger asChild>
                   <button
                     onClick={openNew}
