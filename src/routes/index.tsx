@@ -19,7 +19,7 @@ import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { SpaceCard } from "@/components/SpaceCard";
 import { SpaceCardSkeleton } from "@/components/SpaceCardSkeleton";
 import { SitePageLayout } from "@/components/SitePageLayout";
-import { useUiText, formatSuggestTemplate } from "@/lib/useUiText";
+import { useUiText, fetchUiText, formatSuggestTemplate } from "@/lib/useUiText";
 import { matchesSpace, type MatchOptions } from "@/lib/filterMatch";
 import { groupRoomLabels, isGroupRoomSpace } from "@/lib/groupRoom";
 import { siteUrl } from "@/lib/siteUrl";
@@ -61,9 +61,12 @@ export const Route = createFileRoute("/")({
     const lang = match.search.lang === "en" ? "en" : "sv";
     const isEn = lang === "en";
     const self = siteUrl(isEn ? "/?lang=en" : "/");
-    const title = isEn
+    const adminTitle = (loaderData as { titleSv?: string; titleEn?: string } | undefined);
+    const fallbackTitle = isEn
       ? "KTH Library Spacefinder"
       : "KTH Bibliotekets studieplatsväljare";
+    const title =
+      ((isEn ? adminTitle?.titleEn : adminTitle?.titleSv) ?? "").trim() || fallbackTitle;
     const description = isEn
       ? "Explore the library's study spaces and filter your way to a favourite."
       : "Utforska bibliotekets studieplatser och filtrera fram din favorit.";
@@ -150,7 +153,12 @@ export const Route = createFileRoute("/")({
     void context.queryClient.prefetchQuery(spacesQueryOptions);
     // Share preview image is admin-configurable; resolve it server-side so
     // crawlers (which do not run JS) see the current image in the head.
-    return { ogImage: await fetchOgImageUrl() };
+    const [ogImage, titleSv, titleEn] = await Promise.all([
+      fetchOgImageUrl(),
+      fetchUiText("landing_title", "sv"),
+      fetchUiText("landing_title", "en"),
+    ]);
+    return { ogImage, titleSv, titleEn };
   },
   component: SpaceFinderPage,
 });

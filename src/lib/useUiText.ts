@@ -78,6 +78,27 @@ function settingKey(key: UiTextKey, lang: Lang): string {
   return (lang === "en" ? SETTING_PREFIX_EN : SETTING_PREFIX_SV) + key;
 }
 
+/**
+ * Resolve a UI text server-side (for route head metadata). Same fallback chain
+ * as useUiText: EN override → SV override → language default.
+ */
+export async function fetchUiText(key: UiTextKey, lang: Lang): Promise<string> {
+  try {
+    const { data, error } = await supabase
+      .from("app_settings")
+      .select("key, value")
+      .in("key", [settingKey(key, "sv"), settingKey(key, "en")]);
+    if (error) throw error;
+    const map = new Map((data ?? []).map((r) => [r.key, (r.value ?? "").trim()]));
+    const sv = map.get(settingKey(key, "sv")) ?? "";
+    const en = map.get(settingKey(key, "en")) ?? "";
+    if (lang === "en") return en || sv || UI_TEXT_DEFAULTS_EN[key] || UI_TEXT_DEFAULTS[key];
+    return sv || UI_TEXT_DEFAULTS[key];
+  } catch {
+    return (lang === "en" ? UI_TEXT_DEFAULTS_EN[key] : UI_TEXT_DEFAULTS[key]) || "";
+  }
+}
+
 export function useUiText(key: UiTextKey) {
   const { i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
