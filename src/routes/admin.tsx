@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { validateSpaceForm } from "@/lib/adminSpaceSchema";
 import { processImageToWebp } from "@/lib/processImage";
+import { exportSpacesToExcel } from "@/lib/spacesExport";
 import { type FilterOption, type Space } from "@/lib/spaces";
 import { useFilterCategories } from "@/lib/useFilterCategories";
 import { groupOptionsByKey, useFilterOptions } from "@/lib/useFilterOptions";
@@ -14,7 +15,7 @@ import { DndContext, type DragEndEvent, KeyboardSensor, PointerSensor, closestCe
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, Info, Plus, Search, X } from "lucide-react";
+import { ArrowLeft, Download, Info, Plus, Search, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
