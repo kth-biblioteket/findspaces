@@ -9,7 +9,8 @@ export type UiTextKey =
   | "landing_body"
   | "empty_title"
   | "empty_suggest_template"
-  | "empty_fallback";
+  | "empty_fallback"
+  | "share_description";
 
 export const UI_TEXT_DEFAULTS: Record<UiTextKey, string> = {
   landing_title: "KTH Bibliotekets studieplatsväljare",
@@ -19,6 +20,7 @@ export const UI_TEXT_DEFAULTS: Record<UiTextKey, string> = {
   empty_suggest_template:
     "Filtret {label} verkar smalast — om du tar bort det hittar vi {count} {lokal}.",
   empty_fallback: "Prova att rensa filtren och börja om.",
+  share_description: "Utforska bibliotekets studieplatser och filtrera fram din favorit.",
 };
 
 export const UI_TEXT_DEFAULTS_EN: Record<UiTextKey, string> = {
@@ -29,6 +31,7 @@ export const UI_TEXT_DEFAULTS_EN: Record<UiTextKey, string> = {
   empty_suggest_template:
     "The filter {label} seems narrowest — if you remove it we find {count} {lokal}.",
   empty_fallback: "Try clearing the filters and start over.",
+  share_description: "Explore the library's study spaces and filter your way to a favourite.",
 };
 
 export const UI_TEXT_META: Record<
@@ -61,6 +64,12 @@ export const UI_TEXT_META: Record<
     title: "Tomt resultat – förslag",
     description:
       "Visas när vi kan föreslå att ta bort ett enskilt filter. Använd platshållarna {label} (filternamnet), {count} (antal lokaler) och {lokal} (böjs automatiskt till lokal/lokaler).",
+    rows: 3,
+  },
+  share_description: {
+    title: "Underrubrik vid delning",
+    description:
+      "Den korta texten under titeln när någon delar en länk till tjänsten (t.ex. i Slack, Teams eller Facebook). Används också som sidans beskrivning i sökresultat. Håll den under ca 160 tecken.",
     rows: 3,
   },
   empty_fallback: {
