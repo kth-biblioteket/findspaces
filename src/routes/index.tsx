@@ -67,12 +67,13 @@ export const Route = createFileRoute("/")({
       : "KTH Bibliotekets studieplatsväljare";
     const title =
       ((isEn ? adminTitle?.titleEn : adminTitle?.titleSv) ?? "").trim() || fallbackTitle;
-    const description = isEn
-      ? "Explore the library's study spaces and filter your way to a favourite."
-      : "Utforska bibliotekets studieplatser och filtrera fram din favorit.";
-    const ogDescription = isEn
-      ? "Explore the library's study spaces and filter your way to a favourite."
-      : "Utforska bibliotekets studieplatser och filtrera fram din favorit.";
+    const shareText = loaderData as { descSv?: string; descEn?: string } | undefined;
+    const description =
+      ((isEn ? shareText?.descEn : shareText?.descSv) ?? "").trim() ||
+      (isEn
+        ? "Explore the library's study spaces and filter your way to a favourite."
+        : "Utforska bibliotekets studieplatser och filtrera fram din favorit.");
+    const ogDescription = description;
     const imageAlt = isEn
       ? "Start page of KTH Library Spacefinder"
       : "Startsidan för KTH Bibliotekets studieplatsväljare";
@@ -153,12 +154,14 @@ export const Route = createFileRoute("/")({
     void context.queryClient.prefetchQuery(spacesQueryOptions);
     // Share preview image is admin-configurable; resolve it server-side so
     // crawlers (which do not run JS) see the current image in the head.
-    const [ogImage, titleSv, titleEn] = await Promise.all([
+    const [ogImage, titleSv, titleEn, descSv, descEn] = await Promise.all([
       fetchOgImageUrl(),
       fetchUiText("landing_title", "sv"),
       fetchUiText("landing_title", "en"),
+      fetchUiText("share_description", "sv"),
+      fetchUiText("share_description", "en"),
     ]);
-    return { ogImage, titleSv, titleEn };
+    return { ogImage, titleSv, titleEn, descSv, descEn };
   },
   component: SpaceFinderPage,
 });

@@ -17,6 +17,11 @@ export function LandingMessageTab() {
       <AnnouncementSection />
       <ShareImageSection />
       <UiTextGroupCard
+        title="Delning av länk"
+        description="Texten som visas under titeln när någon delar en länk till tjänsten. Titeln hämtas från rubriken på startsidan nedan."
+        keys={["share_description"]}
+      />
+      <UiTextGroupCard
         title="Startsida"
         description="Texter som visas överst på startsidan."
         keys={["landing_title", "landing_intro", "landing_body"]}
