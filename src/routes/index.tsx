@@ -62,8 +62,8 @@ export const Route = createFileRoute("/")({
     const isEn = lang === "en";
     const self = siteUrl(isEn ? "/?lang=en" : "/");
     const title = isEn
-      ? "Find a study place at KTH Library"
-      : "Hitta studieplats på KTH Biblioteket";
+      ? "KTH Library Spacefinder"
+      : "KTH Bibliotekets studieplatsväljare";
     const description = isEn
       ? "Explore the library's study spaces and filter your way to a favourite."
       : "Utforska bibliotekets studieplatser och filtrera fram din favorit.";
@@ -71,8 +71,8 @@ export const Route = createFileRoute("/")({
       ? "Explore the library's study spaces and filter your way to a favourite."
       : "Utforska bibliotekets studieplatser och filtrera fram din favorit.";
     const imageAlt = isEn
-      ? "Start page of Find a study place at KTH Library"
-      : "Startsidan för Hitta studieplats på KTH Biblioteket";
+      ? "Start page of KTH Library Spacefinder"
+      : "Startsidan för KTH Bibliotekets studieplatsväljare";
 
     return {
       meta: [
