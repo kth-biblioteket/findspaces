@@ -726,7 +726,9 @@ function AdminPage() {
                   handleUploadFiles={handleUploadFiles}
                 />
               </Dialog>
+              </div>
             </div>
+
 
             {selectedIds.size > 0 && (
               <div className="bg-accent/40 border border-border rounded-xl p-3 flex flex-wrap items-center gap-2">
