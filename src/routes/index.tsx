@@ -19,7 +19,7 @@ import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { SpaceCard } from "@/components/SpaceCard";
 import { SpaceCardSkeleton } from "@/components/SpaceCardSkeleton";
 import { SitePageLayout } from "@/components/SitePageLayout";
-import { useUiText, formatSuggestTemplate } from "@/lib/useUiText";
+import { useUiText, fetchUiText, formatSuggestTemplate } from "@/lib/useUiText";
 import { matchesSpace, type MatchOptions } from "@/lib/filterMatch";
 import { groupRoomLabels, isGroupRoomSpace } from "@/lib/groupRoom";
 import { siteUrl } from "@/lib/siteUrl";
