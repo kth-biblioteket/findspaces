@@ -9,11 +9,13 @@ import { useCapacityIcon, useSaveCapacityIcon } from "@/lib/useCapacityIcon";
 import { UI_TEXT_DEFAULTS, UI_TEXT_DEFAULTS_EN, UI_TEXT_META, type UiTextKey, useSaveUiText, useUiTextAdmin } from "@/lib/useUiText";
 import { cn } from "@/lib/utils";
 import { LangPairEditor } from "./shared";
+import { DEFAULT_OG_IMAGE, processOgImage, useOgImage, useSaveOgImage } from "@/lib/useOgImage";
 
 export function LandingMessageTab() {
   return (
     <div className="space-y-6 max-w-4xl">
       <AnnouncementSection />
+      <ShareImageSection />
       <UiTextGroupCard
         title="Startsida"
         description="Texter som visas överst på startsidan."
@@ -24,6 +26,85 @@ export function LandingMessageTab() {
         description="Texter som visas när inga lokaler matchar de valda filtren."
         keys={["empty_title", "empty_suggest_template", "empty_fallback"]}
       />
+    </div>
+  );
+}
+
+export function ShareImageSection() {
+  const { data: current, isLoading } = useOgImage();
+  const save = useSaveOgImage();
+  const [busy, setBusy] = useState(false);
+
+  const preview = current || DEFAULT_OG_IMAGE;
+
+  async function handleFile(file: File) {
+    setBusy(true);
+    try {
+      const processed = await processOgImage(file);
+      const path = `og/${processed.name}`;
+      const { error } = await supabase.storage
+        .from("space-images")
+        .upload(path, processed, { contentType: "image/jpeg", upsert: true });
+      if (error) throw error;
+      const { data } = supabase.storage.from("space-images").getPublicUrl(path);
+      await save.mutateAsync(`${data.publicUrl}?v=${Date.now()}`);
+      toast.success("Delningsbilden är uppdaterad.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Uppladdningen misslyckades.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
+      <div>
+        <h2 className="text-lg font-bold">Delningsbild (länkförhandsvisning)</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Bilden som visas när någon delar en länk till tjänsten i t.ex. Slack, Teams, Facebook eller
+          LinkedIn. Ladda upp en skärmavbild av startsidan – den beskärs automatiskt till 1200×630 px.
+          Ändringen börjar gälla direkt, men sociala tjänster cachar tidigare bild och kan dröja tills de
+          hämtar sidan igen.
+        </p>
+      </div>
+
+      <div className="flex flex-wrap items-start gap-4">
+        <img
+          src={preview}
+          alt="Förhandsvisning av delningsbilden"
+          className="w-64 aspect-[1200/630] rounded-lg border border-border object-cover bg-muted"
+        />
+        <div className="space-y-2">
+          <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent">
+            <Upload className="h-4 w-4" />
+            {busy ? "Laddar upp…" : "Ladda upp ny bild"}
+            <input
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              disabled={busy || isLoading}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                e.target.value = "";
+                if (f) void handleFile(f);
+              }}
+            />
+          </label>
+          {current && (
+            <div>
+              <button
+                type="button"
+                className="text-sm text-muted-foreground underline hover:text-foreground"
+                onClick={() => {
+                  void save.mutateAsync(null).then(() => toast.success("Återställd till standardbild."));
+                }}
+              >
+                Återställ till standardbild
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
