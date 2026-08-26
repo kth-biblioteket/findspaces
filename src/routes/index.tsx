@@ -23,6 +23,7 @@ import { useUiText, formatSuggestTemplate } from "@/lib/useUiText";
 import { matchesSpace, type MatchOptions } from "@/lib/filterMatch";
 import { groupRoomLabels, isGroupRoomSpace } from "@/lib/groupRoom";
 import { siteUrl } from "@/lib/siteUrl";
+import { fetchOgImageUrl, DEFAULT_OG_IMAGE } from "@/lib/useOgImage";
 
 
 import { useNarrowestFilter } from "@/lib/useNarrowestFilter";
@@ -54,7 +55,8 @@ const spacesQueryOptions = queryOptions({
 });
 
 export const Route = createFileRoute("/")({
-  head: ({ match }) => {
+  head: ({ match, loaderData }) => {
+    const ogImage = loaderData?.ogImage ?? siteUrl(DEFAULT_OG_IMAGE);
     const lang = match.search.lang === "en" ? "en" : "sv";
     const isEn = lang === "en";
     const self = siteUrl(isEn ? "/?lang=en" : "/");
@@ -80,14 +82,14 @@ export const Route = createFileRoute("/")({
         { property: "og:type", content: "website" },
         { property: "og:locale", content: isEn ? "en_GB" : "sv_SE" },
         { property: "og:url", content: self },
-        { property: "og:image", content: siteUrl("/og-preview.jpg?v=2") },
+        { property: "og:image", content: ogImage },
         { property: "og:image:width", content: "1200" },
         { property: "og:image:height", content: "630" },
         { property: "og:image:alt", content: imageAlt },
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: ogDescription },
-        { name: "twitter:image", content: siteUrl("/og-preview.jpg?v=2") },
+        { name: "twitter:image", content: ogImage },
       ],
       links: [
         // Self-referencing canonical per language: filter/share parameters
@@ -140,11 +142,14 @@ export const Route = createFileRoute("/")({
   },
 
   validateSearch: validateSearchInput,
-  loader: ({ context }) => {
+  loader: async ({ context }) => {
     // Prime the cache so the first paint has data available (no fetch waterfall
     // through useQuery). Fire-and-forget — the component keeps its own useQuery
     // for reactivity and per-request Suspense-free rendering.
     void context.queryClient.prefetchQuery(spacesQueryOptions);
+    // Share preview image is admin-configurable; resolve it server-side so
+    // crawlers (which do not run JS) see the current image in the head.
+    return { ogImage: await fetchOgImageUrl() };
   },
   component: SpaceFinderPage,
 });
