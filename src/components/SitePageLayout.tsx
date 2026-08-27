@@ -6,6 +6,7 @@ import { LandingText } from "@/components/LandingText";
 import { SiteHeader } from "@/components/SiteHeader";
 import { useUiText } from "@/lib/useUiText";
 import { useAnnouncement } from "@/lib/useAnnouncement";
+import { useBetaBadgeEnabled } from "@/lib/useBetaBadge";
 import { cn } from "@/lib/utils";
 
 
@@ -23,6 +24,7 @@ export function SitePageLayout({ children, header = <SiteHeader />, footer }: Si
   const { t } = useTranslation();
   const { data: pageTitle } = useUiText("landing_title");
   const { data: announcement } = useAnnouncement();
+  const { data: betaEnabled = true } = useBetaBadgeEnabled();
   const [dismissedHash, setDismissedHash] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
@@ -65,9 +67,11 @@ export function SitePageLayout({ children, header = <SiteHeader />, footer }: Si
             className="text-lg font-bold leading-tight text-foreground sm:text-3xl"
           >
             {pageTitle ?? t("header.title")}{" "}
-            <span className="inline-flex items-center rounded-full bg-secondary px-1.5 py-0.5 align-middle text-[0.6em] font-semibold uppercase tracking-wide text-foreground sm:px-2 sm:py-0.5 sm:text-[0.55em]">
-              Beta
-            </span>
+            {betaEnabled && (
+              <span className="inline-flex items-center rounded-full bg-secondary px-1.5 py-0.5 align-middle text-[0.6em] font-semibold uppercase tracking-wide text-foreground sm:px-2 sm:py-0.5 sm:text-[0.55em]">
+                Beta
+              </span>
+            )}
           </h1>
         </div>
         <LandingText compact={!isBannerVisible} />

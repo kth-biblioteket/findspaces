@@ -5,6 +5,7 @@ import { ChairIcon } from "@/components/icons/ChairIcon";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useAnnouncementAdmin, useSaveAnnouncement } from "@/lib/useAnnouncement";
+import { useBetaBadgeEnabled, useSaveBetaBadge } from "@/lib/useBetaBadge";
 import { useCapacityIcon, useSaveCapacityIcon } from "@/lib/useCapacityIcon";
 import { UI_TEXT_DEFAULTS, UI_TEXT_DEFAULTS_EN, UI_TEXT_META, type UiTextKey, useSaveUiText, useUiTextAdmin } from "@/lib/useUiText";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,7 @@ export function LandingMessageTab() {
   return (
     <div className="space-y-6 max-w-4xl">
       <AnnouncementSection />
+      <BetaBadgeSection />
       <ShareImageSection />
       <UiTextGroupCard
         title="Delning av länk"
@@ -31,6 +33,39 @@ export function LandingMessageTab() {
         description="Texter som visas när inga lokaler matchar de valda filtren."
         keys={["empty_title", "empty_suggest_template", "empty_fallback"]}
       />
+    </div>
+  );
+}
+
+export function BetaBadgeSection() {
+  const { data: enabled = true, isLoading } = useBetaBadgeEnabled();
+  const save = useSaveBetaBadge();
+
+  return (
+    <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-bold">Beta-märkning på startsidan</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Visar en liten "Beta"-etikett bredvid rubriken högst upp på startsidan. Slå av den när
+            tjänsten inte längre ska markeras som beta.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-sm font-medium">{enabled ? "På" : "Av"}</span>
+          <Switch
+            checked={enabled}
+            disabled={isLoading || save.isPending}
+            onCheckedChange={(v) =>
+              save.mutate(v, {
+                onSuccess: () => toast.success(v ? "Beta-märkning aktiverad" : "Beta-märkning avstängd"),
+                onError: () => toast.error("Kunde inte spara."),
+              })
+            }
+            aria-label="Visa Beta-märkning"
+          />
+        </div>
+      </div>
     </div>
   );
 }
