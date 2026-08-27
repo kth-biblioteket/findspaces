@@ -5,6 +5,7 @@ import { ChairIcon } from "@/components/icons/ChairIcon";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useAnnouncementAdmin, useSaveAnnouncement } from "@/lib/useAnnouncement";
+import { useBetaBadgeEnabled, useSaveBetaBadge } from "@/lib/useBetaBadge";
 import { useCapacityIcon, useSaveCapacityIcon } from "@/lib/useCapacityIcon";
 import { UI_TEXT_DEFAULTS, UI_TEXT_DEFAULTS_EN, UI_TEXT_META, type UiTextKey, useSaveUiText, useUiTextAdmin } from "@/lib/useUiText";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,7 @@ export function LandingMessageTab() {
   return (
     <div className="space-y-6 max-w-4xl">
       <AnnouncementSection />
+      <BetaBadgeSection />
       <ShareImageSection />
       <UiTextGroupCard
         title="Delning av länk"
