@@ -37,6 +37,39 @@ export function LandingMessageTab() {
   );
 }
 
+export function BetaBadgeSection() {
+  const { data: enabled = true, isLoading } = useBetaBadgeEnabled();
+  const save = useSaveBetaBadge();
+
+  return (
+    <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-bold">Beta-märkning på startsidan</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Visar en liten "Beta"-etikett bredvid rubriken högst upp på startsidan. Slå av den när
+            tjänsten inte längre ska markeras som beta.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-sm font-medium">{enabled ? "På" : "Av"}</span>
+          <Switch
+            checked={enabled}
+            disabled={isLoading || save.isPending}
+            onCheckedChange={(v) =>
+              save.mutate(v, {
+                onSuccess: () => toast.success(v ? "Beta-märkning aktiverad" : "Beta-märkning avstängd"),
+                onError: () => toast.error("Kunde inte spara."),
+              })
+            }
+            aria-label="Visa Beta-märkning"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ShareImageSection() {
   const { data: current, isLoading } = useOgImage();
   const save = useSaveOgImage();
