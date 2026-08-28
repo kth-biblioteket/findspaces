@@ -19,6 +19,7 @@ import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { SpaceCard } from "@/components/SpaceCard";
 import { SpaceCardSkeleton } from "@/components/SpaceCardSkeleton";
 import { SitePageLayout } from "@/components/SitePageLayout";
+import { useMaintenance } from "@/lib/useMaintenance";
 import { useUiText, fetchUiText, formatSuggestTemplate } from "@/lib/useUiText";
 import { matchesSpace, type MatchOptions } from "@/lib/filterMatch";
 import { groupRoomLabels, isGroupRoomSpace } from "@/lib/groupRoom";
@@ -167,6 +168,22 @@ export const Route = createFileRoute("/")({
 });
 
 function SpaceFinderPage() {
+  const { data: maintenance } = useMaintenance();
+
+  if (maintenance?.enabled) {
+    return (
+      <SitePageLayout hideIntro>
+        <main className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+          <div className="rounded-2xl border border-border bg-card p-8 text-center">
+            <p className="whitespace-pre-line text-base text-foreground sm:text-lg">
+              {maintenance.message}
+            </p>
+          </div>
+        </main>
+      </SitePageLayout>
+    );
+  }
+
   return (
     <SitePageLayout>
       <SpaceFinderApp />

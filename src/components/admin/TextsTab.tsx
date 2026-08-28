@@ -7,6 +7,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAnnouncementAdmin, useSaveAnnouncement } from "@/lib/useAnnouncement";
 import { useBetaBadgeEnabled, useSaveBetaBadge } from "@/lib/useBetaBadge";
 import { useCapacityIcon, useSaveCapacityIcon } from "@/lib/useCapacityIcon";
+import {
+  MAINTENANCE_DEFAULT_EN,
+  MAINTENANCE_DEFAULT_SV,
+  useMaintenanceAdmin,
+  useSaveMaintenance,
+} from "@/lib/useMaintenance";
 import { UI_TEXT_DEFAULTS, UI_TEXT_DEFAULTS_EN, UI_TEXT_META, type UiTextKey, useSaveUiText, useUiTextAdmin } from "@/lib/useUiText";
 import { cn } from "@/lib/utils";
 import { LangPairEditor } from "./shared";
@@ -15,6 +21,7 @@ import { DEFAULT_OG_IMAGE, processOgImage, useOgImage, useSaveOgImage } from "@/
 export function LandingMessageTab() {
   return (
     <div className="space-y-6 max-w-4xl">
+      <MaintenanceSection />
       <AnnouncementSection />
       <BetaBadgeSection />
       <ShareImageSection />
@@ -271,3 +278,64 @@ export function UiTextEditor({ uiKey, compact = false }: { uiKey: UiTextKey; com
   );
 }
 
+
+export function MaintenanceSection() {
+  const { data, isLoading } = useMaintenanceAdmin();
+  const save = useSaveMaintenance();
+  const [sv, setSv] = useState("");
+  const [en, setEn] = useState("");
+
+  useEffect(() => {
+    if (data) {
+      setSv(data.sv);
+      setEn(data.en);
+    }
+  }, [data]);
+
+  const enabled = data?.enabled ?? false;
+
+  return (
+    <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-bold">Stängt läge (underhåll)</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            När det här är påslaget döljs hela studentvyn – inga lokaler, filter eller texter visas.
+            Besökarna ser bara meddelandet nedan. Adminläget påverkas inte.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-sm font-medium">{enabled ? "På" : "Av"}</span>
+          <Switch
+            checked={enabled}
+            disabled={isLoading || save.isPending}
+            onCheckedChange={(v) =>
+              save.mutate(
+                { enabled: v },
+                {
+                  onSuccess: () =>
+                    toast.success(v ? "Tjänsten är nu stängd utåt" : "Tjänsten är öppen igen"),
+                  onError: () => toast.error("Kunde inte spara."),
+                },
+              )
+            }
+            aria-label="Stäng tjänsten utåt"
+          />
+        </div>
+      </div>
+      <LangPairEditor
+        labelSv="Meddelande"
+        labelEn="Message"
+        rows={3}
+        valueSv={sv}
+        valueEn={en}
+        defaultSv={MAINTENANCE_DEFAULT_SV}
+        defaultEn={MAINTENANCE_DEFAULT_EN}
+        isPending={save.isPending}
+        isLoading={isLoading}
+        onSaveSv={(v) => save.mutate({ sv: v }, { onSuccess: () => toast.success("Sparat (SV)") })}
+        onSaveEn={(v) => save.mutate({ en: v }, { onSuccess: () => toast.success("Sparat (EN)") })}
+      />
+    </div>
+  );
+}
