@@ -17,10 +17,12 @@ type SitePageLayoutProps = {
   header?: ReactNode;
   /** Swap this node for the official KTH footer when it becomes available. */
   footer?: ReactNode;
+  /** Hide the announcement banner and landing text (used in maintenance mode). */
+  hideIntro?: boolean;
 };
 
 /** Standalone page chrome around the preserved study-place application. */
-export function SitePageLayout({ children, header = <SiteHeader />, footer }: SitePageLayoutProps) {
+export function SitePageLayout({ children, header = <SiteHeader />, footer, hideIntro = false }: SitePageLayoutProps) {
   const { t } = useTranslation();
   const { data: pageTitle } = useUiText("landing_title");
   const { data: announcement } = useAnnouncement();
@@ -38,6 +40,7 @@ export function SitePageLayout({ children, header = <SiteHeader />, footer }: Si
   }, []);
 
   const isBannerVisible =
+    !hideIntro &&
     mounted && Boolean(announcement?.message) && (!announcement?.hash || dismissedHash !== announcement?.hash);
 
 
@@ -74,7 +77,7 @@ export function SitePageLayout({ children, header = <SiteHeader />, footer }: Si
             )}
           </h1>
         </div>
-        <LandingText compact={!isBannerVisible} />
+        {!hideIntro && <LandingText compact={!isBannerVisible} />}
       </section>
 
       <div className="flex-1">{children}</div>
