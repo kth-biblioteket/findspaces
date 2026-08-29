@@ -850,6 +850,16 @@ export function SpaceCard({
             />
           )}
 
+          {space.description_inline && layout.includes("info") && linkedInfo && (
+            <div className="flex items-start gap-1.5 text-sm text-foreground/80">
+              <Info
+                className="h-3.5 w-3.5 mt-0.5 shrink-0 text-muted-foreground"
+                aria-hidden="true"
+              />
+              <span className="whitespace-pre-line">{linkedInfo}</span>
+            </div>
+          )}
+
         </div>
 
         <div
