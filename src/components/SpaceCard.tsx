@@ -689,6 +689,9 @@ export function SpaceCard({
           </div>
         );
       case "info":
+        // When the description is shown inline, the info block is rendered
+        // after the inline description instead of in its normal position.
+        if (space.description_inline) return null;
         if (!linkedInfo) return null;
         return (
           <div key="info" className="flex items-start gap-1.5 text-sm text-foreground/80">
