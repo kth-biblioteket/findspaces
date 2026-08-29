@@ -635,18 +635,6 @@ export function SpaceCard({
                       </span>
                     </p>
                   )}
-                  {(space.informal_seat_count ?? 0) > 0 && (
-                    <p className="inline-flex items-center gap-1.5">
-                      <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center">
-                        <Armchair className="h-4 w-4 text-foreground" aria-hidden="true" />
-                      </span>
-                      <span className="leading-tight">
-                        <span className="sr-only">{t("card.informal_seats_sr")} </span>
-                        <span className="font-medium">{space.informal_seat_count}</span>{" "}
-                        {t("card.informal_seats_label", { count: space.informal_seat_count ?? 0 })}
-                      </span>
-                    </p>
-                  )}
                   {(space.computer_count ?? 0) > 0 && (
                     <p className="inline-flex items-center gap-1.5">
                       <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center">
@@ -656,6 +644,18 @@ export function SpaceCard({
                         <span className="sr-only">{t("card.computers_sr")} </span>
                         <span className="font-medium">{space.computer_count}</span>{" "}
                         {t("card.computers_label", { count: space.computer_count ?? 0 })}
+                      </span>
+                    </p>
+                  )}
+                  {(space.informal_seat_count ?? 0) > 0 && (
+                    <p className="inline-flex items-center gap-1.5">
+                      <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center">
+                        <Armchair className="h-4 w-4 text-foreground" aria-hidden="true" />
+                      </span>
+                      <span className="leading-tight">
+                        <span className="sr-only">{t("card.informal_seats_sr")} </span>
+                        <span className="font-medium">{space.informal_seat_count}</span>{" "}
+                        {t("card.informal_seats_label", { count: space.informal_seat_count ?? 0 })}
                       </span>
                     </p>
                   )}
