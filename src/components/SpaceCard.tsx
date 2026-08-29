@@ -689,6 +689,9 @@ export function SpaceCard({
           </div>
         );
       case "info":
+        // When the description is shown inline, the info block is rendered
+        // after the inline description instead of in its normal position.
+        if (space.description_inline) return null;
         if (!linkedInfo) return null;
         return (
           <div key="info" className="flex items-start gap-1.5 text-sm text-foreground/80">
@@ -845,6 +848,16 @@ export function SpaceCard({
               className="text-sm text-foreground/90 leading-relaxed space-y-2 [&_a]:text-[var(--kth-blue)] [&_a]:underline [&_a:hover]:opacity-80 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 whitespace-pre-line"
               dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
             />
+          )}
+
+          {space.description_inline && layout.includes("info") && linkedInfo && (
+            <div className="flex items-start gap-1.5 text-sm text-foreground/80">
+              <Info
+                className="h-3.5 w-3.5 mt-0.5 shrink-0 text-muted-foreground"
+                aria-hidden="true"
+              />
+              <span className="whitespace-pre-line">{linkedInfo}</span>
+            </div>
           )}
 
         </div>
