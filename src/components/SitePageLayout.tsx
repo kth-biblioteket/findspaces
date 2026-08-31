@@ -5,9 +5,9 @@ import { AnnouncementBanner, ANNOUNCEMENT_STORAGE_KEY } from "@/components/Annou
 import { LandingText } from "@/components/LandingText";
 import { SiteHeader } from "@/components/SiteHeader";
 import { useAnnouncement } from "@/lib/useAnnouncement";
+import { useBetaBadgeEnabled } from "@/lib/useBetaBadge";
+import { useUiText } from "@/lib/useUiText";
 import { cn } from "@/lib/utils";
-
-
 
 type SitePageLayoutProps = {
   children: ReactNode;
@@ -21,6 +21,8 @@ type SitePageLayoutProps = {
 export function SitePageLayout({ children, header = <SiteHeader />, footer }: SitePageLayoutProps) {
   const { t } = useTranslation();
   const { data: announcement } = useAnnouncement();
+  const { data: adminTitle } = useUiText("landing_title");
+  const { data: betaBadgeEnabled = true } = useBetaBadgeEnabled();
   const [dismissedHash, setDismissedHash] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
@@ -34,8 +36,10 @@ export function SitePageLayout({ children, header = <SiteHeader />, footer }: Si
   }, []);
 
   const isBannerVisible =
-    mounted && Boolean(announcement?.message) && (!announcement?.hash || dismissedHash !== announcement?.hash);
-
+    mounted &&
+    Boolean(announcement?.message) &&
+    (!announcement?.hash || dismissedHash !== announcement?.hash);
+  const title = adminTitle?.trim() || t("header.title");
 
   return (
     <div className="flex min-h-dvh flex-col bg-background">
@@ -57,15 +61,22 @@ export function SitePageLayout({ children, header = <SiteHeader />, footer }: Si
             />
           </div>
         )}
-        <div className={cn("mx-auto max-w-7xl px-4 sm:px-6", isBannerVisible ? "pt-4 pb-4" : "pt-6 pb-3")}>
+        <div
+          className={cn(
+            "mx-auto max-w-7xl px-4 sm:px-6",
+            isBannerVisible ? "pt-4 pb-4" : "pt-6 pb-3",
+          )}
+        >
           <h1
             id="page-title"
             className="text-lg font-bold leading-tight text-foreground sm:text-3xl"
           >
-            {t("header.title")}{" "}
-            <span className="inline-flex items-center rounded-full bg-secondary px-1.5 py-0.5 align-middle text-[0.6em] font-semibold uppercase tracking-wide text-foreground sm:px-2 sm:py-0.5 sm:text-[0.55em]">
-              Beta
-            </span>
+            {title}{" "}
+            {betaBadgeEnabled && (
+              <span className="inline-flex items-center rounded-full bg-secondary px-1.5 py-0.5 align-middle text-[0.6em] font-semibold uppercase tracking-wide text-foreground sm:px-2 sm:py-0.5 sm:text-[0.55em]">
+                Beta
+              </span>
+            )}
           </h1>
         </div>
         <LandingText compact={!isBannerVisible} />

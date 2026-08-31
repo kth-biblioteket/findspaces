@@ -43,6 +43,8 @@ test.describe("Filtering flow", () => {
   test("loads with the correct title and a canonical default URL", async ({ page }) => {
     await openApp(page);
 
+    // The document metadata remains fixed in code even when the visible H1 is
+    // overridden through the admin-controlled app_settings rows.
     await expect(page).toHaveTitle("KTH Bibliotekets studieplatsväljare");
     await expect.poll(() => new URL(page.url()).search).toBe("");
   });
@@ -54,9 +56,7 @@ test.describe("Filtering flow", () => {
     const main = page.getByRole("main");
 
     await expect(header).toBeVisible();
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      "KTH Bibliotekets studieplatsväljare",
-    );
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Adminstyrd H1");
     await expect(main).toBeVisible();
     await expect(page.getByRole("contentinfo")).toHaveCount(0);
 
