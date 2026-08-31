@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { AnnouncementBanner, ANNOUNCEMENT_STORAGE_KEY } from "@/components/AnnouncementBanner";
 import { LandingText } from "@/components/LandingText";
 import { SiteHeader } from "@/components/SiteHeader";
-import { useUiText } from "@/lib/useUiText";
 import { useAnnouncement } from "@/lib/useAnnouncement";
 import { cn } from "@/lib/utils";
 
@@ -21,7 +20,6 @@ type SitePageLayoutProps = {
 /** Standalone page chrome around the preserved study-place application. */
 export function SitePageLayout({ children, header = <SiteHeader />, footer }: SitePageLayoutProps) {
   const { t } = useTranslation();
-  const { data: pageTitle } = useUiText("landing_title");
   const { data: announcement } = useAnnouncement();
   const [dismissedHash, setDismissedHash] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -64,7 +62,7 @@ export function SitePageLayout({ children, header = <SiteHeader />, footer }: Si
             id="page-title"
             className="text-lg font-bold leading-tight text-foreground sm:text-3xl"
           >
-            {pageTitle ?? t("header.title")}{" "}
+            {t("header.title")}{" "}
             <span className="inline-flex items-center rounded-full bg-secondary px-1.5 py-0.5 align-middle text-[0.6em] font-semibold uppercase tracking-wide text-foreground sm:px-2 sm:py-0.5 sm:text-[0.55em]">
               Beta
             </span>
@@ -79,5 +77,3 @@ export function SitePageLayout({ children, header = <SiteHeader />, footer }: Si
     </div>
   );
 }
-
-

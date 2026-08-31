@@ -77,10 +77,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Hitta studieplats på KTH Biblioteket" },
+      { title: "KTH Bibliotekets studieplatsväljare" },
       { name: "description", content: "Utforska bibliotekets studieplatser och filtrera fram din favorit." },
-      { property: "og:title", content: "Hitta studieplats på KTH Biblioteket" },
-      { name: "twitter:title", content: "Hitta studieplats på KTH Biblioteket" },
+      { property: "og:title", content: "KTH Bibliotekets studieplatsväljare" },
+      { name: "twitter:title", content: "KTH Bibliotekets studieplatsväljare" },
       { property: "og:description", content: "Utforska bibliotekets studieplatser och filtrera fram din favorit." },
       { name: "twitter:description", content: "Utforska bibliotekets studieplatser och filtrera fram din favorit." },
       // og:image / twitter:image live on the leaf route (src/routes/index.tsx)

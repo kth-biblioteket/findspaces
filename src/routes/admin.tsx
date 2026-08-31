@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { validateSpaceForm } from "@/lib/adminSpaceSchema";
 import { processImageToWebp } from "@/lib/processImage";
+import { exportSpacesToExcel } from "@/lib/spacesExport";
 import { type FilterOption, type Space } from "@/lib/spaces";
 import { useFilterCategories } from "@/lib/useFilterCategories";
 import { groupOptionsByKey, useFilterOptions } from "@/lib/useFilterOptions";
@@ -14,7 +15,7 @@ import { DndContext, type DragEndEvent, KeyboardSensor, PointerSensor, closestCe
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, Info, Plus, Search, X } from "lucide-react";
+import { ArrowLeft, Download, Info, Plus, Search, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -672,7 +673,25 @@ function AdminPage() {
                   ({listFiltersActive ? `${filteredSpaces.length} av ${spaces.length}` : spaces.length})
                 </span>
               </h2>
+              <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const list = listFiltersActive ? filteredSpaces : spaces;
+                  if (list.length === 0) {
+                    toast.error("Inga lokaler att exportera.");
+                    return;
+                  }
+                  exportSpacesToExcel(list, categories, byKey);
+                  toast.success(`Exporterade ${list.length} lokaler till Excel.`);
+                }}
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent"
+                title="Exporterar all information (utom bilder) till ett Excel-ark"
+              >
+                <Download className="h-4 w-4" /> Exportera till Excel
+              </button>
               <Dialog open={open} onOpenChange={handleDialogOpenChange}>
+
                 <DialogTrigger asChild>
                   <button
                     onClick={openNew}
@@ -708,7 +727,9 @@ function AdminPage() {
                   handleUploadFiles={handleUploadFiles}
                 />
               </Dialog>
+              </div>
             </div>
+
 
             {selectedIds.size > 0 && (
               <div className="bg-accent/40 border border-border rounded-xl p-3 flex flex-wrap items-center gap-2">

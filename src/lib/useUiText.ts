@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Lang } from "@/i18n";
 
 export type UiTextKey =
-  | "landing_title"
   | "landing_intro"
   | "landing_body"
   | "empty_title"
@@ -12,7 +11,6 @@ export type UiTextKey =
   | "empty_fallback";
 
 export const UI_TEXT_DEFAULTS: Record<UiTextKey, string> = {
-  landing_title: "Hitta studieplats på KTH Biblioteket",
   landing_intro: "",
   landing_body: "",
   empty_title: "Inga lokaler matchar dina filter.",
@@ -22,7 +20,6 @@ export const UI_TEXT_DEFAULTS: Record<UiTextKey, string> = {
 };
 
 export const UI_TEXT_DEFAULTS_EN: Record<UiTextKey, string> = {
-  landing_title: "Find a study space at KTH Library",
   landing_intro: "",
   landing_body: "",
   empty_title: "No spaces match your filters.",
@@ -35,11 +32,6 @@ export const UI_TEXT_META: Record<
   UiTextKey,
   { title: string; description: string; rows?: number }
 > = {
-  landing_title: {
-    title: "Rubrik på startsidan",
-    description: "Huvudrubriken ovanför ingressen. Redigera svenska och engelska var för sig.",
-    rows: 2,
-  },
   landing_intro: {
     title: "Ingress på startsidan",
     description:

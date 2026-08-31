@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useStickyPanelViewport } from "@/lib/useStickyPanelViewport";
 import { queryOptions, useQuery } from "@tanstack/react-query";
@@ -59,17 +59,16 @@ export const Route = createFileRoute("/")({
     const isEn = lang === "en";
     const self = siteUrl(isEn ? "/?lang=en" : "/");
     const title = isEn
-      ? "Find a study place at KTH Library"
-      : "Hitta studieplats på KTH Biblioteket";
+      ? "KTH Library Spacefinder"
+      : "KTH Bibliotekets studieplatsväljare";
     const description = isEn
       ? "Explore the library's study spaces and filter your way to a favourite."
       : "Utforska bibliotekets studieplatser och filtrera fram din favorit.";
-    const ogDescription = isEn
-      ? "Explore the library's study spaces and filter your way to a favourite."
-      : "Utforska bibliotekets studieplatser och filtrera fram din favorit.";
+    const ogDescription = description;
+    const ogImage = siteUrl("/og-preview.jpg?v=3");
     const imageAlt = isEn
-      ? "Start page of Find a study place at KTH Library"
-      : "Startsidan för Hitta studieplats på KTH Biblioteket";
+      ? "Start page of KTH Library Spacefinder"
+      : "Startsidan för KTH Bibliotekets studieplatsväljare";
 
     return {
       meta: [
@@ -80,14 +79,14 @@ export const Route = createFileRoute("/")({
         { property: "og:type", content: "website" },
         { property: "og:locale", content: isEn ? "en_GB" : "sv_SE" },
         { property: "og:url", content: self },
-        { property: "og:image", content: siteUrl("/og-preview.jpg?v=2") },
+        { property: "og:image", content: ogImage },
         { property: "og:image:width", content: "1200" },
         { property: "og:image:height", content: "630" },
         { property: "og:image:alt", content: imageAlt },
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: ogDescription },
-        { name: "twitter:image", content: siteUrl("/og-preview.jpg?v=2") },
+        { name: "twitter:image", content: ogImage },
       ],
       links: [
         // Self-referencing canonical per language: filter/share parameters

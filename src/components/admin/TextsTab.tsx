@@ -1,11 +1,7 @@
 import { useState, useEffect } from "react";
-import { Upload } from "lucide-react";
 import { toast } from "sonner";
-import { ChairIcon } from "@/components/icons/ChairIcon";
 import { Switch } from "@/components/ui/switch";
-import { supabase } from "@/integrations/supabase/client";
 import { useAnnouncementAdmin, useSaveAnnouncement } from "@/lib/useAnnouncement";
-import { useCapacityIcon, useSaveCapacityIcon } from "@/lib/useCapacityIcon";
 import { UI_TEXT_DEFAULTS, UI_TEXT_DEFAULTS_EN, UI_TEXT_META, type UiTextKey, useSaveUiText, useUiTextAdmin } from "@/lib/useUiText";
 import { cn } from "@/lib/utils";
 import { LangPairEditor } from "./shared";
@@ -17,7 +13,7 @@ export function LandingMessageTab() {
       <UiTextGroupCard
         title="Startsida"
         description="Texter som visas överst på startsidan."
-        keys={["landing_title", "landing_intro", "landing_body"]}
+        keys={["landing_intro", "landing_body"]}
       />
       <UiTextGroupCard
         title="Tomt resultat"
@@ -149,4 +145,3 @@ export function UiTextEditor({ uiKey, compact = false }: { uiKey: UiTextKey; com
     </div>
   );
 }
-

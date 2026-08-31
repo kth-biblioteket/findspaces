@@ -43,7 +43,7 @@ test.describe("Filtering flow", () => {
   test("loads with the correct title and a canonical default URL", async ({ page }) => {
     await openApp(page);
 
-    await expect(page).toHaveTitle(/Hitta studieplats\s*[–-]\s*KTH Biblioteket/);
+    await expect(page).toHaveTitle("KTH Bibliotekets studieplatsväljare");
     await expect.poll(() => new URL(page.url()).search).toBe("");
   });
 
@@ -54,7 +54,9 @@ test.describe("Filtering flow", () => {
     const main = page.getByRole("main");
 
     await expect(header).toBeVisible();
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("Hitta studieplats");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(
+      "KTH Bibliotekets studieplatsväljare",
+    );
     await expect(main).toBeVisible();
     await expect(page.getByRole("contentinfo")).toHaveCount(0);
 
