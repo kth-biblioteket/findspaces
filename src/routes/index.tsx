@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useStickyPanelViewport } from "@/lib/useStickyPanelViewport";
 import { queryOptions, useQuery } from "@tanstack/react-query";
@@ -19,12 +19,10 @@ import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { SpaceCard } from "@/components/SpaceCard";
 import { SpaceCardSkeleton } from "@/components/SpaceCardSkeleton";
 import { SitePageLayout } from "@/components/SitePageLayout";
-import { useMaintenance } from "@/lib/useMaintenance";
-import { useUiText, fetchUiText, formatSuggestTemplate } from "@/lib/useUiText";
+import { useUiText, formatSuggestTemplate } from "@/lib/useUiText";
 import { matchesSpace, type MatchOptions } from "@/lib/filterMatch";
 import { groupRoomLabels, isGroupRoomSpace } from "@/lib/groupRoom";
 import { siteUrl } from "@/lib/siteUrl";
-import { fetchOgImageUrl, DEFAULT_OG_IMAGE } from "@/lib/useOgImage";
 
 
 import { useNarrowestFilter } from "@/lib/useNarrowestFilter";
@@ -56,25 +54,18 @@ const spacesQueryOptions = queryOptions({
 });
 
 export const Route = createFileRoute("/")({
-  head: ({ match, loaderData }) => {
-    const ogImage =
-      (loaderData as { ogImage?: string } | undefined)?.ogImage ?? siteUrl(DEFAULT_OG_IMAGE);
+  head: ({ match }) => {
     const lang = match.search.lang === "en" ? "en" : "sv";
     const isEn = lang === "en";
     const self = siteUrl(isEn ? "/?lang=en" : "/");
-    const adminTitle = (loaderData as { titleSv?: string; titleEn?: string } | undefined);
-    const fallbackTitle = isEn
+    const title = isEn
       ? "KTH Library Spacefinder"
       : "KTH Bibliotekets studieplatsväljare";
-    const title =
-      ((isEn ? adminTitle?.titleEn : adminTitle?.titleSv) ?? "").trim() || fallbackTitle;
-    const shareText = loaderData as { descSv?: string; descEn?: string } | undefined;
-    const description =
-      ((isEn ? shareText?.descEn : shareText?.descSv) ?? "").trim() ||
-      (isEn
-        ? "Explore the library's study spaces and filter your way to a favourite."
-        : "Utforska bibliotekets studieplatser och filtrera fram din favorit.");
+    const description = isEn
+      ? "Explore the library's study spaces and filter your way to a favourite."
+      : "Utforska bibliotekets studieplatser och filtrera fram din favorit.";
     const ogDescription = description;
+    const ogImage = siteUrl("/og-preview.jpg?v=3");
     const imageAlt = isEn
       ? "Start page of KTH Library Spacefinder"
       : "Startsidan för KTH Bibliotekets studieplatsväljare";
@@ -148,42 +139,16 @@ export const Route = createFileRoute("/")({
   },
 
   validateSearch: validateSearchInput,
-  loader: async ({ context }) => {
+  loader: ({ context }) => {
     // Prime the cache so the first paint has data available (no fetch waterfall
     // through useQuery). Fire-and-forget — the component keeps its own useQuery
     // for reactivity and per-request Suspense-free rendering.
     void context.queryClient.prefetchQuery(spacesQueryOptions);
-    // Share preview image is admin-configurable; resolve it server-side so
-    // crawlers (which do not run JS) see the current image in the head.
-    const [ogImage, titleSv, titleEn, descSv, descEn] = await Promise.all([
-      fetchOgImageUrl(),
-      fetchUiText("landing_title", "sv"),
-      fetchUiText("landing_title", "en"),
-      fetchUiText("share_description", "sv"),
-      fetchUiText("share_description", "en"),
-    ]);
-    return { ogImage, titleSv, titleEn, descSv, descEn };
   },
   component: SpaceFinderPage,
 });
 
 function SpaceFinderPage() {
-  const { data: maintenance } = useMaintenance();
-
-  if (maintenance?.enabled) {
-    return (
-      <SitePageLayout hideIntro>
-        <main className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-          <div className="rounded-2xl border border-border bg-card p-8 text-center">
-            <p className="whitespace-pre-line text-base text-foreground sm:text-lg">
-              {maintenance.message}
-            </p>
-          </div>
-        </main>
-      </SitePageLayout>
-    );
-  }
-
   return (
     <SitePageLayout>
       <SpaceFinderApp />

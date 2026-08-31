@@ -4,45 +4,34 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Lang } from "@/i18n";
 
 export type UiTextKey =
-  | "landing_title"
   | "landing_intro"
   | "landing_body"
   | "empty_title"
   | "empty_suggest_template"
-  | "empty_fallback"
-  | "share_description";
+  | "empty_fallback";
 
 export const UI_TEXT_DEFAULTS: Record<UiTextKey, string> = {
-  landing_title: "KTH Bibliotekets studieplatsväljare",
   landing_intro: "",
   landing_body: "",
   empty_title: "Inga lokaler matchar dina filter.",
   empty_suggest_template:
     "Filtret {label} verkar smalast — om du tar bort det hittar vi {count} {lokal}.",
   empty_fallback: "Prova att rensa filtren och börja om.",
-  share_description: "Utforska bibliotekets studieplatser och filtrera fram din favorit.",
 };
 
 export const UI_TEXT_DEFAULTS_EN: Record<UiTextKey, string> = {
-  landing_title: "KTH Library Spacefinder",
   landing_intro: "",
   landing_body: "",
   empty_title: "No spaces match your filters.",
   empty_suggest_template:
     "The filter {label} seems narrowest — if you remove it we find {count} {lokal}.",
   empty_fallback: "Try clearing the filters and start over.",
-  share_description: "Explore the library's study spaces and filter your way to a favourite.",
 };
 
 export const UI_TEXT_META: Record<
   UiTextKey,
   { title: string; description: string; rows?: number }
 > = {
-  landing_title: {
-    title: "Rubrik på startsidan",
-    description: "Huvudrubriken ovanför ingressen. Redigera svenska och engelska var för sig.",
-    rows: 2,
-  },
   landing_intro: {
     title: "Ingress på startsidan",
     description:
@@ -66,12 +55,6 @@ export const UI_TEXT_META: Record<
       "Visas när vi kan föreslå att ta bort ett enskilt filter. Använd platshållarna {label} (filternamnet), {count} (antal lokaler) och {lokal} (böjs automatiskt till lokal/lokaler).",
     rows: 3,
   },
-  share_description: {
-    title: "Underrubrik vid delning",
-    description:
-      "Den korta texten under titeln när någon delar en länk till tjänsten (t.ex. i Slack, Teams eller Facebook). Används också som sidans beskrivning i sökresultat. Håll den under ca 160 tecken.",
-    rows: 3,
-  },
   empty_fallback: {
     title: "Tomt resultat – reservtext",
     description:
@@ -85,27 +68,6 @@ const SETTING_PREFIX_EN = "ui_text:en:";
 
 function settingKey(key: UiTextKey, lang: Lang): string {
   return (lang === "en" ? SETTING_PREFIX_EN : SETTING_PREFIX_SV) + key;
-}
-
-/**
- * Resolve a UI text server-side (for route head metadata). Same fallback chain
- * as useUiText: EN override → SV override → language default.
- */
-export async function fetchUiText(key: UiTextKey, lang: Lang): Promise<string> {
-  try {
-    const { data, error } = await supabase
-      .from("app_settings")
-      .select("key, value")
-      .in("key", [settingKey(key, "sv"), settingKey(key, "en")]);
-    if (error) throw error;
-    const map = new Map((data ?? []).map((r) => [r.key, (r.value ?? "").trim()]));
-    const sv = map.get(settingKey(key, "sv")) ?? "";
-    const en = map.get(settingKey(key, "en")) ?? "";
-    if (lang === "en") return en || sv || UI_TEXT_DEFAULTS_EN[key] || UI_TEXT_DEFAULTS[key];
-    return sv || UI_TEXT_DEFAULTS[key];
-  } catch {
-    return (lang === "en" ? UI_TEXT_DEFAULTS_EN[key] : UI_TEXT_DEFAULTS[key]) || "";
-  }
 }
 
 export function useUiText(key: UiTextKey) {
