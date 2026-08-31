@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useRouterState } from "@tanstack/react-router";
 import { AnnouncementBanner, ANNOUNCEMENT_STORAGE_KEY } from "@/components/AnnouncementBanner";
 import { LandingText } from "@/components/LandingText";
 import { SiteHeader } from "@/components/SiteHeader";
 import { useAnnouncement } from "@/lib/useAnnouncement";
 import { useBetaBadgeEnabled } from "@/lib/useBetaBadge";
-import { useUiText } from "@/lib/useUiText";
+import { UI_TEXT_DEFAULTS, UI_TEXT_DEFAULTS_EN, useUiText } from "@/lib/useUiText";
 import { cn } from "@/lib/utils";
 
 type SitePageLayoutProps = {
@@ -19,9 +19,15 @@ type SitePageLayoutProps = {
 
 /** Standalone page chrome around the preserved study-place application. */
 export function SitePageLayout({ children, header = <SiteHeader />, footer }: SitePageLayoutProps) {
-  const { t } = useTranslation();
+  // i18next falls back to Swedish during SSR because its browser language
+  // detector cannot inspect the URL on the server. Read the validated route
+  // search directly so an English request never renders a Swedish first frame.
+  const langParam = useRouterState({
+    select: (state) => (state.location.search as { lang?: string } | undefined)?.lang,
+  });
+  const lang = langParam === "en" ? "en" : "sv";
   const { data: announcement } = useAnnouncement();
-  const { data: adminTitle } = useUiText("landing_title");
+  const { data: adminTitle } = useUiText("landing_title", lang);
   const { data: betaBadgeEnabled = true } = useBetaBadgeEnabled();
   const [dismissedHash, setDismissedHash] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -39,7 +45,9 @@ export function SitePageLayout({ children, header = <SiteHeader />, footer }: Si
     mounted &&
     Boolean(announcement?.message) &&
     (!announcement?.hash || dismissedHash !== announcement?.hash);
-  const title = adminTitle?.trim() || t("header.title");
+  const title =
+    adminTitle?.trim() ||
+    (lang === "en" ? UI_TEXT_DEFAULTS_EN.landing_title : UI_TEXT_DEFAULTS.landing_title);
 
   return (
     <div className="flex min-h-dvh flex-col bg-background">

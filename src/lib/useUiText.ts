@@ -115,9 +115,9 @@ export function resolveUiText(settings: UiSettings, key: UiTextKey, lang: Lang):
   return sv || UI_TEXT_DEFAULTS[key];
 }
 
-export function useUiText(key: UiTextKey) {
+export function useUiText(key: UiTextKey, language?: Lang) {
   const { i18n } = useTranslation();
-  const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
+  const lang = language ?? ((i18n.resolvedLanguage ?? "sv") as Lang);
   return useQuery({
     ...uiSettingsQueryOptions,
     select: (settings) => resolveUiText(settings, key, lang),

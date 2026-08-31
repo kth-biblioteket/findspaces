@@ -72,6 +72,18 @@ test.describe("Filtering flow", () => {
     ).toBe(true);
   });
 
+  test("server-renders the English H1 without a Swedish first frame", async ({ page, request }) => {
+    const response = await request.get("/?lang=en");
+    const html = await response.text();
+
+    expect(html).toMatch(/<h1[^>]+id="page-title"[^>]*>KTH Library Spacefinder/);
+    expect(html).not.toMatch(/<h1[^>]+id="page-title"[^>]*>KTH Bibliotekets studieplatsväljare/);
+
+    await openApp(page, "/?lang=en");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Admin-managed H1");
+    await expect(page).toHaveTitle("KTH Library Spacefinder");
+  });
+
   test("mobile header exposes the KTH-style collapsible main menu", async ({ page }) => {
     await page.setViewportSize({ width: 430, height: 844 });
     await openApp(page);
