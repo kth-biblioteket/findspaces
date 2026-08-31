@@ -1,16 +1,21 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { queryOptions, useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import type { Lang } from "@/i18n";
 
-export type UiTextKey =
-  | "landing_intro"
-  | "landing_body"
-  | "empty_title"
-  | "empty_suggest_template"
-  | "empty_fallback";
+export const UI_TEXT_KEYS = [
+  "landing_title",
+  "landing_intro",
+  "landing_body",
+  "empty_title",
+  "empty_suggest_template",
+  "empty_fallback",
+] as const;
+
+export type UiTextKey = (typeof UI_TEXT_KEYS)[number];
 
 export const UI_TEXT_DEFAULTS: Record<UiTextKey, string> = {
+  landing_title: "KTH Bibliotekets studieplatsväljare",
   landing_intro: "",
   landing_body: "",
   empty_title: "Inga lokaler matchar dina filter.",
@@ -20,6 +25,7 @@ export const UI_TEXT_DEFAULTS: Record<UiTextKey, string> = {
 };
 
 export const UI_TEXT_DEFAULTS_EN: Record<UiTextKey, string> = {
+  landing_title: "KTH Library Spacefinder",
   landing_intro: "",
   landing_body: "",
   empty_title: "No spaces match your filters.",
@@ -32,6 +38,12 @@ export const UI_TEXT_META: Record<
   UiTextKey,
   { title: string; description: string; rows?: number }
 > = {
+  landing_title: {
+    title: "Rubrik på startsidan",
+    description:
+      "Den synliga huvudrubriken ovanför introduktionen. Påverkar inte webbläsarens titel, sökmetadata eller länkförhandsvisningar.",
+    rows: 2,
+  },
   landing_intro: {
     title: "Ingress på startsidan",
     description:
@@ -70,39 +82,45 @@ function settingKey(key: UiTextKey, lang: Lang): string {
   return (lang === "en" ? SETTING_PREFIX_EN : SETTING_PREFIX_SV) + key;
 }
 
-export function useUiText(key: UiTextKey) {
+export const BETA_BADGE_SETTING_KEY = "beta_badge_enabled";
+export const UI_SETTINGS_QUERY_KEY = ["ui-settings"] as const;
+
+export type UiSettings = Record<string, string>;
+
+const UI_SETTING_KEYS = [
+  ...UI_TEXT_KEYS.flatMap((key) => [settingKey(key, "sv"), settingKey(key, "en")]),
+  BETA_BADGE_SETTING_KEY,
+];
+
+async function fetchUiSettings(): Promise<UiSettings> {
+  const { data, error } = await supabase
+    .from("app_settings")
+    .select("key, value")
+    .in("key", UI_SETTING_KEYS);
+  if (error) throw error;
+  return Object.fromEntries((data ?? []).map((row) => [row.key, row.value ?? ""]));
+}
+
+export const uiSettingsQueryOptions = queryOptions({
+  queryKey: UI_SETTINGS_QUERY_KEY,
+  queryFn: fetchUiSettings,
+  staleTime: 60_000,
+});
+
+export function resolveUiText(settings: UiSettings, key: UiTextKey, lang: Lang): string {
+  const sv = (settings[settingKey(key, "sv")] ?? "").trim();
+  const en = (settings[settingKey(key, "en")] ?? "").trim();
+
+  if (lang === "en") return en || sv || UI_TEXT_DEFAULTS_EN[key] || UI_TEXT_DEFAULTS[key];
+  return sv || UI_TEXT_DEFAULTS[key];
+}
+
+export function useUiText(key: UiTextKey, language?: Lang) {
   const { i18n } = useTranslation();
-  const lang = (i18n.resolvedLanguage ?? "sv") as Lang;
+  const lang = language ?? ((i18n.resolvedLanguage ?? "sv") as Lang);
   return useQuery({
-    queryKey: ["ui-text", key, lang],
-    queryFn: async (): Promise<string> => {
-      if (lang === "en") {
-        const { data: enRow } = await supabase
-          .from("app_settings")
-          .select("value")
-          .eq("key", settingKey(key, "en"))
-          .maybeSingle();
-        if (enRow?.value) return enRow.value;
-        // No EN override: prefer an admin-edited SV text over our generic EN
-        // default, so the admin's own wording wins.
-        const { data: svRow } = await supabase
-          .from("app_settings")
-          .select("value")
-          .eq("key", settingKey(key, "sv"))
-          .maybeSingle();
-        if (svRow?.value) return svRow.value;
-        const enDefault = UI_TEXT_DEFAULTS_EN[key];
-        if (enDefault) return enDefault;
-      }
-      const { data, error } = await supabase
-        .from("app_settings")
-        .select("value")
-        .eq("key", settingKey(key, "sv"))
-        .maybeSingle();
-      if (error) throw error;
-      if (!data?.value) return UI_TEXT_DEFAULTS[key];
-      return data.value;
-    },
+    ...uiSettingsQueryOptions,
+    select: (settings) => resolveUiText(settings, key, lang),
   });
 }
 
@@ -124,7 +142,7 @@ export function useSaveUiText() {
       if (error) throw error;
       return key;
     },
-    onSuccess: (key) => qc.invalidateQueries({ queryKey: ["ui-text", key] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: UI_SETTINGS_QUERY_KEY }),
   });
 }
 
@@ -133,19 +151,11 @@ export function useSaveUiText() {
  */
 export function useUiTextAdmin(key: UiTextKey) {
   return useQuery({
-    queryKey: ["ui-text-admin", key],
-    queryFn: async (): Promise<{ sv: string; en: string }> => {
-      const { data, error } = await supabase
-        .from("app_settings")
-        .select("key, value")
-        .in("key", [settingKey(key, "sv"), settingKey(key, "en")]);
-      if (error) throw error;
-      const map = new Map((data ?? []).map((r) => [r.key, r.value]));
-      return {
-        sv: map.get(settingKey(key, "sv")) ?? "",
-        en: map.get(settingKey(key, "en")) ?? "",
-      };
-    },
+    ...uiSettingsQueryOptions,
+    select: (settings): { sv: string; en: string } => ({
+      sv: settings[settingKey(key, "sv")] ?? "",
+      en: settings[settingKey(key, "en")] ?? "",
+    }),
   });
 }
 
