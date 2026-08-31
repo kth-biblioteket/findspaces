@@ -43,6 +43,8 @@ test.describe("Filtering flow", () => {
   test("loads with the correct title and a canonical default URL", async ({ page }) => {
     await openApp(page);
 
+    // The document metadata remains fixed in code even when the visible H1 is
+    // overridden through the admin-controlled app_settings rows.
     await expect(page).toHaveTitle("KTH Bibliotekets studieplatsväljare");
     await expect.poll(() => new URL(page.url()).search).toBe("");
   });
@@ -54,9 +56,7 @@ test.describe("Filtering flow", () => {
     const main = page.getByRole("main");
 
     await expect(header).toBeVisible();
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      "KTH Bibliotekets studieplatsväljare",
-    );
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Adminstyrd H1");
     await expect(main).toBeVisible();
     await expect(page.getByRole("contentinfo")).toHaveCount(0);
 
@@ -70,6 +70,18 @@ test.describe("Filtering flow", () => {
         );
       }),
     ).toBe(true);
+  });
+
+  test("server-renders the English H1 without a Swedish first frame", async ({ page, request }) => {
+    const response = await request.get("/?lang=en");
+    const html = await response.text();
+
+    expect(html).toMatch(/<h1[^>]+id="page-title"[^>]*>KTH Library Spacefinder/);
+    expect(html).not.toMatch(/<h1[^>]+id="page-title"[^>]*>KTH Bibliotekets studieplatsväljare/);
+
+    await openApp(page, "/?lang=en");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Admin-managed H1");
+    await expect(page).toHaveTitle("KTH Library Spacefinder");
   });
 
   test("mobile header exposes the KTH-style collapsible main menu", async ({ page }) => {

@@ -2,7 +2,15 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { useAnnouncementAdmin, useSaveAnnouncement } from "@/lib/useAnnouncement";
-import { UI_TEXT_DEFAULTS, UI_TEXT_DEFAULTS_EN, UI_TEXT_META, type UiTextKey, useSaveUiText, useUiTextAdmin } from "@/lib/useUiText";
+import { useBetaBadgeEnabled, useSaveBetaBadge } from "@/lib/useBetaBadge";
+import {
+  UI_TEXT_DEFAULTS,
+  UI_TEXT_DEFAULTS_EN,
+  UI_TEXT_META,
+  type UiTextKey,
+  useSaveUiText,
+  useUiTextAdmin,
+} from "@/lib/useUiText";
 import { cn } from "@/lib/utils";
 import { LangPairEditor } from "./shared";
 
@@ -10,16 +18,51 @@ export function LandingMessageTab() {
   return (
     <div className="space-y-6 max-w-4xl">
       <AnnouncementSection />
+      <BetaBadgeSection />
       <UiTextGroupCard
         title="Startsida"
-        description="Texter som visas överst på startsidan."
-        keys={["landing_intro", "landing_body"]}
+        description="Synliga texter överst på startsidan. De påverkar inte sidans HTML-metadata eller länkförhandsvisningar."
+        keys={["landing_title", "landing_intro", "landing_body"]}
       />
       <UiTextGroupCard
         title="Tomt resultat"
         description="Texter som visas när inga lokaler matchar de valda filtren."
         keys={["empty_title", "empty_suggest_template", "empty_fallback"]}
       />
+    </div>
+  );
+}
+
+export function BetaBadgeSection() {
+  const { data: enabled = true, isLoading } = useBetaBadgeEnabled();
+  const save = useSaveBetaBadge();
+
+  return (
+    <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-bold">Beta-märkning på startsidan</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Visar en liten Beta-etikett bredvid den synliga huvudrubriken. Inställningen påverkar
+            inte sidans HTML-metadata.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-sm font-medium">{enabled ? "På" : "Av"}</span>
+          <Switch
+            checked={enabled}
+            disabled={isLoading || save.isPending}
+            onCheckedChange={(value) =>
+              save.mutate(value, {
+                onSuccess: () =>
+                  toast.success(value ? "Beta-märkning aktiverad" : "Beta-märkning avstängd"),
+                onError: () => toast.error("Kunde inte spara Beta-inställningen."),
+              })
+            }
+            aria-label="Visa Beta-märkning"
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -69,9 +112,9 @@ export function AnnouncementSection() {
         <div>
           <h2 className="text-lg font-bold">Driftmeddelande på startsidan</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Visas som en banner högst upp på startsidan, direkt under sidhuvudet. Använd t.ex. för att informera om
-            renovering eller större ändringar. Besökare kan stänga bannern, men den dyker upp igen om du redigerar
-            texten.
+            Visas som en banner högst upp på startsidan, direkt under sidhuvudet. Använd t.ex. för
+            att informera om renovering eller större ändringar. Besökare kan stänga bannern, men den
+            dyker upp igen om du redigerar texten.
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -82,7 +125,10 @@ export function AnnouncementSection() {
             onCheckedChange={(v) =>
               save.mutate(
                 { enabled: v },
-                { onSuccess: () => toast.success(v ? "Meddelande aktiverat" : "Meddelande avstängt") },
+                {
+                  onSuccess: () =>
+                    toast.success(v ? "Meddelande aktiverat" : "Meddelande avstängt"),
+                },
               )
             }
             aria-label="Visa driftmeddelande"
@@ -128,10 +174,16 @@ export function UiTextEditor({ uiKey, compact = false }: { uiKey: UiTextKey; com
         isPending={save.isPending}
         isLoading={isLoading}
         onSaveSv={(v) =>
-          save.mutate({ key: uiKey, value: v, lang: "sv" }, { onSuccess: () => toast.success("Sparat (SV)") })
+          save.mutate(
+            { key: uiKey, value: v, lang: "sv" },
+            { onSuccess: () => toast.success("Sparat (SV)") },
+          )
         }
         onSaveEn={(v) =>
-          save.mutate({ key: uiKey, value: v, lang: "en" }, { onSuccess: () => toast.success("Sparat (EN)") })
+          save.mutate(
+            { key: uiKey, value: v, lang: "en" },
+            { onSuccess: () => toast.success("Sparat (EN)") },
+          )
         }
       />
     </div>
@@ -139,9 +191,5 @@ export function UiTextEditor({ uiKey, compact = false }: { uiKey: UiTextKey; com
 
   if (compact) return inner;
 
-  return (
-    <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
-      {inner}
-    </div>
-  );
+  return <div className="bg-card rounded-2xl border border-border p-6 space-y-4">{inner}</div>;
 }

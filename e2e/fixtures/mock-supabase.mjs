@@ -323,6 +323,9 @@ const settings = new Map([
   ["announcement_enabled", "false"],
   ["announcement_sv", ""],
   ["announcement_en", ""],
+  ["ui_text:landing_title", "Adminstyrd H1"],
+  ["ui_text:en:landing_title", "Admin-managed H1"],
+  ["beta_badge_enabled", "false"],
 ]);
 
 function selectedFields(row, select) {
